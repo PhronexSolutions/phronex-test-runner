@@ -1,0 +1,30 @@
+{
+  "reportFormat": "CTRF",
+  "specVersion": "0.0.0",
+  "results": {
+    "tool": {
+      "name": "claude-code-tests",
+      "version": "1.0.0"
+    },
+    "summary": {
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 1777148254431,
+      "stop": 1777148424589
+    },
+    "tests": [
+      {
+        "name": "Navigate to TodoMVC and snapshot",
+        "status": "failed",
+        "duration": 170158,
+        "start": 1777148254431,
+        "stop": 1777148424589,
+        "message": "[Step 1][Status: failed][Error: Tool mcp__cctr-playwright__browser_navigate is not available in this environment. The Playwright MCP server is not connected/loaded.]\n[Step 2][Status: failed][Error: Could not execute snapshot — Step 1 (navigation) failed because the Playwright MCP server is not available.]"
+      }
+    ]
+  }
+}

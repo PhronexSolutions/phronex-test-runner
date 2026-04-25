@@ -1,0 +1,33 @@
+[
+    {
+        "id": "add-todo-test",
+        "description": "Verify adding a new todo item works on demo.playwright.dev/todomvc/",
+        "steps": [
+            { "id": 1, "description": "Navigate to https://demo.playwright.dev/todomvc/" },
+            { "id": 2, "description": "Locate the new-todo input field (placeholder 'What needs to be done?')" },
+            { "id": 3, "description": "Type 'Buy groceries' into the new-todo input" },
+            { "id": 4, "description": "Press Enter to submit the todo" },
+            { "id": 5, "description": "Verify the text 'Buy groceries' appears as a list item in the todo list, and the input field is cleared" }
+        ]
+    },
+    {
+        "id": "complete-todo-test",
+        "description": "Verify marking a todo as complete applies the completed state",
+        "steps": [
+            { "id": 1, "description": "Navigate to https://demo.playwright.dev/todomvc/" },
+            { "id": 2, "description": "Add a new todo with the text 'Test item' by typing it into the new-todo input and pressing Enter" },
+            { "id": 3, "description": "Click the round checkbox to the left of the 'Test item' todo to mark it complete" },
+            { "id": 4, "description": "Verify the 'Test item' list item now has the CSS class 'completed' (or visually shows as struck-through), and the footer count of items left decreases accordingly" }
+        ]
+    },
+    {
+        "id": "delete-todo-test",
+        "description": "Verify deleting a todo removes it from the list",
+        "steps": [
+            { "id": 1, "description": "Navigate to https://demo.playwright.dev/todomvc/" },
+            { "id": 2, "description": "Add a new todo with the text 'Delete me' by typing it into the new-todo input and pressing Enter" },
+            { "id": 3, "description": "Hover over the 'Delete me' todo so the X (destroy) button becomes visible, then click it" },
+            { "id": 4, "description": "Verify the 'Delete me' todo no longer appears in the list" }
+        ]
+    }
+]

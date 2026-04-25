@@ -1,0 +1,30 @@
+{
+  "reportFormat": "CTRF",
+  "specVersion": "0.0.0",
+  "results": {
+    "tool": {
+      "name": "claude-code-tests",
+      "version": "1.0.0"
+    },
+    "summary": {
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 1777147809941,
+      "stop": 1777148027902
+    },
+    "tests": [
+      {
+        "name": "Navigate to TodoMVC and snapshot",
+        "status": "failed",
+        "duration": 217961,
+        "start": 1777147809941,
+        "stop": 1777148027902,
+        "message": "[Step 1][Status: failed][Error: The mcp__cctr-playwright__browser_navigate tool is not available in this session. The Playwright MCP server (cctr-playwright) does not appear to be connected or configured for this conversation.]\n[Step 2][Status: failed][Error: Could not proceed — Step 1 (browser_navigate) failed because the mcp__cctr-playwright__browser_navigate tool is unavailable in this session.]"
+      }
+    ]
+  }
+}

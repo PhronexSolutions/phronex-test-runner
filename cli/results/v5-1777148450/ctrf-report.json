@@ -1,0 +1,30 @@
+{
+  "reportFormat": "CTRF",
+  "specVersion": "0.0.0",
+  "results": {
+    "tool": {
+      "name": "claude-code-tests",
+      "version": "1.0.0"
+    },
+    "summary": {
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 1777148451497,
+      "stop": 1777148595435
+    },
+    "tests": [
+      {
+        "name": "Navigate to TodoMVC and snapshot",
+        "status": "failed",
+        "duration": 143938,
+        "start": 1777148451497,
+        "stop": 1777148595435,
+        "message": "[Step 2][Status: pending]"
+      }
+    ]
+  }
+}

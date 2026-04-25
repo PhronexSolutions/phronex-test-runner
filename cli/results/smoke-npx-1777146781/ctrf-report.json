@@ -1,0 +1,46 @@
+{
+  "reportFormat": "CTRF",
+  "specVersion": "0.0.0",
+  "results": {
+    "tool": {
+      "name": "claude-code-tests",
+      "version": "1.0.0"
+    },
+    "summary": {
+      "tests": 3,
+      "passed": 0,
+      "failed": 3,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 1777146782327,
+      "stop": 1777147387006
+    },
+    "tests": [
+      {
+        "name": "Verify adding a new todo item works on demo.playwright.dev/todomvc/",
+        "status": "failed",
+        "duration": 240502,
+        "start": 1777146782327,
+        "stop": 1777147022829,
+        "message": "[Step 1][Status: failed][Error: Playwright MCP tools (mcp__cctr-playwright__*) are not available in this session. Cannot navigate to the URL without browser automation tools.]\n[Step 2][Status: failed][Error: Cannot execute: Playwright MCP tools (mcp__cctr-playwright__*) are not connected/available in this session. Browser automation is not possible.]\n[Step 3][Status: failed][Error: Cannot execute: Playwright MCP tools (mcp__cctr-playwright__*) are not connected/available in this session. Browser automation is not possible.]\n[Step 4][Status: failed][Error: Cannot execute: Playwright MCP tools (mcp__cctr-playwright__*) are not connected/available in this session. Browser automation is not possible.]\n[Step 5][Status: pending]"
+      },
+      {
+        "name": "Verify marking a todo as complete applies the completed state",
+        "status": "failed",
+        "duration": 192586,
+        "start": 1777147022832,
+        "stop": 1777147215418,
+        "message": "[Step 2][Status: failed][Error: Playwright MCP tools (mcp__cctr-playwright__*) are not available in this environment. Cannot interact with the browser to type into the new-todo input and press Enter.]\n[Step 3][Status: failed][Error: Cannot execute — dependent on Step 2 completing successfully. Playwright MCP tools not available.]\n[Step 4][Status: failed][Error: Cannot execute — dependent on Steps 2 and 3 completing successfully. Playwright MCP tools not available.]"
+      },
+      {
+        "name": "Verify deleting a todo removes it from the list",
+        "status": "failed",
+        "duration": 171587,
+        "start": 1777147215419,
+        "stop": 1777147387006,
+        "message": "[Step 1][Status: failed][Error: Playwright MCP tools (mcp__cctr-playwright__*) are not available in this environment. Cannot navigate to the URL.]\n[Step 2][Status: failed][Error: Playwright MCP tools not available. Cannot add todo item.]\n[Step 3][Status: failed][Error: Playwright MCP tools not available. Cannot hover over or click the delete button.]\n[Step 4][Status: failed][Error: Playwright MCP tools not available. Cannot verify the todo was removed from the list.]"
+      }
+    ]
+  }
+}

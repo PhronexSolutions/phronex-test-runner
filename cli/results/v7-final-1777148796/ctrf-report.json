@@ -1,0 +1,43 @@
+{
+  "reportFormat": "CTRF",
+  "specVersion": "0.0.0",
+  "results": {
+    "tool": {
+      "name": "claude-code-tests",
+      "version": "1.0.0"
+    },
+    "summary": {
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 1777148798386,
+      "stop": 1777149233646
+    },
+    "tests": [
+      {
+        "name": "Verify adding a new todo item works on demo.playwright.dev/todomvc/",
+        "status": "passed",
+        "duration": 153085,
+        "start": 1777148798386,
+        "stop": 1777148951471
+      },
+      {
+        "name": "Verify marking a todo as complete applies the completed state",
+        "status": "passed",
+        "duration": 143243,
+        "start": 1777148951473,
+        "stop": 1777149094716
+      },
+      {
+        "name": "Verify deleting a todo removes it from the list",
+        "status": "passed",
+        "duration": 138921,
+        "start": 1777149094725,
+        "stop": 1777149233646
+      }
+    ]
+  }
+}
