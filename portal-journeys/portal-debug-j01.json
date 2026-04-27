@@ -1,0 +1,36 @@
+[
+  {
+    "id": "portal-j01-login-flow",
+    "description": "Verify that a registered user can log in with email+password and reach the products dashboard",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Enter email: qa-test-journeyhawk@phronex.com"
+      },
+      {
+        "id": 3,
+        "description": "Enter password: HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 4,
+        "description": "Click the Sign In / Login button"
+      },
+      {
+        "id": 5,
+        "description": "Verify the page has navigated away from /auth/login (no error message visible, no '401' or 'Invalid credentials' text on screen)"
+      },
+      {
+        "id": 6,
+        "description": "Verify the page URL is /products or /overview or similar dashboard page (NOT still /auth/login)"
+      },
+      {
+        "id": 7,
+        "description": "Report: what URL did the browser land on? What content is visible on screen? Screenshot the final state."
+      }
+    ]
+  }
+]

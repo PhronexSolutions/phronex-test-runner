@@ -1,0 +1,176 @@
+[
+  {
+    "id": "portal-j01-login-flow",
+    "description": "Verify that a registered user can log in with email+password and reach the products dashboard",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Enter email: qa-test-journeyhawk@phronex.com"
+      },
+      {
+        "id": 3,
+        "description": "Enter password: HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 4,
+        "description": "Click the Sign In / Login button"
+      },
+      {
+        "id": 5,
+        "description": "Verify the page has navigated away from /auth/login (no error message visible, no '401' or 'Invalid credentials' text on screen)"
+      },
+      {
+        "id": 6,
+        "description": "Verify the page URL is /products or /overview or similar dashboard page (NOT still /auth/login)"
+      },
+      {
+        "id": 7,
+        "description": "Report: what URL did the browser land on? What content is visible on screen? Screenshot the final state."
+      }
+    ]
+  },
+  {
+    "id": "portal-j02-products-empty-state",
+    "description": "Verify the products page is accessible after login and shows a meaningful empty state when user has no product grants",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/products"
+      },
+      {
+        "id": 4,
+        "description": "Verify the page loads without a 500 error, blank screen, or unhandled exception"
+      },
+      {
+        "id": 5,
+        "description": "Report: what is shown on screen \u2014 product cards, empty state message, error, or something else? Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Check: is there a meaningful call-to-action for a user with no grants (e.g. 'Get started' or 'Add a product')?"
+      }
+    ]
+  },
+  {
+    "id": "portal-j03-invalid-login",
+    "description": "Verify error handling for invalid credentials on the login page",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Enter email: completely-wrong@notreal.com"
+      },
+      {
+        "id": 3,
+        "description": "Enter password: wrongpassword123"
+      },
+      {
+        "id": 4,
+        "description": "Click Sign In / Login button"
+      },
+      {
+        "id": 5,
+        "description": "Verify the user is NOT redirected to /products \u2014 they should stay on /auth/login"
+      },
+      {
+        "id": 6,
+        "description": "Verify an error message is shown (e.g. 'Invalid credentials', 'Email or password incorrect', 'Login failed')"
+      },
+      {
+        "id": 7,
+        "description": "Verify the error message does NOT reveal whether the email exists or not (no 'email not found' vs 'wrong password' distinction)"
+      },
+      {
+        "id": 8,
+        "description": "Report: what error text appeared? Was account enumeration prevented? Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "portal-j04-settings-profile",
+    "description": "Verify the user Settings / Profile page is accessible and functional after login",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/settings"
+      },
+      {
+        "id": 4,
+        "description": "Verify the page loads without error \u2014 expect a settings or profile form to be visible"
+      },
+      {
+        "id": 5,
+        "description": "Verify the user's email address is displayed or pre-filled in the form"
+      },
+      {
+        "id": 6,
+        "description": "Check the page for: broken links (404), missing images (broken img src), console errors in page output, or obvious unstyled content"
+      },
+      {
+        "id": 7,
+        "description": "Report: does the settings page load correctly? What fields are shown? Screenshot the full page."
+      }
+    ]
+  },
+  {
+    "id": "portal-j05-superadmin-panel",
+    "description": "Verify the superadmin panel at /admin loads its tabs correctly for an admin user",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Log in with email vivek@phronex.com and password Phronex.vivek.2026!"
+      },
+      {
+        "id": 3,
+        "description": "If login fails (wrong credentials), report the error and stop \u2014 do not proceed further"
+      },
+      {
+        "id": 4,
+        "description": "Navigate to http://localhost:3002/admin"
+      },
+      {
+        "id": 5,
+        "description": "Verify the admin panel loads (NOT a 403 or blank page)"
+      },
+      {
+        "id": 6,
+        "description": "Verify at least 3 tabs are visible in the admin panel (e.g. Users, System Errors, Analytics, Configuration)"
+      },
+      {
+        "id": 7,
+        "description": "Click each visible tab and verify it loads content without a 500 error or blank state"
+      },
+      {
+        "id": 8,
+        "description": "Report: which tabs loaded successfully? Any broken tabs? Screenshot of admin panel. Note the URL structure."
+      }
+    ]
+  }
+]

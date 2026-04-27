@@ -1,0 +1,318 @@
+[
+  {
+    "id": "jp-d01-document-upload",
+    "description": "User uploads test-resume.pdf and verifies it appears in the documents list",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait for the dashboard to load."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/documents. Note the exact number of documents currently listed (could be 0 or more)."
+      },
+      {
+        "id": 3,
+        "description": "Click the Upload button or file upload CTA on the documents page. A file input dialog or upload form should appear."
+      },
+      {
+        "id": 4,
+        "description": "Upload the file at path './fixtures/test-resume.pdf' (relative to the test runner working directory). If a file chooser dialog is triggered by Playwright, use it to select that file. Submit / confirm the upload."
+      },
+      {
+        "id": 5,
+        "description": "Wait up to 10 seconds for the upload to complete. Verify: does a document named 'test-resume' or 'test-resume.pdf' now appear in the documents list? The count should have increased by 1 from what you noted in step 2."
+      },
+      {
+        "id": 6,
+        "description": "Check for any error messages, toast notifications, or console errors. If the upload succeeded and the document appears: PASS. If the upload button was missing, the file was rejected, or the document does not appear in the list after upload: FAIL. Report what you see with a screenshot."
+      },
+      {
+        "id": 7,
+        "description": "If the upload succeeded: find and delete the just-uploaded 'test-resume.pdf' document to clean up test data. Confirm it is removed from the list. This keeps the test account clean for future runs."
+      }
+    ]
+  },
+  {
+    "id": "jp-d02-portal-add-delete",
+    "description": "User adds a job portal scanning config and then deletes it — full create/delete lifecycle",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/portals"
+      },
+      {
+        "id": 3,
+        "description": "Click the '+ Add Portal' button to open the add portal form"
+      },
+      {
+        "id": 4,
+        "description": "Fill in the form: portal_name = 'qa-test-portal', search_keywords = 'software engineer', preferred_locations = 'Bangalore', set scan_time to any available option. Submit the form."
+      },
+      {
+        "id": 5,
+        "description": "Verify: the form submits without a 500 error. Does the new portal 'qa-test-portal' appear in the portals list?"
+      },
+      {
+        "id": 6,
+        "description": "If the portal was created: find the delete button for 'qa-test-portal' and delete it. Confirm the deletion. Verify it is removed from the list."
+      },
+      {
+        "id": 7,
+        "description": "Report: did the full create then list then delete lifecycle work? What errors appeared, if any? Screenshot at each step."
+      }
+    ]
+  },
+  {
+    "id": "jp-d03-portrait-state",
+    "description": "Portrait page shows correct state: locked screen with instructions OR portrait card with share section",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/portrait"
+      },
+      {
+        "id": 3,
+        "description": "Check state A - Locked screen: if no portrait exists, is there a locked screen shown with a clear message explaining what the user needs to do to unlock their portrait (e.g. upload a resume)? Is the message helpful or cryptic?"
+      },
+      {
+        "id": 4,
+        "description": "Check state B - Portrait exists: if a portrait is shown, does it have quadrants or sections with real content? Is there a Regenerate button?"
+      },
+      {
+        "id": 5,
+        "description": "Scroll to the bottom of the page. Is there a Share Profile or Create share link section? If yes, click the create share link button and verify a shareable URL is generated."
+      },
+      {
+        "id": 6,
+        "description": "Check browser console for JS errors. Check network tab for any 404 or 500 API calls."
+      },
+      {
+        "id": 7,
+        "description": "Report: which state is shown (locked or portrait)? Does it make sense to a new user? Is the share section present? Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-d04-applications-state",
+    "description": "Applications page shows correct empty state or real applications, with meaningful CTA",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/applications"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page loads without a 500 error or blank screen"
+      },
+      {
+        "id": 4,
+        "description": "If no applications exist: is the empty state meaningful? Does it explain that applications are tracked here after job scanning? Is there a CTA pointing to /jp/portals or /jp/jobs?"
+      },
+      {
+        "id": 5,
+        "description": "If applications exist: do they show job title, company, status, and date? Is there a way to filter or sort? Click on one application to see if detail view works."
+      },
+      {
+        "id": 6,
+        "description": "Check browser console for JS errors. Report: describe what is shown. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-d05-scan-history",
+    "description": "Scan history page loads and shows history or a meaningful empty state",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/scan-history"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page loads without a 500 error or blank screen"
+      },
+      {
+        "id": 4,
+        "description": "If no scan history: is there a clear empty state? Does it tell the user scans happen automatically once a portal is configured?"
+      },
+      {
+        "id": 5,
+        "description": "If scan history exists: do entries show portal name, scan time, jobs found count, and status? Are there any entries with errors?"
+      },
+      {
+        "id": 6,
+        "description": "Report: describe what is shown. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-d06-config-persistence",
+    "description": "JP configuration settings save and persist after navigation — form is not broken",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/config"
+      },
+      {
+        "id": 3,
+        "description": "Describe what configuration options are visible (notification preferences, scan settings, alert thresholds, etc.)"
+      },
+      {
+        "id": 4,
+        "description": "Try to change one setting (any toggle or input that is clearly safe to change). Click Save if there is a save button."
+      },
+      {
+        "id": 5,
+        "description": "Navigate away to /jp/dashboard, then navigate back to /jp/config. Did the setting persist?"
+      },
+      {
+        "id": 6,
+        "description": "Check browser console for JS errors on save. Check network tab: did the save request return 200?"
+      },
+      {
+        "id": 7,
+        "description": "Report: which settings are available? Did the save/persist cycle work? Any broken inputs, missing labels, or uncaught errors? Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-d07-subscription-and-tier",
+    "description": "Subscription page shows current tier correctly and upgrade options are visible",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/subscription"
+      },
+      {
+        "id": 3,
+        "description": "Verify: is the current tier shown? It should be Standard for this test account."
+      },
+      {
+        "id": 4,
+        "description": "Are upgrade options visible? If higher tier exists, are the features listed clearly?"
+      },
+      {
+        "id": 5,
+        "description": "Is there a Manage Billing or payment link? Does it go somewhere sensible and not a 404?"
+      },
+      {
+        "id": 6,
+        "description": "Report: describe the subscription page. Does tier display match what was granted? Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-d08-cross-product-cta",
+    "description": "Cross-sell banner for Content Companion works end-to-end — link lands on correct signup page",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/dashboard"
+      },
+      {
+        "id": 3,
+        "description": "Look for a cross-sell banner mentioning Content Companion (something like 'Adding a chatbot to your website?'). Is it visible?"
+      },
+      {
+        "id": 4,
+        "description": "If visible: click the 'Try Content Companion' or equivalent CTA link. Where does it land? It should go to /auth/signup?product=content-companion&plan=free - verify this URL is correct."
+      },
+      {
+        "id": 5,
+        "description": "Does the signup page load without error? Does it pre-select Content Companion in the product selector?"
+      },
+      {
+        "id": 6,
+        "description": "Navigate back. Report: did the cross-sell banner appear and did the link work correctly?"
+      }
+    ]
+  },
+  {
+    "id": "jp-d09-jobs-list-detail",
+    "description": "Jobs list shows real jobs or meaningful empty state; job detail view works if jobs exist",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/jobs"
+      },
+      {
+        "id": 3,
+        "description": "If jobs are listed: click on one job. Does a detail view or modal open? Does it show job title, company, description, and an apply option?"
+      },
+      {
+        "id": 4,
+        "description": "If no jobs: note the empty state message. Is it clear that jobs appear after scan runs? Is there a link to configure portals?"
+      },
+      {
+        "id": 5,
+        "description": "Check: is there a search or filter capability on the jobs list? If yes, try filtering by a keyword and report if it works."
+      },
+      {
+        "id": 6,
+        "description": "Report: how many jobs are shown? Does the list render well? Any broken pagination or infinite scroll? Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-d10-setup-guide-flow",
+    "description": "New user setup guide is shown on dashboard and guides correctly through onboarding — first-time user experience",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/dashboard"
+      },
+      {
+        "id": 3,
+        "description": "Look for a setup guide or onboarding banner (something like 'New to Job Portal? Follow the setup guide...'). Is it visible?"
+      },
+      {
+        "id": 4,
+        "description": "If visible: click 'Get Started' or the CTA on the banner. Where does it navigate to? Does the linked page load correctly and does it make sense as a first step?"
+      },
+      {
+        "id": 5,
+        "description": "Is there a Help guide accessible via a Help button or sidebar? Click it and report: does it open a guide panel? Does the content make sense for a new JP user?"
+      },
+      {
+        "id": 6,
+        "description": "Report: describe the onboarding experience. Would a real new user know what to do first? Is the journey from signup to first scan clear? Screenshot."
+      }
+    ]
+  }
+]

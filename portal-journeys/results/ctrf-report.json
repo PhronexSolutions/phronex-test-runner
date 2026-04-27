@@ -1,0 +1,59 @@
+{
+  "reportFormat": "CTRF",
+  "specVersion": "0.0.0",
+  "results": {
+    "tool": {
+      "name": "claude-code-tests",
+      "version": "1.0.0"
+    },
+    "summary": {
+      "tests": 5,
+      "passed": 3,
+      "failed": 2,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 1777245104058,
+      "stop": 1777245552699
+    },
+    "tests": [
+      {
+        "name": "Verify that a registered user can log in with email+password and reach the products dashboard",
+        "status": "passed",
+        "duration": 86868,
+        "start": 1777245104058,
+        "stop": 1777245190926
+      },
+      {
+        "name": "Verify the products page is accessible after login and shows a meaningful empty state when user has no product grants",
+        "status": "failed",
+        "duration": 83718,
+        "start": 1777245190927,
+        "stop": 1777245274645,
+        "message": "[Step 6][Status: failed][Error: No meaningful call-to-action found. The page shows \"You do not have access to any products yet\" but provides no actionable next steps like \"Get started\", \"Add a product\", \"Contact us\", or \"Request access\" buttons/links.]"
+      },
+      {
+        "name": "Verify error handling for invalid credentials on the login page",
+        "status": "passed",
+        "duration": 80380,
+        "start": 1777245274646,
+        "stop": 1777245355026
+      },
+      {
+        "name": "Verify the user Settings / Profile page is accessible and functional after login",
+        "status": "passed",
+        "duration": 116265,
+        "start": 1777245355026,
+        "stop": 1777245471291
+      },
+      {
+        "name": "Verify the superadmin panel at /admin loads its tabs correctly for an admin user",
+        "status": "failed",
+        "duration": 81407,
+        "start": 1777245471292,
+        "stop": 1777245552699,
+        "message": "[Step 2][Status: failed][Error: Login failed - Invalid email or password error displayed]\n[Step 4][Status: failed][Error: Skipped - login failed in step 2, cannot proceed to admin panel]\n[Step 5][Status: failed][Error: Skipped - login failed in step 2, cannot proceed to admin panel]\n[Step 6][Status: failed][Error: Skipped - login failed in step 2, cannot proceed to admin panel]\n[Step 7][Status: failed][Error: Skipped - login failed in step 2, cannot proceed to admin panel]\n[Step 8][Status: failed][Error: Skipped - login failed in step 2, cannot proceed to admin panel]"
+      }
+    ]
+  }
+}

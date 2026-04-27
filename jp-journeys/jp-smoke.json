@@ -1,0 +1,204 @@
+[
+  {
+    "id": "jp-j01-dashboard",
+    "description": "JobPortal owner dashboard loads correctly for a user with a JP grant",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 3,
+        "description": "Verify login succeeded and you are redirected away from /auth/login"
+      },
+      {
+        "id": 4,
+        "description": "Navigate to http://localhost:3002/jp/dashboard"
+      },
+      {
+        "id": 5,
+        "description": "Verify the page loads without a 500 error or blank screen"
+      },
+      {
+        "id": 6,
+        "description": "Report: what content is visible? Are there job stats, charts, or any dashboard widgets? Take a screenshot and describe what you see."
+      }
+    ]
+  },
+  {
+    "id": "jp-j02-jobs-list",
+    "description": "JobPortal jobs listing page loads \u2014 either shows jobs or a proper empty state",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/jobs"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page loads without a 500 error or blank screen"
+      },
+      {
+        "id": 4,
+        "description": "Check: is there a 'Post a job' or 'Create job' button or CTA visible?"
+      },
+      {
+        "id": 5,
+        "description": "If no jobs exist, is there a meaningful empty state (not just a blank div)?"
+      },
+      {
+        "id": 6,
+        "description": "Report: what is shown? Screenshot and describe content."
+      }
+    ]
+  },
+  {
+    "id": "jp-j03-portals",
+    "description": "JP portals page loads correctly and shows Add Portal CTA",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/portals"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page loads without a 500 error, 403, or blank screen"
+      },
+      {
+        "id": 4,
+        "description": "Check: is there a \"+ Add Portal\" or \"Add Portal\" button visible on the page? (This page configures external job board scanning portals like LinkedIn or Indeed \u2014 it does NOT list phronex-auth instances)"
+      },
+      {
+        "id": 5,
+        "description": "If no portals are configured, is there a meaningful empty state message (e.g. \"No portals configured. Add one to start scanning.\") visible?"
+      },
+      {
+        "id": 6,
+        "description": "Report: confirm the Add Portal button is visible and the page is functional. Screenshot the page."
+      }
+    ]
+  },
+  {
+    "id": "jp-j04-settings",
+    "description": "JP settings/config page loads and shows configuration options",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/settings"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page loads without error"
+      },
+      {
+        "id": 4,
+        "description": "Check for: broken form inputs, missing labels, uncaught JS errors in console (check browser console), or 404 API calls in network tab"
+      },
+      {
+        "id": 5,
+        "description": "Report: what settings options are shown? Any visible defects?"
+      }
+    ]
+  },
+  {
+    "id": "jp-j05-navigation",
+    "description": "All JP sidebar navigation links work without 404 or 500 errors",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/dashboard and look at the sidebar navigation"
+      },
+      {
+        "id": 3,
+        "description": "Click each sidebar link visible (dashboard, jobs, portals, applications, settings, billing \u2014 whatever is present)"
+      },
+      {
+        "id": 4,
+        "description": "For each link clicked, verify: (a) page loads, (b) no 500 error, (c) no full blank white screen"
+      },
+      {
+        "id": 5,
+        "description": "Report: list every link you clicked, whether it worked, and note any that broke. Screenshot the sidebar."
+      }
+    ]
+  },
+  {
+    "id": "jp-j06-documents",
+    "description": "JP documents page loads and shows Upload Resume/Certificate CTA",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/documents"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page loads without a 500 error or blank screen"
+      },
+      {
+        "id": 4,
+        "description": "Check: is there an Upload button or file input visible for uploading resumes/certificates (PDF / DOCX)?"
+      },
+      {
+        "id": 5,
+        "description": "If no documents exist, is there a meaningful empty state (not just a blank div)?"
+      },
+      {
+        "id": 6,
+        "description": "Report: what is shown? Confirm upload CTA is present. Screenshot and describe."
+      }
+    ]
+  },
+  {
+    "id": "jp-j07-portrait",
+    "description": "JP portrait page loads \u2014 either shows AI-generated profile or a locked/empty state with a CTA",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/portrait"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page loads without a 500 error or blank screen"
+      },
+      {
+        "id": 4,
+        "description": "Is a portrait/profile card shown? OR is there a locked state explaining the feature is not yet available? Either is acceptable \u2014 a blank white screen or unhandled error is NOT acceptable."
+      },
+      {
+        "id": 5,
+        "description": "Is there a ShareProfileSection visible at the bottom \u2014 allowing the user to create a shareable link? Check for a Create share link or similar button."
+      },
+      {
+        "id": 6,
+        "description": "Report: what is shown on the portrait page? Screenshot and describe."
+      }
+    ]
+  }
+]

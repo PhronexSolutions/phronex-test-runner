@@ -1,0 +1,70 @@
+[
+  {
+    "id": "portal-j02-products-empty-state",
+    "description": "Verify the products page is accessible after login and shows a meaningful empty state when user has no product grants",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/products"
+      },
+      {
+        "id": 4,
+        "description": "Verify the page loads without a 500 error, blank screen, or unhandled exception"
+      },
+      {
+        "id": 5,
+        "description": "Report: what is shown on screen \u2014 product cards, empty state message, error, or something else? Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Check: is there a meaningful call-to-action for a user with no grants (e.g. 'Get started' or 'Add a product')?"
+      }
+    ]
+  },
+  {
+    "id": "portal-j05-superadmin-panel",
+    "description": "Verify the superadmin panel at /admin loads its tabs correctly for an admin user",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login"
+      },
+      {
+        "id": 2,
+        "description": "Log in with email vivek@phronex.com and password Phronex.vivek.2026!"
+      },
+      {
+        "id": 3,
+        "description": "If login fails (wrong credentials), report the error and stop \u2014 do not proceed further"
+      },
+      {
+        "id": 4,
+        "description": "Navigate to http://localhost:3002/admin"
+      },
+      {
+        "id": 5,
+        "description": "Verify the admin panel loads (NOT a 403 or blank page)"
+      },
+      {
+        "id": 6,
+        "description": "Verify at least 3 tabs are visible in the admin panel (e.g. Users, System Errors, Analytics, Configuration)"
+      },
+      {
+        "id": 7,
+        "description": "Click each visible tab and verify it loads content without a 500 error or blank state"
+      },
+      {
+        "id": 8,
+        "description": "Report: which tabs loaded successfully? Any broken tabs? Screenshot of admin panel. Note the URL structure."
+      }
+    ]
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "reportFormat": "CTRF",
+  "specVersion": "0.0.0",
+  "results": {
+    "tool": {
+      "name": "claude-code-tests",
+      "version": "1.0.0"
+    },
+    "summary": {
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 1777246233435,
+      "stop": 1777246547926
+    },
+    "tests": [
+      {
+        "name": "Verify the products page is accessible after login and shows a meaningful empty state when user has no product grants",
+        "status": "passed",
+        "duration": 94666,
+        "start": 1777246233435,
+        "stop": 1777246328101
+      },
+      {
+        "name": "Verify the superadmin panel at /admin loads its tabs correctly for an admin user",
+        "status": "passed",
+        "duration": 219824,
+        "start": 1777246328102,
+        "stop": 1777246547926
+      }
+    ]
+  }
+}
