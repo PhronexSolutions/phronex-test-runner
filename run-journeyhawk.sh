@@ -62,7 +62,7 @@ echo "[env] Python: ${PYTHON}"
 echo ""
 echo "[1/2] Spawning cc-test-runner..."
 mkdir -p "${RESULTS_DIR}"
-"${SCRIPT_DIR}/dist/cc-test-runner" \
+"${SCRIPT_DIR}/cli/dist/cc-test-runner" \
   -t "${SPEC_FILE}" \
   -o "${RESULTS_DIR}"
 
