@@ -130,14 +130,20 @@ export class TestReporter {
      * @param outputDir - The directory to save the results to.
      */
     saveResults(outputDir: string): void {
+        // Bun on Windows throws EEXIST from mkdirSync even with { recursive: true }
+        // when the directory already exists (Node.js silently succeeds).
+        // Guard with existsSync to avoid crashing after a partial run.
+        const { existsSync } = require("fs");
+        if (!existsSync(outputDir)) {
+            mkdirSync(outputDir, { recursive: true });
+        }
+
         // Save CTRF JSON
         const ctrf = this.generateCTRF();
-        mkdirSync(outputDir, { recursive: true });
         writeFileSync(`${outputDir}/ctrf-report.json`, JSON.stringify(ctrf, null, 2));
 
         // Save Markdown summary
         const markdown = this.generateMarkdownSummary();
-        mkdirSync(outputDir, { recursive: true });
         writeFileSync(`${outputDir}/test-summary.md`, markdown);
     }
 }

@@ -140,3 +140,9 @@ vite.config.ts.timestamp-*
 
 # Temp dirs
 tmp/
+
+# Test run artifacts (screenshots, Playwright traces, CTRF output)
+jp-journeys/results/
+*.png
+*.yml
+cli/*.png
