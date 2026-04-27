@@ -1,41 +1,45 @@
 [
   {
     "id": "jp-d01-document-upload",
-    "description": "User uploads a resume PDF and it appears in documents list as primary",
+    "description": "User uploads test-resume.pdf and verifies it appears in the documents list",
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait for the dashboard to load."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/documents"
+        "description": "Navigate to http://localhost:3002/jp/documents. Note the exact number of documents currently listed (could be 0 or more)."
       },
       {
         "id": 3,
-        "description": "Note the current number of documents listed (may be 0)"
+        "description": "Click the Upload button or file upload CTA on the documents page. A file input dialog or upload form should appear."
       },
       {
         "id": 4,
-        "description": "Click the Upload button. Report what the upload flow looks like (button label, modal or inline, accepted file types shown). If a file input opens, note whether it accepts PDF and DOCX. Do NOT actually upload a file \u2014 just verify the upload CTA and flow are present and functional"
+        "description": "Upload the file at path './fixtures/test-resume.pdf' (relative to the test runner working directory). If a file chooser dialog is triggered by Playwright, use it to select that file. Submit / confirm the upload."
       },
       {
         "id": 5,
-        "description": "Verify: is the Upload button visible? Is the empty state (if no documents) meaningful \u2014 does it explain what to upload? Check browser console for JS errors"
+        "description": "Wait up to 10 seconds for the upload to complete. Verify: does a document named 'test-resume' or 'test-resume.pdf' now appear in the documents list? The count should have increased by 1 from what you noted in step 2."
       },
       {
         "id": 6,
-        "description": "Report: describe exactly what you see on the documents page. Is the Upload button visible? Is there a file type hint (PDF / DOCX, max 5MB)? Screenshot and describe."
+        "description": "Check for any error messages, toast notifications, or console errors. If the upload succeeded and the document appears: PASS. If the upload button was missing, the file was rejected, or the document does not appear in the list after upload: FAIL. Report what you see with a screenshot."
+      },
+      {
+        "id": 7,
+        "description": "If the upload succeeded: find and delete the just-uploaded 'test-resume.pdf' document to clean up test data. Confirm it is removed from the list. This keeps the test account clean for future runs."
       }
     ]
   },
   {
     "id": "jp-d02-portal-add-delete",
-    "description": "User adds a job portal scanning config and then deletes it \u2014 full create/delete lifecycle",
+    "description": "User adds a job portal scanning config and then deletes it — full create/delete lifecycle",
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait for the dashboard or portal to load."
       },
       {
         "id": 2,
