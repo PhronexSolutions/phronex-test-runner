@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Phronex" [ref=e6] [cursor=pointer]:
+          - /url: https://www.phronex.com
+          - img "Phronex" [ref=e8]
+        - generic [ref=e9]:
+          - heading "Sign in to Phronex" [level=1] [ref=e10]
+          - paragraph [ref=e11]: Access your products and manage your account.
+      - generic [ref=e12]:
+        - button "Continue with Google" [ref=e13]:
+          - img [ref=e14]
+          - text: Continue with Google
+        - button "Continue with Microsoft" [ref=e19]:
+          - img [ref=e20]
+          - text: Continue with Microsoft
+      - generic [ref=e29]: or with email
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: Email address
+          - textbox "you@example.com" [ref=e34]: qa-test-journeyhawk@phronex.com
+        - generic [ref=e35]:
+          - generic [ref=e36]: Password
+          - textbox "Enter your password" [ref=e38]: HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9
+        - link "Forgot password?" [ref=e40] [cursor=pointer]:
+          - /url: /auth/forgot-password
+        - button "Sign in" [ref=e41]:
+          - img [ref=e42]
+          - text: Sign in
+      - paragraph [ref=e45]:
+        - text: By signing in you agree to our
+        - link "Terms of Service" [ref=e46] [cursor=pointer]:
+          - /url: /terms
+        - text: and
+        - link "Privacy Policy" [ref=e47] [cursor=pointer]:
+          - /url: /privacy
+        - text: .
+      - paragraph [ref=e48]:
+        - text: Don't have an account?
+        - link "Sign up" [ref=e49] [cursor=pointer]:
+          - /url: /auth/signup
+    - paragraph [ref=e50]:
+      - link "← Back to phronex.com" [ref=e51] [cursor=pointer]:
+        - /url: https://www.phronex.com
+  - alert [ref=e52]

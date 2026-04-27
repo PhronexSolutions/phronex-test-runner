@@ -55,6 +55,27 @@ Re-sync is **GATED** by JourneyHawk smoke test passing. Never advance the pin
 without a green smoke run. If the smoke test fails, revert the merge and file
 the divergence under v16+ planning.
 
+## Windows Invocation (MANDATORY — PATH quirk)
+
+The Claude Code SDK detects it is running under Bun (`typeof Bun !== 'undefined'`) and
+spawns the Claude Code subprocess using the literal string `"bun"` as the executable.
+Bun's Windows installer does **not** add itself to `$PATH`, so the spawn silently hangs
+forever — no ENOENT thrown, no output, no timeout.
+
+**Always invoke with `bun` on PATH:**
+
+```bash
+export PATH="/c/Users/parma/.bun/bin:$PATH"
+cd cli && env -u CLAUDECODE bun run src/index.ts -t <spec.json> -o <results/>
+```
+
+The `env -u CLAUDECODE` unsets the outer Claude Code session detection flag (which is
+set to `1` when running inside any Claude Code agent). Setting it to empty (`CLAUDECODE=""`)
+is NOT sufficient — it must be fully unset.
+
+Discovered: 2026-04-27, Phase 75 smoke validation. Documented after an >1 hour silent hang
+was traced to the missing bun in PATH.
+
 ## Phronex-Specific Notes
 
 - This fork is consumed exclusively by the

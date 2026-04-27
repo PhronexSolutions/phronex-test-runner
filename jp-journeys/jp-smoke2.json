@@ -1,0 +1,66 @@
+[
+  {
+    "id": "jp-d01-document-upload",
+    "description": "User uploads a resume PDF and it appears in documents list as primary",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/documents"
+      },
+      {
+        "id": 3,
+        "description": "Note the current number of documents listed (may be 0)"
+      },
+      {
+        "id": 4,
+        "description": "Click the Upload button. Report what the upload flow looks like (button label, modal or inline, accepted file types shown). If a file input opens, note whether it accepts PDF and DOCX. Do NOT actually upload a file \u2014 just verify the upload CTA and flow are present and functional"
+      },
+      {
+        "id": 5,
+        "description": "Verify: is the Upload button visible? Is the empty state (if no documents) meaningful \u2014 does it explain what to upload? Check browser console for JS errors"
+      },
+      {
+        "id": 6,
+        "description": "Report: describe exactly what you see on the documents page. Is the Upload button visible? Is there a file type hint (PDF / DOCX, max 5MB)? Screenshot and describe."
+      }
+    ]
+  },
+  {
+    "id": "jp-d02-portal-add-delete",
+    "description": "User adds a job portal scanning config and then deletes it \u2014 full create/delete lifecycle",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/portals"
+      },
+      {
+        "id": 3,
+        "description": "Click the '+ Add Portal' button to open the add portal form"
+      },
+      {
+        "id": 4,
+        "description": "Fill in the form: portal_name = 'qa-test-portal', search_keywords = 'software engineer', preferred_locations = 'Bangalore', set scan_time to any available option. Submit the form."
+      },
+      {
+        "id": 5,
+        "description": "Verify: the form submits without a 500 error. Does the new portal 'qa-test-portal' appear in the portals list?"
+      },
+      {
+        "id": 6,
+        "description": "If the portal was created: find the delete button for 'qa-test-portal' and delete it. Confirm the deletion. Verify it is removed from the list."
+      },
+      {
+        "id": 7,
+        "description": "Report: did the full create then list then delete lifecycle work? What errors appeared, if any? Screenshot at each step."
+      }
+    ]
+  }
+]

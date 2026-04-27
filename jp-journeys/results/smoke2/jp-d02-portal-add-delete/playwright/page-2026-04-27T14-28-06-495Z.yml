@@ -1,0 +1,60 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Phronex home (opens in new tab)" [ref=e5] [cursor=pointer]:
+          - /url: https://www.phronex.com
+          - img "Phronex" [ref=e7]
+          - generic [ref=e8]: Phronex
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - link "Mailbox settings" [ref=e12] [cursor=pointer]:
+              - /url: /settings/mailbox
+              - img [ref=e13]
+            - link "Settings" [ref=e16] [cursor=pointer]:
+              - /url: /settings
+              - img [ref=e17]
+            - button "Sign out" [ref=e20]:
+              - img [ref=e21]
+          - button "Open menu" [ref=e24]:
+            - img [ref=e25]
+    - main [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - heading "Your access" [level=2] [ref=e30]
+          - table [ref=e32]:
+            - rowgroup [ref=e33]:
+              - row "Product Instance Role Tier" [ref=e34]:
+                - columnheader "Product" [ref=e35]
+                - columnheader "Instance" [ref=e36]
+                - columnheader "Role" [ref=e37]
+                - columnheader "Tier" [ref=e38]
+            - rowgroup [ref=e39]:
+              - row "job-portal e2e-test-instance-jp user standard" [ref=e40]:
+                - cell "job-portal" [ref=e41]
+                - cell "e2e-test-instance-jp" [ref=e42]
+                - cell "user" [ref=e43]
+                - cell "standard" [ref=e44]
+        - generic [ref=e45]:
+          - heading "Products (1)" [level=2] [ref=e46]
+          - paragraph [ref=e47]: Phronex platform products. Click a product to open its admin panel.
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - generic [ref=e51]:
+                - img [ref=e53]
+                - generic [ref=e57]:
+                  - heading "Job Portal" [level=3] [ref=e58]
+                  - paragraph [ref=e59]: job-portal
+              - generic [ref=e60]: B2C
+            - paragraph [ref=e61]: Automated job search and resume tailoring platform.
+            - generic [ref=e62]:
+              - generic [ref=e63]: Active
+              - generic [ref=e64]:
+                - link "Instances" [ref=e65] [cursor=pointer]:
+                  - /url: /instances
+                - link "Open JP Admin" [ref=e66] [cursor=pointer]:
+                  - /url: /jp/dashboard
+                  - img [ref=e67]
+                  - text: Open JP Admin
+                  - img [ref=e72]
+  - alert [ref=e74]
