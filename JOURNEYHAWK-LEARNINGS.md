@@ -29,17 +29,46 @@ JP_PUBLIC_URL=http://localhost:8001   # only relevant if running local jobportal
 
 ## Known False Positive Patterns
 
-### Runner Turn-Limit (fixed in runner.py 2026-04-29)
+### Runner Turn-Limit
 
-**Signature:** CTRF `message` field contains `[Status: pending]` with no `[Status: failed]` and no `[Error:` substring.
+**Root cause:** cc-test-runner spawns a Claude Code subprocess per journey with a finite turn budget. Complex journeys (7+ steps) exhaust the budget before completing. Remaining steps stay `pending` in memory but are **never flushed to `ctrf-report.json`**.
 
-**Root cause:** cc-test-runner spawns a Claude Code subprocess per journey with a finite turn budget. Complex journeys (7+ steps involving navigation + verify + cleanup) exhaust the budget before completing. Remaining steps are marked `pending` and the journey is marked `failed`.
+**CTRF format bug (discovered run 4, 2026-04-29):** cc-test-runner writes every step as `[Status: pending]` into the CTRF file when the journey starts and **never updates** that file with actual step outcomes. Step outcomes are only visible in cc-test-runner's stdout. As a result, the CTRF `message` field for EVERY failed journey (turn-limit FP, portal-down, real product defect) looks identical — all steps pending, no `[Error:]`. Any signature-based FP detection on the CTRF message will fire for all failures, not just turn-limit ones.
 
-**Fix:** `runner.py` `_detect_gaps_and_upsert` now detects this pattern and skips `detect_gaps` entirely — the journey produces no `qa_known_defects` row and no wiki article. A `SKIP [runner-turn-limit]` line is printed instead.
+**Previous fix (8edbfec1) was incorrect:** The `[Status: pending]` heuristic in `runner.py` was reverted in `d57fd15a` because it silently swallowed all real defects. Run 4 result: 12 journeys SKIPPED, 0 defects logged.
 
-**Prevention:** Keep journeys ≤ 6 steps. If a flow genuinely needs 7+ steps, split into two journeys where the second starts from a known persisted state.
+**Correct prevention:** Keep journeys ≤ 6 steps so the turn budget is never exhausted. The `jp-deep.json` spec was updated (run 5 / 2026-04-29) from 12 journeys (J-series, 7-8 steps) to 10 journeys (d-series, exactly 6 steps).
 
-**Cross-evidence pattern:** When `jp-J-X` fails with pending steps, check if another journey that exercises the same feature (e.g. jp-J10 for delete, jp-J04 for jobs page) passes — that cross-validates the feature works and confirms the FP.
+**If a flow genuinely needs 7+ steps:** Split into two journeys where the second starts from a known persisted state (e.g. first journey creates the object, second journey edits and deletes it).
+
+**Cross-evidence pattern:** When a journey fails, check if another journey exercises the same feature — a passing companion validates the feature works and helps identify the failure scope.
+
+### Conditional-Branch Spec FP (discovered run 5, 2026-04-29)
+
+**Signature:** Journey `succeeded: false` with exactly one step in `status: pending` and all other steps `status: passed`. The pending step description starts with "If X exists: ..." or "If X is visible: ...".
+
+**Root cause:** Spec steps written as "If A: do X. If B: do Y." force Claude to pick a branch. If the branch condition is false (e.g. "If applications exist" but there are none), Claude correctly handles the other path but leaves the conditional step as `pending` because it was never applicable. cc-test-runner marks the journey `succeeded: false` when any step is non-passing.
+
+**Fix:** Rewrite conditional steps to be unconditionally verifiable. Instead of two "If A / If B" steps, write a single step that covers both outcomes: "Verify the applications page. If empty: check for meaningful empty state with CTA. If populated: verify each row shows required fields and clicking opens a detail view."
+
+**Prevention:** Never write journey steps that can legitimately be skipped. Every step must be completable regardless of test account state.
+
+---
+
+### localStorage Persistence FP (discovered run 5, 2026-04-29)
+
+**Signature:** Journey fails because a dismissable UI element (banner, tooltip, onboarding card) is not visible. The element is correctly hidden by a `localStorage` key set during a previous test run.
+
+**Root cause:** cc-test-runner reuses the same Chrome browser profile across all journeys and across runs. User-dismissable components that write to `localStorage` (e.g. `ccCrossSellDismissed`, `jpOnboardingBannerDismissed`) stay dismissed in subsequent runs. The product code is correct — the banner correctly stays hidden once dismissed — but the test sees stale state from a previous session.
+
+**Fix:** Add a localStorage cleanup step at the start of any journey that tests a dismissable element. Example step: "Before navigating, execute in the browser console: `localStorage.removeItem('ccCrossSellDismissed');` Then navigate to the page."
+
+**Known keys to reset per product:**
+
+| Product | localStorage key | Element |
+|---------|-----------------|---------|
+| JP | `ccCrossSellDismissed` | CC cross-sell banner on JP dashboard |
+| JP | `jpOnboardingBannerDismissed` | JP onboarding setup guide banner |
 
 ---
 
@@ -49,12 +78,14 @@ JP_PUBLIC_URL=http://localhost:8001   # only relevant if running local jobportal
 
 | Item | Value |
 |------|-------|
-| Deep spec | `jp-journeys/jp-deep.json` (12 journeys) |
+| Deep spec | `jp-journeys/jp-deep.json` (10 journeys, d-series, all exactly 6 steps) |
 | Backend URL | `https://jobc.phronex.com` (EC2) |
 | Portal QA URL | `http://localhost:3002` (DevServer) |
-| QA accounts | `qa-jp-free@phronex.com`, `qa-jp-standard@phronex.com`, `qa-jp-pro@phronex.com` |
+| QA account | `qa-test-journeyhawk@phronex.com` (standard tier) |
 | Billing fix validated | `ada45d1` — standard tier label correct (jp-J08 PASS, run 2026-04-29) |
 | Run 3 result | 4/12 PASS, 3 real defects fixed (`b740a6a` portal + `aa2c0fa` jobportal), 5 turn-limit FPs |
+| Run 4 result | 0/12 defects logged — FP detection bug `8edbfec1` swallowed all failures; portal was also down mid-run |
+| Run 5 result | 7/10 PASS, 1 real defect (jobs detail view — fixed in portal), 2 spec/infra FPs (conditional step + localStorage) |
 
 **Share link testing:** Tokens are created on EC2's jobportal and stored in EC2's DB. Share URL format is `{JP_PUBLIC_URL}/p/{token_id}`. Since portal points to EC2, the share URL resolves correctly without any DevServer override. `JP_PUBLIC_URL` in `.qa.env` is only relevant if running a local jobportal instance.
 
@@ -85,6 +116,8 @@ JP_PUBLIC_URL=http://localhost:8001   # only relevant if running local jobportal
 |------|---------|------|------|------|-------------|-------|
 | 2026-04-29 | jp | jp-deep.json (12) | 4 | 8 | 3 | Run 3. Billing fix ada45d1 validated. 5 turn-limit FPs. |
 | 2026-04-29 | cc | cc-deep.json | — | — | — | Run 2. See cc-d-run-2 in qa_known_defects. |
+| 2026-04-29 | jp | jp-deep.json (12) | 0 | 12 | 0 | Run 4. FP detection bug (8edbfec1) swallowed all results. Portal also crashed mid-run. |
+| 2026-04-29 | jp | jp-deep.json (10 d-series) | 7 | 3 | 1 | Run 5. Jobs detail view missing (fixed). 2 spec/infra FPs: conditional step + localStorage. |
 
 ---
 

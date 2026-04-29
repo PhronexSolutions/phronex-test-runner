@@ -107,15 +107,15 @@
       },
       {
         "id": 4,
-        "description": "If no applications exist: is the empty state meaningful? Does it explain that applications are tracked here after job scanning? Is there a CTA pointing to /jp/portals or /jp/jobs?"
+        "description": "Check the page content regardless of state. If empty: verify the empty state has a helpful explanation (explaining that applications appear after job scanning) AND a CTA link pointing to /jp/portals or /jp/jobs. If applications are listed: verify each row shows job title, company, status, and date."
       },
       {
         "id": 5,
-        "description": "If applications exist: do they show job title, company, status, and date? Is there a way to filter or sort? Click on one application to see if detail view works."
+        "description": "If applications are listed: click on the first entry. Verify a detail view, modal, or expanded row appears. PASS if detail opens. PASS also if no applications exist (empty state verified in step 4). FAIL only if applications exist but clicking them does nothing."
       },
       {
         "id": 6,
-        "description": "Check browser console for JS errors. Report: describe what is shown. Screenshot."
+        "description": "Check browser console for JS errors. Report: describe what is shown (empty state or application list). Screenshot."
       }
     ]
   },
@@ -219,7 +219,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/dashboard"
+        "description": "Before navigating, clear any stale dismissal state that would hide the banner: execute in the browser console: localStorage.removeItem('ccCrossSellDismissed'); localStorage.removeItem('jpOnboardingBannerDismissed'); Then navigate to http://localhost:3002/jp/dashboard and wait for the page to load."
       },
       {
         "id": 3,
