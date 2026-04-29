@@ -55,20 +55,52 @@ JP_PUBLIC_URL=http://localhost:8001   # only relevant if running local jobportal
 
 ---
 
-### localStorage Persistence FP (discovered run 5, 2026-04-29)
+### localStorage Persistence FP (discovered run 5, 2026-04-29 — partial, see correction below)
 
 **Signature:** Journey fails because a dismissable UI element (banner, tooltip, onboarding card) is not visible. The element is correctly hidden by a `localStorage` key set during a previous test run.
 
-**Root cause:** cc-test-runner reuses the same Chrome browser profile across all journeys and across runs. User-dismissable components that write to `localStorage` (e.g. `ccCrossSellDismissed`, `jpOnboardingBannerDismissed`) stay dismissed in subsequent runs. The product code is correct — the banner correctly stays hidden once dismissed — but the test sees stale state from a previous session.
+**Root cause:** cc-test-runner reuses the same Chrome browser profile across all journeys and across runs. User-dismissable components that write to `localStorage` (e.g. `jpOnboardingBannerDismissed`) stay dismissed in subsequent runs. The product code is correct — the banner correctly stays hidden once dismissed — but the test sees stale state from a previous session.
 
-**Fix:** Add a localStorage cleanup step at the start of any journey that tests a dismissable element. Example step: "Before navigating, execute in the browser console: `localStorage.removeItem('ccCrossSellDismissed');` Then navigate to the page."
+**Fix:** Add a localStorage cleanup step at the start of any journey that tests a dismissable element. Example step: "Before navigating, execute in the browser console: `localStorage.removeItem('jpOnboardingBannerDismissed');` Then navigate to the page."
+
+**⚠️ Run 5 partial misdiagnosis (corrected in run 6):** The jp-d08 failure was initially attributed to `ccCrossSellDismissed` localStorage persistence. Run 6 confirmed this was WRONG. See "QA Account Cross-Product Grant FP" section below — the real root cause was that the QA account holds a CC grant, which causes `JPLayoutClient.tsx` to short-circuit (`if (hasCcGrant) { setShowCcCrossSell(false); return; }`) before localStorage is ever checked. `ccCrossSellDismissed` is therefore NOT a key that needs resetting between runs — it is never read for this account.
 
 **Known keys to reset per product:**
 
 | Product | localStorage key | Element |
 |---------|-----------------|---------|
-| JP | `ccCrossSellDismissed` | CC cross-sell banner on JP dashboard |
 | JP | `jpOnboardingBannerDismissed` | JP onboarding setup guide banner |
+
+---
+
+### QA Account Cross-Product Grant FP (discovered run 6, 2026-04-29)
+
+**Signature:** Journey that tests a cross-sell banner for Product B on Product A's page always fails — banner never visible, even after clearing all dismissal localStorage keys.
+
+**Root cause:** The QA account `qa-test-journeyhawk@phronex.com` holds grants for **both** `job-portal` (standard tier) **and** `content-companion` (free tier). The CC cross-sell banner in `JPLayoutClient.tsx` has an explicit `hasCcGrant` guard:
+
+```typescript
+useEffect(() => {
+  if (hasCcGrant) {
+    setShowCcCrossSell(false);
+    return;  // short-circuits — localStorage never checked
+  }
+  // ...localStorage check only reached if user has no CC grant
+}, [hasCcGrant]);
+```
+
+The product behaviour is **correct** — a user who already has CC access should not be shown a CC cross-sell prompt. The spec was wrong to expect the banner to appear for this account.
+
+**Fix:** Rewrite the journey to validate correct suppression behaviour, not banner appearance. For the existing QA account, jp-d08 now verifies: (1) banner is correctly absent, (2) CC navigation is accessible since the user has a CC grant, (3) `/cc` loads without 403. This tests the `hasCcGrant` code path positively.
+
+**Alternative fix (if banner-appearance path must also be tested):** Create a separate JP-only account (`qa-jp-only@phronex.com`) with no CC grant, and write a separate journey `jp-d08b` using that account.
+
+**Prevention rule:** Before writing a journey that tests a feature gate or cross-sell suppression, query the QA account's grants:
+```sql
+SELECT product_slug, tier FROM access_grants
+WHERE account_id = (SELECT id FROM accounts WHERE email = 'qa-test-journeyhawk@phronex.com');
+```
+A QA account that holds grants for multiple products will trigger suppression logic that hides cross-sell banners — the spec must account for this.
 
 ---
 
@@ -85,7 +117,8 @@ JP_PUBLIC_URL=http://localhost:8001   # only relevant if running local jobportal
 | Billing fix validated | `ada45d1` — standard tier label correct (jp-J08 PASS, run 2026-04-29) |
 | Run 3 result | 4/12 PASS, 3 real defects fixed (`b740a6a` portal + `aa2c0fa` jobportal), 5 turn-limit FPs |
 | Run 4 result | 0/12 defects logged — FP detection bug `8edbfec1` swallowed all failures; portal was also down mid-run |
-| Run 5 result | 7/10 PASS, 1 real defect (jobs detail view — fixed in portal), 2 spec/infra FPs (conditional step + localStorage) |
+| Run 5 result | 7/10 PASS, 1 real defect (jobs detail view — fixed in portal), 2 spec/infra FPs (conditional step + localStorage — see correction in run 6) |
+| Run 6 result | 9/10 PASS, 0 real defects, 1 spec FP (jp-d08 — QA account has CC grant so banner correctly absent; spec rewritten) |
 
 **Share link testing:** Tokens are created on EC2's jobportal and stored in EC2's DB. Share URL format is `{JP_PUBLIC_URL}/p/{token_id}`. Since portal points to EC2, the share URL resolves correctly without any DevServer override. `JP_PUBLIC_URL` in `.qa.env` is only relevant if running a local jobportal instance.
 
@@ -117,16 +150,45 @@ JP_PUBLIC_URL=http://localhost:8001   # only relevant if running local jobportal
 | 2026-04-29 | jp | jp-deep.json (12) | 4 | 8 | 3 | Run 3. Billing fix ada45d1 validated. 5 turn-limit FPs. |
 | 2026-04-29 | cc | cc-deep.json | — | — | — | Run 2. See cc-d-run-2 in qa_known_defects. |
 | 2026-04-29 | jp | jp-deep.json (12) | 0 | 12 | 0 | Run 4. FP detection bug (8edbfec1) swallowed all results. Portal also crashed mid-run. |
-| 2026-04-29 | jp | jp-deep.json (10 d-series) | 7 | 3 | 1 | Run 5. Jobs detail view missing (fixed). 2 spec/infra FPs: conditional step + localStorage. |
+| 2026-04-29 | jp | jp-deep.json (10 d-series) | 7 | 3 | 1 | Run 5. Jobs detail view missing (fixed d1aa208). 2 spec FPs: conditional step + misdiagnosed localStorage (real cause: hasCcGrant). |
+| 2026-04-29 | jp | jp-deep.json (10 d-series) | 9 | 1 | 0 | Run 6. jp-d04 + jp-d09 now pass. 1 spec FP (jp-d08 — QA account has CC grant; spec rewritten). |
 
 ---
 
 ## Runbook — Starting a Run
 
+### ⚠️ Pre-flight: Kill portal-dev-keepalive.sh FIRST
+
+A script at `/tmp/portal-dev-keepalive.sh` may be running on DevServer. It was created during v2.4 sweep work and loops forever: waits for any active `next build` to finish, then immediately runs `rm -rf .next` and starts `pnpm dev`. This destroys every production build the moment it completes and replaces it with a dev build — causing all journeys to fail with false HTTP 500s.
+
+**Check and kill before every run:**
 ```bash
-# 1. Verify portal is a production build
+# Check if running
+pgrep -af "keepalive"
+
+# Kill it
+pkill -f portal-dev-keepalive.sh
+# Also kill any surviving pnpm dev processes
+pkill -f "next dev"
+```
+
+**Portal production start (always chain build+start atomically — zero gap):**
+```bash
+cd ~/code/phronex-portal
+fuser -k 3002/tcp 2>/dev/null || true
+NODE_ENV=production /home/ouroborous/.bun/bin/bun run build && \
+  NODE_ENV=production nohup /home/ouroborous/.bun/bin/bun run start > /tmp/portal-start.log 2>&1 &
+# Wait ~5s, then verify
 curl -s -o /dev/null -w '%{http_code}' http://localhost:3002/auth/login
-# Must return 200. If 500: bun run build && bun run start (see pre-flight checklist)
+# Must return 200 or 307
+```
+
+**Why NODE_ENV=production matters:** Without it, Next.js 15 may produce a hybrid Turbopack/webpack build that fails to emit `[turbopack]_runtime.js`, causing `bun run start` to crash immediately. Always set it explicitly.
+
+```bash
+# 1. Verify portal is a production build (after pre-flight above)
+curl -s -o /dev/null -w '%{http_code}' http://localhost:3002/auth/login
+# Must return 200 or 307.
 
 # 2. Run
 cd ~/code/phronex-test-runner

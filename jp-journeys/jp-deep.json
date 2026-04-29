@@ -211,31 +211,31 @@
   },
   {
     "id": "jp-d08-cross-product-cta",
-    "description": "Cross-sell banner for Content Companion works end-to-end — link lands on correct signup page",
+    "description": "Cross-sell banner suppression is correct for a user who already has Content Companion access — and CC nav entry is present",
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. This account has BOTH job-portal (standard) AND content-companion (free) grants."
       },
       {
         "id": 2,
-        "description": "Before navigating, clear any stale dismissal state that would hide the banner: execute in the browser console: localStorage.removeItem('ccCrossSellDismissed'); localStorage.removeItem('jpOnboardingBannerDismissed'); Then navigate to http://localhost:3002/jp/dashboard and wait for the page to load."
+        "description": "Navigate to http://localhost:3002/jp/dashboard and wait for the page to load. Even after clearing localStorage (execute in browser console: localStorage.removeItem('ccCrossSellDismissed')), the cross-sell banner should NOT appear — because the user already has CC access."
       },
       {
         "id": 3,
-        "description": "Look for a cross-sell banner mentioning Content Companion (something like 'Adding a chatbot to your website?'). Is it visible?"
+        "description": "Verify: there is NO banner on the dashboard mentioning 'Adding a chatbot to your website?' or any 'Try Content Companion' prompt. The absence of this banner is the CORRECT behaviour for a user who already has a CC grant. FAIL only if such a banner IS shown to a user who already has CC access."
       },
       {
         "id": 4,
-        "description": "If visible: click the 'Try Content Companion' or equivalent CTA link. Where does it land? It should go to /auth/signup?product=content-companion&plan=free - verify this URL is correct."
+        "description": "Verify that the portal sidebar or header contains a navigation entry for Content Companion (e.g. a 'Content Companion' link, a CC product switcher, or similar). A user with CC access should be able to navigate to CC directly, not be cross-sold it."
       },
       {
         "id": 5,
-        "description": "Does the signup page load without error? Does it pre-select Content Companion in the product selector?"
+        "description": "Navigate to http://localhost:3002/cc — the Content Companion section. Verify it loads without a 403 or 'Access Denied' error. The user holds a CC grant so this should be accessible."
       },
       {
         "id": 6,
-        "description": "Navigate back. Report: did the cross-sell banner appear and did the link work correctly?"
+        "description": "Report: was the cross-sell banner correctly absent? Was CC navigation reachable? Any JS errors? Screenshot the dashboard showing the absence of the banner and the presence of CC navigation."
       }
     ]
   },
