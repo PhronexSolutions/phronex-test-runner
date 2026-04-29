@@ -77,9 +77,13 @@ sed "s|http://localhost:3002|${PORTAL_URL}|g" "${SPEC_FILE}" > "${TEMP_SPEC}"
 # Step 0: Pre-run test data cleanup (optional — skipped if SDK key not set)
 # Wipes QA test artefacts created by previous runs so journeys start clean.
 # Requires these vars in .qa.env:
-#   JP_TEST_CLEANUP_SDK_KEY   — must match QA_TEST_CLEANUP_SDK_KEY in /opt/jobportal/.env on EC2
-#   PHRONEX_JP_TEST_URL       — defaults to https://jobc.phronex.com
-#   PHRONEX_QA_ALLOWED_HOSTS  — must include jobc.phronex.com (production denylist bypass)
+#   JP_TEST_CLEANUP_SDK_KEY          — must match QA_TEST_CLEANUP_SDK_KEY in /opt/jobportal/.env on EC2
+#   PHRONEX_JP_TEST_URL              — defaults to https://jobc.phronex.com
+#   CC_TEST_CLEANUP_SDK_KEY          — must match QA_TEST_CLEANUP_SDK_KEY in /opt/contentcompanion/.env on EC2
+#   PHRONEX_CC_TEST_URL              — defaults to https://cc.phronex.com
+#   PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY — must match QA_TEST_CLEANUP_SDK_KEY in /opt/phronex-auth/.env on EC2
+#   PHRONEX_AUTH_TEST_URL            — defaults to https://auth.phronex.com
+#   PHRONEX_QA_ALLOWED_HOSTS         — must include target hosts (production denylist bypass)
 echo ""
 if [[ "${PRODUCT}" == "jp" ]] && [[ -n "${JP_TEST_CLEANUP_SDK_KEY:-}" ]]; then
   JP_CLEANUP_URL="${PHRONEX_JP_TEST_URL:-https://jobc.phronex.com}"
@@ -98,6 +102,16 @@ elif [[ "${PRODUCT}" == "cc" ]] && [[ -n "${CC_TEST_CLEANUP_SDK_KEY:-}" ]]; then
     HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
       -X POST "${CC_CLEANUP_URL}/api/admin/test-cleanup/${resource}" \
       -H "X-SDK-Key: ${CC_TEST_CLEANUP_SDK_KEY}" \
+      --max-time 10 2>/dev/null || echo "ERR")
+    echo "  cleanup/${resource}: HTTP ${HTTP}"
+  done
+elif [[ "${PRODUCT}" == "auth" ]] && [[ -n "${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY:-}" ]]; then
+  AUTH_CLEANUP_URL="${PHRONEX_AUTH_TEST_URL:-https://auth.phronex.com}"
+  echo "[0/3] Pre-run Auth cleanup at ${AUTH_CLEANUP_URL}..."
+  for resource in users instances impersonation_tokens payment_records; do
+    HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+      -X POST "${AUTH_CLEANUP_URL}/admin/test-cleanup/${resource}" \
+      -H "X-QA-SDK-Key: ${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY}" \
       --max-time 10 2>/dev/null || echo "ERR")
     echo "  cleanup/${resource}: HTTP ${HTTP}"
   done
