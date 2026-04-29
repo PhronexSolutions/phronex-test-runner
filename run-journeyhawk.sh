@@ -58,6 +58,22 @@ else
 fi
 echo "[env] Python: ${PYTHON}"
 
+# Portal URL substitution — replace localhost:3002 with PORTAL_URL so specs
+# can run against any portal instance (production, staging, or local).
+# Default: https://app.phronex.com (production — safe while no paying customers).
+# Override: set PORTAL_URL in .qa.env before running.
+#
+# .qa.env recommended additions for full production-mode runs:
+#   PORTAL_URL=https://app.phronex.com
+#   PHRONEX_JP_TEST_URL=https://jobc.phronex.com
+#   PHRONEX_CC_TEST_URL=https://cc.phronex.com
+#   PHRONEX_QA_ALLOWED_HOSTS=app.phronex.com,jobc.phronex.com,cc.phronex.com
+PORTAL_URL="${PORTAL_URL:-https://app.phronex.com}"
+echo "[env] Portal URL: ${PORTAL_URL}"
+TEMP_SPEC=$(mktemp /tmp/jh-spec-XXXXXX.json)
+trap 'rm -f "${TEMP_SPEC}"' EXIT
+sed "s|http://localhost:3002|${PORTAL_URL}|g" "${SPEC_FILE}" > "${TEMP_SPEC}"
+
 # Step 0: Pre-run test data cleanup (optional — skipped if SDK key not set)
 # Wipes QA test artefacts created by previous runs so journeys start clean.
 # Requires these vars in .qa.env:
@@ -93,8 +109,9 @@ fi
 echo ""
 echo "[1/3] Spawning cc-test-runner..."
 mkdir -p "${RESULTS_DIR}"
+# Use TEMP_SPEC (URL-substituted) for browser tests; original SPEC_FILE for pipeline.
 "${SCRIPT_DIR}/cli/dist/cc-test-runner" \
-  -t "${SPEC_FILE}" \
+  -t "${TEMP_SPEC}" \
   -o "${RESULTS_DIR}" \
   --maxTurns 50
 
