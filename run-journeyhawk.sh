@@ -58,9 +58,40 @@ else
 fi
 echo "[env] Python: ${PYTHON}"
 
+# Step 0: Pre-run test data cleanup (optional — skipped if SDK key not set)
+# Wipes QA test artefacts created by previous runs so journeys start clean.
+# Requires these vars in .qa.env:
+#   JP_TEST_CLEANUP_SDK_KEY   — must match QA_TEST_CLEANUP_SDK_KEY in /opt/jobportal/.env on EC2
+#   PHRONEX_JP_TEST_URL       — defaults to https://jobc.phronex.com
+#   PHRONEX_QA_ALLOWED_HOSTS  — must include jobc.phronex.com (production denylist bypass)
+echo ""
+if [[ "${PRODUCT}" == "jp" ]] && [[ -n "${JP_TEST_CLEANUP_SDK_KEY:-}" ]]; then
+  JP_CLEANUP_URL="${PHRONEX_JP_TEST_URL:-https://jobc.phronex.com}"
+  echo "[0/3] Pre-run JP cleanup at ${JP_CLEANUP_URL}..."
+  for resource in users jobs applications; do
+    HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+      -X POST "${JP_CLEANUP_URL}/api/admin/test-cleanup/${resource}" \
+      -H "X-SDK-Key: ${JP_TEST_CLEANUP_SDK_KEY}" \
+      --max-time 10 2>/dev/null || echo "ERR")
+    echo "  cleanup/${resource}: HTTP ${HTTP}"
+  done
+elif [[ "${PRODUCT}" == "cc" ]] && [[ -n "${CC_TEST_CLEANUP_SDK_KEY:-}" ]]; then
+  CC_CLEANUP_URL="${PHRONEX_CC_TEST_URL:-https://cc.phronex.com}"
+  echo "[0/3] Pre-run CC cleanup at ${CC_CLEANUP_URL}..."
+  for resource in conversations widgets; do
+    HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+      -X POST "${CC_CLEANUP_URL}/api/admin/test-cleanup/${resource}" \
+      -H "X-SDK-Key: ${CC_TEST_CLEANUP_SDK_KEY}" \
+      --max-time 10 2>/dev/null || echo "ERR")
+    echo "  cleanup/${resource}: HTTP ${HTTP}"
+  done
+else
+  echo "[0/3] Pre-run cleanup skipped (${PRODUCT}_TEST_CLEANUP_SDK_KEY not set in .qa.env)"
+fi
+
 # Step 1: cc-test-runner
 echo ""
-echo "[1/2] Spawning cc-test-runner..."
+echo "[1/3] Spawning cc-test-runner..."
 mkdir -p "${RESULTS_DIR}"
 "${SCRIPT_DIR}/cli/dist/cc-test-runner" \
   -t "${SPEC_FILE}" \
@@ -69,12 +100,12 @@ mkdir -p "${RESULTS_DIR}"
 
 CC_EXIT=$?
 if [[ ${CC_EXIT} -ne 0 ]]; then
-  echo "[1/2] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
+  echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
 fi
 
 # Step 2: intelligence pipeline via phronex_common.testing.runner
 echo ""
-echo "[2/2] Running intelligence pipeline (phronex_common.testing.runner)..."
+echo "[2/3] Running intelligence pipeline (phronex_common.testing.runner)..."
 "${PYTHON}" -m phronex_common.testing.runner \
   --product "${PRODUCT}" \
   --results-dir "${RESULTS_DIR}" \

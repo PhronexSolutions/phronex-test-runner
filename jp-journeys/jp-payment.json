@@ -1,0 +1,62 @@
+[
+  {
+    "id": "jp-pay-01-upgrade-to-standard",
+    "description": "Free-tier user upgrades to Standard via Razorpay checkout — full payment-to-tier-promotion cycle",
+    "steps": [
+      {
+        "id": 1,
+        "description": "PRE-CONDITION CHECK: This journey requires Razorpay test keys configured in the jobportal backend (QA_RAZORPAY_KEY_ID + QA_RAZORPAY_KEY_SECRET in /opt/jobportal/.env on EC2). If the checkout page fails to load, record 'Razorpay test keys not configured' and STOP — this is an infrastructure gap, not a product defect. Navigate to http://localhost:3002/auth/login and log in with qa-jp-free@phronex.com / JHTest2026#Free! — this account holds a FREE tier JP grant. Wait for the dashboard to load."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/subscription. Verify the page loads and shows the current tier as 'Free Seeker' (or equivalent). Note the current tier label exactly."
+      },
+      {
+        "id": 3,
+        "description": "Find and click the upgrade button for the Standard tier plan. A Razorpay checkout modal or redirect should occur. If no upgrade button is visible, or if the button is disabled, FAIL with 'Upgrade CTA missing or disabled for free-tier user'."
+      },
+      {
+        "id": 4,
+        "description": "In the Razorpay test checkout, fill in test card details: Card number 4111 1111 1111 1111, Expiry 12/28, CVV 123, Name 'QA Test User'. If asked for OTP or 3D-Secure, use the test success code (usually '1234' or click 'Success' in the Razorpay test overlay). Complete the payment."
+      },
+      {
+        "id": 5,
+        "description": "After payment: Razorpay should redirect back to the portal. Wait up to 15 seconds for the redirect to complete and the page to settle. Navigate to http://localhost:3002/jp/subscription. What tier label is now shown? It MUST read 'Standard Seeker'. FAIL if still 'Free Seeker' — this means the webhook did not fire or tier promotion failed."
+      },
+      {
+        "id": 6,
+        "description": "Verify post-upgrade state: (1) No upgrade CTA pointing to Standard is visible (user is already Standard); (2) An upgrade CTA to Pro may be present — that is correct; (3) Check browser console for any JS errors during the upgrade flow. Report: what happened at each step, was tier promoted correctly, any errors seen. Screenshot the subscription page after upgrade showing the new tier label."
+      }
+    ]
+  },
+  {
+    "id": "jp-pay-02-webhook-promotion-verify",
+    "description": "Verify tier is correctly reflected in the JP dashboard and API after Razorpay webhook fires — catches stale-cache and immediate-reflection failures",
+    "steps": [
+      {
+        "id": 1,
+        "description": "PRE-CONDITION: Run jp-pay-01 first (this journey assumes the qa-jp-free@phronex.com account was just upgraded to Standard). Login as qa-jp-free@phronex.com / JHTest2026#Free! and wait for dashboard."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/dashboard. Is the header, sidebar, or user profile section showing the correct tier? It should reflect Standard, not Free."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/jp/subscription. Confirm tier label is 'Standard Seeker'. Check: does the feature limit table (portal count, scan frequency, etc.) show Standard-tier limits rather than Free-tier limits?"
+      },
+      {
+        "id": 4,
+        "description": "Navigate to http://localhost:3002/jp/portals. Try adding a second portal (the Free tier allows only 1 portal; Standard allows more). Click '+ Add Portal', fill name='qa-standard-test-portal', keywords='engineer'. Does the form allow submission, or is it blocked with a 'Free tier limit reached' error? If submission is blocked: FAIL — tier promotion did not propagate to portal feature gates."
+      },
+      {
+        "id": 5,
+        "description": "If the portal was created in step 4: delete it (click delete on 'qa-standard-test-portal', confirm removal) to clean up test data."
+      },
+      {
+        "id": 6,
+        "description": "Check browser console for errors. Report: (1) tier label in dashboard vs subscription page consistent? (2) Feature gate for portal add reflects Standard limits? (3) Any 403 or tier-check errors in network tab? Screenshot the subscription page showing Standard tier confirmed."
+      }
+    ]
+  }
+]
