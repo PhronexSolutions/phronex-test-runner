@@ -11,18 +11,23 @@
 | Layer | Where it runs | Notes |
 |-------|--------------|-------|
 | `phronex_qa` PostgreSQL | DevServer (`192.168.1.250`) | Never on EC2. All QA writes go here. |
-| `cc-test-runner` binary | DevServer `~/code/phronex-test-runner/dist/` | Compiled bun binary. Never install on EC2. |
+| `cc-test-runner` binary | DevServer `~/code/phronex-test-runner/cli/dist/` | Compiled bun binary. Never install on EC2. |
 | `phronex_common.testing.runner` | DevServer `~/code/phronex-common/.venv` | Intelligence pipeline. DevServer-only. |
-| `phronex-portal` (QA instance) | DevServer `~/code/phronex-portal` port 3002 | Production build (`bun run start`). Browser tests hit this, NOT EC2. |
-| `run-journeyhawk.sh` | DevServer `~/code/phronex-test-runner/` | Atomic wrapper — never call cc-test-runner alone. |
+| Portal under test | **`https://app.phronex.com` (EC2 production)** | `PORTAL_URL` env var in `.qa.env` defaults to production. Browser tests hit EC2 directly — no DevServer portal required. Change to `http://localhost:3002` only when testing an unreleased branch. |
+| `run-journeyhawk.sh` | DevServer `~/code/phronex-test-runner/` | Atomic wrapper — never call cc-test-runner alone. Does sed substitution of `localhost:3002` → `$PORTAL_URL` before passing spec to cc-test-runner. |
 | `phronex-common` (QA checkout) | DevServer `~/code/phronex-common/` | Separate from EC2's `/opt/phronex-common`. |
 
-**Product backends (jobportal, CC, auth, praxis)** → EC2 only. The QA portal on DevServer points to EC2 for all API calls (e.g. `JP_API_URL=https://jobc.phronex.com`).
+**Product backends (jobportal, CC, auth, praxis)** → EC2 only. API calls use domain names (`jobc.phronex.com`, `cc.phronex.com`) — not raw EC2 IP from journey specs.
 
-**`.qa.env` location:** `~/code/.qa.env` on DevServer. Contains:
+**`.qa.env` location:** `~/code/.qa.env` on DevServer. Key vars:
 ```
 PHRONEX_QA_DATABASE_URL_SYNC=postgresql+psycopg2://phronex_qa:phx_qa_local_2026@localhost:5432/phronex_qa
-JP_PUBLIC_URL=http://localhost:8001   # only relevant if running local jobportal — otherwise EC2 default applies
+PORTAL_URL=https://app.phronex.com          # production portal — default; change for localhost testing
+PHRONEX_JP_TEST_URL=https://jobc.phronex.com
+PHRONEX_CC_TEST_URL=https://cc.phronex.com
+JP_TEST_CLEANUP_SDK_KEY=<set>               # pre-run cleanup active for JP
+CC_TEST_CLEANUP_SDK_KEY=<set>               # pre-run cleanup active for CC
+JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL jobportal instance
 ```
 
 ---
