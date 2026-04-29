@@ -25,11 +25,7 @@
       },
       {
         "id": 6,
-        "description": "Check for any error messages, toast notifications, or console errors. If the upload succeeded and the document appears: PASS. If the upload button was missing, the file was rejected, or the document does not appear in the list after upload: FAIL. Report what you see with a screenshot."
-      },
-      {
-        "id": 7,
-        "description": "If the upload succeeded: find and delete the just-uploaded 'test-resume.pdf' document to clean up test data. Confirm it is removed from the list. This keeps the test account clean for future runs."
+        "description": "Check for error messages or console errors. If the upload succeeded and the document appears: find and delete the just-uploaded 'test-resume.pdf' to clean up test data; confirm it is removed. PASS if the full upload-verify-delete cycle works. FAIL if the upload button is missing, the file is rejected, or the document does not appear after upload. Screenshot."
       }
     ]
   },
@@ -59,11 +55,7 @@
       },
       {
         "id": 6,
-        "description": "If the portal was created: find the delete button for 'qa-test-portal' and delete it. Confirm the deletion. Verify it is removed from the list."
-      },
-      {
-        "id": 7,
-        "description": "Report: did the full create then list then delete lifecycle work? What errors appeared, if any? Screenshot at each step."
+        "description": "If the portal was created: find the delete button for 'qa-test-portal' and delete it. Confirm the deletion and verify it is removed from the list. PASS if the full create→list→delete lifecycle works. Report any errors seen and take a screenshot."
       }
     ]
   },
@@ -93,11 +85,7 @@
       },
       {
         "id": 6,
-        "description": "Check browser console for JS errors. Check network tab for any 404 or 500 API calls."
-      },
-      {
-        "id": 7,
-        "description": "Report: which state is shown (locked or portrait)? Does it make sense to a new user? Is the share section present? Screenshot."
+        "description": "Check browser console for JS errors and network tab for 404/500 calls. Report: which state is shown (locked or portrait)? Does it make sense to a new user? Is the share section present? Screenshot."
       }
     ]
   },
@@ -187,11 +175,7 @@
       },
       {
         "id": 6,
-        "description": "Check browser console for JS errors on save. Check network tab: did the save request return 200?"
-      },
-      {
-        "id": 7,
-        "description": "Report: which settings are available? Did the save/persist cycle work? Any broken inputs, missing labels, or uncaught errors? Screenshot."
+        "description": "Check browser console for JS errors on save and confirm the network save request returned 200. Report: which settings are available, did the save/persist cycle work, and were there any broken inputs, missing labels, or uncaught errors? Screenshot."
       }
     ]
   },
