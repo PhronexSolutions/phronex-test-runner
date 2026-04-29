@@ -111,7 +111,7 @@ elif [[ "${PRODUCT}" == "auth" ]] && [[ -n "${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY:
   for resource in users instances impersonation_tokens payment_records; do
     HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
       -X POST "${AUTH_CLEANUP_URL}/admin/test-cleanup/${resource}" \
-      -H "X-QA-SDK-Key: ${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY}" \
+      -H "X-SDK-Key: ${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY}" \
       --max-time 10 2>/dev/null || echo "ERR")
     echo "  cleanup/${resource}: HTTP ${HTTP}"
   done
