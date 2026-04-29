@@ -64,7 +64,8 @@ echo "[1/2] Spawning cc-test-runner..."
 mkdir -p "${RESULTS_DIR}"
 "${SCRIPT_DIR}/cli/dist/cc-test-runner" \
   -t "${SPEC_FILE}" \
-  -o "${RESULTS_DIR}"
+  -o "${RESULTS_DIR}" \
+  --maxTurns 50
 
 CC_EXIT=$?
 if [[ ${CC_EXIT} -ne 0 ]]; then
