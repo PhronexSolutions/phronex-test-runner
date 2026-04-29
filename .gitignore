@@ -146,3 +146,9 @@ jp-journeys/results/
 *.png
 *.yml
 cli/*.png
+
+# JourneyHawk run output directories
+journeys-output/
+jp-journeys/results-*/
+cc-journeys/results/
+cc-journeys/results-*/

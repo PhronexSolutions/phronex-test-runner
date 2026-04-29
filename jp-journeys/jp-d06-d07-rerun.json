@@ -1,0 +1,66 @@
+[
+  {
+    "id": "jp-d06-config-persistence",
+    "description": "JP configuration settings save and persist after navigation \u2014 form is not broken",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/config"
+      },
+      {
+        "id": 3,
+        "description": "Describe what configuration options are visible (notification preferences, scan settings, alert thresholds, etc.)"
+      },
+      {
+        "id": 4,
+        "description": "Try to change one setting (any toggle or input that is clearly safe to change). Click Save if there is a save button."
+      },
+      {
+        "id": 5,
+        "description": "Navigate away to /jp/dashboard, then navigate back to /jp/config. Did the setting persist?"
+      },
+      {
+        "id": 6,
+        "description": "Check browser console for JS errors on save. Check network tab: did the save request return 200?"
+      },
+      {
+        "id": 7,
+        "description": "Report: which settings are available? Did the save/persist cycle work? Any broken inputs, missing labels, or uncaught errors? Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-d07-subscription-and-tier",
+    "description": "Subscription page shows current tier correctly and upgrade options are visible",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/subscription"
+      },
+      {
+        "id": 3,
+        "description": "Verify: is the current tier shown? It should be Standard for this test account."
+      },
+      {
+        "id": 4,
+        "description": "Are upgrade options visible? If higher tier exists, are the features listed clearly?"
+      },
+      {
+        "id": 5,
+        "description": "Is there a Manage Billing or payment link? Does it go somewhere sensible and not a 404?"
+      },
+      {
+        "id": 6,
+        "description": "Report: describe the subscription page. Does tier display match what was granted? Screenshot."
+      }
+    ]
+  }
+]
