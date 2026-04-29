@@ -6,7 +6,10 @@ import { TestReporter } from "./utils/test-reporter";
 
 // Start the MCP state server.
 // This manages the state for the active test case.
-const server = new MCPStateServer(3001);
+// Pass resultsPath so the server can flush step-outcomes.json after each
+// update_test_step call — gives pipeline visibility into real step outcomes
+// even when a journey hits the turn limit before saveResults() is called.
+const server = new MCPStateServer(3001, inputs.resultsPath);
 await server.start();
 
 const reporter = new TestReporter();

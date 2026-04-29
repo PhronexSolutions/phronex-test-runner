@@ -5,6 +5,8 @@ import type { TestCase } from "../../types/test-case.js";
 import z from "zod";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import http from "http";
+import { writeFileSync } from "fs";
+import { join } from "path";
 import { logger } from "../../utils/logger.js";
 import { updateTestPlanToolInput } from "./update-test-plan-tool-input.js";
 
@@ -17,9 +19,11 @@ class MCPStateServer {
         sessionIdGenerator: undefined,
     });
     private testState: TestCase | null = null;
+    private outputDir: string | null;
 
-    constructor(port: number = 3001) {
+    constructor(port: number = 3001, outputDir: string | null = null) {
         this.port = port;
+        this.outputDir = outputDir;
         this.app = express();
         this.app.use(express.json());
 
@@ -89,6 +93,31 @@ class MCPStateServer {
                     step.status = status;
                     if (error) {
                         step.error = error;
+                    }
+
+                    // Flush step outcomes to disk after every update so the
+                    // pipeline can read real outcomes even if the journey hits
+                    // the turn limit before saveResults() is called.
+                    if (this.outputDir && this.testState) {
+                        try {
+                            writeFileSync(
+                                join(this.outputDir, "step-outcomes.json"),
+                                JSON.stringify(
+                                    {
+                                        journeyId: this.testState.id,
+                                        steps: this.testState.steps.map((s) => ({
+                                            id: s.id,
+                                            status: s.status ?? "pending",
+                                            error: s.error ?? null,
+                                        })),
+                                    },
+                                    null,
+                                    2
+                                )
+                            );
+                        } catch (writeErr) {
+                            logger.debug("step-outcomes flush failed (non-fatal)", { writeErr });
+                        }
                     }
 
                     return {
