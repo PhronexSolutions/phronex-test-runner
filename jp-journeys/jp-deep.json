@@ -180,12 +180,12 @@
     ]
   },
   {
-    "id": "jp-d07-subscription-and-tier",
-    "description": "Subscription page shows current tier correctly and upgrade options are visible",
+    "id": "jp-d07a-free-tier",
+    "description": "Free-tier user sees 'Free Seeker' label, upgrade CTA is present, and pro-gated features are locked",
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-jp-free@phronex.com / JHTest2026#Free! — this account holds a job-portal FREE tier grant. Wait for the dashboard to load."
       },
       {
         "id": 2,
@@ -193,19 +193,79 @@
       },
       {
         "id": 3,
-        "description": "Verify: is the current tier shown? It should be Standard for this test account."
+        "description": "Verify the tier label shown on the page. It MUST display 'Free Seeker' (or equivalent free-tier label). FAIL if it shows 'Standard Seeker', 'Pro Seeker', or any other tier label."
       },
       {
         "id": 4,
-        "description": "Are upgrade options visible? If higher tier exists, are the features listed clearly?"
+        "description": "Verify an upgrade CTA is visible — a button or link prompting the user to upgrade to Standard or Pro. FAIL if no upgrade CTA exists for this free-tier user."
       },
       {
         "id": 5,
-        "description": "Is there a Manage Billing or payment link? Does it go somewhere sensible and not a 404?"
+        "description": "Navigate to http://localhost:3002/jp/portrait. Verify: is the portrait page locked or showing a paywall/upgrade prompt? Free-tier users should NOT have unrestricted portrait access. Report whether the page is locked and what the lock screen says."
       },
       {
         "id": 6,
-        "description": "Report: describe the subscription page. Does tier display match what was granted? Screenshot."
+        "description": "Check browser console for JS errors. Report: tier label seen, upgrade CTA present/absent, portrait page state. Screenshot the subscription page clearly showing the tier label."
+      }
+    ]
+  },
+  {
+    "id": "jp-d07b-standard-tier",
+    "description": "Standard-tier user sees 'Standard Seeker' label and upgrade-to-Pro CTA is visible",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-jp-standard@phronex.com / JHTest2026#Std! — this account holds a job-portal STANDARD tier grant. Wait for the dashboard to load."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/subscription"
+      },
+      {
+        "id": 3,
+        "description": "Verify the tier label shown on the page. It MUST display 'Standard Seeker' (or equivalent standard-tier label). FAIL if it shows 'Free Seeker', 'Pro Seeker', or any other tier label."
+      },
+      {
+        "id": 4,
+        "description": "Verify an upgrade CTA is visible — a button or link prompting the user to upgrade to Pro. Standard users should see the Pro tier as an upgrade option. FAIL if no Pro upgrade path is visible."
+      },
+      {
+        "id": 5,
+        "description": "Is there a Manage Billing or payment management link on the page? Does clicking it navigate to a sensible destination (not a 404 or blank page)? Report the destination URL."
+      },
+      {
+        "id": 6,
+        "description": "Check browser console for JS errors. Report: tier label seen, Pro upgrade CTA present/absent, billing link present/absent. Screenshot the subscription page clearly showing the tier label."
+      }
+    ]
+  },
+  {
+    "id": "jp-d07c-pro-tier",
+    "description": "Pro-tier user sees 'Pro Seeker' label, no upgrade CTA, and portrait access is unrestricted",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-jp-pro@phronex.com / JHTest2026#Pro! — this account holds a job-portal PRO tier grant. Wait for the dashboard to load."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/subscription"
+      },
+      {
+        "id": 3,
+        "description": "Verify the tier label shown on the page. It MUST display 'Pro Seeker' (or equivalent pro-tier label). FAIL if it shows 'Free Seeker', 'Standard Seeker', or any other tier label."
+      },
+      {
+        "id": 4,
+        "description": "Verify there is NO upgrade CTA on the page — pro users are at the highest tier and should not be shown an upgrade prompt. FAIL if any 'Upgrade' button or plan comparison upsell is visible."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to http://localhost:3002/jp/portrait. Verify: the portrait page is accessible (not locked, not showing a paywall). A pro-tier user should reach the portrait feature without an upgrade gate. Report whether the page loads correctly or is blocked."
+      },
+      {
+        "id": 6,
+        "description": "Check browser console for JS errors. Report: tier label seen, upgrade CTA absent (confirm), portrait page accessible. Screenshot the subscription page clearly showing the Pro tier label."
       }
     ]
   },
