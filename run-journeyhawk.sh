@@ -78,7 +78,22 @@ PORTAL_URL="${PORTAL_URL:-https://app.phronex.com}"
 echo "[env] Portal URL: ${PORTAL_URL}"
 TEMP_SPEC=$(mktemp /tmp/jh-spec-XXXXXX.json)
 trap 'rm -f "${TEMP_SPEC}"' EXIT
-sed "s|http://localhost:3002|${PORTAL_URL}|g" "${SPEC_FILE}" > "${TEMP_SPEC}"
+# Chain: URL substitution + credential injection.
+# QA_SUPERADMIN_PASSWORD / PHRONEX_PORTAL_TEST_PASSWORD are injected so the
+# spec can reference the sentinel QA_SUPERADMIN_PASSWORD without committing
+# credentials to git. PHRONEX_PORTAL_TEST_EMAIL similarly.
+_PORTAL_PASS="${PHRONEX_PORTAL_TEST_PASSWORD:-${QA_SUPERADMIN_PASSWORD:-}}"
+_PORTAL_EMAIL="${PHRONEX_PORTAL_TEST_EMAIL:-qa-test-journeyhawk@phronex.com}"
+sed \
+  -e "s|http://localhost:3002|${PORTAL_URL}|g" \
+  -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
+  -e "s|qa-test-journeyhawk@phronex\.com|${_PORTAL_EMAIL}|g" \
+  "${SPEC_FILE}" > "${TEMP_SPEC}"
+if [[ -n "${_PORTAL_PASS}" ]]; then
+  echo "[env] Portal credentials: ${_PORTAL_EMAIL} (password injected)"
+else
+  echo "[env] WARNING: PHRONEX_PORTAL_TEST_PASSWORD not set — login steps may fail"
+fi
 
 # Step 0: Pre-run test data cleanup (optional — skipped if SDK key not set)
 # Wipes QA test artefacts created by previous runs so journeys start clean.
@@ -123,6 +138,32 @@ elif [[ "${PRODUCT}" == "auth" ]] && [[ -n "${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY:
   done
 else
   echo "[0/3] Pre-run cleanup skipped (${PRODUCT}_TEST_CLEANUP_SDK_KEY not set in .qa.env)"
+fi
+
+# Pre-flight: for portal product, verify QA credentials can actually log in before
+# burning turns on a doomed run. Hits /api/auth/callback/credentials via curl.
+# Aborts with clear message if auth fails (wrong password, not-superadmin, rate limit).
+if [[ "${PRODUCT}" == "portal" ]] && [[ -n "${_PORTAL_PASS}" ]]; then
+  echo ""
+  echo "[preflight] Verifying portal QA credentials can log in..."
+  _AUTH_PAYLOAD="{\"email\":\"${_PORTAL_EMAIL}\",\"password\":\"${_PORTAL_PASS}\"}"
+  _AUTH_HTTP=$(curl -s -o /tmp/jh-login-check.txt -w "%{http_code}" \
+    -X POST "${PORTAL_URL}/api/auth/callback/credentials" \
+    -H "Content-Type: application/json" \
+    -d "${_AUTH_PAYLOAD}" \
+    --max-time 10 2>/dev/null || echo "ERR")
+  if [[ "${_AUTH_HTTP}" == "200" ]] || [[ "${_AUTH_HTTP}" == "302" ]] || [[ "${_AUTH_HTTP}" == "307" ]]; then
+    echo "[preflight] Login probe: HTTP ${_AUTH_HTTP} — credentials accepted"
+  else
+    _AUTH_BODY=$(cat /tmp/jh-login-check.txt 2>/dev/null | head -c 200)
+    echo ""
+    echo "⛔ PREFLIGHT FAILED: Portal login probe returned HTTP ${_AUTH_HTTP}"
+    echo "   Email:    ${_PORTAL_EMAIL}"
+    echo "   Response: ${_AUTH_BODY}"
+    echo "   Fix: verify password in .qa.env AND that account has is_superadmin=TRUE in phronex-auth DB."
+    echo "   Command:  psql \$PHRONEX_AUTH_DB -c \"UPDATE accounts SET is_superadmin=TRUE WHERE email='${_PORTAL_EMAIL}';\""
+    exit 3
+  fi
 fi
 
 # Step 1: cc-test-runner
