@@ -188,6 +188,10 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 
 **CC Sessions tab — superadmin-only (filed as defect #42):** `CCDashboardClient.tsx` defines `SUPERADMIN_TABS = [...BASE_TABS, { id: 'sessions' }]`. Instance owners see only Overview, Analytics, Info tabs. Both CC backend routes (`/admin/sessions`, `/admin/users/{id}/conversations`) require `_require_admin`. Do NOT write CC journey specs that expect instance owners to see or access session/conversation history — this is a known product gap, not a spec bug.
 
+**CC instance config provisioning (required for J04 + J06–J09):** Every CC instance needs BOTH a DB row in `instance_owners` AND a config directory at `/opt/contentcompanion/config/instances/{slug}/` on EC2 with `instance.yaml`, `persona.yaml`, and `tiers.yaml`. New QA instances created in phronex-auth are NOT automatically propagated to either location. Manual steps required (both done for `e2e-test-instance` on 2026-04-30):
+1. DB insert: `INSERT INTO instance_owners ...` (see run 2 notes above)
+2. Config dir: `mkdir -p /opt/contentcompanion/config/instances/{slug}/` + write 3 YAML files
+
 **CC Backend API URL map:**
 
 | Call | Correct URL |
