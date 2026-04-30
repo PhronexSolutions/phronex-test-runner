@@ -166,6 +166,15 @@ if [[ "${PRODUCT}" == "portal" ]] && [[ -n "${_PORTAL_PASS}" ]]; then
   fi
 fi
 
+# Kill any stale cctr-state MCP server on port 3001 from a previous aborted run.
+# If left running it serves the last journey's stale test plan to the next run.
+_STALE_PID=$(lsof -ti:3001 2>/dev/null || true)
+if [[ -n "${_STALE_PID}" ]]; then
+  echo "[preflight] Killing stale cctr-state server (PID ${_STALE_PID}) on port 3001"
+  kill "${_STALE_PID}" 2>/dev/null || true
+  sleep 1
+fi
+
 # Step 1: cc-test-runner
 echo ""
 echo "[1/3] Spawning cc-test-runner..."
