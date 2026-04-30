@@ -15,6 +15,12 @@
 
 set -euo pipefail
 
+# cc-test-runner spawns `claude` subprocesses. If ANTHROPIC_API_KEY is set in the
+# shell, it takes precedence over OAuth credentials even when the key is exhausted.
+# Unset it here so the runner always falls back to ~/.claude/.credentials.json (OAuth /
+# Claude Max subscription) which is the correct auth path for DevServer runs.
+unset ANTHROPIC_API_KEY
+
 PRODUCT="${1:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
 SPEC_FILE="${2:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)

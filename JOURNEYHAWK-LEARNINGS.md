@@ -227,15 +227,17 @@ curl -sf https://auth.phronex.com/health  # must return {"status":"healthy"}
 
 ---
 
-### API Credit Exhaustion Blocker (discovered CC run 4, 2026-04-30)
+### ANTHROPIC_API_KEY Priority Bug — Use OAuth Instead (discovered CC run 4, fixed 2026-04-30)
 
-**Signature:** cc-test-runner crashes with "Claude Code process exited with code 1". The debug.log ends with `"Credit balance is too low"` in the result message. The `/v1/models` endpoint returns 200 (models list doesn't consume credits) but any `/v1/messages` call returns HTTP 400 with `{"type":"invalid_request_error","message":"Your credit balance is too low..."}`.
+**Signature:** cc-test-runner crashes with "Claude Code process exited with code 1" immediately at startup. `"Credit balance is too low"` in the result.
 
-**Root cause:** The cc-test-runner inherits `ANTHROPIC_API_KEY` from the shell environment. When that key's prepaid credit balance is zero, every Claude Code subprocess invocation fails immediately on the first API call. The runner binary crashes and no subsequent journeys execute.
+**Root cause:** cc-test-runner inherits `ANTHROPIC_API_KEY` from the shell. When set, it takes precedence over `~/.claude/.credentials.json` (OAuth / Claude Max) even when the key's prepaid credits are exhausted. The correct auth for DevServer runs is OAuth (`subscriptionType: max`), not the prepaid API key.
 
-**Fix:** Top up credits at https://console.anthropic.com/settings/billing. Verify with: `curl -s https://api.anthropic.com/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" -H "anthropic-version: 2023-06-01" -H "content-type: application/json" -d '{"model":"claude-haiku-4-5-20251001","max_tokens":5,"messages":[{"role":"user","content":"hi"}]}'`. HTTP 200 = credits available; HTTP 400 = still empty.
+**Fix (permanent — now in run-journeyhawk.sh):** `unset ANTHROPIC_API_KEY` is added at the top of `run-journeyhawk.sh`. The runner now always falls back to OAuth. No billing top-up needed.
 
-**Not a false positive.** Unlike the CTRF pending-step pattern, this crash is unambiguous — the run genuinely did not execute.
+**Verify OAuth is working:** `env -u ANTHROPIC_API_KEY claude -p "say: ok" --model claude-haiku-4-5-20251001` should return `ok` within a few seconds.
+
+**CC EC2 server key:** Separately, the CC backend's `ANTHROPIC_API_KEY` in `/opt/contentcompanion/.env` is a different prepaid key used for the production widget. That one being exhausted breaks the CC widget for real visitors — requires a separate top-up or key rotation on EC2.
 
 ---
 
