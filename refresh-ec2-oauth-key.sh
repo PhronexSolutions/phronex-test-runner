@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 # refresh-ec2-oauth-key.sh
 # Reads the Claude Max OAuth access token from ~/.claude/.credentials.json and
-# deploys it to Phronex services that need ANTHROPIC_API_KEY:
-#   - EC2 contentcompanion (CC widget — cc.phronex.com)
-#   - DevServer command-centre (ComC — port 8004)
+# deploys it as ANTHROPIC_API_KEY to all Phronex services that need it:
+#
+#   EC2 services (43.204.79.39):
+#     - contentcompanion  → /opt/contentcompanion/.env
+#     - jobportal         → /opt/jobportal/.env
+#     - praxis            → /opt/praxis/.env
+#
+#   DevServer services (this machine):
+#     - command-centre    → /opt/command-centre/.env
 #
 # Designed to run as a cron job every 4 hours so services never go dark
 # when prepaid API credits are exhausted. Claude Code auto-refreshes its own
@@ -13,19 +19,19 @@
 #   0 */4 * * * /home/ouroborous/code/phronex-test-runner/refresh-ec2-oauth-key.sh >> /tmp/ec2-oauth-refresh.log 2>&1
 #
 # RULES:
-#   1. For EC2 CC: skips deploy if the current prepaid key is healthy (HTTP 200).
-#      If the prepaid key is exhausted or the service is already on an OAuth token,
-#      deploys the latest OAuth token and restarts.
-#   2. For ComC: always writes the OAuth token to /opt/command-centre/.env and
-#      reloads systemd (ComC has no prepaid key to protect).
-#   3. Forces a claude CLI call first so Claude Code refreshes the OAuth token
+#   1. One shared health check: all three EC2 services use the same prepaid key.
+#      If that key is healthy, skip all EC2 deploys (no unnecessary restarts).
+#   2. If the prepaid key is exhausted or an OAuth token is already in place,
+#      deploy the OAuth token to all three EC2 services and restart each.
+#   3. DevServer ComC always gets the latest token (no prepaid key to protect).
+#   4. Forces a claude CLI call first so Claude Code refreshes the OAuth token
 #      if it is within 30 minutes of expiry.
-#   4. Verifies the token works before deploying to either target.
-#   5. Logs all actions to /tmp/ec2-oauth-refresh.log for auditability.
+#   5. Verifies the token works before deploying to any target.
+#   6. Logs all actions to /tmp/ec2-oauth-refresh.log for auditability.
 #
 # Usage:
-#   ./refresh-ec2-oauth-key.sh          # normal run (smart skip for CC if prepaid OK)
-#   ./refresh-ec2-oauth-key.sh --force  # always deploy to both targets regardless
+#   ./refresh-ec2-oauth-key.sh          # normal run (smart skip if prepaid key OK)
+#   ./refresh-ec2-oauth-key.sh --force  # always deploy to all targets
 
 set -euo pipefail
 unset ANTHROPIC_API_KEY
@@ -34,7 +40,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CREDS_FILE="$HOME/.claude/.credentials.json"
 SSH_KEY="$HOME/code/AWSContentCompanion.pem"
 EC2_HOST="ubuntu@43.204.79.39"
-EC2_ENV="/opt/contentcompanion/.env"
 COMC_ENV="/opt/command-centre/.env"
 LOG_FILE="/tmp/ec2-oauth-refresh.log"
 FORCE="${1:-}"
@@ -58,7 +63,6 @@ echo "[1/5] Refreshing OAuth token via claude CLI..."
 env -u ANTHROPIC_API_KEY claude -p "ok" --model claude-haiku-4-5-20251001 > /dev/null 2>&1 || true
 sleep 2
 
-# Read the (now current) access token and expiry
 ACCESS_TOKEN=$(python3 -c "
 import json
 d = json.load(open('$CREDS_FILE'))
@@ -95,14 +99,15 @@ if [ "$RESULT" != "OK" ]; then
 fi
 echo "   Token verified OK"
 
-# ── Step 3: Deploy to EC2 contentcompanion ────────────────────────────────
+# ── Step 3: EC2 health check (one check covers all three EC2 services) ─────
 echo ""
-echo "[3/5] EC2 contentcompanion target..."
-DEPLOY_CC=true
+echo "[3/5] EC2 services health check..."
+DEPLOY_EC2=true
 
 if [ "$FORCE" != "--force" ]; then
+  # Read the current key from contentcompanion (representative — all three share it)
   CURRENT_EC2_KEY=$(ssh -i "$SSH_KEY" -o ConnectTimeout=10 -o BatchMode=yes "$EC2_HOST" \
-    "grep '^ANTHROPIC_API_KEY=' $EC2_ENV | cut -d= -f2-" 2>/dev/null || echo "")
+    "grep '^ANTHROPIC_API_KEY=' /opt/contentcompanion/.env | cut -d= -f2-" 2>/dev/null || echo "")
 
   if [[ "$CURRENT_EC2_KEY" == sk-ant-api03-* ]]; then
     HEALTH=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -113,40 +118,58 @@ if [ "$FORCE" != "--force" ]; then
       -d '{"model":"claude-haiku-4-5-20251001","max_tokens":5,"messages":[{"role":"user","content":"hi"}]}' \
       --max-time 10 2>/dev/null || echo "000")
     if [ "$HEALTH" = "200" ]; then
-      echo "   Prepaid key is healthy (HTTP 200) — skipping CC deploy. Use --force to override."
-      DEPLOY_CC=false
+      echo "   Prepaid key is healthy (HTTP 200) — skipping all EC2 deploys. Use --force to override."
+      DEPLOY_EC2=false
     else
-      echo "   Prepaid key exhausted (HTTP $HEALTH) — deploying OAuth token to CC..."
+      echo "   Prepaid key exhausted (HTTP $HEALTH) — deploying OAuth token to all EC2 services..."
     fi
   else
-    echo "   EC2 already on OAuth token — refreshing with latest..."
+    echo "   EC2 already on OAuth token — refreshing all services with latest..."
   fi
 else
-  echo "   --force flag set — skipping health check"
+  echo "   --force flag set — deploying to all EC2 services"
 fi
 
-if [ "$DEPLOY_CC" = "true" ]; then
+# ── Step 4: Deploy to EC2 (contentcompanion + jobportal + praxis) ──────────
+if [ "$DEPLOY_EC2" = "true" ]; then
+  echo ""
+  echo "[4/5] Deploying to EC2 (contentcompanion, jobportal, praxis)..."
   ssh -i "$SSH_KEY" -o ConnectTimeout=15 -o BatchMode=yes "$EC2_HOST" bash << ENDSSH
-    sudo cp $EC2_ENV ${EC2_ENV}.bak-\$(date +%Y%m%d_%H%M%S)
-    sudo ls -t ${EC2_ENV}.bak-* 2>/dev/null | tail -n +4 | sudo xargs -r python3 -c "import sys,os; [os.unlink(p) for p in sys.argv[1:]]" 2>/dev/null || true
-    sudo sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${ACCESS_TOKEN}|" $EC2_ENV
-    sudo systemctl restart contentcompanion
-    sleep 5
-    STATUS=\$(sudo systemctl is-active contentcompanion)
-    echo "   CC service status: \$STATUS"
+    set -e
+    TOKEN="${ACCESS_TOKEN}"
+    TS=\$(date +%Y%m%d_%H%M%S)
+
+    deploy_service() {
+      local ENV_FILE="\$1"
+      local SERVICE="\$2"
+
+      echo ""
+      echo "  → \$SERVICE"
+      sudo cp "\$ENV_FILE" "\${ENV_FILE}.bak-\${TS}"
+      # Rotate: keep only the 3 most recent backups
+      sudo ls -t "\${ENV_FILE}.bak-"* 2>/dev/null | tail -n +4 | sudo xargs -r python3 -c "import sys,os; [os.unlink(p) for p in sys.argv[1:]]" 2>/dev/null || true
+      sudo sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=\${TOKEN}|" "\$ENV_FILE"
+      sudo systemctl restart "\$SERVICE"
+      sleep 4
+      STATUS=\$(sudo systemctl is-active "\$SERVICE")
+      echo "     Status: \$STATUS"
+    }
+
+    deploy_service /opt/contentcompanion/.env contentcompanion
+    deploy_service /opt/jobportal/.env jobportal
+    deploy_service /opt/praxis/.env praxis
 ENDSSH
-  echo "   ✅ EC2 contentcompanion updated."
+  echo ""
+  echo "   ✅ EC2 services updated: contentcompanion, jobportal, praxis"
 else
-  echo "   ✅ EC2 contentcompanion skipped (prepaid key healthy)."
+  echo "[4/5] EC2 deploy skipped (prepaid key healthy)."
 fi
 
-# ── Step 4: Deploy to DevServer command-centre ────────────────────────────
+# ── Step 5: Deploy to DevServer command-centre ────────────────────────────
 echo ""
-echo "[4/5] DevServer command-centre target..."
+echo "[5/5] DevServer command-centre target..."
 if [ -f "$COMC_ENV" ]; then
-  # Backup first
   cp "$COMC_ENV" "${COMC_ENV}.bak-$(date +%Y%m%d_%H%M%S)"
-  # Rotate: keep only the 3 most recent backups
   ls -t "${COMC_ENV}.bak-"* 2>/dev/null | tail -n +4 | xargs -r python3 -c "import sys,os; [os.unlink(p) for p in sys.argv[1:]]" 2>/dev/null || true
 
   if grep -q '^ANTHROPIC_API_KEY=' "$COMC_ENV"; then
@@ -155,7 +178,6 @@ if [ -f "$COMC_ENV" ]; then
     echo "ANTHROPIC_API_KEY=${ACCESS_TOKEN}" >> "$COMC_ENV"
   fi
 
-  # Reload systemd env without full restart (systemctl reload if available, else restart)
   if sudo systemctl reload command-centre 2>/dev/null; then
     echo "   ComC service reloaded."
   else
@@ -169,14 +191,13 @@ else
   echo "   ⚠️  $COMC_ENV not found — ComC not installed on this machine, skipping."
 fi
 
-# ── Step 5: Summary ────────────────────────────────────────────────────────
+# ── Summary ────────────────────────────────────────────────────────────────
 echo ""
-echo "✅ Done. Services refreshed via OAuth token."
+echo "✅ Done. All services refreshed via OAuth token."
 echo "   Token expires: $EXPIRY"
 echo "   Next auto-refresh: within 4 hours via cron"
 echo ""
-echo "   To restore EC2 CC permanent prepaid key after topping up credits:"
+echo "   To restore EC2 permanent prepaid key after topping up credits:"
 echo "   1. Go to console.anthropic.com/settings/billing → add credits"
 echo "   2. Run: ./refresh-ec2-oauth-key.sh --force"
-echo "      (or manually: ssh EC2, edit /opt/contentcompanion/.env, restart service)"
 echo ""
