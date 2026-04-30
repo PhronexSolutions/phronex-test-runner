@@ -151,6 +151,9 @@ A QA account that holds grants for multiple products will trigger suppression lo
 | Run 4 result | 0/12 defects logged — FP detection bug `8edbfec1` swallowed all failures; portal was also down mid-run |
 | Run 5 result | 7/10 PASS, 1 real defect (jobs detail view — fixed in portal), 2 spec/infra FPs (conditional step + localStorage — see correction in run 6) |
 | Run 6 result | 9/10 PASS, 0 real defects, 1 spec FP (jp-d08 — QA account has CC grant so banner correctly absent; spec rewritten) |
+| Run 7 result (2026-04-30) | 10/12 PASS, 0 real defects. jp-d01 FP (rate limit, re-run blocked by credits). jp-d08 SPEC BUG fixed f5ad83e (/cc→/cc/dashboard). Cleanup 403 pre-existing (SDK key mismatch). |
+
+**⚠️ JP cleanup 403 — production host guard (discovered 2026-04-30):** JP cleanup returns HTTP 403 "Endpoint disabled on production host (jobc.phronex.com)". The cleanup route checks `PHRONEX_QA_ALLOWED_HOSTS` and blocks on the production domain. The SDK key is correct. Cleanup is non-fatal — runs continue — but test data accumulates. Fix: set `PHRONEX_QA_ALLOWED_HOSTS=jobc.phronex.com` in `/opt/jobportal/.env` on EC2 and restart the service, OR accept accumulation (journeys verify counts before mutating, so stale data doesn't break assertions).
 
 **Multi-tier QA accounts (provisioned 2026-04-30):**
 
