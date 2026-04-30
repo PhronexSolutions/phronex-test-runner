@@ -60,8 +60,8 @@
     ]
   },
   {
-    "id": "portal-admin-deep-customer",
-    "description": "Deep audit: Customer group (13 tabs) — tab render + Column A state mutation",
+    "id": "portal-admin-deep-customer-a",
+    "description": "Deep audit: Customer group part A (6 tabs: analytics-bi through competitive) — tab render verification",
     "steps": [
       {
         "id": 1,
@@ -77,15 +77,45 @@
       },
       {
         "id": 4,
-        "description": "For each of the following admin tabs in the Customer group: b2b-users, b2c-users, user-analytics, analytics, competitive, goal-hierarchy, meeting-intelligence, content-curation, habits-routines, assessment, coach-crm, comc-orgs — navigate to https://app.phronex.com/admin?tab={tab_id} for each one. Verify each tab renders panel content. Do not stop at the first failure — visit all tabs. Record: PASS, FAIL (with error type), or EMPTY-STATE for each."
+        "description": "For each of the following admin tabs: b2b-users, b2c-users, user-analytics, analytics, competitive — navigate to https://app.phronex.com/admin?tab={tab_id} for each one. Verify each renders panel content. Do not stop at first failure — visit all 5. Record: PASS, FAIL (error type), or EMPTY-STATE for each."
       },
       {
         "id": 5,
-        "description": "Navigate to https://app.phronex.com/admin?tab=b2b-users. Click into the first user row visible in the table (if the table is empty, report empty-state and skip the click). If a user detail panel opens, verify it contains at least: email address, role badge, and grants list. Report what fields are populated and whether the panel opened successfully."
+        "description": "Navigate to https://app.phronex.com/admin?tab=b2b-users. Click into the first user row visible in the table (if the table is empty, report empty-state and skip). If a user detail panel opens, verify it contains at least: email address, role badge, and grants list. Report what fields are populated and whether the panel opened successfully."
       },
       {
         "id": 6,
-        "description": "Take a final screenshot of the last tab visited. Report: (a) tabs that PASSed, (b) tabs that FAILed with error type, (c) tabs in EMPTY-STATE, (d) Column A action result (PASS/FAIL/EMPTY-STATE with observed values), (e) any JavaScript console errors seen."
+        "description": "Take a final screenshot. Report: (a) tabs that PASSed, (b) tabs that FAILed with error type, (c) tabs in EMPTY-STATE, (d) Column A action result (PASS/FAIL/EMPTY-STATE with observed values), (e) any JavaScript console errors seen."
+      }
+    ]
+  },
+  {
+    "id": "portal-admin-deep-customer-b",
+    "description": "Deep audit: Customer group part B (7 tabs: goal-hierarchy through comc-orgs) — tab render verification",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close all tabs except one. Clear localStorage for app.phronex.com to avoid stale session state from previous runs."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in with email 'qa-test-journeyhawk@phronex.com' and the QA superadmin password from .qa.env (QA_SUPERADMIN_PASSWORD). Wait until the URL no longer contains /auth/login before proceeding."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=goal-hierarchy. Verify the panel loads — no ErrorBoundary crash, no blank white body, no permanent loading spinner. Take a screenshot."
+      },
+      {
+        "id": 4,
+        "description": "For each of the following admin tabs: meeting-intelligence, content-curation, habits-routines, assessment, coach-crm, comc-orgs — navigate to https://app.phronex.com/admin?tab={tab_id} for each one. Verify each renders panel content. Do not stop at first failure — visit all 6. Record: PASS, FAIL (error type), or EMPTY-STATE for each."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/admin?tab=assessment. Verify the capability cards render at least one entry. For the first card, read its status badge. Report the badge text and total card count. This is the Column A state verification for this journey."
+      },
+      {
+        "id": 6,
+        "description": "Take a final screenshot. Report: (a) tabs that PASSed, (b) tabs that FAILed with error type, (c) tabs in EMPTY-STATE, (d) Column A action result (PASS/FAIL/EMPTY-STATE with observed values), (e) any JavaScript console errors seen."
       }
     ]
   },

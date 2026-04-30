@@ -79,20 +79,38 @@ echo "[env] Portal URL: ${PORTAL_URL}"
 TEMP_SPEC=$(mktemp /tmp/jh-spec-XXXXXX.json)
 trap 'rm -f "${TEMP_SPEC}"' EXIT
 # Chain: URL substitution + credential injection.
-# QA_SUPERADMIN_PASSWORD / PHRONEX_PORTAL_TEST_PASSWORD are injected so the
-# spec can reference the sentinel QA_SUPERADMIN_PASSWORD without committing
-# credentials to git. PHRONEX_PORTAL_TEST_EMAIL similarly.
+# Credential injection — sentinels in spec text are replaced at runtime so the
+# LLM agent receives literal values, never placeholder strings.
+# Sentinels and their .qa.env sources:
+#   QA_SUPERADMIN_PASSWORD  ← PHRONEX_PORTAL_TEST_PASSWORD or QA_SUPERADMIN_PASSWORD
+#   qa-test-journeyhawk@phronex.com ← PHRONEX_PORTAL_TEST_EMAIL
+#   QA_OWNER_EMAIL / QA_OWNER_PASSWORD ← RBAC gate (owner role, not superadmin)
+#   QA_USER_EMAIL  / QA_USER_PASSWORD  ← RBAC gate (regular user, not superadmin)
 _PORTAL_PASS="${PHRONEX_PORTAL_TEST_PASSWORD:-${QA_SUPERADMIN_PASSWORD:-}}"
 _PORTAL_EMAIL="${PHRONEX_PORTAL_TEST_EMAIL:-qa-test-journeyhawk@phronex.com}"
+_OWNER_EMAIL="${QA_OWNER_EMAIL:-qa-owner@phronex.com}"
+_OWNER_PASS="${QA_OWNER_PASSWORD:-}"
+_USER_EMAIL="${QA_USER_EMAIL:-qa-user@phronex.com}"
+_USER_PASS="${QA_USER_PASSWORD:-}"
 sed \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
   -e "s|qa-test-journeyhawk@phronex\.com|${_PORTAL_EMAIL}|g" \
+  -e "s|QA_OWNER_EMAIL|${_OWNER_EMAIL}|g" \
+  -e "s|QA_OWNER_PASSWORD|${_OWNER_PASS}|g" \
+  -e "s|QA_USER_EMAIL|${_USER_EMAIL}|g" \
+  -e "s|QA_USER_PASSWORD|${_USER_PASS}|g" \
   "${SPEC_FILE}" > "${TEMP_SPEC}"
 if [[ -n "${_PORTAL_PASS}" ]]; then
   echo "[env] Portal credentials: ${_PORTAL_EMAIL} (password injected)"
 else
   echo "[env] WARNING: PHRONEX_PORTAL_TEST_PASSWORD not set — login steps may fail"
+fi
+if [[ -z "${_OWNER_PASS}" ]]; then
+  echo "[env] WARNING: QA_OWNER_PASSWORD not set — RBAC owner gate journey will fail"
+fi
+if [[ -z "${_USER_PASS}" ]]; then
+  echo "[env] WARNING: QA_USER_PASSWORD not set — RBAC user gate journey will fail"
 fi
 
 # Step 0: Pre-run test data cleanup (optional — skipped if SDK key not set)
