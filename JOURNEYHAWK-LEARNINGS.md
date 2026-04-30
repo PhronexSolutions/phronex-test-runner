@@ -157,6 +157,26 @@ rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock 2>/dev/null; true
 
 ---
 
+### Spec-Execution Route Prefix FP (discovered jp-d08, Run 9, 2026-04-30)
+
+**Signature:** A journey step that asks Claude to "verify that a nav entry exists for Product X" causes Claude to click that nav entry during verification. The click navigates to the routePrefix (e.g. `/cc`) rather than the manifest's `href` (e.g. `/cc/dashboard`). If no `page.tsx` exists at the routePrefix, the subsequent explicit-navigate step fails with a 404.
+
+**Root cause:** Two-part issue:
+1. Step phrasing "verify a navigation entry exists" is ambiguous — Claude may click rather than just look.
+2. The portal's product nav items correctly link to `/cc/dashboard`, but bare `/cc` had no `page.tsx` redirect, so any accidental navigation to `/cc` 404s.
+
+**Specific occurrence (jp-d08, Run 9):** Step 4 "Verify that the portal header contains a CC navigation entry" — Claude clicked the CC header item (which navigated to `/cc/dashboard`), then step 5 tried its explicit navigate and landed on `/cc` due to execution state mismatch. ctrf recorded the step 5 error: `Navigation to /cc resulted in a 404`.
+
+**Fix (two parts):**
+1. **Portal fix (commit on main):** Added `src/app/(dashboard)/cc/page.tsx` with `redirect('/cc/dashboard')` — bare `/cc` now redirects instead of 404ing.
+2. **Spec fix:** Rewrite "verify nav exists" steps to be explicit: "In the header, confirm a 'Content Companion' nav item is visible (do NOT click it — only visually verify). If visible: proceed. If absent: FAIL."
+
+**Prevention:** Steps that verify UI elements exist should specify whether clicking is expected. "Verify X is present" ≠ "click X". Add "(do NOT click)" to purely observational steps when clicking would alter navigation state.
+
+**Note:** The intelligence pipeline correctly classified this as LOW severity (not CRITICAL) — the normal navigation path uses `/cc/dashboard` and users never encounter the bare `/cc` 404 through any UI link.
+
+---
+
 ## Per-Product Notes
 
 ### JobPortal (jp)
@@ -174,7 +194,7 @@ rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock 2>/dev/null; true
 | Run 6 result | 9/10 PASS, 0 real defects, 1 spec FP (jp-d08 — QA account has CC grant so banner correctly absent; spec rewritten) |
 | Run 7 result | 9/12 PASS, 1 real defect (jp-d05 scan history API contract drift — fixed e927e2f), 2 Chrome MCP FPs (jp-d08, jp-d09). jp-d07a/b/c all PASS — billing tier fix validated. |
 | Run 8 result | 0/3 PASS (retry of jp-d05/d08/d09). All 3 Chrome MCP FPs — --isolated flag added to cctr-playwright MCP, cc-test-runner rebuilt. |
-| Run 9 | Full 12-journey suite with --isolated Chrome fix. jp-d05 e927e2f on EC2. Record<string,string> → Record<JobStatus,string> fixes 46d10cd on EC2. |
+| Run 9 result | 10/12 PASS, 0 real product defects, 2 FPs (jp-d01 rate-limit + jp-d08 spec-execution). jp-d07a/b/c PASS — tier labels validated across all 3 tiers. jp-d05 scan history fix e927e2f confirmed. --isolated Chrome fix holding (zero profile conflicts across 12 sequential tests). Minor UX gap: bare `/cc` 404s → fixed with page.tsx redirect (portal commit). |
 
 **Multi-tier QA accounts (provisioned 2026-04-30):**
 
@@ -220,6 +240,7 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 9 | 1 | 0 | Run 6. jp-d04 + jp-d09 now pass. 1 spec FP (jp-d08 — QA account has CC grant; spec rewritten). |
 | 2026-04-30 | jp | jp-deep.json (12 d-series) | 9 | 3 | 1 | Run 7. jp-d07a/b/c all PASS (billing tier fix validated). jp-d05 real defect: API contract drift in ScanHistoryClient (fixed e927e2f). jp-d08 + jp-d09 Chrome MCP FPs. |
 | 2026-04-30 | jp | jp-retry.json (3 journeys) | 0 | 3 | 0 | Run 8. Retry of jp-d05/d08/d09. All 3 Chrome MCP FPs — profile not released between test cases. Root fix: --isolated added to cctr-playwright MCP args. |
+| 2026-04-30 | jp | jp-deep.json (12 d-series) | 10 | 2 | 0 | Run 9. --isolated Chrome fix confirmed (zero profile conflicts). jp-d07a/b/c PASS (billing fix ada45d1 validated across free/standard/pro). jp-d05 scan history fix e927e2f confirmed. 2 FPs: jp-d01 rate-limit, jp-d08 spec-execution (/cc 404 — bare route, spec already said /cc/dashboard; minor portal UX gap fixed with redirect page.tsx). |
 
 ---
 
