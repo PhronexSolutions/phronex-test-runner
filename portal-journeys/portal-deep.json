@@ -1,0 +1,362 @@
+[
+  {
+    "id": "portal-deep-01-ceo-scorecard",
+    "description": "CEO Scorecard: verify /dashboard renders real BSC data, perspective tiles link to correct admin tabs, and ?refresh=true bypasses TTL cache",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then clear localStorage for app.phronex.com by executing: localStorage.clear() in the browser console."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login. Screenshot the landing page."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/dashboard. Wait for the page to fully load (no spinning indicators). Verify: (a) the page has a CEO Scorecard heading or equivalent, (b) at least 4 perspective tiles are visible (Financial, Customer, Internal Process, Learning & Growth), (c) none show 'undefined', 'NaN', or blank score values — all scores must be numbers. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Click the Financial perspective tile. Verify the URL changes to /admin?tab=cost-intelligence (or a sub-tab thereof). Verify the page shows cost intelligence content — NOT a blank panel, NOT an ErrorBoundary. Then use the browser back button to return to /dashboard. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "On the /dashboard page, find and click the Refresh button (should be labelled 'Refresh' or have a refresh icon). After clicking, verify: (a) a loading state appears briefly, (b) the 'Last updated' timestamp changes to show a more recent time. If the timestamp does NOT change after refresh, that is a FAIL — report it. Screenshot before and after refresh."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot the full dashboard. Report: (a) all 4 perspective tile scores shown (pass/fail + actual values), (b) Attention section presence and item count, (c) Financial tile drill-down result (pass/fail), (d) Refresh button timestamp change (pass/fail), (e) any console errors, (f) any 'undefined' or blank values in score tiles."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-02-settings-persistence",
+    "description": "Settings: verify profile name change saves and persists after navigation away and back — tests the most common silent-discard defect class",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate current tab to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/settings. Verify the settings page loads with a Profile section showing name and email fields. Read the current display name and note it. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "In the display name field, clear the current value and type a new test name: 'JH Test User 2026'. Click Save (or the equivalent submit button). Wait 2 seconds. Verify: (a) a success toast or confirmation appears (b) the page still shows the profile section without errors. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate away to https://app.phronex.com/products. Wait 2 seconds. Then navigate back to https://app.phronex.com/settings. Verify: the display name field now shows 'JH Test User 2026' — confirming the change persisted. If the field reverted to the original name, that is a FAIL — data was silently discarded. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Now restore the original name: clear the field, type back 'Vivek Parmar' (or whatever was there originally — check the current value), click Save. Verify the save succeeds. Screenshot. Report: (a) save confirmation appeared (pass/fail), (b) value persisted after navigation (pass/fail), (c) any error messages, (d) any console errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-03-jp-user-flow",
+    "description": "JobPortal user: verify jobs list loads with real data, job row click opens detail view, scan history shows results — tests jp-d05 API drift regression + job detail modal",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/jp/jobs. Wait for the page to load. Verify: (a) the page does NOT show an ErrorBoundary or blank body, (b) either a list of jobs OR a meaningful empty state with a CTA is visible. If jobs are listed, verify each row shows: job title, company, and at least one other field (status, match score, or date). Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/jp/scan-history. Wait for the page to load. Verify: (a) the page renders without errors, (b) if scan history rows are present, verify each row shows: date, status, and at least one numeric count (jobs scanned or matched). If any table cell shows 'undefined' or is blank where a number is expected, report it as an API contract drift defect. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/jp/dashboard. Verify: (a) the JP dashboard loads, (b) at least one section has content (not all blank), (c) the onboarding banner or dashboard action tiles are visible if no portrait/jobs exist. Navigate to https://app.phronex.com/jp/subscription. Verify: (a) the subscription page loads, (b) the current tier label is visible (e.g. 'Standard Seeker' or 'Free Seeker') and is not 'undefined'. Screenshot each."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot. Report: (a) jobs list: real data or meaningful empty state (pass/fail), (b) scan history: column values correct vs undefined/blank (pass/fail), (c) JP dashboard: content present (pass/fail), (d) subscription tier label: visible and not 'undefined' (pass/fail), (e) any console errors observed."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-04-cc-owner-flow",
+    "description": "ContentCompanion owner: verify /cc/dashboard, /cc/subscription (tier label + billing section), /cc/instance (settings persist), /cc/content — core CC owner flows",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify: (a) NOT a 404, (b) NOT an ErrorBoundary crash, (c) the dashboard section has content — overview tiles or data panels are visible. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/cc/subscription. Verify: (a) the subscription page loads, (b) the current tier label is visible — check for 'Free', 'Premium', or a specific tier name. It must NOT show 'HTTP 500', 'undefined', or a blank panel body. Screenshot. If HTTP 500 visible: report as BROKEN defect with severity HIGH."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/cc/instance. Verify: (a) instance settings page loads, (b) at least one editable field is visible (persona greeting, name, or configuration field). Find the greeting or persona name field. Note its current value. Change it to 'JH Test 2026 Greeting'. Click Save. Verify a success confirmation appears. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard. Then navigate back to https://app.phronex.com/cc/instance. Verify the greeting field still shows 'JH Test 2026 Greeting' — confirming persistence. If it reverted, report as BROKEN (data not persisting). Restore original value if possible. Screenshot. Report: (a) CC dashboard render (pass/fail), (b) subscription tier visible/not-500 (pass/fail), (c) instance settings save+persist (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-05-superadmin-impersonation",
+    "description": "Impersonation full lifecycle: superadmin impersonates user → ImpersonationBanner visible → /admin returns 403 → Exit restores superadmin session",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=accounts. Wait for the Users tab to load. Verify a user list or search box is visible. Find a user row — look for qa-owner@phronex.com or any non-superadmin user. Click that row to open the UserDetailPanel. Verify the panel shows user details (email, role, grants). Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "In the UserDetailPanel, find and click the 'Impersonate' button. Wait for the redirect to complete. Verify: (a) URL changed to /products or similar non-admin page, (b) an amber/orange ImpersonationBanner is visible at the top of the page showing the impersonated user's email. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "While still impersonating, navigate to https://app.phronex.com/admin. Verify: (a) the page does NOT render the admin panel, (b) either a 403 message appears OR the user is redirected to /products. An impersonated session MUST NOT access /admin. Screenshot. If admin panel renders during impersonation, report as CRITICAL BROKEN defect."
+      },
+      {
+        "id": 6,
+        "description": "Find and click the Exit button in the ImpersonationBanner. Wait for redirect. Verify the URL goes to /auth/login (impersonation exit must clear session). Screenshot. Report: (a) UserDetailPanel opened (pass/fail), (b) ImpersonationBanner visible after impersonation start (pass/fail), (c) /admin blocked during impersonation (pass/fail), (d) Exit returns to login page (pass/fail), (e) any security failures."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-06-admin-ceo-view",
+    "description": "Admin CEO View group: Users tab (search + UserDetailPanel), Backup tab — tests two previously broken admin areas post-Phase-50 sweep",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=accounts. Wait for the Users/Accounts tab to load. Verify: (a) a user table or list is visible with real account rows, (b) the table has at least 2 columns (email, role or similar), (c) no ErrorBoundary crash. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "In the users table, click on any user row to open the UserDetailPanel. Verify: (a) the panel opens (slides in or appears), (b) the user's email is visible, (c) grants/roles section is visible. Do NOT click Impersonate — only verify the panel opens and shows data. Close the panel. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/admin?tab=backup. Wait for the Backup tab to load. Verify: (a) NOT a blank panel or ErrorBoundary, (b) backup status information is visible (last backup time, status badge, or schedule config), (c) the 'Trigger Backup' button is present. Do NOT click Trigger Backup. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot both tabs. Report: (a) Users table renders with data (pass/fail), (b) UserDetailPanel opens with user info (pass/fail), (c) Backup tab renders status info (pass/fail), (d) Trigger Backup button present (pass/fail), (e) any errors or blank panels."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-07-admin-financial-costs",
+    "description": "Admin Financial group: Cost Intelligence (trend + cost data), Revenue Health, Tier Pricing — tests post-#103/#116 chart fixes",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=cost-intelligence. Wait for the Cost Intelligence tab to load. Verify: (a) a cost figure is visible (even if $0), (b) the Trend sub-tab is present, (c) clicking the Trend sub-tab shows a chart area — if the chart area shows only 'Last report' with no data or only date labels with no chart lines, report as BROKEN (chart regression from defect #116). Screenshot the Summary and Trend sub-tabs."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/admin?tab=infra-cost. Verify: (a) the Infra Cost tab loads without error, (b) shows cost values for at least one product. Note the total infra cost shown. Then navigate to https://app.phronex.com/admin?tab=cost-intelligence and check if the cost-intelligence tab shows infra cost values consistent with the infra-cost tab (they should match — inconsistency was defect #103). Report if values differ significantly. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/admin?tab=revenue-health. Verify: (a) NOT ErrorBoundary, (b) revenue metrics or 'no data' state visible, (c) metric labels are readable. Navigate to https://app.phronex.com/admin?tab=tier-pricing. Verify: (a) tier pricing table loads, (b) at least one product shows tier rows (CC, JP, or ComC). Screenshot both."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot all visited tabs. Report: (a) Cost Intelligence: cost figure visible + Trend chart renders (pass/fail), (b) Infra vs Cost-Intelligence value consistency (consistent/inconsistent — note values), (c) Revenue Health: renders without crash (pass/fail), (d) Tier Pricing: shows tier rows (pass/fail), (e) any ErrorBoundary crashes or blank panels."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-08-admin-internal-process",
+    "description": "Admin Internal Process: Errors tab (verify fault isolation), Tools tab (version badge persistence after Phase 51 fix), Host tab metrics",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=errors. Wait for the Errors tab to load. Verify: (a) NOT a blank body or ErrorBoundary crash, (b) either error log entries are shown OR a 'no recent errors' empty state is shown, (c) if a product backend is down (502), verify it shows a named error ('ContentCompanion: 502 Bad Gateway') NOT an anonymous 'downstream failure' message. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/admin?tab=tools. Wait for the Tools tab to load. Verify: (a) a list of tools/services is shown, (b) each tool card shows a version number — it must NOT say 'Version unknown' for all tools (that was defect #130, fixed in Phase 51). If ALL tools show 'Version unknown', report as a regression. Screenshot the tools list."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/admin?tab=host. Verify: (a) the Host tab loads, (b) EC2 machine metrics are shown (CPU, RAM, disk) OR an amber 'pending' badge with a helpful diagnostic message is shown, (c) the tab does NOT show a 404 for health-push (defect #97 was fixed — a 404 here is a regression). Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot all 3 tabs. Report: (a) Errors tab: fault isolation working (products named in errors) (pass/fail), (b) Tools tab: at least some tools show real version numbers not 'Version unknown' (pass/fail), (c) Host tab: metrics or helpful diagnostic shown, NOT a 404 (pass/fail), (d) any ErrorBoundary crashes."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-09-admin-learning-growth",
+    "description": "Admin Learning & Growth: Skill Review with filter actions, Trends tab chart content, Competitive Intelligence — tests chart regression + filter vocabulary fixes",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=skill-review. Wait for the Skill Review panel to load. Verify: (a) skill cards or a skill list is visible, (b) filter chips are present — the filter chips must use the label 'Approved' NOT 'Active' (defect #114 was fixed). If filter chips say 'Active/Suspended' rather than 'Approved/Edited', report as a regression. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "On the Skill Review tab, click on a filter chip (e.g. 'All' or 'Approved'). Verify: (a) the filter action changes the visible skill list (items filter or a 'no results' message appears), (b) clicking a different filter chip changes the view again. This tests that filter state mutations work — not just render. Screenshot before and after filter click."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/admin?tab=trends. Wait for the Trends tab to load. Verify: (a) the 'Category score trends' section renders a chart with visible data lines — NOT just date labels with no lines (defect #110 was fixed), (b) there are at least 2 visible chart elements (lines, bars, or data points). Navigate to https://app.phronex.com/admin?tab=competitive. Verify it loads without a 500 error and shows competitive check items where each row shows check name NOT just a raw ID. Screenshot both."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot both tabs. Report: (a) Skill Review filter label says 'Approved' not 'Active' (pass/fail), (b) filter click changes visible skills (pass/fail), (c) Trends chart shows data lines (pass/fail or 'only date labels'), (d) Competitive tab: check names shown not raw IDs (pass/fail), (e) any console errors or crashes."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-10-admin-create-org",
+    "description": "Admin Plumbing: Create Organisation full lifecycle — fill modal → submit → verify org appears — the highest-value Column A action in admin panel",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=rbac-orgs. Wait for the tab to load. Verify: (a) the Organisations sub-tab is visible, (b) a 'Create Organisation' button is present (defect #128 was fixed — if button is absent, report as regression). Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Click the 'Create Organisation' button. A modal should open. Fill in: Name='JH Test Org 2026', Slug='jh-test-org-2026' (or whatever fields are shown). Screenshot the filled modal."
+      },
+      {
+        "id": 5,
+        "description": "Click Cancel (do NOT submit) to close the modal. Verify the modal closes cleanly and the underlying page is undisturbed. Then click Create Organisation again. This time, submit the form with the same values: Name='JH Test Org 2026', Slug='jh-test-org-2026'. Wait for the response. Verify: (a) a success message or the modal closes, (b) the org list now shows 'JH Test Org 2026'. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot the org list. Report: (a) Create Org button present (pass/fail), (b) modal opens and accepts input (pass/fail), (c) Cancel closes modal cleanly (pass/fail), (d) Submit creates org and org appears in list (pass/fail), (e) any error messages or crashes during the create flow."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-11-rbac-owner-gate",
+    "description": "RBAC gate: owner role (is_superadmin=FALSE) must be redirected from /admin and /dashboard — cannot access superadmin-only routes",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close. Then clear cookies and localStorage for app.phronex.com: execute localStorage.clear() and document.cookie.split(';').forEach(c => { document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/') }) in the browser console."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as QA_OWNER_EMAIL with password QA_OWNER_PASSWORD. Wait for redirect (should land on /products or /jp or /cc — NOT /admin or /dashboard)."
+      },
+      {
+        "id": 3,
+        "description": "Note the landing URL after login. Navigate directly to https://app.phronex.com/admin. Note the resulting URL and page content. Verify: (a) the URL did NOT remain at /admin, (b) admin panel content (BSC group pills, tab list) did NOT render. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate directly to https://app.phronex.com/dashboard. Note the resulting URL and page content. Verify: (a) CEO Scorecard content (perspective tiles) did NOT render, (b) user was redirected away from /dashboard. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/admin?tab=cost-intelligence. Verify this also redirects — the tab parameter should not bypass the /admin guard. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot all redirect destinations. Report: (a) login landing URL (should not be /admin or /dashboard), (b) /admin redirect URL (must not be /admin), (c) /dashboard redirect URL (must not be /dashboard), (d) /admin?tab=cost-intelligence redirect (must redirect), (e) PASS if all 4 paths redirect away from protected routes; FAIL (CRITICAL) if any admin content rendered."
+      }
+    ]
+  },
+  {
+    "id": "portal-deep-12-auth-forgot-password-flow",
+    "description": "Auth: forgot-password flow sends non-enumeration response regardless of email, and reset link page renders — tests critical auth security invariant",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/forgot-password. Verify: (a) the forgot password page loads, (b) an email input field is visible, (c) a Submit button is present. Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Enter a non-existent email: 'nonexistent-jh-test-12345@example.com'. Click Submit. Verify: (a) the page shows a success/confirmation message (e.g. 'If an account exists, we sent a reset link'), (b) the message does NOT say 'No account found' or similar — this would be an email enumeration vulnerability. Screenshot the response."
+      },
+      {
+        "id": 4,
+        "description": "Navigate back to https://app.phronex.com/auth/forgot-password. Enter a real existing email: qa-test-journeyhawk@phronex.com. Click Submit. Verify: (a) the same confirmation message appears as for the non-existent email — both responses must be IDENTICAL to prevent enumeration. Screenshot. If the message differs between existing vs non-existing email, report as a CRITICAL security defect."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/auth/reset-password?token=invalid-test-token-jh2026. Verify: (a) the page renders a reset password form OR an 'invalid/expired link' message, (b) it does NOT show an unhandled error, 500, or blank page. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot all steps. Report: (a) forgot-password page renders (pass/fail), (b) non-existent email gets same response as existing email (security pass/fail), (c) reset page with invalid token shows graceful message not 500 (pass/fail), (d) any email enumeration risk detected."
+      }
+    ]
+  }
+]
