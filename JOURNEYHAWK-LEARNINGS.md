@@ -303,3 +303,10 @@ source ~/code/.qa.env
 psql "$PHRONEX_QA_DATABASE_URL_SYNC" \
   -c "SELECT defect_id, title, severity FROM qa_known_defects ORDER BY first_seen_at DESC LIMIT 10;"
 ```
+
+### `/cc` route 404s — spec must use `/cc/dashboard`
+
+**Discovered:** 2026-04-30, jp-d08 step 5.
+**Pattern:** The Next.js `/cc` path has a `layout.tsx` but no `page.tsx`. Navigating directly to `/cc` returns 404. The correct entry point for the CC product section is `/cc/dashboard`. All journey specs must use `/cc/dashboard` (or deeper paths) — never bare `/cc`.
+**Also applies to:** Any similar product layout-only routes (e.g. if `/jp` had no page.tsx).
+**Secondary finding (FRICTION):** A user clicking a link to `/cc` gets a 404 instead of a redirect to `/cc/dashboard`. This is a minor UX gap — worth a future portal task to add a redirect in the CC layout.

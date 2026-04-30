@@ -291,7 +291,7 @@
       },
       {
         "id": 5,
-        "description": "Navigate to http://localhost:3002/cc — the Content Companion section. Verify it loads without a 403 or 'Access Denied' error. The user holds a CC grant so this should be accessible."
+        "description": "Navigate to http://localhost:3002/cc/dashboard — the Content Companion dashboard. Note: /cc alone 404s (no index page); the valid entry point is /cc/dashboard. Verify it loads without a 403 or 'Access Denied' error. The user holds a CC grant so this should be accessible."
       },
       {
         "id": 6,
