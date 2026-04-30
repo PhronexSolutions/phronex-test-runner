@@ -1,7 +1,8 @@
 # JourneyHawk — Operational Learnings & Reference
 
 > Living document. Updated after every product run.
-> Coding standards derived from RCA belong in `D:/Coding/CLAUDE.md`.
+> **Coding standards derived from RCA belong in `$PHRONEX_CODE_ROOT/phronex-common/config/CODING-PATTERNS.md`** — NOT in CLAUDE.md.
+> CODING-PATTERNS.md is automation's write target. CLAUDE.md is active invariants only (never written by automation).
 > Test infrastructure learnings (false positives, service topology, per-product quirks) live here.
 
 ---
@@ -178,7 +179,7 @@ rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock 2>/dev/null; true
 
 **Specific fix (commit `e927e2f`, 2026-04-30):** `ScanHistoryClient.tsx` type used `new_jobs`, `matched_jobs`, `status`/`error_message`, `started_at` — all mismatching the backend's `jobs_new`, `jobs_matched`, `errors`, `scan_started_at`.
 
-**Prevention rule (added to D:/Coding/CLAUDE.md):** Any client type for a fetch response must use EXACT field names from the backend Pydantic `BaseModel`. Comments in the file must name the backend source: `// Field names match ScanLogResponse in jobportal/api/routes_jobs.py`.
+**Prevention rule (in CODING-PATTERNS.md — API Contract Drift section):** Any client type for a fetch response must use EXACT field names from the backend Pydantic `BaseModel`. Comments in the file must name the backend source: `// Field names match ScanLogResponse in jobportal/api/routes_jobs.py`.
 
 **How to verify without browser:** `curl -sL http://localhost:8001/api/v1/jobs/scan-logs/?limit=1 -H "Authorization: Bearer $TOKEN"` — compare JSON keys against frontend type definition.
 
@@ -366,7 +367,7 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 
 `qa_wiki_articles` is written by the pipeline after every run (one article per `GapFinding`). As of 2026-04-29: 10 articles (8 CC + 2 JP).
 
-`qa_context_hook.py` (`phronex_common.testing.qa_context_hook.get_qa_context`) reads wiki articles and promoted patterns and returns a formatted block for injection into GSD planner prompts. **Status: ✅ wired (2026-04-29).** `D:/Coding/CLAUDE.md` → "GSD + Phronex Skills Integration" step 3 now instructs every GSD `plan-phase` agent to run `python -m phronex_common.testing.qa_context_hook {product_slug}` and include the output in planning context. Fail-open: hook returns `""` when DB unreachable.
+`qa_context_hook.py` (`phronex_common.testing.qa_context_hook.get_qa_context`) reads wiki articles and promoted patterns and returns a formatted block for injection into GSD planner prompts. **Status: ✅ wired (2026-04-29).** `$PHRONEX_CODE_ROOT/CLAUDE.md` → "GSD + Phronex Skills Integration" step 3 now instructs every GSD `plan-phase` agent to run `python -m phronex_common.testing.qa_context_hook {product_slug}` and include the output in planning context. Fail-open: hook returns `""` when DB unreachable.
 
 ---
 
