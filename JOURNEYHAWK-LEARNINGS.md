@@ -276,6 +276,22 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 
 ---
 
+### CC billing/status HTTP 500: MultipleResultsFound on phronex-auth shadow users (defect #60, fixed 2026-04-30)
+
+**Signature:** `GET /api/v1/billing/status` returns HTTP 500. EC2 logs show `sqlalchemy.exc.MultipleResultsFound: Multiple rows were found when one or none was required` from `routes_billing.py:166 scalar_one_or_none()`. The subscription page in the portal shows a 500 in the billing section.
+
+**Root cause:** `_get_user_by_token()` queries `users` by `(phronex_account_id, instance_id)` using `scalar_one_or_none()`. There was no UNIQUE constraint on this pair. If a phronex-auth account logs in through two different flows (e.g. portal JWT + instance owner registration), two User shadow rows are created for the same account+instance combination, causing the duplicate.
+
+**Fix applied:**
+1. Data cleanup on EC2: re-pointed `instance_owners` FK from the duplicate row to the canonical phronex-auth row, then deleted the duplicate with `DELETE FROM users WHERE id = '<duplicate-id>'`.
+2. Alembic migration `96bc1ed1496a` adds a partial UNIQUE index: `CREATE UNIQUE INDEX uq_users_phronex_account_instance ON users (phronex_account_id, instance_id) WHERE phronex_account_id IS NOT NULL`.
+
+**Prevention:** Any code that auto-creates a User row from a phronex-auth token must first check for an existing row. The UNIQUE constraint will now surface race-condition duplicates at the DB level rather than letting them silently accumulate. The QA cleanup hook `CC_TEST_CLEANUP_SDK_KEY` should also wipe shadow user rows between runs to prevent cross-run state accumulation.
+
+**How to detect during a run:** Step-outcomes from J10 show step 2 as "passed" (the 500 appears only in the page content, not the HTTP response code) and steps 5+6 fail. EC2 logs show `MultipleResultsFound` at the route level, NOT a tiers.yaml ValidationError. Distinguish from defect #55 by the exception class.
+
+---
+
 ## Wiki Integration Status
 
 `qa_wiki_articles` is written by the pipeline after every run (one article per `GapFinding`). As of 2026-04-29: 10 articles (8 CC + 2 JP).
@@ -298,6 +314,7 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 9 | 1 | 0 | Run 6. jp-d04 + jp-d09 now pass. 1 spec FP (jp-d08 — QA account has CC grant; spec rewritten). |
 | 2026-04-30 | jp | jp-deep.json (12 d-series) | 12 | 0 | 0 | Run 7. All 12 pass. jp-d08 spec fixed (/cc/dashboard). jp-d01 retry after rate-limit cleared. |
 | 2026-04-30 | cc | cc-deep.json (10) | 8 | 2 | 2 | CC Run 5. J06+J07 FPs (pre-OAuth-swap, prepaid key exhausted — will pass run 6). J05: no analytics chart (FRICTION defect #54). J10: subscription page HTTP 500, tiers.yaml schema mismatch (BROKEN defect #55 — fixed EC2 2026-04-30). |
+| 2026-04-30 | cc | cc-deep.json (10) | 6 | 4 | 1 | CC Run 6. J01/J03/J04: browser isolation FPs (cold-start — BROWSER RESET fails on very first journey of run). J05 ✅ (analytics chart defect #54 fixed). J06–J09 all pass. J10 ❌ new defect #60: billing/status HTTP 500 MultipleResultsFound — duplicate phronex-auth shadow user row (fixed: EC2 data cleanup + Alembic migration 96bc1ed1496a adding partial UNIQUE on phronex_account_id+instance_id). |
 
 ---
 
