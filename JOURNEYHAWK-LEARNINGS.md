@@ -254,6 +254,13 @@ curl -s -o /dev/null -w '%{http_code}' http://localhost:3002/auth/login
 **Why NODE_ENV=production matters:** Without it, Next.js 15 may produce a hybrid Turbopack/webpack build that fails to emit `[turbopack]_runtime.js`, causing `bun run start` to crash immediately. Always set it explicitly.
 
 ```bash
+# 0. Reset phronex-auth in-memory rate limits (MANDATORY before any run that follows a previous run)
+# phronex-auth rate limit: 10 logins/hr per IP. Each test case does 1 login. A 12-journey suite
+# uses 12 login attempts. Multiple runs in the same hour exhaust the limit.
+# Fix: restart phronex-auth on EC2 before every run (not just first run of the day).
+"C:\Program Files\Git\usr\bin\ssh.exe" -i C:\Temp\aws.pem ubuntu@43.204.79.39 "sudo systemctl restart phronex-auth && sleep 3 && curl -s http://localhost:8002/health"
+# Must return {"status":"healthy"}
+
 # 1. Verify portal is a production build (after pre-flight above)
 curl -s -o /dev/null -w '%{http_code}' http://localhost:3002/auth/login
 # Must return 200 or 307.
