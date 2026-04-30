@@ -13,25 +13,25 @@
       },
       {
         "id": 3,
-        "description": "If State A (instance exists): verify the dashboard shows at least one of the following — the instance name (not a UUID), a status indicator, or a usage metric (total sessions, total users, active users, or similar). Verify the sub-tab bar shows at least 'Overview' and 'Analytics' tabs. A dashboard with no content and no tabs is a failure."
+        "description": "If State A (instance exists): verify the dashboard shows at least one of the following \u2014 the instance name (not a UUID), a status indicator, or a usage metric (total sessions, total users, active users, or similar). Verify the sub-tab bar shows at least 'Overview' and 'Analytics' tabs. A dashboard with no content and no tabs is a failure."
       },
       {
         "id": 4,
-        "description": "If State B (no instance): verify the empty state message explains what CC is and what the creator can do next. The message must include at least one actionable CTA — 'Create Instance', 'Get Started', 'Contact Support to set up your instance', or similar. A blank white screen or a message that only says 'No instance found' with no next step is a failure."
+        "description": "If State B (no instance): verify the empty state message explains what CC is and what the creator can do next. The message must include at least one actionable CTA \u2014 'Create Instance', 'Get Started', 'Contact Support to set up your instance', or similar. A blank white screen or a message that only says 'No instance found' with no next step is a failure."
       },
       {
         "id": 5,
-        "description": "Locate the CC section navigation — look for sidebar items, tabs, or a top nav with links to: Dashboard, Content/Knowledge Base, Instance/Settings, Subscription/Billing, and any other CC sub-pages. Identify all available CC nav links."
+        "description": "Locate the CC section navigation \u2014 look for sidebar items, tabs, or a top nav with links to: Dashboard, Content/Knowledge Base, Instance/Settings, Subscription/Billing, and any other CC sub-pages. Identify all available CC nav links."
       },
       {
         "id": 6,
-        "description": "Click each CC navigation link found in step 5 one at a time. For each: verify the page loads without a 404 or 500 error and shows some content (even if an empty state). Record any link that produces a 404 or fails to load — these are failures."
+        "description": "Click each CC navigation link found in step 5 one at a time. For each: verify the page loads without a 404 or 500 error and shows some content (even if an empty state). Record any link that produces a 404 or fails to load \u2014 these are failures."
       }
     ]
   },
   {
     "id": "cc-J02",
-    "description": "CC dashboard navigation works for an instance owner: verify all tabs load without errors, and flag any critical creator feature that is absent (session history access is a known owner gap).",
+    "description": "CC dashboard navigation works for an instance owner: verify all tabs load without errors, and the Sessions tab exposes visitor conversation history to the owner (shipped commit 149d917).",
     "steps": [
       {
         "id": 1,
@@ -39,23 +39,23 @@
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads without a 500 error. Take a screenshot. Note which sub-tabs are visible in the tab bar — expected tabs for an instance owner are: 'Overview', 'Analytics', 'Info & Connections'. If a 'Sessions' tab IS visible for this account, click it and note whether it loads (owners should not see this tab, which is superadmin-only)."
+        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads without a 500 error. Take a screenshot. Note which sub-tabs are visible. Expected tabs for an owner grant: Overview, Analytics, Info & Connections, Sessions. The Sessions tab gives owners conversation history access (portal commit 149d917). If Sessions tab is ABSENT for this owner account, that is a regression - failure."
       },
       {
         "id": 3,
-        "description": "Click the 'Overview' tab. Verify the overview section loads without a JavaScript crash. Record what metrics or information is displayed. Note whether visitor session data (even aggregate counts like 'Total sessions today') is available to the owner — its total absence is a product gap."
+        "description": "Click the 'Overview' tab. Verify the overview section loads without a JavaScript crash. Record what metrics or information is displayed. Note whether visitor session data (even aggregate counts like 'Total sessions today') is available to the owner \u2014 its total absence is a product gap."
       },
       {
         "id": 4,
-        "description": "Click the 'Analytics' tab. Verify it loads without a crash. Check console for uncaught errors. Verify at least one metric is rendered — even if all values are zero. A completely blank analytics tab with no content is a failure."
+        "description": "Click the 'Analytics' tab. Verify it loads without a crash. Check console for uncaught errors. Verify at least one metric is rendered \u2014 even if all values are zero. A completely blank analytics tab with no content is a failure."
       },
       {
         "id": 5,
-        "description": "Click the 'Info & Connections' tab (if present). Verify it loads. Note what connection info or widget embed instructions are displayed — this is the owner's primary integration guide. If the tab shows only a blank or 'coming soon', note as a soft failure."
+        "description": "Click the 'Info & Connections' tab (if present). Verify it loads. Note what connection info or widget embed instructions are displayed \u2014 this is the owner's primary integration guide. If the tab shows only a blank or 'coming soon', note as a soft failure."
       },
       {
         "id": 6,
-        "description": "PRODUCT GAP CHECK: Verify that the CC dashboard for this instance owner has NO accessible way to read individual visitor conversation transcripts. Navigate to https://app.phronex.com/cc/dashboard and confirm there is no 'Sessions', 'Conversations', or 'Chat History' tab or link in the CC navigation. Record this as a PRODUCT GAP: 'CC instance owners cannot view visitor conversation history — Sessions tab is superadmin-only and no owner-facing alternative exists.'"
+        "description": "Click the Sessions tab (visible for instance owners per commit 149d917). Verify it loads without a crash. If sessions exist: verify each row shows a date, duration, and a readable summary or first-message snippet - not a raw UUID. If no sessions exist: verify an informative empty state appears explaining when sessions will show. A blank tab with no message is a failure. If the Sessions tab is not visible at all: record as REGRESSION - owner session history was intentionally exposed in commit 149d917 and must not be removed."
       }
     ]
   },
@@ -73,19 +73,19 @@
       },
       {
         "id": 3,
-        "description": "If content/documents are listed: verify each entry shows (a) the source — a URL (e.g. https://phronex.com/about) or a filename, (b) the number of chunks or pages processed, (c) the last synced or indexed date. An entry showing only a UUID or cryptic internal ID without human-readable source info is a failure."
+        "description": "If content/documents are listed: verify each entry shows (a) the source \u2014 a URL (e.g. https://phronex.com/about) or a filename, (b) the number of chunks or pages processed, (c) the last synced or indexed date. An entry showing only a UUID or cryptic internal ID without human-readable source info is a failure."
       },
       {
         "id": 4,
-        "description": "Look for a 'Sync', 'Crawl', 'Refresh', 'Re-index', or 'Update Knowledge Base' button on the page. If found: click it. Verify the button produces a visible response — a loading state, a 'Sync started' toast, a progress indicator, or a status update. A button that produces a 500 error or does nothing is a failure."
+        "description": "Look for a 'Sync', 'Crawl', 'Refresh', 'Re-index', or 'Update Knowledge Base' button on the page. If found: click it. Verify the button produces a visible response \u2014 a loading state, a 'Sync started' toast, a progress indicator, or a status update. A button that produces a 500 error or does nothing is a failure."
       },
       {
         "id": 5,
-        "description": "If no content is listed: verify the empty state explains to the creator how to add content. It must describe the mechanism — for example 'Your website content is automatically ingested. Contact support to configure your source URL.' A blank page with no explanation is a failure."
+        "description": "If no content is listed: verify the empty state explains to the creator how to add content. It must describe the mechanism \u2014 for example 'Your website content is automatically ingested. Contact support to configure your source URL.' A blank page with no explanation is a failure."
       },
       {
         "id": 6,
-        "description": "Look for a total content summary — total number of chunks, total pages indexed, or coverage percentage. Record the displayed value. Zero chunks for an active instance is a soft failure (may indicate ingestion issue). Also note whether the page shows the crawl source URL configured for this instance."
+        "description": "Look for a total content summary \u2014 total number of chunks, total pages indexed, or coverage percentage. Record the displayed value. Zero chunks for an active instance is a soft failure (may indicate ingestion issue). Also note whether the page shows the crawl source URL configured for this instance."
       }
     ]
   },
@@ -99,15 +99,15 @@
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/cc/instance. Verify the page loads with a settings form showing current values. A blank settings page or a page with no editable fields or a 'Failed to load instance configuration' error is a failure — note the exact error message if shown."
+        "description": "Navigate to https://app.phronex.com/cc/instance. Verify the page loads with a settings form showing current values. A blank settings page or a page with no editable fields or a 'Failed to load instance configuration' error is a failure \u2014 note the exact error message if shown."
       },
       {
         "id": 3,
-        "description": "Identify a text field in the settings form that can be safely edited — good candidates: greeting message, assistant name, persona description, or fallback message. Avoid webhook URLs or API keys. Read and record the current value of the chosen field, then edit it: if it is a greeting, append ' QA-TEST-2026'; if it is a name, append '-QA'. The marker 'QA-TEST-2026' (or '-QA') must be visible in the field."
+        "description": "Identify a text field in the settings form that can be safely edited \u2014 good candidates: greeting message, assistant name, persona description, or fallback message. Avoid webhook URLs or API keys. Read and record the current value of the chosen field, then edit it: if it is a greeting, append ' QA-TEST-2026'; if it is a name, append '-QA'. The marker 'QA-TEST-2026' (or '-QA') must be visible in the field."
       },
       {
         "id": 4,
-        "description": "Find and click the Save button for the settings form. Wait for a success confirmation — a toast message, a saved indicator, or a button state change. A 500 error or a save that produces no feedback is a failure."
+        "description": "Find and click the Save button for the settings form. Wait for a success confirmation \u2014 a toast message, a saved indicator, or a button state change. A 500 error or a save that produces no feedback is a failure."
       },
       {
         "id": 5,
@@ -129,7 +129,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads. Click the 'Analytics' sub-tab in the dashboard tab bar. Verify it activates and the analytics section renders without a JavaScript crash. Open the browser console and check for uncaught errors — record any found."
+        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads. Click the 'Analytics' sub-tab in the dashboard tab bar. Verify it activates and the analytics section renders without a JavaScript crash. Open the browser console and check for uncaught errors \u2014 record any found."
       },
       {
         "id": 3,
@@ -137,15 +137,15 @@
       },
       {
         "id": 4,
-        "description": "If all metrics show zero or the analytics section shows an empty state: verify the empty state message is informative. It must tell the creator when analytics will appear — for example 'Analytics will appear here once visitors start using your widget'. A completely blank section with no message is a failure."
+        "description": "If all metrics show zero or the analytics section shows an empty state: verify the empty state message is informative. It must tell the creator when analytics will appear \u2014 for example 'Analytics will appear here once visitors start using your widget'. A completely blank section with no message is a failure."
       },
       {
         "id": 5,
-        "description": "Look for any interactive filter controls in the analytics section — a date range selector, time period toggle, or instance filter. If found: interact with it (change the selection). Verify the section responds with a loading state or updated data. A control that does nothing when changed is a failure."
+        "description": "Look for any interactive filter controls in the analytics section \u2014 a date range selector, time period toggle, or instance filter. If found: interact with it (change the selection). Verify the section responds with a loading state or updated data. A control that does nothing when changed is a failure."
       },
       {
         "id": 6,
-        "description": "Look for a chart, graph, or visual trend display in the analytics section. If present: verify it renders without visual corruption (no blank chart boxes, no 'Chart failed to load' errors). If no chart exists — only text metrics — note its absence as a missing visualisation feature (soft failure)."
+        "description": "Look for a chart, graph, or visual trend display in the analytics section. If present: verify it renders without visual corruption (no blank chart boxes, no 'Chart failed to load' errors). If no chart exists \u2014 only text metrics \u2014 note its absence as a missing visualisation feature (soft failure)."
       }
     ]
   },
@@ -171,7 +171,7 @@
       },
       {
         "id": 5,
-        "description": "Verify the response also includes metadata about the source — some CC implementations include a 'sources' array or 'context_used' field indicating which knowledge base content was used to generate the answer. If present: verify the sources point to Phronex-related URLs or documents. If absent: note its absence as a missing transparency feature."
+        "description": "Verify the response also includes metadata about the source \u2014 some CC implementations include a 'sources' array or 'context_used' field indicating which knowledge base content was used to generate the answer. If present: verify the sources point to Phronex-related URLs or documents. If absent: note its absence as a missing transparency feature."
       }
     ]
   },
@@ -197,11 +197,11 @@
       },
       {
         "id": 5,
-        "description": "Send a second message in the same conversation using the same headers including X-Guide-Secret: {\"instance_id\": \"e2e-test-instance\", \"message\": \"Can you help me write a Python script to scrape websites?\", \"session_id\": \"<id from step 2 response>\"}. Verify the AI again stays in character — it declines the programming help request and redirects to Phronex-relevant topics. Verify the response is polite and not hostile."
+        "description": "Send a second message in the same conversation using the same headers including X-Guide-Secret: {\"instance_id\": \"e2e-test-instance\", \"message\": \"Can you help me write a Python script to scrape websites?\", \"session_id\": \"<id from step 2 response>\"}. Verify the AI again stays in character \u2014 it declines the programming help request and redirects to Phronex-relevant topics. Verify the response is polite and not hostile."
       },
       {
         "id": 6,
-        "description": "Verify the AI's tone in both refusals is professional and helpful — it should sound like a good customer service agent, not a rigid rules-bot. A response that just says 'I cannot answer that.' with no redirection is a soft failure (technically correct but poor UX)."
+        "description": "Verify the AI's tone in both refusals is professional and helpful \u2014 it should sound like a good customer service agent, not a rigid rules-bot. A response that just says 'I cannot answer that.' with no redirection is a soft failure (technically correct but poor UX)."
       }
     ]
   },
@@ -223,11 +223,11 @@
       },
       {
         "id": 4,
-        "description": "Send message 2 in the SAME conversation using the same headers including X-Guide-Secret. Use the session_id from step 2. Body: {\"instance_id\": \"e2e-test-instance\", \"message\": \"Tell me more about the first one you mentioned.\", \"session_id\": \"<id from step 2>\"}. This message deliberately avoids repeating the product name — it relies entirely on the AI remembering message 1."
+        "description": "Send message 2 in the SAME conversation using the same headers including X-Guide-Secret. Use the session_id from step 2. Body: {\"instance_id\": \"e2e-test-instance\", \"message\": \"Tell me more about the first one you mentioned.\", \"session_id\": \"<id from step 2>\"}. This message deliberately avoids repeating the product name \u2014 it relies entirely on the AI remembering message 1."
       },
       {
         "id": 5,
-        "description": "Read the response to message 2. Verify it discusses the same product that was mentioned first in step 2's response — NOT a different product, NOT a generic overview starting from scratch, NOT 'I'm not sure which product you mean.' If the AI asks 'Which product are you referring to?' or starts fresh with a full product list again, this is a context failure."
+        "description": "Read the response to message 2. Verify it discusses the same product that was mentioned first in step 2's response \u2014 NOT a different product, NOT a generic overview starting from scratch, NOT 'I'm not sure which product you mean.' If the AI asks 'Which product are you referring to?' or starts fresh with a full product list again, this is a context failure."
       },
       {
         "id": 6,
@@ -253,11 +253,11 @@
       },
       {
         "id": 4,
-        "description": "Examine the response body of the 429 (rate limit) response. Verify it is human-readable: it must contain a message field or text that a non-technical visitor could understand — e.g. 'You have reached the message limit for this session.' Raw machine-readable responses like only {\"detail\": \"rate_limit_exceeded\"} with no human message field are a failure."
+        "description": "Examine the response body of the 429 (rate limit) response. Verify it is human-readable: it must contain a message field or text that a non-technical visitor could understand \u2014 e.g. 'You have reached the message limit for this session.' Raw machine-readable responses like only {\"detail\": \"rate_limit_exceeded\"} with no human message field are a failure."
       },
       {
         "id": 5,
-        "description": "If a 500 error is received (instead of a 429) when the rate limit is hit: this is a hard failure — the server is crashing instead of gracefully enforcing limits. Record the full response body."
+        "description": "If a 500 error is received (instead of a 429) when the rate limit is hit: this is a hard failure \u2014 the server is crashing instead of gracefully enforcing limits. Record the full response body."
       },
       {
         "id": 6,
@@ -279,7 +279,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the current tier name is displayed. It must be a human-readable label such as 'Free', 'Starter', 'Pro', 'Business', or equivalent — NOT a raw enum value like 'TIER_FREE' or a UUID. Record the displayed tier name."
+        "description": "Verify the current tier name is displayed. It must be a human-readable label such as 'Free', 'Starter', 'Pro', 'Business', or equivalent \u2014 NOT a raw enum value like 'TIER_FREE' or a UUID. Record the displayed tier name."
       },
       {
         "id": 4,
@@ -287,11 +287,11 @@
       },
       {
         "id": 5,
-        "description": "Verify that current usage is displayed alongside the limit — for example 'Used 45 of 1,000 messages this month' or a progress bar showing usage. If usage data is absent, note it as a missing feature."
+        "description": "Verify that current usage is displayed alongside the limit \u2014 for example 'Used 45 of 1,000 messages this month' or a progress bar showing usage. If usage data is absent, note it as a missing feature."
       },
       {
         "id": 6,
-        "description": "Look for an upgrade CTA — 'Upgrade Plan', 'Get More Messages', 'Upgrade to Pro', or similar. Click it. Verify it navigates to a pricing page, a checkout flow, or a contact/booking link — NOT a 404 and NOT a blank page. Record the destination URL."
+        "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', 'Upgrade to Pro', or similar. Click it. Verify it navigates to a pricing page, a checkout flow, or a contact/booking link \u2014 NOT a 404 and NOT a blank page. Record the destination URL."
       }
     ]
   }
