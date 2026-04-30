@@ -19,6 +19,13 @@
 
 **Product backends (jobportal, CC, auth, praxis)** → EC2 only. API calls use domain names (`jobc.phronex.com`, `cc.phronex.com`) — not raw EC2 IP from journey specs.
 
+**⚠️ `.qa.env` PHRONEX_*_TEST_URL must use domain names, NOT raw EC2 IPs:** EC2 security group blocks raw IP + port (e.g. `http://43.204.79.39:8000`) from outside. Cleanup calls using raw IPs fail with `HTTP 000ERR` silently. All `PHRONEX_*_TEST_URL` vars corrected to domain names on 2026-04-30:
+- `PHRONEX_CC_TEST_URL=https://cc.phronex.com`
+- `PHRONEX_JP_TEST_URL=https://jobc.phronex.com`
+- `PHRONEX_AUTH_TEST_URL=https://auth.phronex.com`
+- `PHRONEX_PRAXIS_TEST_URL=https://praxis.phronex.com`
+- `PHRONEX_PORTAL_TEST_URL=https://app.phronex.com`
+
 **`.qa.env` location:** `~/code/.qa.env` on DevServer. Key vars:
 ```
 PHRONEX_QA_DATABASE_URL_SYNC=postgresql+psycopg2://phronex_qa:phx_qa_local_2026@localhost:5432/phronex_qa
@@ -57,6 +64,20 @@ JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL j
 **Fix:** Rewrite conditional steps to be unconditionally verifiable. Instead of two "If A / If B" steps, write a single step that covers both outcomes: "Verify the applications page. If empty: check for meaningful empty state with CTA. If populated: verify each row shows required fields and clicking opens a detail view."
 
 **Prevention:** Never write journey steps that can legitimately be skipped. Every step must be completable regardless of test account state.
+
+---
+
+### Browser Tab Contamination FP (discovered CC run 3, 2026-04-30)
+
+**Signature:** All steps in a journey show `pending` and step-outcomes.json is missing. The debug log shows the runner navigated to a DIFFERENT product's URL (e.g. `/jp/dashboard`) despite the spec being for CC. The runner's first assistant message says something like "The browser appears to be blank. Let me navigate to the JobPortal jobs page..."
+
+**Root cause:** cc-test-runner reuses the same Chrome profile (`~/.cache/ms-playwright/mcp-chrome-c2cdb14`) across all journeys and across runs. When a previous run leaves open tabs (e.g. `/cc/subscription`, `/jp/dashboard`), the next journey inherits them. The runner reads the current tab's URL as context and misidentifies the product it's supposed to test — causing it to navigate to JP and burn all turns before the spec steps run.
+
+**Fix applied:** Every browser-based CC journey now begins with: "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com." This forces the runner to clear stale tabs before any test action.
+
+**Prevention:** Apply the BROWSER RESET FIRST pattern to step 1 of every journey that uses browser navigation (not needed for API-only journeys like cc-J06–J09). The exact wording matters — it must say "Close every tab except the current one" not just "close extra tabs".
+
+**cctr-state MCP failure pattern:** When the Chrome profile is contaminated, cctr-state MCP also fails to initialise (`"status":"failed"`). This means step outcomes cannot be updated, so ALL steps stay pending regardless of what the runner actually did.
 
 ---
 
@@ -144,9 +165,42 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 | Item | Value |
 |------|-------|
 | Deep spec | `cc-journeys/cc-deep.json` |
-| Backend URL | `https://cc.phronex.com` (EC2) |
-| QA accounts | `qa-cc-owner@phronex.com` with `role_id = instance_owner` |
+| Backend URL | `https://cc.phronex.com` (EC2) — NEVER raw EC2 IP `43.204.79.39:8000` |
+| QA accounts | `qa-test-journeyhawk@phronex.com` (has CC grant) |
 | Role requirement | `role_id` MUST be set in `access_grants` — `NULL` role breaks instance_owner API routes |
+
+**CC Portal URL map (use these in all journey specs):**
+
+| Feature | Correct URL | Wrong URL (never use) |
+|---------|-------------|----------------------|
+| Dashboard / Analytics | `/cc/dashboard` | `/cc/` (404) |
+| Session history | `/cc/dashboard` → Sessions sub-tab (**superadmin only** — NOT visible to instance owners) | `/cc/conversations` (404) |
+| Knowledge base / content | `/cc/content` | `/cc/knowledge-base` (404) |
+| Instance settings | `/cc/instance` | `/cc/settings` (404) |
+| Subscription / billing | `/cc/subscription` | `/cc/billing` (404) |
+| Onboarding | `/cc/onboarding` | — |
+
+**CC Sessions tab — superadmin-only (filed as defect #42):** `CCDashboardClient.tsx` defines `SUPERADMIN_TABS = [...BASE_TABS, { id: 'sessions' }]`. Instance owners see only Overview, Analytics, Info tabs. Both CC backend routes (`/admin/sessions`, `/admin/users/{id}/conversations`) require `_require_admin`. Do NOT write CC journey specs that expect instance owners to see or access session/conversation history — this is a known product gap, not a spec bug.
+
+**CC Backend API URL map:**
+
+| Call | Correct URL |
+|------|-------------|
+| Anonymous widget auth | `https://cc.phronex.com/api/v1/auth/anonymous` |
+| Chat message | `https://cc.phronex.com/api/v1/chat` |
+| Health check | `https://cc.phronex.com/api/v1/health` |
+
+---
+
+### API Credit Exhaustion Blocker (discovered CC run 4, 2026-04-30)
+
+**Signature:** cc-test-runner crashes with "Claude Code process exited with code 1". The debug.log ends with `"Credit balance is too low"` in the result message. The `/v1/models` endpoint returns 200 (models list doesn't consume credits) but any `/v1/messages` call returns HTTP 400 with `{"type":"invalid_request_error","message":"Your credit balance is too low..."}`.
+
+**Root cause:** The cc-test-runner inherits `ANTHROPIC_API_KEY` from the shell environment. When that key's prepaid credit balance is zero, every Claude Code subprocess invocation fails immediately on the first API call. The runner binary crashes and no subsequent journeys execute.
+
+**Fix:** Top up credits at https://console.anthropic.com/settings/billing. Verify with: `curl -s https://api.anthropic.com/v1/messages -H "x-api-key: $ANTHROPIC_API_KEY" -H "anthropic-version: 2023-06-01" -H "content-type: application/json" -d '{"model":"claude-haiku-4-5-20251001","max_tokens":5,"messages":[{"role":"user","content":"hi"}]}'`. HTTP 200 = credits available; HTTP 400 = still empty.
+
+**Not a false positive.** Unlike the CTRF pending-step pattern, this crash is unambiguous — the run genuinely did not execute.
 
 ---
 
@@ -163,7 +217,10 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 | Date | Product | Spec | Pass | Fail | Real Defects | Notes |
 |------|---------|------|------|------|-------------|-------|
 | 2026-04-29 | jp | jp-deep.json (12) | 4 | 8 | 3 | Run 3. Billing fix ada45d1 validated. 5 turn-limit FPs. |
-| 2026-04-29 | cc | cc-deep.json | — | — | — | Run 2. See cc-d-run-2 in qa_known_defects. |
+| 2026-04-30 | cc | cc-deep.json (10) | 0 | 10 | 0 | CC Run 1. All FPs — wrong URLs in spec (/cc/ → 404, EC2 raw IP → timeout). Spec rewritten. |
+| 2026-04-30 | cc | cc-deep.json (10) | 0 | 10 | 2 | CC Run 2. J04: e2e-test-instance missing from CC DB instance_owners (fixed via psql). J06–J09: reCAPTCHA 403 (fixed via X-Guide-Secret header in spec). Browser contamination emerged mid-run. |
+| 2026-04-30 | cc | cc-deep.json (10) | 0 | 10 | 0 | CC Run 3. All FPs — browser tab contamination. Runner navigated to /jp/jobs and /jp/dashboard (stale tabs from run 2). cctr-state MCP failed on all journeys. Fixed via BROWSER RESET FIRST step in spec. |
+| 2026-04-30 | cc | cc-deep.json (10) | 0/1 partial | — | 0 | CC Run 4. J01 steps 1–5 PASSED (browser reset fixed, CC dashboard loads, nav works, e2e-test-instance provisioning confirmed). J01 step 6 aborted: ANTHROPIC_API_KEY credit exhausted. Run stopped. Requires Vivek to top up Anthropic credits before resuming. |
 | 2026-04-29 | jp | jp-deep.json (12) | 0 | 12 | 0 | Run 4. FP detection bug (8edbfec1) swallowed all results. Portal also crashed mid-run. |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 7 | 3 | 1 | Run 5. Jobs detail view missing (fixed d1aa208). 2 spec FPs: conditional step + misdiagnosed localStorage (real cause: hasCcGrant). |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 9 | 1 | 0 | Run 6. jp-d04 + jp-d09 now pass. 1 spec FP (jp-d08 — QA account has CC grant; spec rewritten). |

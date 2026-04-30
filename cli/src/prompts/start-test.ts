@@ -102,6 +102,9 @@ export const startTest = (testCase: TestCase) => {
                         // still saved by default into --output-dir.
                         "--image-responses",
                         "omit",
+                        // --isolated: in-memory profile per MCP connection; prevents
+                        // Chrome SingletonLock conflicts between sequential test cases.
+                        "--isolated",
                     ],
                 },
                 "cctr-state": {
