@@ -194,11 +194,16 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 
 **CC Backend API URL map:**
 
-| Call | Correct URL |
-|------|-------------|
-| Anonymous widget auth | `https://cc.phronex.com/api/v1/auth/anonymous` |
-| Chat message | `https://cc.phronex.com/api/v1/chat` |
-| Health check | `https://cc.phronex.com/api/v1/health` |
+| Call | Correct URL | Wrong URL (never use) |
+|------|-------------|----------------------|
+| Anonymous widget auth | `https://cc.phronex.com/api/v1/auth/anonymous` | — |
+| Chat message | `https://cc.phronex.com/api/v1/chat/message` | `/api/v1/chat` (404) |
+| Chat history | `https://cc.phronex.com/api/v1/chat/history` | — |
+| Health check | `https://cc.phronex.com/api/v1/health` | — |
+
+**ChatMessageRequest body fields:** `{"instance_id": "...", "message": "...", "session_id": null}`. The field is `session_id` NOT `conversation_id`. The field is `message` NOT `content`.
+
+**⚠️ P0: CC Anthropic credits exhausted (discovered 2026-04-30):** CC EC2 server's `ANTHROPIC_API_KEY` in `/opt/contentcompanion/.env` is out of credits. All chat requests return HTTP 200 with `{"type":"error","error":{"code":"service_unavailable",...}}`. The production CC widget is non-functional for all visitors. Requires Vivek to top up the Anthropic account at console.anthropic.com/settings/billing.
 
 ---
 
