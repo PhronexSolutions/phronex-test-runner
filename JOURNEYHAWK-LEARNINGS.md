@@ -109,6 +109,54 @@ A QA account that holds grants for multiple products will trigger suppression lo
 
 ---
 
+### Chrome MCP Profile Conflict FP (discovered runs 7+8, 2026-04-30)
+
+**Signature:** Multiple journeys in the same run fail with "Browser is already in use for /home/ouroborous/.cache/ms-playwright/mcp-chrome-28ad6cc, use --isolated to run multiple instances of the same browser". First journey in the run may also fail mid-test (between steps) with the same error even after SingletonLock files are cleared.
+
+**Root cause:** `@playwright/mcp` locks the Chrome data directory with a `SingletonLock` file when Chrome opens. The `cctr-playwright` MCP server (launched internally by cc-test-runner per test case) holds the Chrome profile lock for the duration of the browser session. When the NEXT test case's Claude subprocess tries to connect to the same MCP server, Chrome's data directory is still locked by the previous session — even though the previous test case "completed."
+
+**The critical detail:** The `SingletonLock` file is only one symptom. Clearing it between **runs** (e.g. `rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock`) prevents cross-run FPs, but does NOT prevent cross-test-case FPs **within** a single run. The MCP server starts Chrome and keeps it open across all test cases in one cc-test-runner invocation.
+
+**Root fix (2026-04-30):** Added `--isolated` flag to the `cctr-playwright` MCP args in `cli/src/prompts/start-test.ts`. `--isolated` creates an in-memory browser profile per MCP connection — no lock file on disk, no cross-session contamination.
+
+```typescript
+// cli/src/prompts/start-test.ts
+args: [
+    playwrightMcpCliPath(),
+    "--output-dir", `${inputs.resultsPath}/${testCase.id}/playwright`,
+    "--image-responses", "omit",
+    "--isolated",  // ← added 2026-04-30: in-memory profile, no SingletonLock
+],
+```
+
+Rebuild after any edit to `cli/src/`: `cd ~/code/phronex-test-runner/cli && bun build --compile ./src/index.ts --outfile ./dist/cc-test-runner --target bun`
+
+**Pre-flight (in addition to the `--isolated` fix, belt-and-suspenders):**
+```bash
+# Kill any orphaned Chrome before starting a run
+pkill -f chrome 2>/dev/null; true
+rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock 2>/dev/null; true
+```
+
+**Run 7 impact:** All 12 journeys ran; jp-d08 and jp-d09 showed as failed (browser conflicts on later test cases). jp-d05 passed in Run 7.
+**Run 8 impact (retry run):** All 3 retry journeys failed (jp-d05 failed mid-test on step 2 — Chrome was still locked from Run 7's final Chrome session).
+
+---
+
+### API Contract Drift FP (discovered jp-d05, 2026-04-30)
+
+**Signature:** Scan history page loads without errors but displays `undefined` or blank cells in the table. The journey passes at the UI-load level but column values show wrong data (zero counts, missing dates, wrong status).
+
+**Root cause:** TypeScript `fetch()` returns `any` — the compiler cannot validate that the frontend type definition matches the backend Pydantic `BaseModel`. When a field name changes in the backend (e.g. `new_jobs` → `jobs_new`), the frontend type silently falls back to `undefined`.
+
+**Specific fix (commit `e927e2f`, 2026-04-30):** `ScanHistoryClient.tsx` type used `new_jobs`, `matched_jobs`, `status`/`error_message`, `started_at` — all mismatching the backend's `jobs_new`, `jobs_matched`, `errors`, `scan_started_at`.
+
+**Prevention rule (added to D:/Coding/CLAUDE.md):** Any client type for a fetch response must use EXACT field names from the backend Pydantic `BaseModel`. Comments in the file must name the backend source: `// Field names match ScanLogResponse in jobportal/api/routes_jobs.py`.
+
+**How to verify without browser:** `curl -sL http://localhost:8001/api/v1/jobs/scan-logs/?limit=1 -H "Authorization: Bearer $TOKEN"` — compare JSON keys against frontend type definition.
+
+---
+
 ## Per-Product Notes
 
 ### JobPortal (jp)
@@ -124,6 +172,9 @@ A QA account that holds grants for multiple products will trigger suppression lo
 | Run 4 result | 0/12 defects logged — FP detection bug `8edbfec1` swallowed all failures; portal was also down mid-run |
 | Run 5 result | 7/10 PASS, 1 real defect (jobs detail view — fixed in portal), 2 spec/infra FPs (conditional step + localStorage — see correction in run 6) |
 | Run 6 result | 9/10 PASS, 0 real defects, 1 spec FP (jp-d08 — QA account has CC grant so banner correctly absent; spec rewritten) |
+| Run 7 result | 9/12 PASS, 1 real defect (jp-d05 scan history API contract drift — fixed e927e2f), 2 Chrome MCP FPs (jp-d08, jp-d09). jp-d07a/b/c all PASS — billing tier fix validated. |
+| Run 8 result | 0/3 PASS (retry of jp-d05/d08/d09). All 3 Chrome MCP FPs — --isolated flag added to cctr-playwright MCP, cc-test-runner rebuilt. |
+| Run 9 | Full 12-journey suite with --isolated Chrome fix. jp-d05 e927e2f on EC2. Record<string,string> → Record<JobStatus,string> fixes 46d10cd on EC2. |
 
 **Multi-tier QA accounts (provisioned 2026-04-30):**
 
@@ -167,6 +218,8 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 | 2026-04-29 | jp | jp-deep.json (12) | 0 | 12 | 0 | Run 4. FP detection bug (8edbfec1) swallowed all results. Portal also crashed mid-run. |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 7 | 3 | 1 | Run 5. Jobs detail view missing (fixed d1aa208). 2 spec FPs: conditional step + misdiagnosed localStorage (real cause: hasCcGrant). |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 9 | 1 | 0 | Run 6. jp-d04 + jp-d09 now pass. 1 spec FP (jp-d08 — QA account has CC grant; spec rewritten). |
+| 2026-04-30 | jp | jp-deep.json (12 d-series) | 9 | 3 | 1 | Run 7. jp-d07a/b/c all PASS (billing tier fix validated). jp-d05 real defect: API contract drift in ScanHistoryClient (fixed e927e2f). jp-d08 + jp-d09 Chrome MCP FPs. |
+| 2026-04-30 | jp | jp-retry.json (3 journeys) | 0 | 3 | 0 | Run 8. Retry of jp-d05/d08/d09. All 3 Chrome MCP FPs — profile not released between test cases. Root fix: --isolated added to cctr-playwright MCP args. |
 
 ---
 
