@@ -1,0 +1,32 @@
+[
+  {
+    "id": "jp-d01-document-upload",
+    "description": "User uploads test-resume.pdf and verifies it appears in the documents list",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait for the dashboard to load."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/documents. Note the exact number of documents currently listed (could be 0 or more)."
+      },
+      {
+        "id": 3,
+        "description": "Click the Upload button or file upload CTA on the documents page. A file input dialog or upload form should appear."
+      },
+      {
+        "id": 4,
+        "description": "Upload the file at path './fixtures/test-resume.pdf' (relative to the test runner working directory). If a file chooser dialog is triggered by Playwright, use it to select that file. Submit / confirm the upload."
+      },
+      {
+        "id": 5,
+        "description": "Wait up to 10 seconds for the upload to complete. Verify: does a document named 'test-resume' or 'test-resume.pdf' now appear in the documents list? The count should have increased by 1 from what you noted in step 2."
+      },
+      {
+        "id": 6,
+        "description": "Check for error messages or console errors. If the upload succeeded and the document appears: find and delete the just-uploaded 'test-resume.pdf' to clean up test data; confirm it is removed. PASS if the full upload-verify-delete cycle works. FAIL if the upload button is missing, the file is rejected, or the document does not appear after upload. Screenshot."
+      }
+    ]
+  }
+]
