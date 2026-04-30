@@ -237,7 +237,42 @@ curl -sf https://auth.phronex.com/health  # must return {"status":"healthy"}
 
 **Verify OAuth is working:** `env -u ANTHROPIC_API_KEY claude -p "say: ok" --model claude-haiku-4-5-20251001` should return `ok` within a few seconds.
 
-**CC EC2 server key:** Separately, the CC backend's `ANTHROPIC_API_KEY` in `/opt/contentcompanion/.env` is a different prepaid key used for the production widget. That one being exhausted breaks the CC widget for real visitors — requires a separate top-up or key rotation on EC2.
+**CC EC2 server key:** Separately, the CC backend's `ANTHROPIC_API_KEY` in `/opt/contentcompanion/.env` is a different prepaid key used for the production widget. That one being exhausted breaks the CC widget for real visitors — requires a separate top-up or key rotation on EC2. Auto-refreshed every 4h by `refresh-ec2-oauth-key.sh` cron (covers CC, JP, Praxis on EC2 + ComC on DevServer).
+
+---
+
+### CC tiers.yaml Schema Mismatch → subscription page HTTP 500 (discovered CC run 5, fixed 2026-04-30)
+
+**Signature:** Journey steps that load `/cc/subscription` all fail with "the subscription section shows 'HTTP 500' error". EC2 logs show `pydantic_core.ValidationError: 4 validation errors for TiersConfig` from `contentcompanion/config/loader.py get_tiers()`.
+
+**Root cause:** A per-instance `tiers.yaml` on EC2 uses **old field names** that were renamed in the `TiersConfig` Pydantic model. Old names: `monthly_message_limit`, `hourly_message_limit`. Current schema requires: `messages_per_month`, `tools_available`, `session_history_days`, `memory_enabled`, `max_active_sessions`.
+
+**Fix:** Rewrite the instance's `tiers.yaml` on EC2 with current field names. CC hot-reloads config from YAML on each request — no restart needed:
+```bash
+sudo tee /opt/contentcompanion/config/instances/{instance-slug}/tiers.yaml > /dev/null << 'EOF'
+tiers:
+  free:
+    messages_per_month: 100
+    tools_available:
+      - all
+    session_history_days: 30
+    memory_enabled: false
+    max_active_sessions: 5
+  premium:
+    messages_per_month: unlimited
+    tools_available:
+      - all
+    session_history_days: unlimited
+    memory_enabled: true
+    max_active_sessions: unlimited
+EOF
+```
+
+**Prevention:** When CC's `TiersConfig` Pydantic schema is updated, grep EC2 for old field names across ALL instances:
+```bash
+ssh ec2 "grep -rn 'monthly_message_limit\|hourly_message_limit' /opt/contentcompanion/config/instances/"
+```
+A schema migration checklist item must accompany any `TiersConfig` field rename.
 
 ---
 
@@ -261,6 +296,8 @@ curl -sf https://auth.phronex.com/health  # must return {"status":"healthy"}
 | 2026-04-29 | jp | jp-deep.json (12) | 0 | 12 | 0 | Run 4. FP detection bug (8edbfec1) swallowed all results. Portal also crashed mid-run. |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 7 | 3 | 1 | Run 5. Jobs detail view missing (fixed d1aa208). 2 spec FPs: conditional step + misdiagnosed localStorage (real cause: hasCcGrant). |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 9 | 1 | 0 | Run 6. jp-d04 + jp-d09 now pass. 1 spec FP (jp-d08 — QA account has CC grant; spec rewritten). |
+| 2026-04-30 | jp | jp-deep.json (12 d-series) | 12 | 0 | 0 | Run 7. All 12 pass. jp-d08 spec fixed (/cc/dashboard). jp-d01 retry after rate-limit cleared. |
+| 2026-04-30 | cc | cc-deep.json (10) | 8 | 2 | 2 | CC Run 5. J06+J07 FPs (pre-OAuth-swap, prepaid key exhausted — will pass run 6). J05: no analytics chart (FRICTION defect #54). J10: subscription page HTTP 500, tiers.yaml schema mismatch (BROKEN defect #55 — fixed EC2 2026-04-30). |
 
 ---
 
