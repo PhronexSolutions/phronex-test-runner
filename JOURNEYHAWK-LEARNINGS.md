@@ -136,6 +136,74 @@ A QA account that holds grants for multiple products will trigger suppression lo
 
 ---
 
+### Chrome MCP Profile Conflict FP (discovered runs 7+8, 2026-04-30)
+
+**Signature:** Multiple journeys in the same run fail with "Browser is already in use for /home/ouroborous/.cache/ms-playwright/mcp-chrome-28ad6cc, use --isolated to run multiple instances of the same browser". First journey in the run may also fail mid-test (between steps) with the same error even after SingletonLock files are cleared.
+
+**Root cause:** `@playwright/mcp` locks the Chrome data directory with a `SingletonLock` file when Chrome opens. The `cctr-playwright` MCP server (launched internally by cc-test-runner per test case) holds the Chrome profile lock for the duration of the browser session. When the NEXT test case's Claude subprocess tries to connect to the same MCP server, Chrome's data directory is still locked by the previous session — even though the previous test case "completed."
+
+**The critical detail:** The `SingletonLock` file is only one symptom. Clearing it between **runs** (e.g. `rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock`) prevents cross-run FPs, but does NOT prevent cross-test-case FPs **within** a single run. The MCP server starts Chrome and keeps it open across all test cases in one cc-test-runner invocation.
+
+**Root fix (2026-04-30):** Added `--isolated` flag to the `cctr-playwright` MCP args in `cli/src/prompts/start-test.ts`. `--isolated` creates an in-memory browser profile per MCP connection — no lock file on disk, no cross-session contamination.
+
+```typescript
+// cli/src/prompts/start-test.ts
+args: [
+    playwrightMcpCliPath(),
+    "--output-dir", `${inputs.resultsPath}/${testCase.id}/playwright`,
+    "--image-responses", "omit",
+    "--isolated",  // ← added 2026-04-30: in-memory profile, no SingletonLock
+],
+```
+
+Rebuild after any edit to `cli/src/`: `cd ~/code/phronex-test-runner/cli && bun build --compile ./src/index.ts --outfile ./dist/cc-test-runner --target bun`
+
+**Pre-flight (in addition to the `--isolated` fix, belt-and-suspenders):**
+```bash
+# Kill any orphaned Chrome before starting a run
+pkill -f chrome 2>/dev/null; true
+rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock 2>/dev/null; true
+```
+
+**Run 7 impact:** All 12 journeys ran; jp-d08 and jp-d09 showed as failed (browser conflicts on later test cases). jp-d05 passed in Run 7.
+**Run 8 impact (retry run):** All 3 retry journeys failed (jp-d05 failed mid-test on step 2 — Chrome was still locked from Run 7's final Chrome session).
+
+---
+
+### API Contract Drift FP (discovered jp-d05, 2026-04-30)
+
+**Signature:** Scan history page loads without errors but displays `undefined` or blank cells in the table. The journey passes at the UI-load level but column values show wrong data (zero counts, missing dates, wrong status).
+
+**Root cause:** TypeScript `fetch()` returns `any` — the compiler cannot validate that the frontend type definition matches the backend Pydantic `BaseModel`. When a field name changes in the backend (e.g. `new_jobs` → `jobs_new`), the frontend type silently falls back to `undefined`.
+
+**Specific fix (commit `e927e2f`, 2026-04-30):** `ScanHistoryClient.tsx` type used `new_jobs`, `matched_jobs`, `status`/`error_message`, `started_at` — all mismatching the backend's `jobs_new`, `jobs_matched`, `errors`, `scan_started_at`.
+
+**Prevention rule (added to D:/Coding/CLAUDE.md):** Any client type for a fetch response must use EXACT field names from the backend Pydantic `BaseModel`. Comments in the file must name the backend source: `// Field names match ScanLogResponse in jobportal/api/routes_jobs.py`.
+
+**How to verify without browser:** `curl -sL http://localhost:8001/api/v1/jobs/scan-logs/?limit=1 -H "Authorization: Bearer $TOKEN"` — compare JSON keys against frontend type definition.
+
+---
+
+### Spec-Execution Route Prefix FP (discovered jp-d08, Run 9, 2026-04-30)
+
+**Signature:** A journey step that asks Claude to "verify that a nav entry exists for Product X" causes Claude to click that nav entry during verification. The click navigates to the routePrefix (e.g. `/cc`) rather than the manifest's `href` (e.g. `/cc/dashboard`). If no `page.tsx` exists at the routePrefix, the subsequent explicit-navigate step fails with a 404.
+
+**Root cause:** Two-part issue:
+1. Step phrasing "verify a navigation entry exists" is ambiguous — Claude may click rather than just look.
+2. The portal's product nav items correctly link to `/cc/dashboard`, but bare `/cc` had no `page.tsx` redirect, so any accidental navigation to `/cc` 404s.
+
+**Specific occurrence (jp-d08, Run 9):** Step 4 "Verify that the portal header contains a CC navigation entry" — Claude clicked the CC header item (which navigated to `/cc/dashboard`), then step 5 tried its explicit navigate and landed on `/cc` due to execution state mismatch. ctrf recorded the step 5 error: `Navigation to /cc resulted in a 404`.
+
+**Fix (two parts):**
+1. **Portal fix (commit on main):** Added `src/app/(dashboard)/cc/page.tsx` with `redirect('/cc/dashboard')` — bare `/cc` now redirects instead of 404ing.
+2. **Spec fix:** Rewrite "verify nav exists" steps to be explicit: "In the header, confirm a 'Content Companion' nav item is visible (do NOT click it — only visually verify). If visible: proceed. If absent: FAIL."
+
+**Prevention:** Steps that verify UI elements exist should specify whether clicking is expected. "Verify X is present" ≠ "click X". Add "(do NOT click)" to purely observational steps when clicking would alter navigation state.
+
+**Note:** The intelligence pipeline correctly classified this as LOW severity (not CRITICAL) — the normal navigation path uses `/cc/dashboard` and users never encounter the bare `/cc` 404 through any UI link.
+
+---
+
 ## Per-Product Notes
 
 ### JobPortal (jp)
@@ -151,7 +219,9 @@ A QA account that holds grants for multiple products will trigger suppression lo
 | Run 4 result | 0/12 defects logged — FP detection bug `8edbfec1` swallowed all failures; portal was also down mid-run |
 | Run 5 result | 7/10 PASS, 1 real defect (jobs detail view — fixed in portal), 2 spec/infra FPs (conditional step + localStorage — see correction in run 6) |
 | Run 6 result | 9/10 PASS, 0 real defects, 1 spec FP (jp-d08 — QA account has CC grant so banner correctly absent; spec rewritten) |
-| Run 7 result (2026-04-30) | 10/12 PASS, 0 real defects. jp-d01 FP (rate limit, re-run blocked by credits). jp-d08 SPEC BUG fixed f5ad83e (/cc→/cc/dashboard). Cleanup 403 pre-existing (SDK key mismatch). |
+| Run 7 result | 9/12 PASS, 1 real defect (jp-d05 scan history API contract drift — fixed e927e2f), 2 Chrome MCP FPs (jp-d08, jp-d09). jp-d07a/b/c all PASS — billing tier fix validated. |
+| Run 8 result | 0/3 PASS (retry of jp-d05/d08/d09). All 3 Chrome MCP FPs — --isolated flag added to cctr-playwright MCP, cc-test-runner rebuilt. |
+| Run 9 result | 10/12 PASS, 0 real product defects, 2 FPs (jp-d01 rate-limit + jp-d08 spec-execution). jp-d07a/b/c PASS — tier labels validated across all 3 tiers. jp-d05 scan history fix e927e2f confirmed. --isolated Chrome fix holding (zero profile conflicts across 12 sequential tests). Minor UX gap: bare `/cc` 404s → fixed with page.tsx redirect (portal commit). |
 
 **⚠️ JP cleanup 403 — production host guard (discovered 2026-04-30):** JP cleanup returns HTTP 403 "Endpoint disabled on production host (jobc.phronex.com)". The cleanup route checks `PHRONEX_QA_ALLOWED_HOSTS` and blocks on the production domain. The SDK key is correct. Cleanup is non-fatal — runs continue — but test data accumulates. Fix: set `PHRONEX_QA_ALLOWED_HOSTS=jobc.phronex.com` in `/opt/jobportal/.env` on EC2 and restart the service, OR accept accumulation (journeys verify counts before mutating, so stale data doesn't break assertions).
 
@@ -312,7 +382,9 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 | 2026-04-29 | jp | jp-deep.json (12) | 0 | 12 | 0 | Run 4. FP detection bug (8edbfec1) swallowed all results. Portal also crashed mid-run. |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 7 | 3 | 1 | Run 5. Jobs detail view missing (fixed d1aa208). 2 spec FPs: conditional step + misdiagnosed localStorage (real cause: hasCcGrant). |
 | 2026-04-29 | jp | jp-deep.json (10 d-series) | 9 | 1 | 0 | Run 6. jp-d04 + jp-d09 now pass. 1 spec FP (jp-d08 — QA account has CC grant; spec rewritten). |
-| 2026-04-30 | jp | jp-deep.json (12 d-series) | 12 | 0 | 0 | Run 7. All 12 pass. jp-d08 spec fixed (/cc/dashboard). jp-d01 retry after rate-limit cleared. |
+| 2026-04-30 | jp | jp-deep.json (12 d-series) | 9 | 3 | 1 | Run 7. jp-d07a/b/c all PASS (billing tier fix validated). jp-d05 real defect: API contract drift in ScanHistoryClient (fixed e927e2f). jp-d08 + jp-d09 Chrome MCP FPs. |
+| 2026-04-30 | jp | jp-retry.json (3 journeys) | 0 | 3 | 0 | Run 8. Retry of jp-d05/d08/d09. All 3 Chrome MCP FPs — profile not released between test cases. Root fix: --isolated added to cctr-playwright MCP args. |
+| 2026-04-30 | jp | jp-deep.json (12 d-series) | 10 | 2 | 0 | Run 9. --isolated Chrome fix confirmed (zero profile conflicts). jp-d07a/b/c PASS (billing fix ada45d1 validated across free/standard/pro). jp-d05 scan history fix e927e2f confirmed. 2 FPs: jp-d01 rate-limit, jp-d08 spec-execution (/cc 404 — bare route, spec already said /cc/dashboard; minor portal UX gap fixed with redirect page.tsx). |
 | 2026-04-30 | cc | cc-deep.json (10) | 8 | 2 | 2 | CC Run 5. J06+J07 FPs (pre-OAuth-swap, prepaid key exhausted — will pass run 6). J05: no analytics chart (FRICTION defect #54). J10: subscription page HTTP 500, tiers.yaml schema mismatch (BROKEN defect #55 — fixed EC2 2026-04-30). |
 | 2026-04-30 | cc | cc-deep.json (10) | 6 | 4 | 1 | CC Run 6. J01/J03/J04: browser isolation FPs (cold-start — BROWSER RESET fails on very first journey of run). J05 ✅ (analytics chart defect #54 fixed). J06–J09 all pass. J10 ❌ new defect #60: billing/status HTTP 500 MultipleResultsFound — duplicate phronex-auth shadow user row (fixed: EC2 data cleanup + Alembic migration 96bc1ed1496a adding partial UNIQUE on phronex_account_id+instance_id). |
 
@@ -349,6 +421,13 @@ curl -s -o /dev/null -w '%{http_code}' http://localhost:3002/auth/login
 **Why NODE_ENV=production matters:** Without it, Next.js 15 may produce a hybrid Turbopack/webpack build that fails to emit `[turbopack]_runtime.js`, causing `bun run start` to crash immediately. Always set it explicitly.
 
 ```bash
+# 0. Reset phronex-auth in-memory rate limits (MANDATORY before any run that follows a previous run)
+# phronex-auth rate limit: 10 logins/hr per IP. Each test case does 1 login. A 12-journey suite
+# uses 12 login attempts. Multiple runs in the same hour exhaust the limit.
+# Fix: restart phronex-auth on EC2 before every run (not just first run of the day).
+"C:\Program Files\Git\usr\bin\ssh.exe" -i C:\Temp\aws.pem ubuntu@43.204.79.39 "sudo systemctl restart phronex-auth && sleep 3 && curl -s http://localhost:8002/health"
+# Must return {"status":"healthy"}
+
 # 1. Verify portal is a production build (after pre-flight above)
 curl -s -o /dev/null -w '%{http_code}' http://localhost:3002/auth/login
 # Must return 200 or 307.
