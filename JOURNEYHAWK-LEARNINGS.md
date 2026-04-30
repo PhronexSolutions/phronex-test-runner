@@ -67,6 +67,12 @@ JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL j
 
 ---
 
+### Login Rate-Limit FP — see "Login Rate-Limit FP" section below for full details.
+
+**Quick identification:** Step 1 fails with "Too many login attempts." All remaining steps cascade-fail. Fix: restart phronex-auth on EC2 (`sudo systemctl restart phronex-auth`).
+
+---
+
 ### Browser Tab Contamination FP (discovered CC run 3, 2026-04-30)
 
 **Signature:** All steps in a journey show `pending` and step-outcomes.json is missing. The debug log shows the runner navigated to a DIFFERENT product's URL (e.g. `/jp/dashboard`) despite the spec being for CC. The runner's first assistant message says something like "The browser appears to be blank. Let me navigate to the JobPortal jobs page..."
@@ -189,6 +195,23 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 | Anonymous widget auth | `https://cc.phronex.com/api/v1/auth/anonymous` |
 | Chat message | `https://cc.phronex.com/api/v1/chat` |
 | Health check | `https://cc.phronex.com/api/v1/health` |
+
+---
+
+### Login Rate-Limit FP (discovered JP run, 2026-04-30)
+
+**Signature:** All steps in a journey fail starting from step 1. The debug log shows the assistant saying "Too many login attempts. Please wait a while before trying again." The account-level limit is 5 failed logins/hour; the IP-level limit is 10 logins/hour (both configured in `phronex-auth/config.py`).
+
+**Root cause:** Running multiple JourneyHawk runs back-to-back exhausts phronex-auth's in-memory login rate limit for the QA account IP. Each browser-navigation journey starts with a fresh login attempt. 4 CC runs × 5 browser journeys = 20 login attempts in one hour — well over the 10/hour IP limit.
+
+**Fix:** Restart phronex-auth on EC2 to clear the in-memory rate limit counters:
+```bash
+ssh -i ~/code/AWSContentCompanion.pem ubuntu@43.204.79.39 "sudo systemctl restart phronex-auth && sleep 4 && sudo systemctl is-active phronex-auth"
+curl -sf https://auth.phronex.com/health  # must return {"status":"healthy"}
+```
+**Why this is safe:** phronex-auth is stateless (JWTs are not invalidated by restart). The restart takes ~3 seconds. Rate limit backend is `InMemoryBackend` (default) — confirmed by absence of `RATE_LIMITER_BACKEND` in EC2's `/opt/phronex-auth/.env`.
+
+**Prevention:** Add a per-run cool-down or reduce journeys-per-run. Future improvement: cc-test-runner should reuse an authenticated session token across journeys rather than re-logging in for each one.
 
 ---
 
