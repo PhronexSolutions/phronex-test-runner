@@ -1,0 +1,122 @@
+[
+  {
+    "id": "portal-rerun-05-impersonation",
+    "description": "Impersonation full lifecycle: superadmin impersonates user \u2192 ImpersonationBanner visible \u2192 /admin returns 403 \u2192 Exit restores superadmin session",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one. Navigate current tab to about:blank. Clear localStorage and sessionStorage via DevTools console."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login. Screenshot the landing page."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=accounts. Wait for the Users/Accounts tab to load. Verify a user table is visible. Find the row for qa-owner@phronex.com (or any non-superadmin user if that email is not listed). Click that row to open the UserDetailPanel. Verify the panel shows the user's email, role, and grants. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "In the UserDetailPanel, find and click the 'Impersonate' button. Wait for the page to redirect (up to 5s). Verify: (a) URL changed away from /admin (should be /products or similar), (b) an amber or orange ImpersonationBanner is visible at the top of the page showing the impersonated user's email. Screenshot the banner and URL."
+      },
+      {
+        "id": 5,
+        "description": "While still in the impersonated session, navigate directly to https://app.phronex.com/admin. Verify: (a) the /admin panel did NOT render (no BSC group pills, no tab list), (b) either a 403 page appears or the URL redirected to /products. An impersonated session must never access /admin \u2014 if admin content renders, report as CRITICAL security defect. Screenshot. Then click the Exit Impersonation button in the ImpersonationBanner. Wait for redirect. Verify URL returns to /auth/login or /products (session cleared)."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot final state. Report: (a) UserDetailPanel opened with user info (pass/fail), (b) ImpersonationBanner visible after impersonation start (pass/fail), (c) /admin blocked during impersonation (pass/fail \u2014 CRITICAL if fail), (d) Exit returns to login or products (pass/fail), (e) any security anomalies."
+      }
+    ]
+  },
+  {
+    "id": "portal-rerun-12-forgot-password",
+    "description": "Auth: forgot-password flow sends non-enumeration response regardless of email, and reset link page renders \u2014 tests critical auth security invariant",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close all extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/forgot-password. Verify: (a) the page loads (not a 404 or blank body), (b) an email input field is visible, (c) a Submit button is present. Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Enter a non-existent email address: nonexistent-jh-test-99999@nowhere-fake.example. Click Submit. Wait for the response. Verify: (a) a success/confirmation message appears (e.g. 'If an account exists, we sent a reset link' or similar), (b) the message does NOT say 'No account found', 'Email not registered', or any text that reveals whether the email exists \u2014 that would be an email enumeration vulnerability. Screenshot the response message exactly."
+      },
+      {
+        "id": 4,
+        "description": "Navigate back to https://app.phronex.com/auth/forgot-password. Enter a real existing email: qa-test-journeyhawk@phronex.com. Click Submit. Wait for the response. Compare the message to what appeared in step 3. Verify both responses are IDENTICAL (same wording, same page state). If the messages differ in any way that reveals account existence, report as CRITICAL security defect with both messages quoted. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/auth/reset-password?token=invalid-token-jh-test-2026. Verify: (a) the page renders \u2014 either a reset password form or a clear 'invalid/expired link' message, (b) NOT a blank page, NOT an unhandled 500 error, NOT a raw exception. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) forgot-password page loaded (pass/fail), (b) non-existent email response \u2014 quote the exact message, (c) real email response \u2014 quote the exact message, (d) both messages identical (security pass/fail), (e) reset-password with invalid token renders gracefully (pass/fail), (f) any email enumeration risk found."
+      }
+    ]
+  },
+  {
+    "id": "portal-rerun-02-settings-persistence",
+    "description": "Settings persistence fix verification: profile name save must now persist after navigation (fix for defect #86 deployed 2026-05-01)",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs, clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/settings. Verify the page loads with a Profile section. Read and note the current display name in the Full Name field. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Clear the Full Name field and type 'JH Verify Fix 2026'. Click Save profile. Wait 2s. Verify: (a) a success confirmation appears ('Profile updated.' or similar), (b) no error message. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate away to https://app.phronex.com/products. Wait 2s. Navigate back to https://app.phronex.com/settings. Read the Full Name field. Verify it shows 'JH Verify Fix 2026' \u2014 not the original value. If it reverted, the fix did not work \u2014 report as STILL BROKEN. Screenshot."
+      },
+      {
+        "id": 6,
+        "description": "Restore the original name (clear field, type back whatever was there before, save). Screenshot final state. Report: (a) save confirmation appeared (pass/fail), (b) 'JH Verify Fix 2026' persisted after navigation (pass = fix verified / fail = still broken), (c) restore succeeded (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-rerun-09-skill-review-filter",
+    "description": "Skill-review filter label fix verification: filter chips must now show Approved not Active (fix for defect #88 deployed 2026-05-01)",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs, clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=skill-review. Wait 3s for the panel to load. Verify: (a) skill cards or a skill list renders, (b) filter chips are visible above the list. Screenshot the filter chip strip."
+      },
+      {
+        "id": 4,
+        "description": "Examine the filter chip labels. Verify: (a) a chip labelled 'Approved' is present (NOT 'Active'), (b) a chip labelled 'Pending' is present, (c) a chip labelled 'Rejected' is present, (d) no chip is labelled 'Active' alone (that was the regressed label). Screenshot the chips with labels clearly visible."
+      },
+      {
+        "id": 5,
+        "description": "Click the 'Approved' filter chip. Wait 2s. Verify: (a) the skill list updates (either shows approved skills or a 'no results' empty state \u2014 both are valid), (b) the chip is now in active/selected state. Click 'All' to reset. Verify the full list returns. Screenshot both states."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) skill-review panel loaded (pass/fail), (b) 'Approved' chip present not 'Active' (pass = fix verified / fail = still broken), (c) filter click updates list (pass/fail), (d) any regressions or console errors."
+      }
+    ]
+  }
+]

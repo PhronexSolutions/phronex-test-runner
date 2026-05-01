@@ -1,306 +1,752 @@
-{
-  "suite": "portal-deep-extended",
-  "description": "Full portal surface coverage — Praxis, ComC, JP gaps, CC gaps, admin gaps. Each journey has ≥1 Column A action (state mutation, persistence verify, or permission test). Run after portal-deep.json.",
-  "journeys": [
-    {
-      "id": "portal-ext-01-praxis-dashboard-habits",
-      "description": "Praxis: dashboard loads KPI widgets + habit check-in submits and persists",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close all except one. Navigate that tab to about:blank. In the DevTools console run: localStorage.clear(); sessionStorage.clear(); for (let i = document.cookie.split(';').length - 1; i >= 0; i--) { let c = document.cookie.split(';')[i]; document.cookie = c.trim().split('=')[0] + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/'; } Screenshot to confirm blank tab."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Wait for login form. Enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD. Click Sign In. Wait until URL no longer contains /auth/login. Screenshot."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/praxis/dashboard. Wait 3s for content to load. Verify: (a) the page title or heading contains 'Praxis' or 'Dashboard', (b) no ErrorBoundary red box visible, (c) at least one widget, card, or stat block is present in the content area. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/praxis/habits. Wait 3s. Verify the habits page loads with a calendar grid or habit list — not a blank white body. Look for any habit tracking UI element (grid, calendar, quadrant chart). Screenshot."},
-        {"id": 5, "description": "Column A action — habit check-in: Find any habit checkbox, toggle, or 'Mark done' button for today's date. Click it. Observe the visual state change (checkbox checked, colour change, count increment). Navigate away to /praxis/dashboard and then return to /praxis/habits. Verify the check-in state persists (same habit still shows as done). Report: did the state persist after navigation (pass/fail)?"},
-        {"id": 6, "description": "Screenshot final state. Report: (a) dashboard rendered with content (yes/no), (b) habits page rendered (yes/no), (c) check-in persisted after navigation (pass/fail/empty-state — no habits configured), (d) any console errors or ErrorBoundaries observed."}
-      ]
-    },
-    {
-      "id": "portal-ext-02-praxis-people-crud",
-      "description": "Praxis: people list loads + add/edit person form submits and record appears in list",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close all extra tabs, keep one. Clear localStorage, sessionStorage, and cookies for app.phronex.com via DevTools console. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait for redirect away from /auth/login."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/praxis/people. Wait 3s. Verify the people list renders — look for a table, card grid, or list of person records, or an empty state message if no people have been added yet. Screenshot."},
-        {"id": 4, "description": "Look for a 'Add Person', 'New Person', or '+' button. If found, click it. A form or modal should appear. Fill in: Name = 'JH Test Contact 2026', Role or Relationship = any available option. Click Save or Submit. Screenshot the confirmation or success state."},
-        {"id": 5, "description": "Column A action — persistence verify: after submitting the form, verify the new person record 'JH Test Contact 2026' appears in the people list. Navigate away to /praxis/dashboard and return to /praxis/people. Confirm the record is still present (persisted to backend, not just local state). If the add button was not found, navigate to /praxis/connect instead and verify that page loads without a 500 or ErrorBoundary."},
-        {"id": 6, "description": "Screenshot. Report: (a) people page loaded (yes/no), (b) add person form found (yes/no), (c) record persisted after navigation (pass/fail/no-form-found), (d) any errors or empty states."}
-      ]
-    },
-    {
-      "id": "portal-ext-03-praxis-finance",
-      "description": "Praxis: finance page loads all sub-tabs — net worth, expenses, spending review, portfolio, tax — with real data or empty states",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs, clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/praxis/finance. Wait 3s. Verify the finance page loads — look for tab navigation (Net Worth, Expenses, Portfolio, Tax, or similar). Screenshot."},
-        {"id": 4, "description": "For each sub-tab visible in the finance page navigation — click each one in turn. After each click wait 2s and verify: no ErrorBoundary red box, no blank white body, no unhandled exception. Note which sub-tabs load content vs which show error states. Do not stop at first failure — visit all tabs."},
-        {"id": 5, "description": "Column A action — net worth cross-check: navigate to the Net Worth or Portfolio sub-tab. Read the displayed total value or chart label. Navigate away to /praxis/dashboard and return to /praxis/finance and the same sub-tab. Verify the same value is shown (data is not being regenerated randomly — it is consistent). Report the value and whether it was consistent across two loads."},
-        {"id": 6, "description": "Screenshot. Report: (a) finance page loaded (yes/no), (b) sub-tabs found and list which passed/failed, (c) net worth value consistent across navigation (pass/fail/no-data), (d) any ErrorBoundaries or 500s."}
-      ]
-    },
-    {
-      "id": "portal-ext-04-praxis-coach-knowledge",
-      "description": "Praxis: coach page loads AI interaction + knowledge/memory surfaces load without 500",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/praxis/coach. Wait 5s (AI initialization may be slow). Verify the coach interface loads — look for a chat input, message area, or coach greeting panel. Screenshot."},
-        {"id": 4, "description": "Column A action — coach interaction: In the coach chat input (if present), type the message 'What are my top priorities today?' and press Enter or click Send. Wait up to 10s for a response. Verify a response message appears in the conversation (not a blank area, not an error). Screenshot the response."},
-        {"id": 5, "description": "Navigate to https://app.phronex.com/praxis/knowledge. Wait 3s. Verify the knowledge base loads — look for articles, notes, or a search field. Also navigate to https://app.phronex.com/praxis/memory. Verify that page loads without a 500 or ErrorBoundary. Screenshot both."},
-        {"id": 6, "description": "Report: (a) coach page loaded (yes/no), (b) coach responded to message (pass/fail/no-input-found), (c) knowledge page loaded (yes/no), (d) memory page loaded (yes/no), (e) any errors or timeouts observed."}
-      ]
-    },
-    {
-      "id": "portal-ext-05-praxis-review-plan",
-      "description": "Praxis: review export produces downloadable content + plan page loads goal structure",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/praxis/review. Wait 3s. Verify the review page loads — look for a period selector, summary cards, or review generation controls. Screenshot."},
-        {"id": 4, "description": "Column A action — review generation: Look for a 'Generate Review', 'Export', or 'Create Report' button. Click it. Observe: does a modal open, a download start, or a review document render? Wait up to 15s for the operation to complete. Screenshot the result state."},
-        {"id": 5, "description": "Navigate to https://app.phronex.com/praxis/plan. Wait 3s. Verify the plan page loads with goal hierarchy, milestones, or planning widgets — not a blank body or ErrorBoundary. Also quickly navigate to /praxis/tasks and /praxis/calendar to confirm those basic views load. Screenshot /praxis/plan."},
-        {"id": 6, "description": "Report: (a) review page loaded (yes/no), (b) review generation triggered (pass/fail/no-button-found), (c) plan page loaded (yes/no), (d) tasks and calendar loaded (yes/no each), (e) any errors observed."}
-      ]
-    },
-    {
-      "id": "portal-ext-06-praxis-life-skills-assessment",
-      "description": "Praxis: life section loads + skills self-assessment submits a rating change",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/praxis/life. Wait 3s. Verify the life pillar page loads with pillar cards, scoring panels, or well-being metrics — not a blank body. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/praxis/skills. Wait 3s. Verify a skills list or assessment interface loads. Look for skill cards with rating controls (stars, sliders, dropdowns)."},
-        {"id": 5, "description": "Column A action — skills rating: Find a skill entry with a rating control. Note the current rating. Change the rating (e.g. click a star or move a slider to a different level). Click Save if a save button appears. Navigate away to /praxis/dashboard and return to /praxis/skills. Verify the new rating is shown (not the old one). Report: did the rating persist?"},
-        {"id": 6, "description": "Screenshot. Report: (a) life page loaded (yes/no), (b) skills page loaded with rating controls (yes/no), (c) rating change persisted after navigation (pass/fail/no-controls-found), (d) any ErrorBoundaries or 500s."}
-      ]
-    },
-    {
-      "id": "portal-ext-07-comc-dashboard-inbox",
-      "description": "ComC: dashboard loads executive metrics + Unified Inbox shows messages without 500",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/command-centre/dashboard. Wait 5s (ComC calls multiple backends). Verify: (a) executive dashboard renders with metric tiles or KPI panels, (b) no ErrorBoundary, (c) no blank white body. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/command-centre/inbox. Wait 5s. This is the Unified Inbox (new v2.4 feature). Verify: (a) inbox UI loads — look for message list, threads, or empty-state message, (b) no 500 or ErrorBoundary. Screenshot."},
-        {"id": 5, "description": "Column A action — inbox interaction: If the inbox has messages or threads, click the first one to open the detail view. Verify the message content loads (not blank). If inbox is empty, look for a 'Compose' or 'New Message' button and click it — verify the compose panel opens. Screenshot the result. Report whether inbox had messages or was empty."},
-        {"id": 6, "description": "Report: (a) ComC dashboard loaded with metrics (yes/no), (b) inbox loaded (yes/no), (c) inbox was empty or had messages, (d) message detail or compose panel opened (pass/fail/empty-inbox), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-08-comc-sales-pipeline",
-      "description": "ComC: sales pipeline loads stages + lead detail opens and stage change persists",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/command-centre/sales/pipeline. Wait 5s. Verify the pipeline board loads — look for Kanban columns or stage list. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/command-centre/sales/leads. Wait 3s. Verify the leads list renders. If leads exist, click the first lead row to open its detail panel or page. Verify the detail loads with contact info, stage, or notes visible."},
-        {"id": 5, "description": "Column A action — stage change: In the lead detail, look for a stage dropdown or status selector. Note the current stage. Change it to a different stage (e.g. 'Contacted', 'Proposal', 'Qualified'). Save or confirm. Navigate away to /command-centre/sales/leads and return to the same lead. Verify the new stage is displayed. Report: did stage change persist?"},
-        {"id": 6, "description": "Screenshot. Report: (a) pipeline board loaded (yes/no), (b) leads list loaded (yes/no), (c) lead detail opened (yes/no), (d) stage change persisted (pass/fail/no-leads-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-09-comc-companies-crm",
-      "description": "ComC: companies CRM list loads + create company form submits and record appears",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/command-centre/companies. Wait 3s. Verify the companies list loads — look for a table or card list of company records, or an empty state. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/command-centre/crm. Wait 3s. Verify the CRM surface loads. Look for contact records, pipeline summary, or CRM dashboard widgets. Screenshot."},
-        {"id": 5, "description": "Column A action — create company: Return to /command-centre/companies. Look for 'Add Company', 'New Company', or '+' button. If found, click it. Fill in: Company Name = 'JH Test Company 2026', Industry = any available option. Click Save. Verify the company appears in the list. Navigate away to /command-centre/dashboard and return to /command-centre/companies. Confirm 'JH Test Company 2026' still appears (persisted). Report: did the company persist?"},
-        {"id": 6, "description": "Report: (a) companies list loaded (yes/no), (b) CRM page loaded (yes/no), (c) add company form found (yes/no), (d) company persisted after navigation (pass/fail/no-form-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-10-comc-goals-okr",
-      "description": "ComC: goals/OKR page loads + new goal creation persists across navigation",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/command-centre/goals. Wait 3s. Verify the goals page loads — look for OKR cards, objective list, or goal hierarchy. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/command-centre/decisions. Wait 3s. Verify decisions page loads without a 500 or blank body. Also navigate to https://app.phronex.com/command-centre/approvals and verify it loads. Screenshot each."},
-        {"id": 5, "description": "Column A action — create goal: Return to /command-centre/goals. Look for 'Add Goal', 'New Objective', or '+' button. If found, click it. Fill in: Goal Title = 'JH Test Goal 2026', set any target or timeframe if prompted. Click Save. Verify the goal appears in the list. Navigate away to /command-centre/dashboard and return to /command-centre/goals. Confirm 'JH Test Goal 2026' is present (persisted to DB). Report persistence result."},
-        {"id": 6, "description": "Report: (a) goals page loaded (yes/no), (b) decisions loaded (yes/no), (c) approvals loaded (yes/no), (d) goal persisted (pass/fail/no-form-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-11-comc-intelligence-analytics",
-      "description": "ComC: intelligence briefs page loads + analytics surfaces real data tiles",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/command-centre/briefs. Wait 5s (may call AI pipeline). Verify: intelligence briefs page loads — look for brief cards, digest list, or AI summary panels. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/command-centre/analytics. Wait 3s. Verify analytics dashboard loads — look for metric tiles, charts, or KPI blocks. Note whether tiles show numeric values or '--' placeholders. Screenshot."},
-        {"id": 5, "description": "Column A action — data consistency: In the analytics page, read the value of any metric tile (e.g. 'Active Users', 'Revenue', 'Leads This Month'). Navigate away to /command-centre/dashboard and return to /command-centre/analytics. Read the same metric tile again. Verify the value is the same (not randomly re-generated — confirms data is being read from a consistent source). Report the value and consistency."},
-        {"id": 6, "description": "Report: (a) intelligence briefs loaded (yes/no), (b) analytics loaded (yes/no), (c) analytics metrics showed real numbers or '--' (describe), (d) metric value consistent across two loads (pass/fail), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-12-comc-retrospectives-strategy",
-      "description": "ComC: retrospectives loads + strategy/initiatives pages load without 500",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/command-centre/retrospectives. Wait 3s. Verify page loads — look for retro sessions, action items, or empty state. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/command-centre/strategy. Wait 3s. Verify the strategy page loads. Also navigate to https://app.phronex.com/command-centre/initiatives and verify it loads without a 500 or blank body. Screenshot each."},
-        {"id": 5, "description": "Column A action — create retro note: Return to /command-centre/retrospectives. Look for 'New Retro', 'Add Session', or an inline text input for a retro note. If found, add a note: 'JH Test Note 2026 — what went well'. Submit or save it. Verify it appears in the list. Navigate away and return to confirm persistence."},
-        {"id": 6, "description": "Report: (a) retrospectives loaded (yes/no), (b) strategy loaded (yes/no), (c) initiatives loaded (yes/no), (d) retro note persisted (pass/fail/no-input-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-13-jp-applications-portrait",
-      "description": "JP: applications list loads + admin portrait mutation (flag/notes) persists",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/jp/applications. Wait 3s. Verify the applications list loads — look for a table of job applications with candidate names, job titles, and status. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/jp/admin-portrait. Wait 3s. Verify the admin portrait (candidate profile admin view) loads — look for candidate cards, export controls, or scoring panels. Screenshot."},
-        {"id": 5, "description": "Column A action — application flag: Return to /jp/applications. If applications exist, click on the first application to open its detail. Look for a flag, star, or status change control. Change the status or flag state (e.g. flag as 'Shortlisted' or add a note). Navigate away to /jp/dashboard and return to /jp/applications, then reopen the same application. Verify the flag or note persisted. Report result."},
-        {"id": 6, "description": "Report: (a) applications list loaded (yes/no), (b) admin portrait loaded (yes/no), (c) flag/note persisted (pass/fail/no-applications-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-14-jp-documents-lifecycle",
-      "description": "JP: documents tab lists files + upload or generate document creates a record",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/jp/documents. Wait 3s. Verify the documents page loads — look for a file list, upload zone, or document generation controls. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/jp/scan-history. Wait 3s. Verify the scan history page loads without error. Screenshot."},
-        {"id": 5, "description": "Column A action — document generation: Return to /jp/documents. Look for a 'Generate CV', 'Generate Cover Letter', 'Upload Resume', or similar button. If a generation button exists, click it and observe the result (loading spinner → document record appears). If an upload zone exists, note its presence. Navigate away to /jp/dashboard and return to /jp/documents. Verify the generated/uploaded document record is present (persisted). Report the action taken and persistence result."},
-        {"id": 6, "description": "Report: (a) documents page loaded (yes/no), (b) scan history loaded (yes/no), (c) document generation or upload found (yes/no), (d) document record persisted (pass/fail/no-action-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-15-jp-config-security",
-      "description": "JP: config tab loads editable settings + security tab shows audit log entries",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/jp/config. Wait 3s. Verify the configuration page loads — look for settings fields, toggles, or preference panels. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/jp/security. Wait 3s. Verify the security page loads — look for session list, 2FA controls, or activity log. Screenshot."},
-        {"id": 5, "description": "Column A action — config edit: In /jp/config, find any text field or toggle that is editable (e.g. display name, notification preference, language setting). Make a small edit (e.g. toggle a checkbox or change a select value). Save the change. Navigate away to /jp/dashboard and return to /jp/config. Verify the changed value persisted (not reverted). Report what was changed and whether it persisted."},
-        {"id": 6, "description": "Report: (a) config page loaded (yes/no), (b) security page loaded (yes/no), (c) config edit persisted (pass/fail/no-editable-fields), (d) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-16-jp-portals-auditlog",
-      "description": "JP: portals management page loads + audit log entries show real activity",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/jp/portals. Wait 3s. Verify the portals management page loads — look for a list of job portals, portal config panels, or an empty state with a 'Create Portal' button. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/jp/audit-log. Wait 3s. Verify the audit log loads — look for a table of timestamped events with user, action, and resource columns. Screenshot."},
-        {"id": 5, "description": "Column A action — audit log verification: In the audit log, verify the entries are real (not placeholder data). Look for at least one entry with a real timestamp (today's or recent date), a recognizable action (login, view, create), and a user email. Scroll to verify multiple entries exist. Report the count visible and whether entries appear genuine."},
-        {"id": 6, "description": "Report: (a) portals page loaded (yes/no), (b) audit log loaded (yes/no), (c) audit log showed real entries with timestamps (yes/no/empty), (d) entry count visible, (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-17-cc-content-management",
-      "description": "CC: content list loads + create draft content item persists in the list",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/cc/content. Wait 3s. Verify the content management page loads — look for a list of content items, drafts, or published articles. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/cc/instance. Wait 3s. Verify the CC instance management page loads without a 500. Screenshot."},
-        {"id": 5, "description": "Column A action — create content: Return to /cc/content. Look for a 'New Content', 'Create Draft', or '+' button. If found, click it. Enter a title: 'JH Test Draft 2026'. Select any content type if prompted. Click Save or Create. Verify the draft appears in the content list. Navigate away to /cc/dashboard and return to /cc/content. Confirm 'JH Test Draft 2026' is present (persisted to DB). Report persistence result."},
-        {"id": 6, "description": "Report: (a) content page loaded (yes/no), (b) instance page loaded (yes/no), (c) draft created (yes/no), (d) draft persisted after navigation (pass/fail/no-create-button), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-18-cc-users-flagged",
-      "description": "CC: users list loads + flagged content queue shows entries and flag dismiss persists",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/cc/users. Wait 3s. Verify the CC users list loads — look for a table of users with email, role, and status columns. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/cc/flagged. Wait 3s. Verify the flagged content queue loads — look for a list of flagged items with reason, author, and review controls, or an empty state if nothing is flagged. Screenshot."},
-        {"id": 5, "description": "Column A action — users search: In /cc/users, look for a search or filter input. Type 'qa' or 'test' to filter the user list. Verify the filtered list returns relevant results (not blank, not an error). Clear the search and verify full list returns. Report: did filtering work correctly?"},
-        {"id": 6, "description": "Report: (a) users page loaded (yes/no), (b) flagged page loaded (yes/no), (c) user search filtered correctly (pass/fail/no-search-input), (d) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-19-cc-skills-branding",
-      "description": "CC: skills panel loads skill list + branding tab loads and colour preview renders",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/cc/skills. Wait 3s. Verify the skills panel loads — look for a list of AI skills with name, status badge, and enable/disable toggle. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/cc/admin. Wait 3s. Verify the CC admin area loads without a 500 or blank body. Look for admin-only controls (user management, config, audit). Screenshot."},
-        {"id": 5, "description": "Column A action — skill toggle: In /cc/skills, find any skill with an enable/disable toggle. Note its current state (enabled/disabled). Click the toggle to change its state. Verify the toggle visually reflects the new state. Navigate away to /cc/dashboard and return to /cc/skills. Verify the skill still shows the new state (persisted, not reverted). Report what was toggled and whether it persisted."},
-        {"id": 6, "description": "Report: (a) skills page loaded (yes/no), (b) admin page loaded (yes/no), (c) skill toggle found (yes/no), (d) toggle state persisted after navigation (pass/fail/no-toggle-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-20-cc-subscription-security",
-      "description": "CC: subscription page loads tier info + security page shows session list",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/cc/subscription. Wait 3s. Verify the subscription page loads — look for a current plan tile, tier name, usage meters, or upgrade options. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/cc/security. Wait 3s. Verify the security page loads — look for active sessions, API keys, or IP allowlist. Screenshot."},
-        {"id": 5, "description": "Column A action — subscription data cross-check: In /cc/subscription, note the current plan name or tier. Navigate to the admin Audit tab at https://app.phronex.com/admin?tab=monetisation. Find the CC row in the tier pricing or subscription table. Verify the plan name shown matches what /cc/subscription showed (no drift between customer-facing subscription view and admin billing view). Report both values."},
-        {"id": 6, "description": "Report: (a) subscription page loaded (yes/no), (b) security page loaded (yes/no), (c) plan name in /cc/subscription, (d) plan name in /admin?tab=monetisation for CC, (e) values match (pass/fail/one-page-failed), (f) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-21-admin-customer-analytics-bi",
-      "description": "Admin Customer: analytics-bi sub-tabs all load + cross-product data appears in at least one",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/admin?tab=analytics-bi. Wait 5s. Verify the analytics-bi tab loads without a 500 or blank body. Look for a sub-tab navigation strip inside the panel (e.g. Overview, Retention, Cohorts, Funnels, or similar). Screenshot."},
-        {"id": 4, "description": "Click through each sub-tab visible in the analytics-bi panel (do not stop at first failure — visit all). After each click wait 2s and note: loads content vs ErrorBoundary vs blank. List which sub-tabs pass and which fail."},
-        {"id": 5, "description": "Column A action — data presence check: In any sub-tab that shows a chart or metric table, verify at least one data point is a real number (not '--', not 0 for every metric, not 'N/A' for all). If all metrics show '--', this is a HALF_SURFACED defect — report it explicitly. Screenshot the data state."},
-        {"id": 6, "description": "Report: (a) analytics-bi tab loaded (yes/no), (b) sub-tabs found and list pass/fail for each, (c) real data values present or all '--' (describe), (d) any ErrorBoundaries."}
-      ]
-    },
-    {
-      "id": "portal-ext-22-admin-customer-identity-vendors",
-      "description": "Admin Customer: identity-rbac user list loads + vendors dependency map loads without ErrorBoundary",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/admin?tab=identity-rbac. Wait 3s. Verify the identity-rbac tab loads — look for a user list or role assignment table. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/admin?tab=vendors. Wait 3s. Verify the vendors tab loads — look for a vendor list with status and dependency indicators. In particular look for the Dependency Map sub-tab (this previously hit an ErrorBoundary in Phase 50). Click it and verify it loads without crashing. Screenshot."},
-        {"id": 5, "description": "Column A action — identity-rbac role change: In the identity-rbac tab, click into a user row (not the QA test account itself — find a different account or the qa-owner@phronex.com account). Look for a role selector or grant edit panel. If a role change UI is present, note the current role. Do NOT change it — instead verify the panel displays the correct role and closes cleanly when cancelled. Report what was visible in the panel."},
-        {"id": 6, "description": "Report: (a) identity-rbac loaded (yes/no), (b) vendors loaded (yes/no), (c) dependency map sub-tab loaded without ErrorBoundary (pass/fail), (d) role panel displayed correct data (pass/fail/not-found), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-23-admin-plumbing-auth-config",
-      "description": "Admin Plumbing: auth-config tab loads all sub-tabs + mailboxes tab shows configuration state",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/admin?tab=auth-config. Wait 3s. Verify the auth-config tab loads — look for JWT settings, OAuth providers, session config, or allowed redirect URLs. Screenshot."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/admin?tab=mailboxes. Wait 3s. Verify the mailboxes tab loads — look for mailbox list, SMTP config, or email routing rules. Check that stat cards show '0' for empty data (not '--'), which was a known defect previously fixed. Screenshot."},
-        {"id": 5, "description": "Column A action — auth-config read-verify: In the auth-config tab, look for the JWT expiry setting, session TTL, or allowed redirect URLs list. Verify these fields display real configured values (not '--' or blank). Navigate away to /admin?tab=accounts and return to /admin?tab=auth-config. Verify the values are the same (not re-fetched with different values — consistent backend read). Report the values seen."},
-        {"id": 6, "description": "Report: (a) auth-config tab loaded (yes/no), (b) mailboxes tab loaded (yes/no), (c) mailboxes stat cards showed '0' not '--' (pass/fail), (d) auth-config values consistent across navigation (pass/fail), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-24-admin-financial-billing",
-      "description": "Admin Financial: billing-config tab loads editable config + LLM costs tab shows per-product breakdown",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."},
-        {"id": 3, "description": "Navigate to https://app.phronex.com/admin?tab=billing-config. Wait 3s. Verify the billing-config tab loads — look for billing provider settings, payment gateway config, or pricing config fields. Screenshot. This tab previously returned 500 for a downstream 502 — verify fault isolation is now working (partial data or graceful error, not full 500)."},
-        {"id": 4, "description": "Navigate to https://app.phronex.com/admin?tab=llm-costs. Wait 5s. Verify the LLM costs tab loads — look for a per-product breakdown of LLM spend (CC, JP, ComC, Praxis rows). Check the llm-routing sub-tab as well for routing config. Screenshot."},
-        {"id": 5, "description": "Column A action — cost data cross-check: In /admin?tab=llm-costs, find the LLM spend figure for any one product (e.g. Content Companion). Note the value. Navigate to /admin?tab=cost-intelligence and find the same product's cost card. The LLM cost component should be non-negative and consistent with the llm-costs total. Report both values and whether they are consistent."},
-        {"id": 6, "description": "Report: (a) billing-config loaded without full 500 (yes/no — note if partial degradation handled gracefully), (b) llm-costs loaded (yes/no), (c) llm-routing sub-tab loaded (yes/no), (d) LLM cost values consistent between tabs (pass/fail/no-data), (e) any errors."}
-      ]
-    },
-    {
-      "id": "portal-ext-25-user-rbac-product-access",
-      "description": "RBAC: end-user role must not access admin or product admin pages — correct redirects enforced",
-      "steps": [
-        {"id": 1, "description": "BROWSER RESET FIRST: Close extra tabs. Clear all cookies and localStorage for app.phronex.com. Navigate to about:blank. This journey tests the qa-user@phronex.com account, not the superadmin."},
-        {"id": 2, "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-user@phronex.com with password QA_USER_PASSWORD. Wait for redirect. Note where the user lands after login."},
-        {"id": 3, "description": "Attempt to navigate directly to https://app.phronex.com/admin. Note the resulting URL and page content. Verify: (a) the /admin panel does NOT render (no tab group pills, no 'CEO VIEW' button), (b) URL redirected away from /admin."},
-        {"id": 4, "description": "Attempt to navigate directly to https://app.phronex.com/admin?tab=accounts. Verify same redirect behaviour. Also attempt https://app.phronex.com/cc/admin and https://app.phronex.com/jp/admin — verify both redirect or show 'Access Denied', not admin panel content."},
-        {"id": 5, "description": "Column A action — verify accessible pages: A user-role account SHOULD be able to access /products, /praxis/dashboard (if they have a Praxis grant), or /jp/dashboard (if they have a JP grant). Navigate to https://app.phronex.com/products. Verify the products page loads with the user's available products shown. This is the correct post-login landing for end users. Report which products are visible."},
-        {"id": 6, "description": "Screenshot final state. Report: (a) /admin redirected correctly for user role (pass/fail), (b) /admin?tab=accounts redirected (pass/fail), (c) /cc/admin and /jp/admin redirected (pass/fail), (d) /products loaded with user's products (pass/fail), (e) where user landed after login."}
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": "portal-ext-01-praxis-dashboard-habits",
+    "description": "Praxis: dashboard loads KPI widgets + habit check-in submits and persists",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close all except one. Navigate that tab to about:blank. In the DevTools console run: localStorage.clear(); sessionStorage.clear(); for (let i = document.cookie.split(';').length - 1; i >= 0; i--) { let c = document.cookie.split(';')[i]; document.cookie = c.trim().split('=')[0] + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/'; } Screenshot to confirm blank tab."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Wait for login form. Enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD. Click Sign In. Wait until URL no longer contains /auth/login. Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/praxis/dashboard. Wait 3s for content to load. Verify: (a) the page title or heading contains 'Praxis' or 'Dashboard', (b) no ErrorBoundary red box visible, (c) at least one widget, card, or stat block is present in the content area. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/praxis/habits. Wait 3s. Verify the habits page loads with a calendar grid or habit list \u2014 not a blank white body. Look for any habit tracking UI element (grid, calendar, quadrant chart). Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 habit check-in: Find any habit checkbox, toggle, or 'Mark done' button for today's date. Click it. Observe the visual state change (checkbox checked, colour change, count increment). Navigate away to /praxis/dashboard and then return to /praxis/habits. Verify the check-in state persists (same habit still shows as done). Report: did the state persist after navigation (pass/fail)?"
+      },
+      {
+        "id": 6,
+        "description": "Screenshot final state. Report: (a) dashboard rendered with content (yes/no), (b) habits page rendered (yes/no), (c) check-in persisted after navigation (pass/fail/empty-state \u2014 no habits configured), (d) any console errors or ErrorBoundaries observed."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-02-praxis-people-crud",
+    "description": "Praxis: people list loads + add/edit person form submits and record appears in list",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close all extra tabs, keep one. Clear localStorage, sessionStorage, and cookies for app.phronex.com via DevTools console. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait for redirect away from /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/praxis/people. Wait 3s. Verify the people list renders \u2014 look for a table, card grid, or list of person records, or an empty state message if no people have been added yet. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Look for a 'Add Person', 'New Person', or '+' button. If found, click it. A form or modal should appear. Fill in: Name = 'JH Test Contact 2026', Role or Relationship = any available option. Click Save or Submit. Screenshot the confirmation or success state."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 persistence verify: after submitting the form, verify the new person record 'JH Test Contact 2026' appears in the people list. Navigate away to /praxis/dashboard and return to /praxis/people. Confirm the record is still present (persisted to backend, not just local state). If the add button was not found, navigate to /praxis/connect instead and verify that page loads without a 500 or ErrorBoundary."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot. Report: (a) people page loaded (yes/no), (b) add person form found (yes/no), (c) record persisted after navigation (pass/fail/no-form-found), (d) any errors or empty states."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-03-praxis-finance",
+    "description": "Praxis: finance page loads all sub-tabs \u2014 net worth, expenses, spending review, portfolio, tax \u2014 with real data or empty states",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs, clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/praxis/finance. Wait 3s. Verify the finance page loads \u2014 look for tab navigation (Net Worth, Expenses, Portfolio, Tax, or similar). Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "For each sub-tab visible in the finance page navigation \u2014 click each one in turn. After each click wait 2s and verify: no ErrorBoundary red box, no blank white body, no unhandled exception. Note which sub-tabs load content vs which show error states. Do not stop at first failure \u2014 visit all tabs."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 net worth cross-check: navigate to the Net Worth or Portfolio sub-tab. Read the displayed total value or chart label. Navigate away to /praxis/dashboard and return to /praxis/finance and the same sub-tab. Verify the same value is shown (data is not being regenerated randomly \u2014 it is consistent). Report the value and whether it was consistent across two loads."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot. Report: (a) finance page loaded (yes/no), (b) sub-tabs found and list which passed/failed, (c) net worth value consistent across navigation (pass/fail/no-data), (d) any ErrorBoundaries or 500s."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-04-praxis-coach-knowledge",
+    "description": "Praxis: coach page loads AI interaction + knowledge/memory surfaces load without 500",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/praxis/coach. Wait 5s (AI initialization may be slow). Verify the coach interface loads \u2014 look for a chat input, message area, or coach greeting panel. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Column A action \u2014 coach interaction: In the coach chat input (if present), type the message 'What are my top priorities today?' and press Enter or click Send. Wait up to 10s for a response. Verify a response message appears in the conversation (not a blank area, not an error). Screenshot the response."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/praxis/knowledge. Wait 3s. Verify the knowledge base loads \u2014 look for articles, notes, or a search field. Also navigate to https://app.phronex.com/praxis/memory. Verify that page loads without a 500 or ErrorBoundary. Screenshot both."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) coach page loaded (yes/no), (b) coach responded to message (pass/fail/no-input-found), (c) knowledge page loaded (yes/no), (d) memory page loaded (yes/no), (e) any errors or timeouts observed."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-05-praxis-review-plan",
+    "description": "Praxis: review export produces downloadable content + plan page loads goal structure",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/praxis/review. Wait 3s. Verify the review page loads \u2014 look for a period selector, summary cards, or review generation controls. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Column A action \u2014 review generation: Look for a 'Generate Review', 'Export', or 'Create Report' button. Click it. Observe: does a modal open, a download start, or a review document render? Wait up to 15s for the operation to complete. Screenshot the result state."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/praxis/plan. Wait 3s. Verify the plan page loads with goal hierarchy, milestones, or planning widgets \u2014 not a blank body or ErrorBoundary. Also quickly navigate to /praxis/tasks and /praxis/calendar to confirm those basic views load. Screenshot /praxis/plan."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) review page loaded (yes/no), (b) review generation triggered (pass/fail/no-button-found), (c) plan page loaded (yes/no), (d) tasks and calendar loaded (yes/no each), (e) any errors observed."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-06-praxis-life-skills-assessment",
+    "description": "Praxis: life section loads + skills self-assessment submits a rating change",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/praxis/life. Wait 3s. Verify the life pillar page loads with pillar cards, scoring panels, or well-being metrics \u2014 not a blank body. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/praxis/skills. Wait 3s. Verify a skills list or assessment interface loads. Look for skill cards with rating controls (stars, sliders, dropdowns)."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 skills rating: Find a skill entry with a rating control. Note the current rating. Change the rating (e.g. click a star or move a slider to a different level). Click Save if a save button appears. Navigate away to /praxis/dashboard and return to /praxis/skills. Verify the new rating is shown (not the old one). Report: did the rating persist?"
+      },
+      {
+        "id": 6,
+        "description": "Screenshot. Report: (a) life page loaded (yes/no), (b) skills page loaded with rating controls (yes/no), (c) rating change persisted after navigation (pass/fail/no-controls-found), (d) any ErrorBoundaries or 500s."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-07-comc-dashboard-inbox",
+    "description": "ComC: dashboard loads executive metrics + Unified Inbox shows messages without 500",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/command-centre/dashboard. Wait 5s (ComC calls multiple backends). Verify: (a) executive dashboard renders with metric tiles or KPI panels, (b) no ErrorBoundary, (c) no blank white body. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/command-centre/inbox. Wait 5s. This is the Unified Inbox (new v2.4 feature). Verify: (a) inbox UI loads \u2014 look for message list, threads, or empty-state message, (b) no 500 or ErrorBoundary. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 inbox interaction: If the inbox has messages or threads, click the first one to open the detail view. Verify the message content loads (not blank). If inbox is empty, look for a 'Compose' or 'New Message' button and click it \u2014 verify the compose panel opens. Screenshot the result. Report whether inbox had messages or was empty."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) ComC dashboard loaded with metrics (yes/no), (b) inbox loaded (yes/no), (c) inbox was empty or had messages, (d) message detail or compose panel opened (pass/fail/empty-inbox), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-08-comc-sales-pipeline",
+    "description": "ComC: sales pipeline loads stages + lead detail opens and stage change persists",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/command-centre/sales/pipeline. Wait 5s. Verify the pipeline board loads \u2014 look for Kanban columns or stage list. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/command-centre/sales/leads. Wait 3s. Verify the leads list renders. If leads exist, click the first lead row to open its detail panel or page. Verify the detail loads with contact info, stage, or notes visible."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 stage change: In the lead detail, look for a stage dropdown or status selector. Note the current stage. Change it to a different stage (e.g. 'Contacted', 'Proposal', 'Qualified'). Save or confirm. Navigate away to /command-centre/sales/leads and return to the same lead. Verify the new stage is displayed. Report: did stage change persist?"
+      },
+      {
+        "id": 6,
+        "description": "Screenshot. Report: (a) pipeline board loaded (yes/no), (b) leads list loaded (yes/no), (c) lead detail opened (yes/no), (d) stage change persisted (pass/fail/no-leads-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-09-comc-companies-crm",
+    "description": "ComC: companies CRM list loads + create company form submits and record appears",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/command-centre/companies. Wait 3s. Verify the companies list loads \u2014 look for a table or card list of company records, or an empty state. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/command-centre/crm. Wait 3s. Verify the CRM surface loads. Look for contact records, pipeline summary, or CRM dashboard widgets. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 create company: Return to /command-centre/companies. Look for 'Add Company', 'New Company', or '+' button. If found, click it. Fill in: Company Name = 'JH Test Company 2026', Industry = any available option. Click Save. Verify the company appears in the list. Navigate away to /command-centre/dashboard and return to /command-centre/companies. Confirm 'JH Test Company 2026' still appears (persisted). Report: did the company persist?"
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) companies list loaded (yes/no), (b) CRM page loaded (yes/no), (c) add company form found (yes/no), (d) company persisted after navigation (pass/fail/no-form-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-10-comc-goals-okr",
+    "description": "ComC: goals/OKR page loads + new goal creation persists across navigation",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/command-centre/goals. Wait 3s. Verify the goals page loads \u2014 look for OKR cards, objective list, or goal hierarchy. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/command-centre/decisions. Wait 3s. Verify decisions page loads without a 500 or blank body. Also navigate to https://app.phronex.com/command-centre/approvals and verify it loads. Screenshot each."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 create goal: Return to /command-centre/goals. Look for 'Add Goal', 'New Objective', or '+' button. If found, click it. Fill in: Goal Title = 'JH Test Goal 2026', set any target or timeframe if prompted. Click Save. Verify the goal appears in the list. Navigate away to /command-centre/dashboard and return to /command-centre/goals. Confirm 'JH Test Goal 2026' is present (persisted to DB). Report persistence result."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) goals page loaded (yes/no), (b) decisions loaded (yes/no), (c) approvals loaded (yes/no), (d) goal persisted (pass/fail/no-form-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-11-comc-intelligence-analytics",
+    "description": "ComC: intelligence briefs page loads + analytics surfaces real data tiles",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/command-centre/briefs. Wait 5s (may call AI pipeline). Verify: intelligence briefs page loads \u2014 look for brief cards, digest list, or AI summary panels. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/command-centre/analytics. Wait 3s. Verify analytics dashboard loads \u2014 look for metric tiles, charts, or KPI blocks. Note whether tiles show numeric values or '--' placeholders. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 data consistency: In the analytics page, read the value of any metric tile (e.g. 'Active Users', 'Revenue', 'Leads This Month'). Navigate away to /command-centre/dashboard and return to /command-centre/analytics. Read the same metric tile again. Verify the value is the same (not randomly re-generated \u2014 confirms data is being read from a consistent source). Report the value and consistency."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) intelligence briefs loaded (yes/no), (b) analytics loaded (yes/no), (c) analytics metrics showed real numbers or '--' (describe), (d) metric value consistent across two loads (pass/fail), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-12-comc-retrospectives-strategy",
+    "description": "ComC: retrospectives loads + strategy/initiatives pages load without 500",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/command-centre/retrospectives. Wait 3s. Verify page loads \u2014 look for retro sessions, action items, or empty state. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/command-centre/strategy. Wait 3s. Verify the strategy page loads. Also navigate to https://app.phronex.com/command-centre/initiatives and verify it loads without a 500 or blank body. Screenshot each."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 create retro note: Return to /command-centre/retrospectives. Look for 'New Retro', 'Add Session', or an inline text input for a retro note. If found, add a note: 'JH Test Note 2026 \u2014 what went well'. Submit or save it. Verify it appears in the list. Navigate away and return to confirm persistence."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) retrospectives loaded (yes/no), (b) strategy loaded (yes/no), (c) initiatives loaded (yes/no), (d) retro note persisted (pass/fail/no-input-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-13-jp-applications-portrait",
+    "description": "JP: applications list loads + admin portrait mutation (flag/notes) persists",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/jp/applications. Wait 3s. Verify the applications list loads \u2014 look for a table of job applications with candidate names, job titles, and status. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/jp/admin-portrait. Wait 3s. Verify the admin portrait (candidate profile admin view) loads \u2014 look for candidate cards, export controls, or scoring panels. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 application flag: Return to /jp/applications. If applications exist, click on the first application to open its detail. Look for a flag, star, or status change control. Change the status or flag state (e.g. flag as 'Shortlisted' or add a note). Navigate away to /jp/dashboard and return to /jp/applications, then reopen the same application. Verify the flag or note persisted. Report result."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) applications list loaded (yes/no), (b) admin portrait loaded (yes/no), (c) flag/note persisted (pass/fail/no-applications-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-14-jp-documents-lifecycle",
+    "description": "JP: documents tab lists files + upload or generate document creates a record",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/jp/documents. Wait 3s. Verify the documents page loads \u2014 look for a file list, upload zone, or document generation controls. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/jp/scan-history. Wait 3s. Verify the scan history page loads without error. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 document generation: Return to /jp/documents. Look for a 'Generate CV', 'Generate Cover Letter', 'Upload Resume', or similar button. If a generation button exists, click it and observe the result (loading spinner \u2192 document record appears). If an upload zone exists, note its presence. Navigate away to /jp/dashboard and return to /jp/documents. Verify the generated/uploaded document record is present (persisted). Report the action taken and persistence result."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) documents page loaded (yes/no), (b) scan history loaded (yes/no), (c) document generation or upload found (yes/no), (d) document record persisted (pass/fail/no-action-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-15-jp-config-security",
+    "description": "JP: config tab loads editable settings + security tab shows audit log entries",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/jp/config. Wait 3s. Verify the configuration page loads \u2014 look for settings fields, toggles, or preference panels. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/jp/security. Wait 3s. Verify the security page loads \u2014 look for session list, 2FA controls, or activity log. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 config edit: In /jp/config, find any text field or toggle that is editable (e.g. display name, notification preference, language setting). Make a small edit (e.g. toggle a checkbox or change a select value). Save the change. Navigate away to /jp/dashboard and return to /jp/config. Verify the changed value persisted (not reverted). Report what was changed and whether it persisted."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) config page loaded (yes/no), (b) security page loaded (yes/no), (c) config edit persisted (pass/fail/no-editable-fields), (d) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-16-jp-portals-auditlog",
+    "description": "JP: portals management page loads + audit log entries show real activity",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/jp/portals. Wait 3s. Verify the portals management page loads \u2014 look for a list of job portals, portal config panels, or an empty state with a 'Create Portal' button. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/jp/audit-log. Wait 3s. Verify the audit log loads \u2014 look for a table of timestamped events with user, action, and resource columns. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 audit log verification: In the audit log, verify the entries are real (not placeholder data). Look for at least one entry with a real timestamp (today's or recent date), a recognizable action (login, view, create), and a user email. Scroll to verify multiple entries exist. Report the count visible and whether entries appear genuine."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) portals page loaded (yes/no), (b) audit log loaded (yes/no), (c) audit log showed real entries with timestamps (yes/no/empty), (d) entry count visible, (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-17-cc-content-management",
+    "description": "CC: content list loads + create draft content item persists in the list",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/cc/content. Wait 3s. Verify the content management page loads \u2014 look for a list of content items, drafts, or published articles. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/cc/instance. Wait 3s. Verify the CC instance management page loads without a 500. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 create content: Return to /cc/content. Look for a 'New Content', 'Create Draft', or '+' button. If found, click it. Enter a title: 'JH Test Draft 2026'. Select any content type if prompted. Click Save or Create. Verify the draft appears in the content list. Navigate away to /cc/dashboard and return to /cc/content. Confirm 'JH Test Draft 2026' is present (persisted to DB). Report persistence result."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) content page loaded (yes/no), (b) instance page loaded (yes/no), (c) draft created (yes/no), (d) draft persisted after navigation (pass/fail/no-create-button), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-18-cc-users-flagged",
+    "description": "CC: users list loads + flagged content queue shows entries and flag dismiss persists",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/cc/users. Wait 3s. Verify the CC users list loads \u2014 look for a table of users with email, role, and status columns. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/cc/flagged. Wait 3s. Verify the flagged content queue loads \u2014 look for a list of flagged items with reason, author, and review controls, or an empty state if nothing is flagged. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 users search: In /cc/users, look for a search or filter input. Type 'qa' or 'test' to filter the user list. Verify the filtered list returns relevant results (not blank, not an error). Clear the search and verify full list returns. Report: did filtering work correctly?"
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) users page loaded (yes/no), (b) flagged page loaded (yes/no), (c) user search filtered correctly (pass/fail/no-search-input), (d) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-19-cc-skills-branding",
+    "description": "CC: skills panel loads skill list + branding tab loads and colour preview renders",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/cc/skills. Wait 3s. Verify the skills panel loads \u2014 look for a list of AI skills with name, status badge, and enable/disable toggle. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/cc/admin. Wait 3s. Verify the CC admin area loads without a 500 or blank body. Look for admin-only controls (user management, config, audit). Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 skill toggle: In /cc/skills, find any skill with an enable/disable toggle. Note its current state (enabled/disabled). Click the toggle to change its state. Verify the toggle visually reflects the new state. Navigate away to /cc/dashboard and return to /cc/skills. Verify the skill still shows the new state (persisted, not reverted). Report what was toggled and whether it persisted."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) skills page loaded (yes/no), (b) admin page loaded (yes/no), (c) skill toggle found (yes/no), (d) toggle state persisted after navigation (pass/fail/no-toggle-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-20-cc-subscription-security",
+    "description": "CC: subscription page loads tier info + security page shows session list",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/cc/subscription. Wait 3s. Verify the subscription page loads \u2014 look for a current plan tile, tier name, usage meters, or upgrade options. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/cc/security. Wait 3s. Verify the security page loads \u2014 look for active sessions, API keys, or IP allowlist. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 subscription data cross-check: In /cc/subscription, note the current plan name or tier. Navigate to the admin Audit tab at https://app.phronex.com/admin?tab=monetisation. Find the CC row in the tier pricing or subscription table. Verify the plan name shown matches what /cc/subscription showed (no drift between customer-facing subscription view and admin billing view). Report both values."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) subscription page loaded (yes/no), (b) security page loaded (yes/no), (c) plan name in /cc/subscription, (d) plan name in /admin?tab=monetisation for CC, (e) values match (pass/fail/one-page-failed), (f) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-21-admin-customer-analytics-bi",
+    "description": "Admin Customer: analytics-bi sub-tabs all load + cross-product data appears in at least one",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=analytics-bi. Wait 5s. Verify the analytics-bi tab loads without a 500 or blank body. Look for a sub-tab navigation strip inside the panel (e.g. Overview, Retention, Cohorts, Funnels, or similar). Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Click through each sub-tab visible in the analytics-bi panel (do not stop at first failure \u2014 visit all). After each click wait 2s and note: loads content vs ErrorBoundary vs blank. List which sub-tabs pass and which fail."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 data presence check: In any sub-tab that shows a chart or metric table, verify at least one data point is a real number (not '--', not 0 for every metric, not 'N/A' for all). If all metrics show '--', this is a HALF_SURFACED defect \u2014 report it explicitly. Screenshot the data state."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) analytics-bi tab loaded (yes/no), (b) sub-tabs found and list pass/fail for each, (c) real data values present or all '--' (describe), (d) any ErrorBoundaries."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-22-admin-customer-identity-vendors",
+    "description": "Admin Customer: identity-rbac user list loads + vendors dependency map loads without ErrorBoundary",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=identity-rbac. Wait 3s. Verify the identity-rbac tab loads \u2014 look for a user list or role assignment table. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/admin?tab=vendors. Wait 3s. Verify the vendors tab loads \u2014 look for a vendor list with status and dependency indicators. In particular look for the Dependency Map sub-tab (this previously hit an ErrorBoundary in Phase 50). Click it and verify it loads without crashing. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 identity-rbac role change: In the identity-rbac tab, click into a user row (not the QA test account itself \u2014 find a different account or the qa-owner@phronex.com account). Look for a role selector or grant edit panel. If a role change UI is present, note the current role. Do NOT change it \u2014 instead verify the panel displays the correct role and closes cleanly when cancelled. Report what was visible in the panel."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) identity-rbac loaded (yes/no), (b) vendors loaded (yes/no), (c) dependency map sub-tab loaded without ErrorBoundary (pass/fail), (d) role panel displayed correct data (pass/fail/not-found), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-23-admin-plumbing-auth-config",
+    "description": "Admin Plumbing: auth-config tab loads all sub-tabs + mailboxes tab shows configuration state",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=auth-config. Wait 3s. Verify the auth-config tab loads \u2014 look for JWT settings, OAuth providers, session config, or allowed redirect URLs. Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/admin?tab=mailboxes. Wait 3s. Verify the mailboxes tab loads \u2014 look for mailbox list, SMTP config, or email routing rules. Check that stat cards show '0' for empty data (not '--'), which was a known defect previously fixed. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 auth-config read-verify: In the auth-config tab, look for the JWT expiry setting, session TTL, or allowed redirect URLs list. Verify these fields display real configured values (not '--' or blank). Navigate away to /admin?tab=accounts and return to /admin?tab=auth-config. Verify the values are the same (not re-fetched with different values \u2014 consistent backend read). Report the values seen."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) auth-config tab loaded (yes/no), (b) mailboxes tab loaded (yes/no), (c) mailboxes stat cards showed '0' not '--' (pass/fail), (d) auth-config values consistent across navigation (pass/fail), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-24-admin-financial-billing",
+    "description": "Admin Financial: billing tab loads editable config + LLM costs tab shows per-product breakdown",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for redirect."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=billing. Wait 3s. Verify the billing tab loads \u2014 look for billing provider settings, payment gateway config, or pricing config fields. Screenshot. This tab previously returned 500 for a downstream 502 \u2014 verify fault isolation is now working (partial data or graceful error, not full 500)."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/admin?tab=llm-costs. Wait 5s. Verify the LLM costs tab loads \u2014 look for a per-product breakdown of LLM spend (CC, JP, ComC, Praxis rows). Check the llm-routing sub-tab as well for routing config. Screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 cost data cross-check: In /admin?tab=llm-costs, find the LLM spend figure for any one product (e.g. Content Companion). Note the value. Navigate to /admin?tab=cost-intelligence and find the same product's cost card. The LLM cost component should be non-negative and consistent with the llm-costs total. Report both values and whether they are consistent."
+      },
+      {
+        "id": 6,
+        "description": "Report: (a) billing tab loaded without full 500 (yes/no \u2014 note if partial degradation handled gracefully), (b) llm-costs loaded (yes/no), (c) llm-routing sub-tab loaded (yes/no), (d) LLM cost values consistent between tabs (pass/fail/no-data), (e) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-ext-25-user-rbac-product-access",
+    "description": "RBAC: end-user role must not access admin or product admin pages \u2014 correct redirects enforced",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Close extra tabs. Clear all cookies and localStorage for app.phronex.com. Navigate to about:blank. This journey tests the qa-user@phronex.com account, not the superadmin."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-user@phronex.com with password QA_USER_PASSWORD. Wait for redirect. Note where the user lands after login."
+      },
+      {
+        "id": 3,
+        "description": "Attempt to navigate directly to https://app.phronex.com/admin. Note the resulting URL and page content. Verify: (a) the /admin panel does NOT render (no tab group pills, no 'CEO VIEW' button), (b) URL redirected away from /admin."
+      },
+      {
+        "id": 4,
+        "description": "Attempt to navigate directly to https://app.phronex.com/admin?tab=accounts. Verify same redirect behaviour. Also attempt https://app.phronex.com/cc/admin and https://app.phronex.com/jp/admin \u2014 verify both redirect or show 'Access Denied', not admin panel content."
+      },
+      {
+        "id": 5,
+        "description": "Column A action \u2014 verify accessible pages: A user-role account SHOULD be able to access /products, /praxis/dashboard (if they have a Praxis grant), or /jp/dashboard (if they have a JP grant). Navigate to https://app.phronex.com/products. Verify the products page loads with the user's available products shown. This is the correct post-login landing for end users. Report which products are visible."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot final state. Report: (a) /admin redirected correctly for user role (pass/fail), (b) /admin?tab=accounts redirected (pass/fail), (c) /cc/admin and /jp/admin redirected (pass/fail), (d) /products loaded with user's products (pass/fail), (e) where user landed after login."
+      }
+    ]
+  }
+]

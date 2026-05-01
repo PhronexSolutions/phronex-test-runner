@@ -1,0 +1,32 @@
+[
+  {
+    "id": "portal-settings-name-persist-verify",
+    "description": "Settings profile name save and persist: verify that updating Full Name on /settings saves correctly, reflects in the form immediately after save, and persists after navigating away and back (real fix verification for defect #86)",
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list open tabs; close all except one. Clear localStorage and cookies for app.phronex.com. Navigate to about:blank."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait until URL no longer contains /auth/login."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/settings. Wait 2s for the page to load. Read the current value in the Full name input field and record it (this is the baseline name)."
+      },
+      {
+        "id": 4,
+        "description": "Clear the Full name input field and type a new unique test name: 'JH Verify Fix 86'. Click the 'Save profile' button. Wait up to 5s for a success message ('Profile updated.' or similar). Screenshot the success state. Verify: (a) success message appeared, (b) the Full name field now shows 'JH Verify Fix 86' (not the old name)."
+      },
+      {
+        "id": 5,
+        "description": "Navigate away: go to https://app.phronex.com/products. Wait 2s. Then navigate back to https://app.phronex.com/settings. Wait 2s for page to load. Read the current value in the Full name input field."
+      },
+      {
+        "id": 6,
+        "description": "Screenshot the settings page. Report: (a) did the name save on first submission (pass/fail), (b) does the Full name field show 'JH Verify Fix 86' after navigating away and back (pass = fix verified / fail = still reverting), (c) any console errors observed."
+      }
+    ]
+  }
+]
