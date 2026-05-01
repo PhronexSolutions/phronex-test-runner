@@ -77,7 +77,8 @@ echo "[env] Python: ${PYTHON}"
 PORTAL_URL="${PORTAL_URL:-https://app.phronex.com}"
 echo "[env] Portal URL: ${PORTAL_URL}"
 TEMP_SPEC=$(mktemp /tmp/jh-spec-XXXXXX.json)
-trap 'rm -f "${TEMP_SPEC}"' EXIT
+FILTERED_SPEC=$(mktemp /tmp/jh-spec-filtered-XXXXXX.json)
+trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}"' EXIT
 # Chain: URL substitution + credential injection.
 # Credential injection — sentinels in spec text are replaced at runtime so the
 # LLM agent receives literal values, never placeholder strings.
@@ -193,15 +194,37 @@ if [[ -n "${_STALE_PID}" ]]; then
   sleep 1
 fi
 
-# Step 1: cc-test-runner
-echo ""
-echo "[1/3] Spawning cc-test-runner..."
+# Step 1a: Strategist Block A — fixture_guard pre-filter
+# STRATEGIST_MODE controls behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
+# fixture_guard parses each journey for fixture requirements (logins, seed
+# data, backend reachability) and drops journeys whose fixtures aren't
+# satisfied. Filtered spec on stdout -> ${FILTERED_SPEC}; decision report ->
+# ${RESULTS_DIR}/fixture-decisions.json.
 mkdir -p "${RESULTS_DIR}"
-# Use TEMP_SPEC (URL-substituted) for browser tests; original SPEC_FILE for pipeline.
-"${SCRIPT_DIR}/cli/dist/cc-test-runner" \
-  -t "${TEMP_SPEC}" \
-  -o "${RESULTS_DIR}" \
-  --maxTurns 50
+echo ""
+echo "[1a/3] Fixture guard pre-filter (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
+"${PYTHON}" -m phronex_common.testing.strategist.fixture_guard \
+  --spec "${TEMP_SPEC}" \
+  --report "${RESULTS_DIR}/fixture-decisions.json" \
+  > "${FILTERED_SPEC}"
+
+# Step 1: cc-test-runner (wrapped by run_arbiter)
+# run_arbiter spawns cc-test-runner as a child, streams its stdout, and
+# SIGTERMs the child on abort triggers (3 consecutive fails / >30 min runtime
+# / per-journey 5 min hang / >50% network failure rate). On abort it writes
+# ${RESULTS_DIR}/abort_reason.json which the pipeline (Step 2) reads to
+# suffix qa_journeys.suite_scope with ':aborted'.
+echo ""
+echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter)..."
+"${PYTHON}" -m phronex_common.testing.strategist.run_arbiter \
+  --product "${PRODUCT}" \
+  --results-dir "${RESULTS_DIR}" \
+  --spec "${FILTERED_SPEC}" \
+  -- \
+  "${SCRIPT_DIR}/cli/dist/cc-test-runner" \
+    -t "${FILTERED_SPEC}" \
+    -o "${RESULTS_DIR}" \
+    --maxTurns 50
 
 CC_EXIT=$?
 if [[ ${CC_EXIT} -ne 0 ]]; then
