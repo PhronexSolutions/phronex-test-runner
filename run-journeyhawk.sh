@@ -194,6 +194,24 @@ if [[ -n "${_STALE_PID}" ]]; then
   sleep 1
 fi
 
+# Step 0b: DocChain stage gate (STRAT-09) — verify docs artefacts before burning test turns.
+# Checks 6 gates: USER-SPEC.html, ARCHITECTURE.html, INTEGRATION-MAP.html,
+# TEST-ORACLES.html, QUALITY-STANDARDS.html, and snapshot freshness.
+# In READ_ONLY mode: advisory only (non-blocking). In ACTIVE mode: non-zero exit blocks run.
+# Docs dir resolved relative to product codebase: ${PHRONEX_CODE_ROOT}/<product>/.docs/
+_DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/ouroborous/code}/${PRODUCT}/.docs"
+if [[ -d "${_DOCS_DIR}" ]]; then
+  echo ""
+  echo "[0b/3] DocChain stage gate (STRAT-09, STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
+  "${PYTHON}" -m phronex_common.docchain.stage_gate \
+    --stage pre_run \
+    --docs-dir "${_DOCS_DIR}" \
+    --product "${PRODUCT}" \
+    || echo "[0b/3] DocChain gate: advisory (non-blocking in current mode)"
+else
+  echo "[0b/3] DocChain stage gate skipped — docs dir not found: ${_DOCS_DIR}"
+fi
+
 # Step 1a: Strategist Block A — fixture_guard pre-filter
 # STRATEGIST_MODE controls behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
 # fixture_guard parses each journey for fixture requirements (logins, seed
