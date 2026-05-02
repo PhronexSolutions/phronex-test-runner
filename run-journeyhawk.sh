@@ -226,7 +226,10 @@ fi
 # TEST-ORACLES.html, QUALITY-STANDARDS.html, and snapshot freshness.
 # In READ_ONLY mode: advisory only (non-blocking). In ACTIVE mode: non-zero exit blocks run.
 # Docs dir resolved relative to product codebase: ${PHRONEX_CODE_ROOT}/<product>/.docs/
-_DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/ouroborous/code}/${PRODUCT}/.docs"
+# Product slug → repo name mapping (slug != repo name for jp and cc)
+declare -A _PRODUCT_REPO_MAP=(["jp"]="jobportal" ["cc"]="contentcompanion")
+_PRODUCT_REPO="${_PRODUCT_REPO_MAP[${PRODUCT}]:-${PRODUCT}}"
+_DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/ouroborous/code}/${_PRODUCT_REPO}/.docs"
 if [[ -d "${_DOCS_DIR}" ]]; then
   echo ""
   echo "[0b/3] DocChain stage gate (STRAT-09, STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
@@ -268,7 +271,7 @@ echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter)..."
   --results-dir "${RESULTS_DIR}" \
   --spec "${FILTERED_SPEC}" \
   -- \
-  "${SCRIPT_DIR}/cli/dist/cc-test-runner" \
+  "${SCRIPT_DIR}/cli/cc-test-runner" \
     -t "${FILTERED_SPEC}" \
     -o "${RESULTS_DIR}" \
     --maxTurns 50
