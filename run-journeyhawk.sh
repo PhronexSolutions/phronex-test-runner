@@ -9,9 +9,16 @@
 # Usage:
 #   ./run-journeyhawk.sh <product-slug> <spec-file> [results-dir]
 #
-# Examples:
+# Examples (full run with intelligence pipeline):
 #   ./run-journeyhawk.sh jp jp-journeys/jp-deep.json
-#   ./run-journeyhawk.sh jp jp-journeys/jp-smoke.json jp-journeys/results-smoke-$(date +%Y%m%d)
+#   ./run-journeyhawk.sh portal portal-journeys/portal-tree.json
+#
+# Smoke run (single trunk, bypassing intelligence pipeline — direct cc-test-runner):
+#   ./cli/cc-test-runner -t jp-journeys/jp-deep.json -o results-smoke-jp --runJourney jp-trunk-main
+#   ./cli/cc-test-runner -t portal-journeys/portal-tree.json -o results-smoke-portal --runJourney portal-trunk-superadmin
+#
+# NOTE: Standalone smoke spec files (jp-smoke.json, portal-smoke.json) are DEPRECATED.
+#       Use --runJourney <trunk-id> against the tree spec instead — a trunk run IS the smoke test.
 
 set -euo pipefail
 

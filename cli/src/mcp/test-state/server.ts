@@ -165,6 +165,10 @@ class MCPStateServer {
         });
     }
 
+    public clearState(): void {
+        this.testState = null;
+    }
+
     public setTestState(testState: TestCase) {
         this.testState = testState;
     }

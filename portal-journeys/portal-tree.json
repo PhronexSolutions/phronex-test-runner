@@ -1,0 +1,418 @@
+[
+  {
+    "id": "portal-trunk-superadmin",
+    "description": "Trunk: superadmin login (qa-test-journeyhawk@phronex.com). Flow B: Existing user logs in. Establishes superadmin browser session — inherited by all admin, CEO scorecard, impersonation, and product-area branches.",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/portal-trunk-superadmin-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Use browser_tabs to list all open tabs. Close every tab except the current one. Execute in browser console: localStorage.clear(); sessionStorage.clear();"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Wait for the login form to be fully rendered (email + password fields visible)."
+      },
+      {
+        "id": 3,
+        "description": "Fill email field with: qa-test-journeyhawk@phronex.com"
+      },
+      {
+        "id": 4,
+        "description": "Fill password field with: QA_SUPERADMIN_PASSWORD"
+      },
+      {
+        "id": 5,
+        "description": "Click the Sign In button. Wait until the URL no longer contains /auth/login. Verify: no error toast, no 'Invalid credentials' message. Screenshot the landing page and report the final URL."
+      }
+    ]
+  },
+  {
+    "id": "portal-trunk-owner",
+    "description": "Trunk: owner/non-superadmin login (QA_OWNER_EMAIL). Flow B: Existing user logs in. Establishes owner-role browser session for RBAC gate testing.",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/portal-trunk-owner-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Use browser_tabs to list all open tabs. Close every tab except the current one. Execute in browser console: localStorage.clear(); sessionStorage.clear();"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/auth/login. Wait for the login form."
+      },
+      {
+        "id": 3,
+        "description": "Fill email field with: QA_OWNER_EMAIL"
+      },
+      {
+        "id": 4,
+        "description": "Fill password field with: QA_OWNER_PASSWORD"
+      },
+      {
+        "id": 5,
+        "description": "Click Sign In. Wait until URL no longer contains /auth/login. This is a non-superadmin account — expected landing is /products or /jp or /cc, NOT /admin or /dashboard. Report the final URL."
+      }
+    ]
+  },
+  {
+    "id": "portal-branch-dashboard",
+    "description": "Branch: navigate to /dashboard (CEO Scorecard). Flow G: Superadmin uses the CEO Scorecard. Establishes scorecard-loaded state for children verifying specific BSC tiles and interactions.",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "portal-trunk-superadmin",
+    "stateOutputPath": ".tmp/portal-branch-dashboard-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/dashboard. Wait for the page to fully load — all 4 BSC perspective tiles should be visible (Financial, Customer, Internal Process, Learning & Growth). Verify no permanent spinner, no ErrorBoundary. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "portal-branch-admin",
+    "description": "Branch: navigate to /admin panel. Section 4: Superadmin Panel. Establishes admin panel state for all admin-tab verify children.",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "portal-trunk-superadmin",
+    "stateOutputPath": ".tmp/portal-branch-admin-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/admin. Wait for the admin panel BSC group pills to be visible. Verify no ErrorBoundary crash, no blank body. Screenshot the admin panel with group navigation visible."
+      }
+    ]
+  },
+  {
+    "id": "portal-branch-settings",
+    "description": "Branch: navigate to /settings. Section 6: Settings. Establishes settings page state for children verifying profile persistence and preferences.",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "portal-trunk-superadmin",
+    "stateOutputPath": ".tmp/portal-branch-settings-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/settings. Wait for the Profile section to be visible with name and email fields. Verify no error, no blank panel. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "portal-branch-jp",
+    "description": "Branch: navigate to JP product section /jp/jobs. Section 2: Product Access — JobPortal surface. Establishes JP product state for children verifying jobs list, scan history, subscriptions.",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "portal-trunk-superadmin",
+    "stateOutputPath": ".tmp/portal-branch-jp-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs. Wait for the jobs list or empty state to render. Verify no ErrorBoundary, no 404. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "portal-branch-cc",
+    "description": "Branch: navigate to CC product section /cc/dashboard. Section 2: Product Access — ContentCompanion surface. Establishes CC product state for children verifying CC dashboard, subscription, instance settings.",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "portal-trunk-superadmin",
+    "stateOutputPath": ".tmp/portal-branch-cc-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/cc/dashboard. Wait for the CC dashboard to render. Verify no ErrorBoundary, no 404. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "portal-branch-praxis",
+    "description": "Branch: navigate to Praxis section /praxis/dashboard. Section 2: Product Access — Praxis surface. Establishes Praxis product state for children verifying dashboard, habits, people.",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "portal-trunk-superadmin",
+    "stateOutputPath": ".tmp/portal-branch-praxis-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/praxis/dashboard. Wait 3 seconds for content to load. Verify no ErrorBoundary red box, no blank white body. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "portal-branch-admin-accounts",
+    "description": "Branch: /admin?tab=accounts — CEO View group. Section 4: Superadmin Panel. Inherits admin session; establishes accounts-tab state for impersonation and RBAC verify children.",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "portal-branch-admin",
+    "stateOutputPath": ".tmp/portal-branch-admin-accounts-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/admin?tab=accounts. Wait for the user table to render — at least 2 user rows should be visible. Verify KPI tiles (Total Users, Active Users, CC Instances, Grants, Subscriptions) show numeric values, NOT '--' or blank. Screenshot."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-ceo-scorecard",
+    "description": "Verify CEO Scorecard tile data, drill-down navigation, and cache refresh. Flow G: Superadmin uses the CEO Scorecard. Section 7: CEO Scorecard. Oracle: all 4 perspective tiles show numeric scores; Financial tile links to cost-intelligence tab; Refresh updates timestamp.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-dashboard",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Verify on the /dashboard page: (a) all 4 BSC perspective tiles (Financial, Customer, Internal Process, Learning & Growth) are visible, (b) none show 'undefined', 'NaN', or blank score values — all must be numbers. Screenshot the tiles."
+      },
+      {
+        "id": 2,
+        "description": "Click the Financial perspective tile. Verify URL changes to /admin?tab=cost-intelligence or a sub-tab. Verify the page shows cost intelligence content — NOT a blank panel, NOT an ErrorBoundary. Use the browser back button to return to /dashboard. Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "On /dashboard, find and click the Refresh button (or ?refresh=true link). Verify: (a) a loading state appears briefly, (b) the 'Last updated' timestamp changes to a more recent time. If the timestamp does NOT change after refresh, report as FAIL — cache bypass broken. Screenshot before and after refresh."
+      },
+      {
+        "id": 4,
+        "description": "Report: (a) all 4 tile scores shown with actual values (pass/fail), (b) Financial tile drill-down reached cost-intelligence (pass/fail), (c) Refresh updated timestamp (pass/fail), (d) any console errors, (e) any 'undefined' values."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-settings-persistence",
+    "description": "Verify profile name change saves and persists after navigation. Section 6: Settings. Oracle: name change saved via PUT /api/settings; value visible after navigate-away and return — confirms no silent discard defect.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-settings",
+    "steps": [
+      {
+        "id": 1,
+        "description": "On the /settings page, find the display name field. Read and note the current value. Clear it and type: 'JH Test User 2026'. Click Save. Verify: a success toast or confirmation appears, no error message. Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/products. Wait 2 seconds. Navigate back to https://app.phronex.com/settings. Verify the display name field shows 'JH Test User 2026' — if it reverted to the original, report as BROKEN (silent discard). Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Restore the original name: clear the field, type the original value noted in step 1 (or 'Vivek Parmar' if original was unknown), click Save. Verify the save succeeds. Report: (a) save confirmation appeared (pass/fail), (b) value persisted after navigation (pass/fail), (c) any errors."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-jp-flows",
+    "description": "Verify JP portal surface: jobs list with data, scan history column values, subscription tier label. Section 2: Product Access. Oracle: jp/jobs shows job rows or meaningful empty state; jp/scan-history rows have no 'undefined' columns; jp/subscription shows correct tier label.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-jp",
+    "steps": [
+      {
+        "id": 1,
+        "description": "On /jp/jobs, verify: (a) NOT ErrorBoundary or blank body, (b) either job rows (each showing title, company, and one more field) OR a meaningful empty state with CTA is visible. Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/scan-history. Verify: (a) page renders without errors, (b) if scan rows exist, each row shows date, status, and a numeric count — if any cell shows 'undefined' or blank where a number is expected, report as API contract drift (BROKEN). Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/jp/subscription. Verify: (a) subscription page loads, (b) current tier label is visible (e.g. 'Standard Seeker') and is NOT 'undefined'. Screenshot. Report: (a) jobs list: real data or meaningful empty (pass/fail), (b) scan history: no undefined columns (pass/fail), (c) subscription tier label: visible and not undefined (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-cc-flows",
+    "description": "Verify CC portal surface: dashboard, subscription tier, instance settings persistence. Section 2: Product Access. Oracle: cc/subscription shows named tier not HTTP 500; cc/instance save action persists after navigate-away.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-cc",
+    "steps": [
+      {
+        "id": 1,
+        "description": "On /cc/dashboard, verify: (a) NOT 404, (b) NOT ErrorBoundary crash, (c) dashboard content is visible — overview tiles or data panels rendered. Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/cc/subscription. Verify: (a) page loads, (b) tier label is visible — 'Free', 'Premium', or specific tier name — NOT 'HTTP 500', 'undefined', or blank panel. Screenshot. If HTTP 500 visible: report as BROKEN severity HIGH."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/cc/instance. Find the persona greeting or name field. Note its current value. Change it to 'JH Test 2026 Greeting'. Click Save. Verify success confirmation. Navigate to /cc/dashboard, then back to /cc/instance. Verify the field still shows 'JH Test 2026 Greeting' — if reverted, report as BROKEN (data not persisting). Restore original value if possible. Report: (a) CC dashboard renders (pass/fail), (b) subscription tier visible not 500 (pass/fail), (c) instance settings save+persist (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-praxis-flows",
+    "description": "Verify Praxis portal surface: dashboard widgets, habits page renders, habit check-in persists. Section 2: Product Access. Oracle: habit check-in state change persists after navigate-away (state mutation → DB write → reload confirms).",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-praxis",
+    "steps": [
+      {
+        "id": 1,
+        "description": "On /praxis/dashboard, verify: (a) page title or heading contains 'Praxis' or 'Dashboard', (b) no ErrorBoundary red box, (c) at least one widget, card, or stat block is present. Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/praxis/habits. Wait 3 seconds. Verify the habits page loads with a calendar grid or habit list — NOT a blank white body. Screenshot any habit tracking UI element visible."
+      },
+      {
+        "id": 3,
+        "description": "Column A — habit check-in: Find any habit checkbox, toggle, or 'Mark done' button for today. Click it. Observe the visual state change (checkbox checked, colour change, count increment). Navigate to /praxis/dashboard and then back to /praxis/habits. Verify the check-in state persists. If no habits are configured, report as EMPTY-STATE (not FAIL). Report: (a) dashboard rendered with content (pass/fail), (b) habits page rendered (pass/fail), (c) check-in persisted (pass/fail/empty-state)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-admin-financial",
+    "description": "Verify admin Financial group: Cost Intelligence trend chart, Revenue Health, Tier Pricing, Infra vs cost-intelligence value consistency. Section 4: Superadmin Panel. Oracle: cost-intelligence Trend sub-tab renders chart lines (not just date labels — chart regression #116); infra-cost values consistent with cost-intelligence (#103).",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-admin",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/admin?tab=cost-intelligence. Verify: (a) a cost figure is visible (even $0), (b) Trend sub-tab is present. Click the Trend sub-tab. Verify the chart area shows actual data lines — if it shows ONLY date labels with no chart lines, report as BROKEN (chart regression from defect #116). Screenshot Summary and Trend sub-tabs."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/admin?tab=infra-cost. Note the total infra cost shown. Navigate back to cost-intelligence and check if the cost figure is consistent with infra-cost — significant discrepancy was defect #103. Report both values."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=revenue-health. Verify: NOT ErrorBoundary, revenue metrics or 'no data' state visible. Navigate to /admin?tab=tier-pricing. Verify tier pricing table loads with at least one product's tier rows. Screenshot both. Report: (a) Cost Intelligence trend chart renders (pass/fail), (b) Infra vs cost-intelligence consistent (consistent/inconsistent — note values), (c) Revenue Health renders without crash (pass/fail), (d) Tier Pricing shows tier rows (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-admin-internal-process",
+    "description": "Verify admin Internal Process group: Errors tab fault isolation, Tools tab version badge not all-unknown, Host tab no 404. Section 4: Superadmin Panel. Oracle: tools version badges real (not all 'Version unknown' — regression from defect #130); host tab shows metrics not 404 (regression from defect #97).",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-admin",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/admin?tab=errors. Verify: (a) NOT blank or ErrorBoundary, (b) error entries or 'no recent errors' empty state shown, (c) if a backend is down (502), the error names the specific product ('ContentCompanion: 502') — NOT anonymous 'downstream failure'. Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/admin?tab=tools. Verify: (a) tool list is shown, (b) at least some tools show a real version number — NOT all showing 'Version unknown' (that was defect #130, fixed in Phase 51). If ALL tools show 'Version unknown', report as regression. Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=host. Verify: (a) Host tab loads, (b) EC2 machine metrics shown (CPU, RAM, disk) OR an amber 'pending' badge with diagnostic message shown, (c) does NOT show 404 for health-push (defect #97 was fixed). Screenshot. Report: (a) Errors tab fault isolation working (pass/fail), (b) Tools tab: some real version numbers (pass/fail), (c) Host tab: metrics or diagnostic not 404 (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-admin-learning-growth",
+    "description": "Verify admin Learning & Growth group: Skill Review filter labels, Trends chart data, Competitive Intelligence. Section 4: Superadmin Panel. Oracle: Skill Review filter chips say 'Approved' not 'Active' (vocabulary fix defect #114); Trends chart shows data lines not empty axes (defect #110).",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-admin",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/admin?tab=skill-review. Verify: (a) skill cards or list visible, (b) filter chips must use label 'Approved' NOT 'Active' (defect #114 was fixed — if chips say 'Active/Suspended', report as regression). Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Column A — filter state mutation: Click a filter chip (e.g. 'Approved' or 'All'). Verify the visible skill list changes (items filter or 'no results' appears). Click a different filter chip. Verify the view changes again. Screenshot before and after filter click."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/admin?tab=trends. Verify: (a) 'Category score trends' section renders chart with visible data lines — NOT just date labels (defect #110 fixed). Navigate to /admin?tab=competitive. Verify it loads without 500 and shows check names NOT raw IDs. Report: (a) Skill Review filter says 'Approved' not 'Active' (pass/fail), (b) filter click changes visible skills (pass/fail), (c) Trends chart has data lines (pass/fail), (d) Competitive: check names not raw IDs (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-admin-create-org",
+    "description": "Verify admin Plumbing: Create Organisation modal full lifecycle — open, fill, cancel, reopen, submit, verify org appears in list. Section 4: Superadmin Panel. Oracle: 'Create Organisation' button present (defect #128 fixed); cancel closes cleanly; submit creates record that appears in list.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-admin",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/admin?tab=rbac-orgs. Verify: (a) Organisations sub-tab visible, (b) 'Create Organisation' button is present (defect #128 was fixed — if button absent, report as regression). Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Click 'Create Organisation'. Fill: Name='JH Test Org 2026', Slug='jh-test-org-2026'. Screenshot the filled modal. Click Cancel. Verify modal closes cleanly and underlying page is undisturbed."
+      },
+      {
+        "id": 3,
+        "description": "Click 'Create Organisation' again. Submit with same values: Name='JH Test Org 2026', Slug='jh-test-org-2026'. Wait for response. Verify: (a) success message or modal closes, (b) org list now shows 'JH Test Org 2026'. Screenshot. Report: (a) button present (pass/fail), (b) modal accepts input (pass/fail), (c) cancel closes cleanly (pass/fail), (d) submit creates org and it appears in list (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-impersonation",
+    "description": "Verify impersonation full lifecycle: superadmin starts impersonation → ImpersonationBanner visible → /admin returns 403/redirect → Exit restores superadmin session. Flow D: Superadmin impersonates a customer. Section 5: Impersonation. Oracle: ImpersonationBanner visible immediately after impersonate click; /admin renders nothing during impersonation; Exit lands on /auth/login.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-branch-admin-accounts",
+    "steps": [
+      {
+        "id": 1,
+        "description": "On /admin?tab=accounts, find qa-owner@phronex.com or any non-superadmin user row. Click the row to open the UserDetailPanel. Verify panel shows user details (email, role, grants). Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Click the 'Impersonate' button in the UserDetailPanel. Wait for redirect. Verify: (a) URL changed to /products or similar non-admin page, (b) an amber/orange ImpersonationBanner is visible at the top showing the impersonated user's email. Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "While impersonating, navigate to https://app.phronex.com/admin. Verify: (a) URL did NOT remain at /admin, (b) admin panel content did NOT render. If admin panel renders during impersonation, report as CRITICAL BROKEN (security defect). Screenshot."
+      },
+      {
+        "id": 4,
+        "description": "Click Exit in the ImpersonationBanner. Wait for redirect. Verify URL goes to /auth/login — impersonation exit must clear session. Screenshot. Report: (a) UserDetailPanel opened (pass/fail), (b) ImpersonationBanner visible after start (pass/fail), (c) /admin blocked during impersonation (pass/fail — CRITICAL if fail), (d) Exit returns to login (pass/fail)."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-rbac-owner-gate",
+    "description": "Verify RBAC gate: owner role (is_superadmin=FALSE) redirected from /admin and /dashboard — cannot access superadmin-only routes. Permission Model. Oracle: owner login lands outside /admin and /dashboard; direct navigation to /admin redirects; /dashboard redirects; /admin?tab=cost-intelligence also redirects.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-trunk-owner",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Confirm the current session is the owner role (non-superadmin). Note the landing URL from trunk login — it should NOT be /admin or /dashboard. Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Navigate directly to https://app.phronex.com/admin. Note the resulting URL and page content. Verify: (a) URL did NOT remain at /admin, (b) admin panel content (BSC group pills, tab list) did NOT render. Screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Navigate directly to https://app.phronex.com/dashboard. Verify: (a) CEO Scorecard content (perspective tiles) did NOT render, (b) user was redirected away. Navigate to /admin?tab=cost-intelligence. Verify this also redirects — tab parameter should not bypass the /admin guard. Report: (a) login landed outside /admin+/dashboard (pass/fail), (b) /admin redirect confirmed (pass/fail), (c) /dashboard redirect confirmed (pass/fail), (d) /admin?tab= redirect confirmed (pass/fail). CRITICAL FAIL if any admin content rendered."
+      }
+    ]
+  },
+  {
+    "id": "portal-verify-forgot-password",
+    "description": "Verify forgot-password flow non-enumeration and reset page graceful handling. Flow C: User resets a forgotten password. Section 1: Account & Authentication. Oracle: non-existent email gets IDENTICAL response to existing email (enumeration prevention); /auth/reset-password?token=invalid shows graceful message not 500.",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "portal-trunk-superadmin",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/auth/forgot-password. Verify: (a) page loads, (b) email input field visible, (c) Submit button present. Screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Enter non-existent email: 'nonexistent-jh-test-12345@example.com'. Click Submit. Verify: (a) success/confirmation message appears (e.g. 'If an account exists, we sent a reset link'), (b) message does NOT say 'No account found' — that would be email enumeration. Screenshot the response. Note the EXACT message text."
+      },
+      {
+        "id": 3,
+        "description": "Navigate back to /auth/forgot-password. Enter real email: qa-test-journeyhawk@phronex.com. Click Submit. Verify the SAME confirmation message appears — both responses must be IDENTICAL to prevent enumeration. If messages differ, report as CRITICAL security defect. Navigate to https://app.phronex.com/auth/reset-password?token=invalid-test-token-jh2026. Verify: (a) page renders a reset form or 'invalid/expired link' message, (b) NOT an unhandled error, 500, or blank page. Report: (a) non-existent email response matches existing email response (security pass/fail), (b) reset page with invalid token: graceful message not 500 (pass/fail)."
+      }
+    ]
+  }
+]

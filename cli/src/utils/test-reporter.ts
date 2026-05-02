@@ -1,6 +1,8 @@
-import { mkdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 import type { TestCase } from "../types/test-case";
 import type { Report, Test } from "ctrf/types/ctrf";
+import { logger } from "./logger";
 
 /**
  * A class for reporting test results.
@@ -12,6 +14,38 @@ export class TestReporter {
         endTime: Date;
         succeeded: boolean;
     }[] = [];
+    private resultsPath: string;
+
+    constructor(resultsPath: string) {
+        this.resultsPath = resultsPath;
+    }
+
+    /**
+     * Reconcile any steps still in "pending" state by reading the step-outcomes.json
+     * sidecar file written by the MCP state server after each update_test_step call.
+     * This is a safety net for cases where Claude called update_test_step but the
+     * in-memory state was not reflected (e.g. transport edge cases).
+     */
+    private reconcileFromDisk(testCase: TestCase): void {
+        const sidecarsPath = join(this.resultsPath, testCase.id, "step-outcomes.json");
+        if (!existsSync(sidecarsPath)) return;
+        try {
+            const sidecar = JSON.parse(readFileSync(sidecarsPath, "utf-8")) as {
+                journeyId: string;
+                steps: { id: number; status: string; error: string | null }[];
+            };
+            if (sidecar.journeyId !== testCase.id) return;
+            for (const sidecarStep of sidecar.steps) {
+                const liveStep = testCase.steps.find((s) => s.id === sidecarStep.id);
+                if (liveStep && liveStep.status === "pending" && sidecarStep.status !== "pending") {
+                    liveStep.status = sidecarStep.status as "passed" | "failed";
+                    if (sidecarStep.error) liveStep.error = sidecarStep.error;
+                }
+            }
+        } catch (err) {
+            logger.debug("step-outcomes reconcile failed (non-fatal)", { err });
+        }
+    }
 
     /**
      * Add a test result to the reporter.
@@ -20,6 +54,7 @@ export class TestReporter {
      * @param endTime - The end time of the test.
      */
     addTestResult(testCase: TestCase, startTime: Date, endTime: Date): void {
+        this.reconcileFromDisk(testCase);
         const succeeded = testCase.steps.every((step) => step.status === "passed");
         this.results.push({
             testCase,
@@ -133,7 +168,6 @@ export class TestReporter {
         // Bun on Windows throws EEXIST from mkdirSync even with { recursive: true }
         // when the directory already exists (Node.js silently succeeds).
         // Guard with existsSync to avoid crashing after a partial run.
-        const { existsSync } = require("fs");
         if (!existsSync(outputDir)) {
             mkdirSync(outputDir, { recursive: true });
         }
