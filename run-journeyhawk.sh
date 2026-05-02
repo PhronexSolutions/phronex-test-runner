@@ -241,6 +241,65 @@ echo "[2/3] Running intelligence pipeline (phronex_common.testing.runner)..."
 
 PIPE_EXIT=$?
 
+# Step 3 (Strategist Block B): CycleCloseGate — quality gate before cycle_closed emission.
+# Per REQUIREMENTS.md STRAT-05 / CONTEXT.md A2.Q1-A2.Q3.
+# STRATEGIST_MODE controls gate behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
+#
+# - DISABLED:  gate skipped entirely (passthrough).
+# - READ_ONLY: gate evaluates + logs to qa_cycle_log, but never blocks emission.
+# - ACTIVE:    gate evaluates; if failed, cycle_closed is NOT emitted (exit 0 — run
+#              succeeded; gate held emission per CONTEXT.md A2.Q2).
+#
+# TODO(STRAT-05): cycle_closed emission signal — when a downstream consumer is wired
+# for the cycle_closed event, add it here AFTER the gate check (only when gate passes).
+echo ""
+echo "[strategist] Running cycle-close gate (STRAT-05)..."
+"${PYTHON}" - <<'GATE_EOF' || true
+import os, sys
+
+_mode = os.environ.get("STRATEGIST_MODE", "ACTIVE").strip().upper()
+if _mode == "DISABLED":
+    print("[strategist] CycleCloseGate: DISABLED — passthrough")
+    sys.exit(0)
+
+try:
+    import psycopg2
+    from phronex_common.testing.strategist.mode import get_mode
+    from phronex_common.testing.strategist.cycle_gate import CycleCloseGate
+
+    db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+    if not db_url:
+        print("[strategist] WARNING: PHRONEX_QA_DATABASE_URL_SYNC not set — gate skipped", file=sys.stderr)
+        sys.exit(0)
+
+    clean_url = db_url.replace("postgresql+psycopg2://", "postgresql://")
+    db = psycopg2.connect(clean_url)
+    try:
+        # Phase 80: integer cycle_id not yet tracked (Phase 82 adds qa_runs.cycle_id).
+        # Pass 0 — RCA condition checks all open defects (not cycle-scoped);
+        # retry condition conservatively passes when is_retry column is absent.
+        gate = CycleCloseGate(get_mode(), db)
+        result = gate.check(cycle_id=0)
+    finally:
+        db.close()
+
+    if result.passed:
+        print(f"[strategist] CycleCloseGate: PASSED (mode={_mode})")
+    else:
+        failures = [f.value for f in result.failures]
+        print(
+            f"[strategist] CYCLE-HOLD: gate failed — {failures} "
+            f"(mode={_mode}). cycle_closed emission skipped. Exit 0.",
+            file=sys.stderr,
+        )
+        if _mode == "ACTIVE":
+            # Run succeeded; gate held emission — exit 0 per CONTEXT.md A2.Q2
+            sys.exit(0)
+
+except Exception as e:
+    print(f"[strategist] WARNING: CycleCloseGate error (non-fatal): {e}", file=sys.stderr)
+GATE_EOF
+
 echo ""
 echo "========================================"
 echo "  JourneyHawk COMPLETE"
