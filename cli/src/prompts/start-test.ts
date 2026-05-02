@@ -65,11 +65,47 @@ const resolveClaudeCliPath = (): string => {
     return fallback;
 };
 
-export const startTest = (testCase: TestCase) => {
+/**
+ * Substitute {{paramName}} placeholders in step descriptions with values from params.
+ * Unknown keys are left as-is (e.g. {{unknownKey}} stays unchanged).
+ */
+export function resolveParams(steps: TestCase["steps"], params: Record<string, unknown>): TestCase["steps"] {
+    return steps.map(step => ({
+        ...step,
+        description: step.description.replace(/\{\{(\w+)\}\}/g, (_, key) =>
+            key in params ? String(params[key]) : `{{${key}}}`
+        ),
+    }));
+}
+
+export const startTest = (testCase: TestCase, storageStatePath: string | null = null) => {
     const claudePath = resolveClaudeCliPath();
     if (!claudePath) {
         throw new Error("Claude not found on PATH. Did you run `bun install`?");
     }
+
+    const playwrightArgs: string[] = [
+        playwrightMcpCliPath(),
+        "--output-dir",
+        `${inputs.resultsPath}/${testCase.id}/playwright`,
+        // NOTE: `--save-trace` was supported in @playwright/mcp
+        // v0.0.31 but DROPPED in v0.0.70+. Including it causes
+        // the MCP server to exit with "unknown option" before
+        // the JSON-RPC handshake completes. Output traces are
+        // still saved by default into --output-dir.
+        "--image-responses",
+        "omit",
+        // --isolated: in-memory profile per MCP connection; prevents
+        // Chrome SingletonLock conflicts between sequential test cases.
+        "--isolated",
+    ];
+    if (storageStatePath !== null) {
+        playwrightArgs.push("--storage-state", storageStatePath);
+    }
+    if (testCase.isSharedRoot && testCase.stateOutputPath) {
+        playwrightArgs.push("--save-session", testCase.stateOutputPath);
+    }
+
     return query({
         prompt: "Query the test plan from mcp__testState__get_test_plan MCP tool to get started.",
         options: {
@@ -91,21 +127,7 @@ export const startTest = (testCase: TestCase) => {
                     // require.resolve gives the absolute path that survives
                     // re-spawning.
                     command: "node",
-                    args: [
-                        playwrightMcpCliPath(),
-                        "--output-dir",
-                        `${inputs.resultsPath}/${testCase.id}/playwright`,
-                        // NOTE: `--save-trace` was supported in @playwright/mcp
-                        // v0.0.31 but DROPPED in v0.0.70+. Including it causes
-                        // the MCP server to exit with "unknown option" before
-                        // the JSON-RPC handshake completes. Output traces are
-                        // still saved by default into --output-dir.
-                        "--image-responses",
-                        "omit",
-                        // --isolated: in-memory profile per MCP connection; prevents
-                        // Chrome SingletonLock conflicts between sequential test cases.
-                        "--isolated",
-                    ],
+                    args: playwrightArgs,
                 },
                 "cctr-state": {
                     type: "http",
@@ -115,6 +137,7 @@ export const startTest = (testCase: TestCase) => {
                     },
                 },
             },
+            permissionMode: "bypassPermissions",
             allowedTools: [
                 // Playwright MCP tools for interacting with the browser
                 "mcp__cctr-playwright__browser_close",

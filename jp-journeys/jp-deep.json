@@ -1,361 +1,699 @@
 [
   {
-    "id": "jp-d01-document-upload",
-    "description": "User uploads test-resume.pdf and verifies it appears in the documents list",
+    "id": "jp-trunk-main",
+    "description": "Authenticate as the main QA user (qa-test-journeyhawk@phronex.com) and capture browser session state for dependent journeys",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/jp-trunk-main-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait for the dashboard to load."
+        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/documents. Note the exact number of documents currently listed (could be 0 or more)."
+        "description": "Enter the email address qa-test-journeyhawk@phronex.com into the email input field"
       },
       {
         "id": 3,
-        "description": "Click the Upload button or file upload CTA on the documents page. A file input dialog or upload form should appear."
+        "description": "Enter the password from environment variable QA_PASS_MAIN (from .qa.env) into the password field"
       },
       {
         "id": 4,
-        "description": "Upload the file at path './fixtures/test-resume.pdf' (relative to the test runner working directory). If a file chooser dialog is triggered by Playwright, use it to select that file. Submit / confirm the upload."
+        "description": "Click the Sign In button to submit the login form"
       },
       {
         "id": 5,
-        "description": "Wait up to 10 seconds for the upload to complete. Verify: does a document named 'test-resume' or 'test-resume.pdf' now appear in the documents list? The count should have increased by 1 from what you noted in step 2."
-      },
-      {
-        "id": 6,
-        "description": "Check for error messages or console errors. If the upload succeeded and the document appears: find and delete the just-uploaded 'test-resume.pdf' to clean up test data; confirm it is removed. PASS if the full upload-verify-delete cycle works. FAIL if the upload button is missing, the file is rejected, or the document does not appear after upload. Screenshot."
+        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
       }
     ]
   },
   {
-    "id": "jp-d02-portal-add-delete",
-    "description": "User adds a job portal scanning config and then deletes it — full create/delete lifecycle",
+    "id": "jp-trunk-free",
+    "description": "Authenticate as the free-tier QA user (qa-jp-free@phronex.com) and capture browser session state for tier verification journeys",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/jp-trunk-free-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/portals"
+        "description": "Enter the email address qa-jp-free@phronex.com into the email input field"
       },
       {
         "id": 3,
-        "description": "Click the '+ Add Portal' button to open the add portal form"
+        "description": "Enter the password from environment variable QA_PASS_FREE (from .qa.env) into the password field"
       },
       {
         "id": 4,
-        "description": "Fill in the form: portal_name = 'qa-test-portal', search_keywords = 'software engineer', preferred_locations = 'Bangalore', set scan_time to any available option. Submit the form."
+        "description": "Click the Sign In button to submit the login form"
       },
       {
         "id": 5,
-        "description": "Verify: the form submits without a 500 error. Does the new portal 'qa-test-portal' appear in the portals list?"
-      },
-      {
-        "id": 6,
-        "description": "If the portal was created: find the delete button for 'qa-test-portal' and delete it. Confirm the deletion and verify it is removed from the list. PASS if the full create→list→delete lifecycle works. Report any errors seen and take a screenshot."
+        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
       }
     ]
   },
   {
-    "id": "jp-d03-portrait-state",
-    "description": "Portrait page shows correct state: locked screen with instructions OR portrait card with share section",
+    "id": "jp-trunk-standard",
+    "description": "Authenticate as the standard-tier QA user (qa-jp-standard@phronex.com) and capture browser session state for tier verification journeys",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/jp-trunk-standard-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/portrait"
+        "description": "Enter the email address qa-jp-standard@phronex.com into the email input field"
       },
       {
         "id": 3,
-        "description": "Check state A - Locked screen: if no portrait exists, is there a locked screen shown with a clear message explaining what the user needs to do to unlock their portrait (e.g. upload a resume)? Is the message helpful or cryptic?"
+        "description": "Enter the password from environment variable QA_PASS_STANDARD (from .qa.env) into the password field"
       },
       {
         "id": 4,
-        "description": "Check state B - Portrait exists: if a portrait is shown, does it have quadrants or sections with real content? Is there a Regenerate button?"
+        "description": "Click the Sign In button to submit the login form"
       },
       {
         "id": 5,
-        "description": "Scroll to the bottom of the page. Is there a Share Profile or Create share link section? If yes, click the create share link button and verify a shareable URL is generated."
-      },
-      {
-        "id": 6,
-        "description": "Check browser console for JS errors and network tab for 404/500 calls. Report: which state is shown (locked or portrait)? Does it make sense to a new user? Is the share section present? Screenshot."
+        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
       }
     ]
   },
   {
-    "id": "jp-d04-applications-state",
-    "description": "Applications page shows correct empty state or real applications, with meaningful CTA",
+    "id": "jp-trunk-pro",
+    "description": "Authenticate as the pro-tier QA user (qa-jp-pro@phronex.com) and capture browser session state for tier verification journeys",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/jp-trunk-pro-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/applications"
+        "description": "Enter the email address qa-jp-pro@phronex.com into the email input field"
       },
       {
         "id": 3,
-        "description": "Verify the page loads without a 500 error or blank screen"
+        "description": "Enter the password from environment variable QA_PASS_PRO (from .qa.env) into the password field"
       },
       {
         "id": 4,
-        "description": "Check the page content regardless of state. If empty: verify the empty state has a helpful explanation (explaining that applications appear after job scanning) AND a CTA link pointing to /jp/portals or /jp/jobs. If applications are listed: verify each row shows job title, company, status, and date."
+        "description": "Click the Sign In button to submit the login form"
       },
       {
         "id": 5,
-        "description": "If applications are listed: click on the first entry. Verify a detail view, modal, or expanded row appears. PASS if detail opens. PASS also if no applications exist (empty state verified in step 4). FAIL only if applications exist but clicking them does nothing."
-      },
-      {
-        "id": 6,
-        "description": "Check browser console for JS errors. Report: describe what is shown (empty state or application list). Screenshot."
+        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
       }
     ]
   },
   {
-    "id": "jp-d05-scan-history",
-    "description": "Scan history page loads and shows history or a meaningful empty state",
+    "id": "jp-branch-dashboard",
+    "description": "Navigate to the JP dashboard and verify stats/panels are visible",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-dashboard-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to https://app.phronex.com/jp/dashboard"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/scan-history"
+        "description": "Wait for the dashboard page to fully load (no loading spinners visible)"
       },
       {
         "id": 3,
-        "description": "Verify the page loads without a 500 error or blank screen"
+        "description": "Verify that stats cards or summary panels are visible on the page. Report the names/labels of any stats shown."
       },
       {
         "id": 4,
-        "description": "If no scan history: is there a clear empty state? Does it tell the user scans happen automatically once a portal is configured?"
-      },
-      {
-        "id": 5,
-        "description": "If scan history exists: do entries show portal name, scan time, jobs found count, and status? Are there any entries with errors?"
-      },
-      {
-        "id": 6,
-        "description": "Report: describe what is shown. Screenshot."
+        "description": "Take a screenshot of the full dashboard page"
       }
     ]
   },
   {
-    "id": "jp-d06-config-persistence",
-    "description": "JP configuration settings save and persist after navigation — form is not broken",
+    "id": "jp-branch-jobs-list",
+    "description": "Navigate to the JP jobs list and verify the list or empty state renders correctly",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-jobs-list-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to https://app.phronex.com/jp/jobs"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/config"
+        "description": "Wait for the jobs page to fully load"
       },
       {
         "id": 3,
-        "description": "Describe what configuration options are visible (notification preferences, scan settings, alert thresholds, etc.)"
+        "description": "Verify the page renders either a list of job cards/rows OR a meaningful empty state. Report which state is shown and how many jobs are visible."
       },
       {
         "id": 4,
-        "description": "Try to change one setting (any toggle or input that is clearly safe to change). Click Save if there is a save button."
-      },
-      {
-        "id": 5,
-        "description": "Navigate away to /jp/dashboard, then navigate back to /jp/config. Did the setting persist?"
-      },
-      {
-        "id": 6,
-        "description": "Check browser console for JS errors on save and confirm the network save request returned 200. Report: which settings are available, did the save/persist cycle work, and were there any broken inputs, missing labels, or uncaught errors? Screenshot."
+        "description": "Take a screenshot of the jobs list page"
       }
     ]
   },
   {
-    "id": "jp-d07a-free-tier",
-    "description": "Free-tier user sees 'Free Seeker' label, upgrade CTA is present, and pro-gated features are locked",
+    "id": "jp-branch-job-detail",
+    "description": "Open the first job in the jobs list and verify the detail panel renders",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-branch-jobs-list",
+    "stateOutputPath": ".tmp/jp-branch-job-detail-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-jp-free@phronex.com / JHTest2026#Free! — this account holds a job-portal FREE tier grant. Wait for the dashboard to load."
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/subscription"
+        "description": "If jobs are listed, click on the first job card or row to open its detail view. If no jobs exist, navigate to https://app.phronex.com/jp/jobs and note the empty state."
       },
       {
         "id": 3,
-        "description": "Verify the tier label shown on the page. It MUST display 'Free Seeker' (or equivalent free-tier label). FAIL if it shows 'Standard Seeker', 'Pro Seeker', or any other tier label."
+        "description": "Verify the job detail panel or page opens and shows job title, company name, and description. Report whether the detail view opened or if the empty state was encountered."
       },
       {
         "id": 4,
-        "description": "Verify an upgrade CTA is visible — a button or link prompting the user to upgrade to Standard or Pro. FAIL if no upgrade CTA exists for this free-tier user."
-      },
-      {
-        "id": 5,
-        "description": "Navigate to http://localhost:3002/jp/portrait. Verify: is the portrait page locked or showing a paywall/upgrade prompt? Free-tier users should NOT have unrestricted portrait access. Report whether the page is locked and what the lock screen says."
-      },
-      {
-        "id": 6,
-        "description": "Check browser console for JS errors. Report: tier label seen, upgrade CTA present/absent, portrait page state. Screenshot the subscription page clearly showing the tier label."
+        "description": "Take a screenshot showing the job detail view or empty state"
       }
     ]
   },
   {
-    "id": "jp-d07b-standard-tier",
-    "description": "Standard-tier user sees 'Standard Seeker' label and upgrade-to-Pro CTA is visible",
+    "id": "jp-branch-profile",
+    "description": "Navigate to the JP profile page and verify all profile form fields are visible",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-profile-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-jp-standard@phronex.com / JHTest2026#Std! — this account holds a job-portal STANDARD tier grant. Wait for the dashboard to load."
+        "description": "Navigate to https://app.phronex.com/jp/profile"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/subscription"
+        "description": "Wait for the profile form to load"
       },
       {
         "id": 3,
-        "description": "Verify the tier label shown on the page. It MUST display 'Standard Seeker' (or equivalent standard-tier label). FAIL if it shows 'Free Seeker', 'Pro Seeker', or any other tier label."
+        "description": "Verify that profile form fields are visible (e.g. name, bio, display name, or similar). Report the field names that are present."
       },
       {
         "id": 4,
-        "description": "Verify an upgrade CTA is visible — a button or link prompting the user to upgrade to Pro. Standard users should see the Pro tier as an upgrade option. FAIL if no Pro upgrade path is visible."
-      },
-      {
-        "id": 5,
-        "description": "Is there a Manage Billing or payment management link on the page? Does clicking it navigate to a sensible destination (not a 404 or blank page)? Report the destination URL."
-      },
-      {
-        "id": 6,
-        "description": "Check browser console for JS errors. Report: tier label seen, Pro upgrade CTA present/absent, billing link present/absent. Screenshot the subscription page clearly showing the tier label."
+        "description": "Take a screenshot of the profile page"
       }
     ]
   },
   {
-    "id": "jp-d07c-pro-tier",
-    "description": "Pro-tier user sees 'Pro Seeker' label, no upgrade CTA, and portrait access is unrestricted",
+    "id": "jp-branch-documents",
+    "description": "Navigate to the JP documents page and verify upload button or document list is visible",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-documents-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-jp-pro@phronex.com / JHTest2026#Pro! — this account holds a job-portal PRO tier grant. Wait for the dashboard to load."
+        "description": "Navigate to https://app.phronex.com/jp/documents"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/subscription"
+        "description": "Wait for the documents page to fully load"
       },
       {
         "id": 3,
-        "description": "Verify the tier label shown on the page. It MUST display 'Pro Seeker' (or equivalent pro-tier label). FAIL if it shows 'Free Seeker', 'Standard Seeker', or any other tier label."
+        "description": "Verify that an upload button/CTA OR a document list (even if empty) is visible. Report which is shown and whether any documents are listed."
       },
       {
         "id": 4,
-        "description": "Verify there is NO upgrade CTA on the page — pro users are at the highest tier and should not be shown an upgrade prompt. FAIL if any 'Upgrade' button or plan comparison upsell is visible."
-      },
-      {
-        "id": 5,
-        "description": "Navigate to http://localhost:3002/jp/portrait. Verify: the portrait page is accessible (not locked, not showing a paywall). A pro-tier user should reach the portrait feature without an upgrade gate. Report whether the page loads correctly or is blocked."
-      },
-      {
-        "id": 6,
-        "description": "Check browser console for JS errors. Report: tier label seen, upgrade CTA absent (confirm), portrait page accessible. Screenshot the subscription page clearly showing the Pro tier label."
+        "description": "Take a screenshot of the documents page"
       }
     ]
   },
   {
-    "id": "jp-d08-cross-product-cta",
-    "description": "Cross-sell banner suppression is correct for a user who already has Content Companion access — and CC nav entry is present",
+    "id": "jp-branch-config",
+    "description": "Navigate to the JP config settings page and verify at least one configurable setting is visible",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-config-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. This account has BOTH job-portal (standard) AND content-companion (free) grants."
+        "description": "Navigate to https://app.phronex.com/jp/config"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/dashboard and wait for the page to load. Even after clearing localStorage (execute in browser console: localStorage.removeItem('ccCrossSellDismissed')), the cross-sell banner should NOT appear — because the user already has CC access."
+        "description": "Wait for the configuration settings page to load"
       },
       {
         "id": 3,
-        "description": "Verify: there is NO banner on the dashboard mentioning 'Adding a chatbot to your website?' or any 'Try Content Companion' prompt. The absence of this banner is the CORRECT behaviour for a user who already has a CC grant. FAIL only if such a banner IS shown to a user who already has CC access."
+        "description": "Verify that at least one configurable setting is visible (toggles, inputs, selects, or API key fields). Report the settings available."
       },
       {
         "id": 4,
-        "description": "Verify that the portal sidebar or header contains a navigation entry for Content Companion (e.g. a 'Content Companion' link, a CC product switcher, or similar). A user with CC access should be able to navigate to CC directly, not be cross-sold it."
-      },
-      {
-        "id": 5,
-        "description": "Navigate to http://localhost:3002/cc/dashboard — the Content Companion dashboard. Note: /cc alone 404s (no index page); the valid entry point is /cc/dashboard. Verify it loads without a 403 or 'Access Denied' error. The user holds a CC grant so this should be accessible."
-      },
-      {
-        "id": 6,
-        "description": "Report: was the cross-sell banner correctly absent? Was CC navigation reachable? Any JS errors? Screenshot the dashboard showing the absence of the banner and the presence of CC navigation."
+        "description": "Take a screenshot of the config page"
       }
     ]
   },
   {
-    "id": "jp-d09-jobs-list-detail",
-    "description": "Jobs list shows real jobs or meaningful empty state; job detail view works if jobs exist",
+    "id": "jp-branch-subscription-free",
+    "description": "Navigate to the subscription page as the free-tier user and capture tier info",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-free",
+    "stateOutputPath": ".tmp/jp-branch-subscription-free-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to https://app.phronex.com/jp/subscription"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/jobs"
+        "description": "Wait for the subscription/tier information to load"
       },
       {
         "id": 3,
-        "description": "If jobs are listed: click on one job. Does a detail view or modal open? Does it show job title, company, description, and an apply option?"
-      },
-      {
-        "id": 4,
-        "description": "If no jobs: note the empty state message. Is it clear that jobs appear after scan runs? Is there a link to configure portals?"
-      },
-      {
-        "id": 5,
-        "description": "Check: is there a search or filter capability on the jobs list? If yes, try filtering by a keyword and report if it works."
-      },
-      {
-        "id": 6,
-        "description": "Report: how many jobs are shown? Does the list render well? Any broken pagination or infinite scroll? Screenshot."
+        "description": "Take a screenshot clearly showing the tier label and any upgrade CTAs"
       }
     ]
   },
   {
-    "id": "jp-d10-setup-guide-flow",
-    "description": "New user setup guide is shown on dashboard and guides correctly through onboarding — first-time user experience",
+    "id": "jp-branch-subscription-standard",
+    "description": "Navigate to the subscription page as the standard-tier user and capture tier info",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-standard",
+    "stateOutputPath": ".tmp/jp-branch-subscription-standard-state.json",
+    "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Navigate to https://app.phronex.com/jp/subscription"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/dashboard"
+        "description": "Wait for the subscription/tier information to load"
       },
       {
         "id": 3,
-        "description": "Look for a setup guide or onboarding banner (something like 'New to Job Portal? Follow the setup guide...'). Is it visible?"
+        "description": "Take a screenshot clearly showing the tier label and any upgrade CTAs"
+      }
+    ]
+  },
+  {
+    "id": "jp-branch-subscription-pro",
+    "description": "Navigate to the subscription page as the pro-tier user and capture tier info",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-pro",
+    "stateOutputPath": ".tmp/jp-branch-subscription-pro-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/subscription"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the subscription/tier information to load"
+      },
+      {
+        "id": 3,
+        "description": "Take a screenshot clearly showing the tier label and any upgrade CTAs or absence thereof"
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-dashboard-stats",
+    "description": "Verify dashboard stat cards show numeric values and no JS console errors",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-dashboard",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/dashboard if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Verify that stat cards display numeric values (not placeholder text or empty). Report the labels and values of each stat card."
+      },
+      {
+        "id": 3,
+        "description": "Check the browser console for any JavaScript errors. Report any errors found."
       },
       {
         "id": 4,
-        "description": "If visible: click 'Get Started' or the CTA on the banner. Where does it navigate to? Does the linked page load correctly and does it make sense as a first step?"
+        "description": "Take an annotated screenshot showing the stat cards with their values"
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-jobs-search",
+    "description": "Verify job search and filter functionality works or shows a meaningful empty state",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-jobs-list",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
       },
       {
-        "id": 5,
-        "description": "Is there a Help guide accessible via a Help button or sidebar? Click it and report: does it open a guide panel? Does the content make sense for a new JP user?"
+        "id": 2,
+        "description": "Look for a search input or filter controls on the jobs list page. Report whether they are present."
       },
       {
-        "id": 6,
-        "description": "Report: describe the onboarding experience. Would a real new user know what to do first? Is the journey from signup to first scan clear? Screenshot."
+        "id": 3,
+        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies — either showing filtered results or a meaningful empty state. Report the outcome."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the search/filter state"
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-jobs-save",
+    "description": "Verify job save/bookmark functionality — save a job, verify it saves, then undo",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-jobs-list",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Look for a save or bookmark button on a job card. If no jobs are listed, report the empty state and end the test with a note."
+      },
+      {
+        "id": 3,
+        "description": "If a save button exists, click it on the first job. Verify the icon changes or the job appears in a saved list indicating it was saved."
+      },
+      {
+        "id": 4,
+        "description": "Click the save/bookmark button again to undo the save (cleanup). Verify the job is unsaved. Take a screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-job-apply",
+    "description": "Verify the job apply flow starts correctly from the job detail view",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-job-detail",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "From the job detail view (or navigate to it via https://app.phronex.com/jp/jobs then click first job), look for an Apply button or CTA."
+      },
+      {
+        "id": 2,
+        "description": "If an Apply button exists, click it. Verify the application flow starts — a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
+      },
+      {
+        "id": 3,
+        "description": "If no jobs exist or no Apply button is present, report the state and PASS with a note that the feature could not be tested due to empty data."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the apply button state or application flow initiation"
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-job-ai-cover-letter",
+    "description": "Verify AI cover letter generation initiates from job detail view",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-job-detail",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "From the job detail view (or navigate to it via https://app.phronex.com/jp/jobs then click first job), look for an AI cover letter generation button or CTA."
+      },
+      {
+        "id": 2,
+        "description": "If found, click the AI cover letter button. Verify a loading or generation state appears (spinner, progress indicator, or generating text)."
+      },
+      {
+        "id": 3,
+        "description": "Wait up to 15 seconds for the AI generation to complete or show progress. Report the outcome — did it generate, timeout, or show an error?"
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the cover letter generation state or result"
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-profile-update",
+    "description": "Verify profile form updates persist after save and navigation",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-profile",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/profile if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Find a safe text field to edit (bio, display name, or similar). Note the current value. Edit it to a test value (e.g. append ' QA-test-marker')."
+      },
+      {
+        "id": 3,
+        "description": "Save the profile form by clicking the Save button. Verify the save succeeds (no error shown, success message or toast appears)."
+      },
+      {
+        "id": 4,
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard, then navigate back to https://app.phronex.com/jp/profile. Verify the edited field still shows the test value. Report whether persistence works. Optionally restore the original value. Take a screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-documents-upload",
+    "description": "Verify document upload: upload test-resume.pdf, verify it appears, then delete it",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-documents",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/documents if not already there. Note the current document count."
+      },
+      {
+        "id": 2,
+        "description": "Click the Upload button or file upload CTA. Use the file input to upload the file at './fixtures/test-resume.pdf' (relative to the test runner working directory)."
+      },
+      {
+        "id": 3,
+        "description": "Wait up to 10 seconds for the upload to complete. Verify a document named 'test-resume' or 'test-resume.pdf' now appears in the list. The document count should have increased by 1."
+      },
+      {
+        "id": 4,
+        "description": "Find and delete the just-uploaded 'test-resume.pdf' to clean up test data. Confirm it is removed from the list. PASS if the full upload-verify-delete cycle works. Take a screenshot."
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-config-byok",
+    "description": "Verify BYOK or API key input field is present in config settings",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-config",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Look for a BYOK (Bring Your Own Key) section or any API key input field in the config page. Report whether it is present and what label it uses."
+      },
+      {
+        "id": 3,
+        "description": "Do NOT submit or change any API key. Only verify the field is present and labeled correctly."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the BYOK/API key section (or its absence)"
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-config-yaml",
+    "description": "Verify YAML editor or advanced config section renders without errors",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-config",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Look for a YAML editor, advanced config section, or raw configuration view. Report whether it is present."
+      },
+      {
+        "id": 3,
+        "description": "If a YAML editor is present, verify it renders without JavaScript errors and shows some content or placeholder. Report the contents."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the YAML editor or advanced config section (or its absence)"
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-tier-free",
+    "description": "Verify free-tier subscription page shows correct tier label and upgrade CTA",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-subscription-free",
+    "params": {
+      "expectedTierLabel": "Free Seeker",
+      "expectedTier": "free"
+    },
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/subscription if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Verify the tier label on the subscription page EXACTLY matches '{{expectedTierLabel}}'. FAIL if the label shows anything other than '{{expectedTierLabel}}'."
+      },
+      {
+        "id": 3,
+        "description": "Verify an upgrade CTA is visible — a button or link prompting the user to upgrade to a higher tier. FAIL if no upgrade CTA exists for this {{expectedTier}}-tier user."
+      },
+      {
+        "id": 4,
+        "description": "Check that no Pro-gated features appear unlocked for this free user. Take a screenshot clearly showing the tier label '{{expectedTierLabel}}' and the upgrade CTA."
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-tier-standard",
+    "description": "Verify standard-tier subscription page shows correct tier label and Pro upgrade CTA",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-subscription-standard",
+    "params": {
+      "expectedTierLabel": "Standard Seeker",
+      "expectedTier": "standard"
+    },
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/subscription if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Verify the tier label EXACTLY matches '{{expectedTierLabel}}'. FAIL if the label shows anything other than '{{expectedTierLabel}}'."
+      },
+      {
+        "id": 3,
+        "description": "Verify a Pro upgrade CTA is visible. FAIL if no upgrade CTA is shown for this {{expectedTier}}-tier user."
+      },
+      {
+        "id": 4,
+        "description": "Check that a billing management link is present. Click it and verify it navigates to a valid billing destination (not a 404 or blank page). Take a screenshot clearly showing the tier label '{{expectedTierLabel}}' and the upgrade CTA."
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-tier-pro",
+    "description": "Verify pro-tier subscription page shows correct tier label and no upgrade CTA",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-subscription-pro",
+    "params": {
+      "expectedTierLabel": "Pro Seeker",
+      "expectedTier": "pro"
+    },
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/subscription if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Verify the tier label EXACTLY matches '{{expectedTierLabel}}'. FAIL if the label shows anything other than '{{expectedTierLabel}}'."
+      },
+      {
+        "id": 3,
+        "description": "Verify there is NO upgrade CTA visible. Pro users are at the highest tier. FAIL if any upgrade button or plan comparison upsell is shown."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/jp/portrait and verify the page is accessible without a paywall (no upgrade gate shown). Report whether the portrait page loads correctly. Take a screenshot clearly showing the tier label '{{expectedTierLabel}}' and the absence of an upgrade CTA."
+      }
+    ]
+  },
+  {
+    "id": "jp-verify-portrait-regen",
+    "description": "Verify portrait page state and regeneration initiation for the main QA user",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-profile",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/portrait"
+      },
+      {
+        "id": 2,
+        "description": "Check the current portrait state. If no portrait exists, verify a locked screen with clear instructions is shown. Report what the locked state says."
+      },
+      {
+        "id": 3,
+        "description": "If a portrait card exists, look for a Regenerate button. Click it and verify the regeneration process initiates (loading state, progress indicator, or confirmation message appears)."
+      },
+      {
+        "id": 4,
+        "description": "Report the overall outcome: was the portrait locked or accessible? Did regeneration initiate successfully? Take a screenshot showing the portrait page state."
       }
     ]
   }
