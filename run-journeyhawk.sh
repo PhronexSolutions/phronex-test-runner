@@ -21,6 +21,33 @@ set -euo pipefail
 # Claude Max subscription) which is the correct auth path for DevServer runs.
 unset ANTHROPIC_API_KEY
 
+# ---------- Phase 82 STRAT-16 — per-run mode override ----------
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --strategist-mode=*)
+      val="${1#*=}"
+      ;;
+    --strategist-mode)
+      val="$2"
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+  case "$val" in
+    ACTIVE|READ_ONLY|DISABLED)
+      export STRATEGIST_MODE_OVERRIDE="$val"
+      ;;
+    *)
+      echo "ERROR: --strategist-mode must be one of ACTIVE, READ_ONLY, DISABLED (got: $val)" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+# ---------- end Phase 82 ----------
+
 PRODUCT="${1:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
 SPEC_FILE="${2:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -214,6 +241,8 @@ fi
 
 # Step 1a: Strategist Block A — fixture_guard pre-filter
 # STRATEGIST_MODE controls behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
+# Per-run override: --strategist-mode=VALUE flag exports STRATEGIST_MODE_OVERRIDE
+# which the strategist mode.py read-through chain prefers above DB row + STRATEGIST_MODE env.
 # fixture_guard parses each journey for fixture requirements (logins, seed
 # data, backend reachability) and drops journeys whose fixtures aren't
 # satisfied. Filtered spec on stdout -> ${FILTERED_SPEC}; decision report ->
