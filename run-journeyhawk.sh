@@ -298,6 +298,77 @@ echo "[1a/3] Fixture guard pre-filter (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE
   --report "${RESULTS_DIR}/fixture-decisions.json" \
   > "${FILTERED_SPEC}"
 
+# Step 1a2: Pre-run strategist signals (Q1-Q4)
+# Log coverage_gap, yield_trend, ethos_priority, fixture_health signals to stderr.
+# Also calls JourneyRecommender.rank() on the filtered spec to log journey priority order.
+# Non-blocking: failures are logged as warnings and the run continues.
+export JOURNEYHAWK_PRODUCT="${PRODUCT}"
+export JOURNEYHAWK_FILTERED_SPEC="${FILTERED_SPEC}"
+echo ""
+echo "[1a2/3] Pre-run strategist signals (Q1-Q4)..."
+"${PYTHON}" - <<'SIGNALS_EOF' || true
+import os, sys, json
+
+_db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+_product = os.environ.get("JOURNEYHAWK_PRODUCT", "")
+_spec_file = os.environ.get("JOURNEYHAWK_FILTERED_SPEC", "")
+
+if not _db_url:
+    print("[strategist:pre-run] PHRONEX_QA_DATABASE_URL_SYNC not set — signals skipped", file=sys.stderr)
+    sys.exit(0)
+if not _product:
+    print("[strategist:pre-run] JOURNEYHAWK_PRODUCT not set — signals skipped", file=sys.stderr)
+    sys.exit(0)
+
+try:
+    import psycopg2
+    from phronex_common.testing.strategist.questions import (
+        answer_coverage_gap, answer_yield_trend,
+        answer_ethos_priority, answer_fixture_health,
+    )
+    _clean_url = _db_url.replace("postgresql+psycopg2://", "postgresql://")
+    _conn = psycopg2.connect(_clean_url)
+    try:
+        q1 = answer_coverage_gap(_product, _conn)
+        q2 = answer_yield_trend(_product, _conn)
+        q3 = answer_ethos_priority(_product, _conn)
+        q4 = answer_fixture_health(_product, _conn)
+        print(f"[strategist:pre-run] Q1 coverage_gap={q1:.3f}  Q2 yield_trend={q2:.3f}  Q3 ethos_priority={q3:.3f}  Q4 fixture_health={q4:.3f}", file=sys.stderr)
+
+        # JourneyRecommender ranking (log top journeys by priority score)
+        if _spec_file:
+            from phronex_common.testing.strategist.recommender import JourneyRecommender
+            _journeys = json.loads(open(_spec_file).read())
+            _jlist = [{"journey_id": j.get("id", "?"), "product_slug": _product} for j in _journeys]
+            if _jlist:
+                _rec = JourneyRecommender()
+                _ranked = _rec.rank(_jlist, _conn)
+                if _ranked:
+                    _top3 = _ranked[:3]
+                    print(f"[strategist:pre-run] top-3 priority: {[r.journey_id for r in _top3]}", file=sys.stderr)
+    finally:
+        _conn.close()
+except Exception as e:
+    print(f"[strategist:pre-run] WARNING: signals failed (non-fatal): {e}", file=sys.stderr)
+SIGNALS_EOF
+
+# Step 1b: Apply wiki test_mutation directives to filtered spec
+# Reads test_mutation JSONB from qa_wiki_articles and applies ADD_STEP / ADD_JOURNEY /
+# SKIP_JOURNEY / REQUIRE_FIXTURE / ABORT_ON / DEEPEN directives in-memory.
+# Fail-open: if DB unavailable or no directives, MUTATED_SPEC == FILTERED_SPEC.
+MUTATED_SPEC=$(mktemp /tmp/jh-spec-mutated-XXXXXX.json)
+trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}" "${MUTATED_SPEC}"' EXIT
+echo ""
+echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
+"${PYTHON}" -m phronex_common.testing.strategist.mutations \
+  --spec "${FILTERED_SPEC}" \
+  --product "${PRODUCT}" \
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
+  > "${MUTATED_SPEC}" || {
+  echo "[1b/3] WARN: mutations applier failed — using filtered spec as-is" >&2
+  cp "${FILTERED_SPEC}" "${MUTATED_SPEC}"
+}
+
 # Step 1: cc-test-runner (wrapped by run_arbiter)
 # run_arbiter spawns cc-test-runner as a child, streams its stdout, and
 # SIGTERMs the child on abort triggers (3 consecutive fails / >30 min runtime
@@ -309,10 +380,10 @@ echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter)..."
 "${PYTHON}" -m phronex_common.testing.strategist.run_arbiter \
   --product "${PRODUCT}" \
   --results-dir "${RESULTS_DIR}" \
-  --spec "${FILTERED_SPEC}" \
+  --spec "${MUTATED_SPEC}" \
   -- \
   "${SCRIPT_DIR}/cli/cc-test-runner" \
-    -t "${FILTERED_SPEC}" \
+    -t "${MUTATED_SPEC}" \
     -o "${RESULTS_DIR}" \
     --maxTurns 50
 
