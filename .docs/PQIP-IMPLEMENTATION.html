@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PQIP — Implementation Specification (Executable Blueprint)</title>
+  <style>
+    :root { --navy: #0f1b2d; --off-white: #f5f4f0; --accent: #4f8ef7; --muted: #6b7280; --border: #e5e7eb; --code-bg: #1e293b; --green: #059669; --amber: #d97706; --red: #dc2626; --purple: #7c3aed; --teal: #0d9488; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--off-white); color: #1a202c; line-height: 1.7; }
+    .doc-header { background: var(--navy); color: white; padding: 2.5rem 3rem; }
+    .doc-header h1 { font-size: 1.75rem; font-weight: 700; }
+    .doc-header .subtitle { font-size: 1.1rem; color: #94a3b8; margin-top: 0.3rem; font-weight: 400; }
+    .doc-header .meta { color: #64748b; font-size: 0.85rem; margin-top: 0.75rem; }
+    nav { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 3rem; position: sticky; top: 0; z-index: 10; overflow-x: auto; white-space: nowrap; }
+    nav a { color: var(--accent); text-decoration: none; font-size: 0.78rem; margin-right: 1rem; }
+    nav a:hover { text-decoration: underline; }
+    main { max-width: 1080px; margin: 0 auto; padding: 2rem 3rem 4rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.35rem; font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1.25rem; margin-top: 2.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; color: #374151; margin: 1.5rem 0 0.75rem; }
+    h4 { font-size: 0.95rem; font-weight: 600; color: #4b5563; margin: 1rem 0 0.5rem; }
+    p { margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.35rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.85rem; }
+    th { background: var(--navy); color: white; padding: 0.55rem 0.8rem; text-align: left; font-weight: 600; }
+    td { padding: 0.45rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: #f9fafb; }
+    code { background: var(--code-bg); color: #e2e8f0; padding: 0.15rem 0.4rem; border-radius: 3px; font-family: 'Menlo', 'Consolas', monospace; font-size: 0.83em; }
+    pre { background: var(--code-bg); color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: 6px; overflow-x: auto; margin: 1rem 0 1.5rem; font-size: 0.8rem; line-height: 1.55; }
+    pre code { background: none; padding: 0; }
+    .callout { padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; margin-bottom: 1.25rem; }
+    .callout-blue   { background: #f0f9ff; border-left: 4px solid var(--accent); color: #0369a1; }
+    .callout-green  { background: #f0fdf4; border-left: 4px solid var(--green); color: #065f46; }
+    .callout-amber  { background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; }
+    .callout-red    { background: #fef2f2; border-left: 4px solid var(--red); color: #991b1b; }
+    .callout-purple { background: #faf5ff; border-left: 4px solid var(--purple); color: #5b21b6; }
+    .callout-teal   { background: #f0fdfa; border-left: 4px solid var(--teal); color: #134e4a; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; margin-left: 0.4rem; vertical-align: middle; }
+    .badge-done   { background: #d1fae5; color: #065f46; }
+    .badge-gap    { background: #fef3c7; color: #92400e; }
+    .badge-new    { background: #ede9fe; color: #5b21b6; }
+    .badge-crit   { background: #fecaca; color: #991b1b; }
+    .dod-box { background: white; border: 2px solid var(--green); border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0 1.5rem; }
+    .dod-box h4 { color: var(--green); margin-top: 0; font-size: 0.9rem; }
+    .dod-box ul { margin: 0.25rem 0 0 1.25rem; font-size: 0.85rem; }
+    .dod-box pre { margin: 0.5rem 0; font-size: 0.78rem; }
+    .file-ref { font-family: 'Menlo', 'Consolas', monospace; font-size: 0.82em; color: var(--accent); }
+    .gap-table td:first-child { font-weight: 600; white-space: nowrap; }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+  </style>
+</head>
+<body>
+
+  <div class="doc-header">
+    <h1>PQIP — Implementation Specification</h1>
+    <div class="subtitle">Executable blueprint: from vision to working system. Every gap identified, every integration mapped, every DoD verifiable.</div>
+    <div class="meta">
+      v2.0 (consolidated) &middot; 2026-05-03 &middot; Owner: Vivek Parmar (Phronex Solutions) &middot;
+      Companion to: PQIP-ARCHITECTURE.html (vision) &middot;
+      Scope: phronex-common/testing/* + phronex-test-runner &middot;
+      Repos: phronex-common (Python modules + migrations), phronex-test-runner (shell wrapper + specs + binary) &middot;
+      Total effort: ~75 hours across 5 phases (v20.0 milestone, phases 84-88)
+    </div>
+  </div>
+
+  <nav>
+    <a href="#ground-truth">Ground Truth</a>
+    <a href="#gap-audit">Gap Audit</a>
+    <a href="#resources">Resource Accumulation (Design)</a>
+    <a href="#phase-84">Phase 84: Resources + Foundations</a>
+    <a href="#phase-85">Phase 85: Validation Intelligence</a>
+    <a href="#phase-86">Phase 86: Deepening + Confidence</a>
+    <a href="#phase-87">Phase 87: Resilience + Integration</a>
+    <a href="#phase-88">Phase 88: Closed-Loop + Predictive</a>
+    <a href="#migrations">Migrations</a>
+    <a href="#pipeline-wiring">Pipeline Wiring</a>
+    <a href="#risk-register">Risk Register</a>
+  </nav>
+
+  <main>
+
+    <!-- ================================================================ -->
+    <section id="ground-truth">
+      <h2>1. Ground Truth &mdash; What Exists Today (2026-05-03)</h2>
+
+      <div class="callout callout-blue">
+        <strong>Rule:</strong> This document never invents requirements. It maps the gap between PQIP-ARCHITECTURE.html (the vision) and the current codebase.
+        Every phase below specifies: (a) what file to modify or create, (b) what function/class to add, (c) what DB table to create, (d) how to verify it works. If a GSD planner strips any of these, the DoD section catches it.
+      </div>
+
+      <h3>1.1 Database (phronex_qa &mdash; 17 tables, migration head 0014)</h3>
+      <table>
+        <tr><th>Table</th><th>Rows</th><th>Status</th><th>Written by</th></tr>
+        <tr><td><code>qa_known_defects</code></td><td>100</td><td><span class="badge badge-done">LIVE</span></td><td>Gap detector (runner.py)</td></tr>
+        <tr><td><code>qa_defect_rca</code></td><td>18</td><td><span class="badge badge-done">LIVE</span></td><td>RCAEngine</td></tr>
+        <tr><td><code>qa_journey_verdicts</code></td><td>78</td><td><span class="badge badge-done">LIVE</span></td><td>ValidationAuditor</td></tr>
+        <tr><td><code>qa_wiki_articles</code></td><td>88</td><td><span class="badge badge-done">LIVE</span></td><td>Learning consolidation</td></tr>
+        <tr><td><code>qa_patterns</code></td><td>58</td><td><span class="badge badge-done">LIVE</span></td><td>Learning consolidation</td></tr>
+        <tr><td><code>qa_ux_signals</code></td><td>6</td><td><span class="badge badge-done">LIVE</span></td><td>UXObserver</td></tr>
+        <tr><td><code>qa_proposed_heuristics</code></td><td>9</td><td><span class="badge badge-done">LIVE</span></td><td>FeedbackConsolidator</td></tr>
+        <tr><td><code>qa_evidence</code></td><td>3</td><td><span class="badge badge-done">LIVE</span></td><td>Evidence collector</td></tr>
+        <tr><td><code>qa_strategy_state</code></td><td>5</td><td><span class="badge badge-done">LIVE</span></td><td>post_run.py</td></tr>
+        <tr><td><code>qa_ethos_rules</code></td><td>10</td><td><span class="badge badge-done">LIVE</span></td><td>ethos_seed</td></tr>
+        <tr><td><code>qa_docchain_snapshots</code></td><td>1</td><td><span class="badge badge-done">LIVE</span></td><td>runner.py</td></tr>
+        <tr><td><code>qa_cycle_log</code></td><td>—</td><td><span class="badge badge-done">LIVE</span></td><td>CycleCloseGate</td></tr>
+        <tr><td><code>qa_grade_rubrics</code></td><td>—</td><td><span class="badge badge-done">LIVE</span></td><td>Seed data</td></tr>
+        <tr><td><code>qa_journeys</code></td><td>0</td><td><span class="badge badge-gap">EMPTY</span></td><td>runner.py (not writing — bug)</td></tr>
+        <tr><td><code>qa_runs</code></td><td>—</td><td><span class="badge badge-done">LIVE</span></td><td>runner.py</td></tr>
+        <tr><td><code>qa_strategist_events</code></td><td>—</td><td><span class="badge badge-done">LIVE</span></td><td>Various strategist modules</td></tr>
+        <tr><td><code>qa_sweep_overflow</code></td><td>—</td><td><span class="badge badge-done">LIVE</span></td><td>CrossRepoSweepOrchestrator</td></tr>
+      </table>
+
+      <h3>1.2 Pipeline Flow (run-journeyhawk.sh)</h3>
+      <pre><code>Step 0    Pre-run cleanup (curl → product test-cleanup endpoints)
+Step 0b   DocChain stage gate (stage_gate.py — 6 gates)
+Step 1a   FixtureGuard pre-filter → fixture-decisions.json
+Step 1a2  Pre-run strategist signals (Q1-Q4) + JourneyRecommender.rank()
+Step 1b   WikiMutations (ADD_STEP/ADD_JOURNEY/SKIP_JOURNEY/DEEPEN)
+Step 1    cc-test-runner via RunArbiter wrapper
+Step 2    Intelligence pipeline (runner.py) → evidence → gaps → defects → RCA → verdicts → UX → consolidation
+Step 3    CycleCloseGate
+          (post-pipeline: DocChain snapshot, strategy state update)</code></pre>
+
+      <h3>1.3 Test Resource Inventory (Current — Fragmented)</h3>
+      <table>
+        <tr><th>Resource</th><th>Location</th><th>Lifecycle</th><th>Problem</th></tr>
+        <tr><td>QA superadmin account</td><td>.qa.env → PHRONEX_PORTAL_TEST_PASSWORD</td><td>Manual — created once, password in .qa.env</td><td>Password rotation breaks all runs silently</td></tr>
+        <tr><td>JP tier accounts (free/standard/pro)</td><td>.qa.env → QA_JP_*_PASSWORD</td><td>Manual — fallback to superadmin password</td><td>No verification that accounts exist in DB</td></tr>
+        <tr><td>Portal RBAC accounts (owner/user)</td><td>.qa.env → QA_OWNER_*, QA_USER_*</td><td>Manual</td><td>No creation script; silent failure if missing</td></tr>
+        <tr><td>Test resume PDF</td><td>fixtures/test-resume.pdf (701 bytes)</td><td>Static file, never regenerated</td><td>Single file; no variety; not product-aware</td></tr>
+        <tr><td>Cleanup SDK keys</td><td>.qa.env → *_TEST_CLEANUP_SDK_KEY</td><td>Must match EC2 .env vars</td><td>No validation; curl returns ERR silently</td></tr>
+        <tr><td>CC test instance</td><td>None — must be created during run</td><td>No provisioning</td><td>First CC run always fails</td></tr>
+        <tr><td>Praxis test data</td><td>None</td><td>No provisioning</td><td>Praxis not QA-testable without seed data</td></tr>
+      </table>
+
+      <h3>1.4 Journey Specs</h3>
+      <table>
+        <tr><th>Spec File</th><th>Product</th><th>Journeys</th><th>Tree Depth</th><th>Last Run</th></tr>
+        <tr><td>jp-deep.json</td><td>JP</td><td>26 (4 trunks + 9 branches + 13 leaves)</td><td>3 levels</td><td>2026-05-03</td></tr>
+        <tr><td>portal-*.json</td><td>Portal</td><td>8</td><td>2 levels</td><td>2026-05-01</td></tr>
+        <tr><td>cc-deep.json</td><td>CC</td><td>4</td><td>Flat</td><td>2026-04-27</td></tr>
+        <tr><td>(none)</td><td>Praxis</td><td>0</td><td>—</td><td>Never</td></tr>
+        <tr><td>(none)</td><td>ComC</td><td>0</td><td>—</td><td>Never</td></tr>
+        <tr><td>(none)</td><td>Website</td><td>0</td><td>—</td><td>Never</td></tr>
+      </table>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="gap-audit">
+      <h2>2. Gap Audit &mdash; Vision vs Reality</h2>
+
+      <div class="callout callout-red">
+        <strong>Reading guide:</strong> Each row is a gap between PQIP-ARCHITECTURE.html and the current codebase. The "Closes in" column maps to a specific implementation phase later in this document.
+      </div>
+
+      <table class="gap-table">
+        <tr><th>ID</th><th>Gap</th><th>Impact</th><th>Severity</th><th>Closes in</th></tr>
+        <tr><td>G-01</td><td>No Resource Accumulation layer — test accounts, seed data, dummy artifacts not inventoried</td><td>Silent fixture failures; first-run-always-fails for new products; password rotation breaks all runs</td><td><span class="badge badge-crit">CRITICAL</span></td><td>Phase R</td></tr>
+        <tr><td>G-02</td><td>qa_journeys table always empty — runner.py never writes run archive</td><td>Run filter Reason C (never run) always returns true; historical reporting broken</td><td><span class="badge badge-crit">CRITICAL</span></td><td>Phase B.1</td></tr>
+        <tr><td>G-03</td><td>USER-SPEC Coverage Analyzer missing — cannot answer "was the right thing built?"</td><td>Validation dimension stuck at 3/10; no feature inventory</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase B</td></tr>
+        <tr><td>G-04</td><td>Journey Depth Scoring missing — cannot reject smoke-level specs</td><td>Shallow specs waste LLM turns; JourneyHawk mandate (Column A) not enforced programmatically</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase B</td></tr>
+        <tr><td>G-05</td><td>Persistence verification not in spec format — no navigate-away-and-back assertion</td><td>Optimistic UI bugs pass silently; data not verified to persist</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase C</td></tr>
+        <tr><td>G-06</td><td>No statistical confidence — single-run verdicts; no flakiness detection</td><td>Flaky journeys marked PASS or FAIL with no interval; can't distinguish real failure from noise</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase C</td></tr>
+        <tr><td>G-07</td><td>QA Probe endpoints missing in all 5 products</td><td>Layer 3 integration testing impossible; can't verify service chains fire</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase D</td></tr>
+        <tr><td>G-08</td><td>Contract Registry missing — no shared contract definitions or tests</td><td>JWT/API schema changes can break consumers without warning</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase D</td></tr>
+        <tr><td>G-09</td><td>Data Invariant engine stub — qa_data_invariants has no data or runner</td><td>Business rules not verified after mutations; tier mismatches not caught</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase D</td></tr>
+        <tr><td>G-10</td><td>No adversarial testing — Layer 1 entirely absent</td><td>XSS, SQL injection, auth bypass not tested; resilience score 0/10</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase E</td></tr>
+        <tr><td>G-11</td><td>Defect → Lint Rule generator missing — Channel 2 of closed loop not built</td><td>Prevention rules stay in wiki but never become compile-time checks</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase F</td></tr>
+        <tr><td>G-12</td><td>Cross-product propagation engine missing — Channel 3 not built</td><td>JP defects not proactively warned in CC; knowledge doesn't flow across products</td><td><span class="badge badge-gap">HIGH</span></td><td>Phase F</td></tr>
+        <tr><td>G-13</td><td>qa_context_hook provides flat list — no risk scores, no code-area density, no estimation adjustment</td><td>GSD planners get warnings but no quantitative risk assessment</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase F</td></tr>
+        <tr><td>G-14</td><td>No PR merge gate — journeys only run post-deploy</td><td>Defects reach production; no pre-merge quality check</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase F</td></tr>
+        <tr><td>G-15</td><td>Predictive Risk Engine absent — no commit-to-journey mapping</td><td>Cannot predict which journeys will break from a PR diff</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase G</td></tr>
+        <tr><td>G-16</td><td>Business Readiness Report missing — no CEO-readable output</td><td>Test results only interpretable by developers; no demo-safe flow report</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase B</td></tr>
+        <tr><td>G-17</td><td>Visual Regression baselines missing — no pixel-diff</td><td>Layout shifts and missing elements not detected between runs</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase C</td></tr>
+        <tr><td>G-18</td><td>Composite Readiness Score not computed — 10 dimensions defined but no scorer</td><td>Cannot answer "is the product ready?" with a number</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase B</td></tr>
+        <tr><td>G-19</td><td>Velocity tracking absent — no defect-rate-per-code-area history</td><td>Sprint estimation not risk-adjusted; same rework rates repeat</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase F</td></tr>
+        <tr><td>G-20</td><td>TEST-ORACLES.html hand-authored — no auto-generation from USER-SPEC</td><td>Oracles go stale as product evolves; ValidationAuditor hit rate degrades</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase B</td></tr>
+        <tr><td>G-21</td><td>FixtureGuard seed_test_account detector always returns satisfied=True</td><td>Journeys that need seed data are never dropped even when data is missing</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase R</td></tr>
+        <tr><td>G-22</td><td>Cleanup SDK key validation is fire-and-forget — curl ERR silently ignored</td><td>Pre-run cleanup fails silently; stale test data pollutes subsequent runs</td><td><span class="badge badge-gap">MEDIUM</span></td><td>Phase R</td></tr>
+      </table>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="resources">
+      <h2>3. Resource Accumulation Layer <span class="badge badge-new">NEW</span></h2>
+
+      <div class="callout callout-teal">
+        <strong>Why this matters:</strong> Every JourneyHawk run depends on pre-existing resources — test accounts that can log in, seed data that populates UI components, dummy files that can be uploaded, admin credentials that grant access. Today these are scattered across .qa.env, hardcoded in spec files, and a single test PDF. When any resource goes stale (password changed, account deleted, file corrupted), entire run trees fail silently. The Resource Accumulation Layer makes test resources a first-class, inventoried, lifecycle-managed concern.
+      </div>
+
+      <h3>3.1 Resource Categories</h3>
+      <table>
+        <tr><th>Category</th><th>Examples</th><th>Lifecycle</th><th>Products</th></tr>
+        <tr>
+          <td><strong>Accounts</strong></td>
+          <td>QA superadmin, JP free/standard/pro tier users, CC instance owner, Portal RBAC roles (owner, user, viewer), Praxis test user</td>
+          <td>Created once per environment; password rotation tracked; existence verified before each run</td>
+          <td>All</td>
+        </tr>
+        <tr>
+          <td><strong>Credentials</strong></td>
+          <td>Cleanup SDK keys, admin secrets, API keys (BYOK test key), JWT tokens</td>
+          <td>Stored in .qa.env; cross-referenced against product EC2 .env; rotation alerts</td>
+          <td>All</td>
+        </tr>
+        <tr>
+          <td><strong>Documents</strong></td>
+          <td>Test resumes (PDF, DOCX — various sizes and formats), profile photos, cover letters, company logos</td>
+          <td>Stored in <code>fixtures/</code> directory; SHA256 indexed; variety requirements per product</td>
+          <td>JP, CC, Portal</td>
+        </tr>
+        <tr>
+          <td><strong>Seed Data</strong></td>
+          <td>CC: content instances with generated articles; JP: saved jobs, application history; Praxis: journal entries, vault items, habit data</td>
+          <td>Provisioned via product API before first run; snapshot stored for re-seeding; auto-cleaned after run</td>
+          <td>CC, JP, Praxis</td>
+        </tr>
+        <tr>
+          <td><strong>Configuration</strong></td>
+          <td>YAML config files (infrastructure.yaml, personal_info.yaml), portal settings, tier limits, BYOK keys</td>
+          <td>Product-specific config required for certain journeys; template stored; injected before run</td>
+          <td>JP, CC</td>
+        </tr>
+        <tr>
+          <td><strong>Infrastructure</strong></td>
+          <td>Backend health endpoints, portal URL reachability, DB connectivity, Playwright browser state</td>
+          <td>Verified pre-flight; failure blocks run with actionable error</td>
+          <td>All</td>
+        </tr>
+      </table>
+
+      <h3>3.2 Database Schema</h3>
+      <pre><code>-- Migration: 0015_qa_test_resources.py
+CREATE TABLE qa_test_resources (
+    resource_id     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    category        TEXT NOT NULL,   -- 'account' | 'credential' | 'document' | 'seed_data' | 'config' | 'infrastructure'
+    resource_key    TEXT NOT NULL,   -- unique within category, e.g. 'jp_free_tier_account'
+    product_slug    TEXT NOT NULL,   -- which product this serves ('*' = all products)
+    display_name    TEXT NOT NULL,   -- human-readable: 'JP Free Tier Test Account'
+
+    -- Provider info
+    provider_type   TEXT NOT NULL,   -- 'env_var' | 'file' | 'api_provision' | 'db_seed' | 'health_check'
+    provider_config JSONB NOT NULL DEFAULT '{}',
+    -- For env_var: {"var_name": "QA_JP_FREE_PASSWORD", "fallback_var": "PHRONEX_PORTAL_TEST_PASSWORD"}
+    -- For file:    {"path": "fixtures/test-resume.pdf", "sha256": "abc...", "min_size_bytes": 100}
+    -- For api_provision: {"endpoint": "/api/admin/test-setup/create-account", "payload": {...}, "cleanup_endpoint": "..."}
+    -- For db_seed: {"table": "user_profiles", "query": "SELECT 1 FROM accounts WHERE email = %s", "params": ["qa-jp-free@phronex.com"]}
+    -- For health_check: {"url": "https://jobc.phronex.com/health", "expected_status": 200}
+
+    -- State tracking
+    status          TEXT NOT NULL DEFAULT 'unknown',  -- 'available' | 'expired' | 'missing' | 'unknown' | 'provisioning'
+    last_verified   TIMESTAMPTZ,
+    last_used       TIMESTAMPTZ,
+    expires_at      TIMESTAMPTZ,      -- NULL = never expires
+    verification_error TEXT,           -- last error message if status != 'available'
+
+    -- Lifecycle
+    auto_provision  BOOLEAN NOT NULL DEFAULT FALSE,  -- can the system create this automatically?
+    auto_cleanup    BOOLEAN NOT NULL DEFAULT FALSE,  -- should the system clean this up after each run?
+    required_by     TEXT[] NOT NULL DEFAULT '{}',     -- journey IDs that need this resource
+
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE(category, resource_key)
+);
+
+-- Index for pre-run verification queries
+CREATE INDEX idx_qa_test_resources_product ON qa_test_resources(product_slug);
+CREATE INDEX idx_qa_test_resources_status ON qa_test_resources(status) WHERE status != 'available';</code></pre>
+
+      <h3>3.3 Resource Provider Pattern</h3>
+      <pre><code># phronex_common/testing/resources/providers.py
+
+class ResourceProvider(Protocol):
+    """Verifies and optionally provisions a test resource."""
+    def verify(self, config: dict) -> VerifyResult: ...
+    def provision(self, config: dict) -> ProvisionResult: ...
+    def cleanup(self, config: dict) -> None: ...
+
+@dataclass(frozen=True)
+class VerifyResult:
+    available: bool
+    error: str | None = None
+    expires_at: datetime | None = None
+
+# Concrete providers:
+class EnvVarProvider(ResourceProvider):
+    """Checks environment variable is set and non-empty."""
+
+class FileProvider(ResourceProvider):
+    """Checks file exists, meets min size, SHA256 matches."""
+
+class APIProvisionProvider(ResourceProvider):
+    """Calls product API to create/verify test resources.
+    verify: GET /api/admin/test-setup/verify?resource_key=...
+    provision: POST /api/admin/test-setup/create
+    cleanup: POST /api/admin/test-cleanup/..."""
+
+class DBSeedProvider(ResourceProvider):
+    """Runs a SELECT query to verify seed data exists."""
+
+class HealthCheckProvider(ResourceProvider):
+    """TCP/HTTP health check against a URL."""</code></pre>
+
+      <h3>3.4 Resource Verification Flow (Pre-Run)</h3>
+      <pre><code># Injected into run-journeyhawk.sh BEFORE Step 1a (FixtureGuard)
+# New Step 0c: Resource Verification
+
+"${PYTHON}" -m phronex_common.testing.resources.verify \
+  --product "${PRODUCT}" \
+  --report "${RESULTS_DIR}/resource-verification.json"
+
+# Verify reads qa_test_resources for this product, runs each provider's verify(),
+# updates status + last_verified, and exits:
+#   0 = all resources available (or auto-provisioned)
+#   1 = missing resources that can't be auto-provisioned → list them with fix instructions
+#   2 = infrastructure unreachable → abort with recovery steps</code></pre>
+
+      <h3>3.5 Seed Data Inventory — Per Product</h3>
+
+      <h4>3.5.1 JobPortal (JP)</h4>
+      <table>
+        <tr><th>Resource Key</th><th>Category</th><th>Provider</th><th>Auto-Provision?</th><th>Required By</th></tr>
+        <tr><td>jp_superadmin_account</td><td>account</td><td>db_seed (phronex-auth DB)</td><td>No (manual creation)</td><td>jp-trunk-main, all branches</td></tr>
+        <tr><td>jp_free_tier_account</td><td>account</td><td>db_seed</td><td>No</td><td>jp-trunk-free</td></tr>
+        <tr><td>jp_standard_tier_account</td><td>account</td><td>db_seed</td><td>No</td><td>jp-trunk-standard</td></tr>
+        <tr><td>jp_pro_tier_account</td><td>account</td><td>db_seed</td><td>No</td><td>jp-trunk-pro</td></tr>
+        <tr><td>jp_test_resume_pdf</td><td>document</td><td>file</td><td>N/A (static)</td><td>jp-verify-documents-upload</td></tr>
+        <tr><td>jp_test_resume_docx</td><td>document</td><td>file</td><td>N/A (static)</td><td>jp-verify-documents-upload</td></tr>
+        <tr><td>jp_test_cover_letter</td><td>document</td><td>file</td><td>N/A (static)</td><td>jp-verify-job-ai-cover-letter</td></tr>
+        <tr><td>jp_personal_info_yaml</td><td>config</td><td>file</td><td>Yes (template)</td><td>jp-verify-config-yaml</td></tr>
+        <tr><td>jp_cleanup_sdk_key</td><td>credential</td><td>env_var</td><td>No</td><td>Pre-run cleanup</td></tr>
+        <tr><td>jp_backend_health</td><td>infrastructure</td><td>health_check</td><td>N/A</td><td>All JP journeys</td></tr>
+        <tr><td>jp_byok_test_key</td><td>credential</td><td>env_var</td><td>No</td><td>jp-verify-config-byok</td></tr>
+      </table>
+
+      <h4>3.5.2 ContentCompanion (CC)</h4>
+      <table>
+        <tr><th>Resource Key</th><th>Category</th><th>Provider</th><th>Auto-Provision?</th><th>Required By</th></tr>
+        <tr><td>cc_test_instance</td><td>seed_data</td><td>api_provision</td><td>Yes</td><td>All CC journeys</td></tr>
+        <tr><td>cc_test_widget</td><td>seed_data</td><td>api_provision (after instance)</td><td>Yes</td><td>cc-verify-widget-embed</td></tr>
+        <tr><td>cc_test_content_items</td><td>seed_data</td><td>api_provision</td><td>Yes</td><td>cc-verify-content-management</td></tr>
+        <tr><td>cc_admin_account</td><td>account</td><td>db_seed</td><td>No</td><td>cc-trunk-admin</td></tr>
+        <tr><td>cc_cleanup_sdk_key</td><td>credential</td><td>env_var</td><td>No</td><td>Pre-run cleanup</td></tr>
+        <tr><td>cc_backend_health</td><td>infrastructure</td><td>health_check</td><td>N/A</td><td>All CC journeys</td></tr>
+        <tr><td>cc_sidecar_url</td><td>credential</td><td>env_var</td><td>No</td><td>CC sidecar integration journeys</td></tr>
+      </table>
+
+      <h4>3.5.3 Praxis</h4>
+      <table>
+        <tr><th>Resource Key</th><th>Category</th><th>Provider</th><th>Auto-Provision?</th><th>Required By</th></tr>
+        <tr><td>praxis_test_user</td><td>account</td><td>db_seed</td><td>No</td><td>praxis-trunk-main</td></tr>
+        <tr><td>praxis_journal_entries</td><td>seed_data</td><td>api_provision</td><td>Yes</td><td>praxis-verify-journal</td></tr>
+        <tr><td>praxis_vault_items</td><td>seed_data</td><td>api_provision</td><td>Yes</td><td>praxis-verify-vault</td></tr>
+        <tr><td>praxis_habit_data</td><td>seed_data</td><td>api_provision</td><td>Yes</td><td>praxis-verify-habits</td></tr>
+        <tr><td>praxis_backend_health</td><td>infrastructure</td><td>health_check</td><td>N/A</td><td>All Praxis journeys</td></tr>
+      </table>
+
+      <h3>3.6 Fixture Guard Integration</h3>
+      <p>The existing <code>FixtureGuard</code> (fixture_guard.py) + <code>DETECTOR_REGISTRY</code> (fixture_detectors.py) will be rewired to read from <code>qa_test_resources</code> instead of hardcoded env var checks:</p>
+      <pre><code># fixture_detectors.py — enhanced detect_seed_test_account
+def detect_seed_test_account(step_text: str) -> DetectorResult:
+    # OLD: always returns satisfied=True (stub)
+    # NEW: queries qa_test_resources for matching resource_key
+    #      Returns satisfied=True only if status='available' AND last_verified within 24h
+    if "e2e-test-" not in step_text:
+        return DetectorResult(False, True, "")
+    # Extract journey_id from context, look up required_by in qa_test_resources
+    # If resource status != 'available': return DetectorResult(True, False, f"seed data '{key}' status={status}")
+    ...</code></pre>
+
+      <h3>3.7 Resource Lifecycle CLI</h3>
+      <pre><code># phronex_common/testing/resources/__main__.py
+
+# Verify all resources for a product:
+python -m phronex_common.testing.resources verify --product jp
+
+# List all resources:
+python -m phronex_common.testing.resources list --product jp --status missing
+
+# Provision auto-provisionable resources:
+python -m phronex_common.testing.resources provision --product jp
+
+# Seed the inventory from current .qa.env + fixtures/:
+python -m phronex_common.testing.resources seed-from-env --product jp
+
+# Mark a resource as expired (e.g., after password rotation):
+python -m phronex_common.testing.resources expire --key jp_free_tier_account --reason "password rotated"</code></pre>
+
+      <div class="dod-box">
+        <h4>Definition of Done — Resource Accumulation Layer</h4>
+        <ul>
+          <li>Migration 0015 applied. <code>SELECT count(*) FROM qa_test_resources;</code> returns &ge;0.</li>
+          <li><code>python -m phronex_common.testing.resources seed-from-env --product jp</code> populates &ge;8 rows from current .qa.env.</li>
+          <li><code>python -m phronex_common.testing.resources verify --product jp</code> exits 0 when all env vars are set; exits 1 with fix instructions when QA_JP_FREE_PASSWORD is unset.</li>
+          <li>FixtureGuard <code>detect_seed_test_account</code> reads from <code>qa_test_resources</code> — verified by test: unset env var, run guard, confirm journey dropped.</li>
+          <li>run-journeyhawk.sh has Step 0c (resource verification) before Step 1a.</li>
+          <li><code>resource-verification.json</code> written to results dir with per-resource pass/fail.</li>
+          <li><code>fixtures/</code> directory has &ge;3 test documents (PDF, DOCX, PNG) with SHA256s in DB.</li>
+          <li>ruff check passes on all new files.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="phase-84">
+      <h2>4. Phase 84 &mdash; Resource Accumulation + Foundations (~10h) <span class="badge badge-new">Closes G-01, G-02, G-21, G-22</span></h2>
+
+      <div class="callout callout-teal">
+        <strong>Objective:</strong> Make every JourneyHawk run start from a verified, inventoried resource base — and fix the qa_journeys archive bug that breaks the run filter.
+        <strong>Prerequisite for all other phases.</strong> Without reliable resources, every subsequent phase is built on fragile foundations.
+      </div>
+
+      <h3>4.1 Task 84.1 &mdash; Migration + Provider Framework (3h)</h3>
+      <p><strong>New migration:</strong> 0015_qa_test_resources.py (schema from &sect;3.2 above)</p>
+      <p><strong>New directory:</strong> <span class="file-ref">phronex_common/testing/resources/</span></p>
+      <p><strong>Files:</strong></p>
+      <ul>
+        <li><code>__init__.py</code> &mdash; exports</li>
+        <li><code>providers.py</code> &mdash; ResourceProvider protocol + 5 concrete providers (EnvVar, File, APIProvision, DBSeed, HealthCheck)</li>
+        <li><code>verify.py</code> &mdash; pre-run verification CLI</li>
+        <li><code>__main__.py</code> &mdash; CLI entry point (verify/list/provision/seed-from-env/expire)</li>
+      </ul>
+
+      <h3>4.2 Task 84.2 &mdash; Seed Inventory from Current State (2h)</h3>
+      <p><strong>Action:</strong> Write a <code>seed-from-env</code> command that reads .qa.env + fixtures/ directory and populates <code>qa_test_resources</code> with all currently-known resources per product.</p>
+      <p><strong>JP seed:</strong> 11 resources (from &sect;3.5.1 table). <strong>CC seed:</strong> 7 resources. <strong>Praxis seed:</strong> 5 resources.</p>
+
+      <h3>4.3 Task 84.3 &mdash; Fixture Guard Rewire (2h)</h3>
+      <p><strong>Files:</strong></p>
+      <ul>
+        <li><span class="file-ref">fixture_detectors.py</span> &mdash; replace <code>detect_seed_test_account</code> stub with real <code>qa_test_resources</code> query</li>
+        <li><span class="file-ref">run-journeyhawk.sh</span> &mdash; add Step 0c (resource verification) between Step 0b (DocChain gate) and Step 1a (fixture guard)</li>
+      </ul>
+
+      <h3>4.4 Task 84.4 &mdash; Test Document Variety (1h)</h3>
+      <p>Create additional test fixtures: <code>fixtures/test-resume-2page.pdf</code>, <code>fixtures/test-resume.docx</code>, <code>fixtures/test-profile-photo.png</code>, <code>fixtures/test-company-logo.png</code>. Register all in <code>qa_test_resources</code> with SHA256 checksums.</p>
+
+      <h3>4.5 Task 84.5 &mdash; Fix qa_journeys run archive (1h)</h3>
+      <p><strong>Problem:</strong> <code>qa_journeys</code> has 0 rows despite 6+ runs. <code>runner.py</code> either skips the insert or uses the wrong table.</p>
+      <p><strong>File:</strong> <span class="file-ref">phronex_common/testing/runner.py</span></p>
+      <p><strong>Action:</strong> Trace the <code>_write_run_archive()</code> call path. Ensure it INSERTs into <code>qa_journeys</code> with product_slug, suite_scope, gaps_found, defects_written, wiki_articles_updated, started_at, finished_at. Also populate <code>journeys_run</code> and <code>journeys_failed</code> columns (needed by post_run.py and run_filter.py).</p>
+
+      <h3>4.6 Task 84.6 &mdash; Resource Verification Report (1h)</h3>
+      <p><code>resource-verification.json</code> written to results dir with per-resource pass/fail. Consumed by downstream phases and the readiness scorer.</p>
+
+      <div class="dod-box">
+        <h4>Definition of Done &mdash; Phase 84</h4>
+        <ul>
+          <li>Migration 0015 applied. <code>SELECT count(*) FROM qa_test_resources;</code> returns &ge;23 (11 JP + 7 CC + 5 Praxis).</li>
+          <li><code>python -m phronex_common.testing.resources seed-from-env --product jp</code> populates &ge;8 rows from current .qa.env.</li>
+          <li><code>python -m phronex_common.testing.resources verify --product jp</code> exits 0 when all env vars are set; exits 1 with fix instructions when QA_JP_FREE_PASSWORD is unset.</li>
+          <li>FixtureGuard <code>detect_seed_test_account</code> reads from <code>qa_test_resources</code> &mdash; verified by test: unset env var, run guard, confirm journey dropped.</li>
+          <li>run-journeyhawk.sh has Step 0c (resource verification) before Step 1a.</li>
+          <li><code>resource-verification.json</code> written to results dir with per-resource pass/fail.</li>
+          <li><code>fixtures/</code> directory has &ge;5 test documents (PDF, DOCX, PNG) with SHA256s in DB.</li>
+          <li>After one JP run: <code>SELECT count(*) FROM qa_journeys WHERE product_slug='jp';</code> returns &ge;1.</li>
+          <li><code>run_filter.py</code> _load_run_history returns non-empty set for JP.</li>
+          <li>ruff check passes on all new files.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="phase-85">
+      <h2>5. Phase 85 &mdash; Validation &amp; Coverage Intelligence (~13h) <span class="badge badge-new">Closes G-03, G-04, G-16, G-18, G-20</span></h2>
+
+      <div class="callout callout-green">
+        <strong>Objective:</strong> Answer "Was the right thing built? Are all USER-SPEC features implemented, testable, and working?" Build the scoring + spec generation pipeline.
+        <strong>Dimension impact:</strong> Validation 3&rarr;8.5/10, Business readability 0&rarr;6/10
+      </div>
+
+      <h3>5.1 Task 85.1 &mdash; USER-SPEC Feature Coverage Analyzer (4h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/coverage_analyzer.py</span></p>
+      <p><strong>New table:</strong> <code>qa_feature_coverage</code> (migration 0016)</p>
+
+      <pre><code>-- Migration: 0016_qa_feature_coverage.py
+CREATE TABLE qa_feature_coverage (
+    coverage_id     SERIAL PRIMARY KEY,
+    product_slug    TEXT NOT NULL,
+    feature_section TEXT NOT NULL,        -- USER-SPEC section heading
+    feature_name    TEXT NOT NULL,        -- extracted capability name
+    feature_hash    TEXT NOT NULL,        -- SHA256 of the feature description (staleness detection)
+
+    -- Three verification levels
+    code_exists     BOOLEAN,             -- backend route or portal component found?
+    code_ref        TEXT,                -- e.g. "routes_profile.py:export_pdf" or "ProfileExportButton.tsx"
+    spec_exists     BOOLEAN,             -- journey spec covers this feature?
+    spec_ref        TEXT,                -- e.g. "jp-verify-profile-update"
+    test_passes     BOOLEAN,             -- last journey verdict was PASS_ORACLE?
+    last_tested     TIMESTAMPTZ,
+
+    -- Metadata
+    auto_detected   BOOLEAN DEFAULT TRUE,-- was this extracted automatically or hand-curated?
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE(product_slug, feature_name)
+);</code></pre>
+
+      <p><strong>Implementation:</strong></p>
+      <ol>
+        <li><strong>Feature extraction</strong> — parse USER-SPEC.html using BeautifulSoup (already a phronex-common dependency). Walk &lt;h2&gt;/&lt;h3&gt; sections. Each bullet or paragraph describing a user capability becomes a feature row. At cold start, use LLM (Claude Haiku) to disambiguate "is this a discrete testable capability?" vs structural prose.</li>
+        <li><strong>Code existence check</strong> — for each feature, grep the product repo for matching route handlers (<code>@router.post|get|put|delete</code>) and portal components. Store first match as code_ref.</li>
+        <li><strong>Spec mapping</strong> — for each feature, search journey specs for ID or description overlap. Store matching journey ID as spec_ref.</li>
+        <li><strong>Verdict lookup</strong> — if spec_ref exists, query <code>qa_journey_verdicts</code> for latest verdict. Set test_passes accordingly.</li>
+      </ol>
+
+      <p><strong>Integration:</strong> Called from <code>runner.py</code> as new step in <code>_phase82_seam()</code>, after verdicts are written but before FeedbackConsolidator. Also callable standalone: <code>python -m phronex_common.testing.coverage_analyzer --product jp</code></p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 85.1</h4>
+        <ul>
+          <li><code>python -m phronex_common.testing.coverage_analyzer --product jp</code> exits 0 and prints coverage summary.</li>
+          <li><code>SELECT count(*) FROM qa_feature_coverage WHERE product_slug='jp';</code> returns &ge;10.</li>
+          <li>Coverage % is computed: <code>SELECT round(100.0 * count(*) FILTER (WHERE test_passes) / count(*), 1) FROM qa_feature_coverage WHERE product_slug='jp';</code></li>
+          <li>Features with spec_exists=FALSE are listed as "UNTESTED" in output.</li>
+          <li>LLM calls use Claude Haiku; budget capped at $0.50/product.</li>
+        </ul>
+      </div>
+
+      <h3>5.2 Task 85.2 &mdash; Journey Depth Scoring (2h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/depth_scorer.py</span></p>
+      <p><strong>Classification rules (deterministic — no LLM needed):</strong></p>
+      <table>
+        <tr><th>Depth</th><th>Detection</th><th>Policy</th></tr>
+        <tr><td>SMOKE</td><td>All steps are "navigate" or "verify element exists" — no form submit, no click, no data mutation</td><td>REJECTED — not run by JourneyHawk</td></tr>
+        <tr><td>SURFACE</td><td>Has click/fill/submit steps but no persistence check, no cross-page assertion, no data verification</td><td>FLAGGED — warning in pre-run output</td></tr>
+        <tr><td>DEEP</td><td>Has mutation + persistence assertion OR integration probe OR data invariant check</td><td>ACCEPTED — minimum standard</td></tr>
+        <tr><td>BEHAVIORAL</td><td>Has narrative flow across 5+ steps with data dependencies between steps</td><td>IDEAL — prioritised in recommender</td></tr>
+      </table>
+      <p><strong>Integration:</strong> Called by <code>run-journeyhawk.sh</code> after fixture guard, before cc-test-runner. SMOKE journeys are dropped (logged to fixture-decisions.json as <code>depth_rejected</code>). SURFACE journeys emit a warning but still run.</p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 85.2</h4>
+        <ul>
+          <li><code>from phronex_common.testing.depth_scorer import score_journey; score_journey(journey_dict)</code> returns one of SMOKE/SURFACE/DEEP/BEHAVIORAL.</li>
+          <li>A journey with only "navigate to /dashboard" and "verify sidebar exists" scores SMOKE.</li>
+          <li>jp-verify-profile-update (has fill + save + persistence) scores DEEP or BEHAVIORAL.</li>
+          <li>Smoke journeys are filtered out before reaching cc-test-runner.</li>
+        </ul>
+      </div>
+
+      <h3>5.3 Task 85.3 &mdash; Composite Readiness Scorer (3h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/readiness_scorer.py</span></p>
+      <p><strong>New table:</strong> <code>qa_readiness_reports</code> (migration 0017)</p>
+
+      <pre><code>-- Migration: 0017_qa_readiness_reports.py
+CREATE TABLE qa_readiness_reports (
+    report_id       SERIAL PRIMARY KEY,
+    product_slug    TEXT NOT NULL,
+    run_id          TEXT,
+
+    -- 10 dimension scores (0.0 to 1.0)
+    verification_score      FLOAT,   -- qa_journey_verdicts pass rate
+    validation_score        FLOAT,   -- qa_feature_coverage test_passes rate
+    data_integrity_score    FLOAT,   -- qa_data_invariants pass rate (0.0 until Phase D)
+    resilience_score        FLOAT,   -- qa_adversarial_results pass rate (0.0 until Phase E)
+    cross_product_score     FLOAT,   -- qa_contract_tests pass rate (0.0 until Phase D)
+    ux_quality_score        FLOAT,   -- UX assertion pass rate
+    predictive_score        FLOAT,   -- risk prediction accuracy (0.0 until Phase G)
+    confidence_score        FLOAT,   -- average Wilson lower bound (0.0 until Phase C)
+    pre_deploy_score        FLOAT,   -- PR gate pass rate (0.0 until Phase F)
+    readability_score       FLOAT,   -- report freshness (0 or 1)
+
+    -- Composite
+    composite_score FLOAT NOT NULL,  -- weighted average
+    readiness_level TEXT NOT NULL,   -- SHIP | DEMO | DEVELOP | HOLD
+
+    -- CEO-readable narrative (LLM-generated or template)
+    narrative       TEXT,
+
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);</code></pre>
+
+      <p><strong>Scoring weights</strong> (per PQIP-ARCHITECTURE.html &sect;10.1): Verification 20%, Validation 15%, Data integrity 15%, Resilience 10%, Cross-product 10%, UX 10%, Predictive 5%, Confidence 5%, Pre-deploy 5%, Readability 5%.</p>
+
+      <p><strong>Dimensions that don't have data yet</strong> (Phases D/E/F/G not built) default to <code>NULL</code>, and the weight is redistributed proportionally across scored dimensions. This means Phase B's composite score is computed from verification + validation + UX only — three dimensions with a combined weight of 45%, normalized to 100%.</p>
+
+      <p><strong>Integration:</strong> Called at the end of <code>runner.py</code> pipeline, after all other steps. Also callable standalone. The narrative field is generated by LLM (Claude Haiku) from the dimension scores — template-based for common patterns, LLM for novel combinations.</p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 85.3</h4>
+        <ul>
+          <li><code>python -m phronex_common.testing.readiness_scorer --product jp</code> prints composite score and readiness level.</li>
+          <li><code>SELECT composite_score, readiness_level FROM qa_readiness_reports WHERE product_slug='jp' ORDER BY created_at DESC LIMIT 1;</code> returns a row.</li>
+          <li>Readiness level matches thresholds: &ge;0.85 = SHIP, 0.70-0.84 = DEMO, 0.50-0.69 = DEVELOP, &lt;0.50 = HOLD.</li>
+          <li>Narrative field is non-empty and human-readable.</li>
+        </ul>
+      </div>
+
+      <h3>5.4 Task 85.4 &mdash; Auto-Spec Generation (4h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/spec_generator.py</span></p>
+      <p><strong>Input:</strong> Features from <code>qa_feature_coverage</code> where <code>spec_exists=FALSE</code>.</p>
+      <p><strong>Output:</strong> Draft journey specs inserted into <code>qa_proposed_heuristics</code> with <code>sink='TEST_ORACLES'</code> and <code>status='queued_for_approval'</code>.</p>
+
+      <p><strong>Generation flow:</strong></p>
+      <ol>
+        <li>For each untested feature: read the USER-SPEC description, the backend route handler source, and the portal component source.</li>
+        <li>LLM (Claude Sonnet) generates a multi-step journey spec with: navigation, interaction, assertion, persistence check. Prompt includes 3 exemplar specs from the existing jp-deep.json as few-shot examples.</li>
+        <li>Generated spec is validated by <code>depth_scorer.py</code> — must score DEEP or higher. If SURFACE, re-prompt with "add persistence verification."</li>
+        <li>Approved specs are appended to the product's <code>*-deep.json</code> file by the operator (not auto-appended).</li>
+      </ol>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 85.4</h4>
+        <ul>
+          <li><code>python -m phronex_common.testing.spec_generator --product jp --dry-run</code> prints &ge;1 draft spec for an untested feature.</li>
+          <li>Generated spec passes <code>depth_scorer.score_journey()</code> with DEEP or BEHAVIORAL.</li>
+          <li>Draft specs appear in <code>qa_proposed_heuristics</code> with <code>sink='TEST_ORACLES'</code>.</li>
+          <li>LLM cost &le;$2 per product invocation.</li>
+        </ul>
+      </div>
+    </section>
+
+      <div class="dod-box">
+        <h4>Definition of Done &mdash; Phase 85 (combined)</h4>
+        <ul>
+          <li>Migrations 0016 + 0017 applied.</li>
+          <li><code>python -m phronex_common.testing.coverage_analyzer --product jp</code> exits 0; <code>SELECT count(*) FROM qa_feature_coverage WHERE product_slug='jp';</code> returns &ge;10.</li>
+          <li><code>from phronex_common.testing.depth_scorer import score_journey</code> &mdash; SMOKE journeys rejected, DEEP+ accepted.</li>
+          <li><code>SELECT composite_score, readiness_level FROM qa_readiness_reports WHERE product_slug='jp' ORDER BY created_at DESC LIMIT 1;</code> returns a row with readiness_level in (SHIP, DEMO, DEVELOP, HOLD).</li>
+          <li><code>python -m phronex_common.testing.spec_generator --product jp --dry-run</code> prints &ge;1 DEEP-scored draft spec.</li>
+          <li>ruff check passes. LLM budget &le;$2.50 per product invocation.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="phase-86">
+      <h2>6. Phase 86 &mdash; Test Deepening &amp; Confidence (~14h) <span class="badge badge-new">Closes G-05, G-06, G-09, G-17</span></h2>
+
+      <div class="callout callout-green">
+        <strong>Objective:</strong> Make existing tests smarter &mdash; verify data persists, detect flakiness, baseline visual regression, and enforce business-logic invariants post-mutation. All output flows through runner.py's post-run seam.
+        <strong>Dimension impact:</strong> Verification 7&rarr;9.5/10, Confidence 0&rarr;5/10, Data integrity 0&rarr;7/10
+      </div>
+
+      <h3>6.1 Task 86.1 &mdash; Persistence Verification in Spec Format (3h)</h3>
+      <p><strong>Files:</strong></p>
+      <ul>
+        <li><span class="file-ref">cli/src/types/test-case.ts</span> — add <code>persistence</code> field to zod schema</li>
+        <li><span class="file-ref">cli/src/prompts/start-test.ts</span> — inject persistence check instructions into Claude prompt after step execution</li>
+        <li><span class="file-ref">cli/src/index.ts</span> — after running steps, if <code>persistence</code> is defined, execute navigate-away/navigate-back/re-assert sequence</li>
+      </ul>
+
+      <p><strong>Spec format addition:</strong></p>
+      <pre><code>{
+  "persistence": {
+    "after_step": "save-profile",      // which step triggers the check
+    "navigate_away": "/dashboard",      // where to go
+    "navigate_back": "/profile",        // where to return
+    "assert": "headline field contains '{{expectedHeadline}}'"  // what to verify
+  }
+}</code></pre>
+
+      <p><strong>Backward compatible:</strong> <code>persistence</code> is optional. Specs without it execute as today.</p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 86.1</h4>
+        <ul>
+          <li>zod parse of a spec with <code>persistence</code> field succeeds.</li>
+          <li><code>bun check</code> passes (TypeScript).</li>
+          <li>cc-test-runner binary rebuilt and functional.</li>
+          <li>jp-verify-profile-update spec updated with persistence block; run succeeds.</li>
+        </ul>
+      </div>
+
+      <h3>6.2 Task 86.2 &mdash; Statistical Confidence &amp; Flakiness Detection (4h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/confidence_scorer.py</span></p>
+      <p><strong>New table:</strong> <code>qa_confidence_scores</code> (migration 0018)</p>
+
+      <pre><code>-- Migration: 0018_qa_confidence_scores.py
+CREATE TABLE qa_confidence_scores (
+    score_id        SERIAL PRIMARY KEY,
+    product_slug    TEXT NOT NULL,
+    journey_id      TEXT NOT NULL,
+
+    total_runs      INT NOT NULL DEFAULT 0,
+    total_passes    INT NOT NULL DEFAULT 0,
+    total_fails     INT NOT NULL DEFAULT 0,
+
+    -- Wilson confidence interval (lower bound)
+    confidence_lower FLOAT,         -- lower bound of Wilson interval
+    confidence_upper FLOAT,         -- upper bound
+    classification   TEXT,          -- 'STABLE' | 'FLAKY' | 'BROKEN' | 'INSUFFICIENT_DATA'
+
+    -- Flakiness details
+    last_flaky_run   TIMESTAMPTZ,   -- most recent run where result differed from previous
+    flaky_streak     INT DEFAULT 0, -- consecutive alternating pass/fail runs
+
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE(product_slug, journey_id)
+);</code></pre>
+
+      <p><strong>Wilson interval formula:</strong> For p = passes/total, z = 1.96 (95% confidence):</p>
+      <pre><code>lower = (p + z²/(2n) - z * sqrt((p*(1-p) + z²/(4n))/n)) / (1 + z²/n)</code></pre>
+
+      <p><strong>Classification rules:</strong></p>
+      <ul>
+        <li><strong>STABLE:</strong> confidence_lower &ge; 0.80 AND no flaky_streak</li>
+        <li><strong>FLAKY:</strong> 0.30 &lt; confidence_lower &lt; 0.80 OR flaky_streak &ge; 2</li>
+        <li><strong>BROKEN:</strong> confidence_lower &le; 0.30</li>
+        <li><strong>INSUFFICIENT_DATA:</strong> total_runs &lt; 3</li>
+      </ul>
+
+      <p><strong>Integration:</strong> Updated after every run by <code>runner.py</code>. Feeds into readiness_scorer (confidence dimension). Flaky journeys get priority in JourneyRecommender — they need more data points to converge.</p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 86.2</h4>
+        <ul>
+          <li>After 3 JP runs: <code>SELECT journey_id, classification, confidence_lower FROM qa_confidence_scores WHERE product_slug='jp' ORDER BY confidence_lower LIMIT 5;</code> returns rows with non-null classifications.</li>
+          <li>A journey that passed 5/5 times has classification=STABLE and confidence_lower &gt; 0.80.</li>
+          <li>A journey that alternated pass/fail has classification=FLAKY.</li>
+        </ul>
+      </div>
+
+      <h3>6.3 Task 86.3 &mdash; Visual Regression Baselines (3h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/visual_regression.py</span></p>
+      <p><strong>Uses existing table:</strong> <code>qa_evidence</code> with <code>evidence_type='visual_baseline'</code> (no migration needed).</p>
+
+      <p><strong>Flow:</strong></p>
+      <ol>
+        <li>After each journey run, the evidence collector already stores screenshots with SHA256 keys.</li>
+        <li>On first run: screenshots become the baseline (stored with <code>is_baseline=True</code> metadata).</li>
+        <li>On subsequent runs: pixel-diff new screenshot against baseline using <code>Pillow</code> (already available). Compute SSIM (Structural Similarity Index). If SSIM &lt; 0.95, flag as VISUAL_DRIFT with the diff image stored.</li>
+        <li>Baseline can be updated via CLI: <code>python -m phronex_common.testing.visual_regression update-baseline --product jp --journey jp-verify-dashboard</code></li>
+      </ol>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 86.3</h4>
+        <ul>
+          <li>After first run: <code>SELECT count(*) FROM qa_evidence WHERE evidence_type='visual_baseline';</code> returns &ge;1.</li>
+          <li>After second run with no UI changes: SSIM scores &gt; 0.95, no VISUAL_DRIFT flagged.</li>
+          <li>After deliberate UI change: VISUAL_DRIFT flagged with diff percentage.</li>
+        </ul>
+      </div>
+    </section>
+
+      <h3>6.4 Task 86.4 &mdash; Data Invariant Engine (4h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/invariant_runner.py</span></p>
+      <p><strong>New directory:</strong> <span class="file-ref">phronex_common/testing/invariants/</span> (YAML definitions per product)</p>
+
+      <pre><code># phronex_common/testing/invariants/jp_business_rules.yaml
+invariants:
+  - name: salary_range_valid
+    product: jp
+    query: "SELECT count(*) FROM job_postings WHERE salary_min > salary_max AND salary_max IS NOT NULL"
+    expect_count: 0
+    severity: CRITICAL
+
+  - name: tier_consistency
+    product: jp
+    query: >
+      SELECT count(*) FROM subscriptions s
+      JOIN razorpay_payments p ON s.user_id = p.user_id
+      WHERE s.tier != p.plan_tier AND p.status = 'captured'
+      AND p.created_at = (SELECT MAX(created_at) FROM razorpay_payments WHERE user_id = s.user_id)
+    expect_count: 0
+    severity: CRITICAL</code></pre>
+
+      <div class="callout callout-amber">
+        <strong>Important:</strong> Invariant queries run against the PRODUCT database (jp, cc, etc.), NOT phronex_qa. This is the one controlled exception to the "all QA writes go to phronex_qa" rule. Invariant queries are READ-ONLY SELECTs &mdash; they never mutate product data. Connection strings come from product-specific env vars.
+      </div>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 86.4</h4>
+        <ul>
+          <li>&ge;5 invariant definitions in <code>invariants/jp_business_rules.yaml</code>.</li>
+          <li><code>python -m phronex_common.testing.invariant_runner --product jp</code> exits 0 when all invariants hold.</li>
+          <li>Results written to <code>qa_data_invariants</code> table (migration 0020).</li>
+          <li>Invariant violations appear in readiness report as data_integrity_score reduction.</li>
+        </ul>
+      </div>
+
+      <div class="dod-box">
+        <h4>Definition of Done &mdash; Phase 86 (combined)</h4>
+        <ul>
+          <li>Migrations 0018 + 0020 applied.</li>
+          <li>zod parse of a spec with <code>persistence</code> field succeeds. <code>bun check</code> passes. cc-test-runner binary rebuilt.</li>
+          <li>After 3 JP runs: <code>SELECT journey_id, classification FROM qa_confidence_scores WHERE product_slug='jp' LIMIT 5;</code> returns rows with STABLE/FLAKY/BROKEN.</li>
+          <li>Visual baselines stored: <code>SELECT count(*) FROM qa_evidence WHERE evidence_type='visual_baseline';</code> &ge;1.</li>
+          <li><code>python -m phronex_common.testing.invariant_runner --product jp</code> exits 0.</li>
+          <li>run-journeyhawk.sh Step 3b (data invariant check) present.</li>
+          <li>ruff check passes on all Python. bun check passes on all TypeScript.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="phase-87">
+      <h2>7. Phase 87 &mdash; Resilience &amp; Integration (~19h) <span class="badge badge-new">Closes G-07, G-08, G-10</span></h2>
+
+      <div class="callout callout-green">
+        <strong>Objective:</strong> Verify services work together (contracts, QA probes) and test what happens when users do unexpected or malicious things (adversarial payloads, auth boundaries, dirty state).
+        <strong>Dimension impact:</strong> Resilience 0&rarr;7/10, Cross-product safety 0&rarr;5/10
+      </div>
+
+      <h3>7.1 Task 87.1 &mdash; QA Probe Router Factory (3h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/qa_probe.py</span></p>
+      <p><strong>Pattern:</strong> Reusable FastAPI router factory in phronex-common, mounted in each product.</p>
+
+      <pre><code># phronex_common/testing/qa_probe.py
+
+def create_qa_probe_router(
+    event_table: str = "system_error_log",
+    audit_table: str | None = None,
+) -> APIRouter:
+    """Create a QA probe router. Mount in product app only when PHRONEX_QA_PROBE_ENABLED=true.
+
+    Returns a router with:
+      GET /api/v1/internal/qa-probe?request_id={uuid}
+        → { request_id, events_fired, services_called, db_writes, duration_ms }
+    """</code></pre>
+
+      <p><strong>Per-product mounting (3h each, 5 products = 15h total):</strong></p>
+      <table>
+        <tr><th>Product</th><th>File to modify</th><th>Event source</th><th>Effort</th></tr>
+        <tr><td>JP</td><td>src/jobportal/main.py</td><td>system_error_log + audit events</td><td>3h</td></tr>
+        <tr><td>CC</td><td>src/contentcompanion/main.py</td><td>system_error_log</td><td>3h</td></tr>
+        <tr><td>Portal</td><td>src/app/api/v1/internal/qa-probe/route.ts</td><td>Next.js API route, proxied to backends</td><td>3h</td></tr>
+        <tr><td>Praxis (backend)</td><td>src/praxis_backend/main.py</td><td>system_error_log</td><td>3h</td></tr>
+        <tr><td>Auth</td><td>src/phronex_auth/main.py</td><td>system_error_log</td><td>3h</td></tr>
+      </table>
+
+      <div class="callout callout-amber">
+        <strong>Note:</strong> QA probe endpoints must NEVER be enabled in production. The env var guard <code>PHRONEX_QA_PROBE_ENABLED=true</code> is only set in .qa.env on DevServer. The router returns 404 when disabled.
+      </div>
+
+      <h3>7.2 Task 87.2 &mdash; Contract Registry (4h)</h3>
+      <p><strong>New directory:</strong> <span class="file-ref">phronex_common/contracts/</span></p>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/contract_runner.py</span></p>
+
+      <pre><code># phronex_common/contracts/phronex_auth_jwt.yaml
+name: phronex_auth_jwt
+version: "1.0"
+producer: phronex-auth
+consumers: [jp, cc, portal, praxis, comc]
+schema:
+  type: JWT
+  required_claims: [sub, iss, exp, product_slug]
+  optional_claims: [tier, role, email, instance_id]
+  iss_must_be: "auth.phronex.com"
+test_method: "generate_token_from_producer_verify_on_all_consumers"</code></pre>
+
+      <p><strong>New table:</strong> <code>qa_contract_tests</code> (migration 0019)</p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 87.2</h4>
+        <ul>
+          <li>&ge;3 contract YAML files exist in <code>phronex_common/contracts/</code>.</li>
+          <li><code>python -m phronex_common.testing.contract_runner</code> exits 0 when all contracts pass.</li>
+          <li>Contract test results written to <code>qa_contract_tests</code>.</li>
+        </ul>
+      </div>
+
+      <h3>7.3 Task 87.3 &mdash; API Test Runner (4h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/api_test_runner.py</span></p>
+      <p>A lightweight HTTP test executor that makes direct API calls to product backends using session tokens captured by the tree executor's trunk logins. Does NOT use the browser.</p>
+
+      <pre><code># phronex_common/testing/api_test_runner.py
+
+@dataclass(frozen=True)
+class AdversarialResult:
+    endpoint: str
+    payload_type: str
+    payload_value: str
+    expected: str           # 'rejected' | 'sanitized' | 'truncated'
+    actual_status: int
+    actual_body_snippet: str
+    passed: bool
+    security_flags: list[str]  # ['stack_trace_in_response', 'raw_sql_in_error', '500_status']
+
+def run_adversarial_suite(
+    product_slug: str,
+    base_url: str,
+    auth_token: str,
+    *,
+    payload_library: Path | None = None,
+    db_url: str | None = None,
+) -> list[AdversarialResult]:
+    """Run adversarial payloads against all known endpoints."""</code></pre>
+
+      <h3>7.4 Task 87.4 &mdash; Adversarial Payload Library (3h)</h3>
+      <p><strong>New directory:</strong> <span class="file-ref">phronex_common/testing/payloads/</span></p>
+      <p><strong>Static payloads</strong> (deterministic, no LLM needed):</p>
+      <pre><code># phronex_common/testing/payloads/xss.yaml
+payloads:
+  - value: "&lt;script&gt;alert('xss')&lt;/script&gt;"
+    field_types: [text, textarea, name, title]
+    expect: sanitized
+
+  - value: "&lt;img src=x onerror=alert(1)&gt;"
+    field_types: [text, html]
+    expect: sanitized
+
+# phronex_common/testing/payloads/sql_injection.yaml
+# phronex_common/testing/payloads/format_abuse.yaml (oversized strings, unicode, null bytes)
+# phronex_common/testing/payloads/auth_boundary.yaml (IDOR, cross-tier access)</code></pre>
+
+      <p><strong>LLM-generated payloads:</strong> At cold start, Claude Haiku generates additional payloads per field type from the product's API schema. Successful payloads (that expose vulnerabilities) are promoted to the static library.</p>
+
+      <h3>7.5 Task 87.5 &mdash; Authorization Boundary Testing (3h)</h3>
+      <p><strong>Uses:</strong> API test runner + multi-account tree (4 JP trunks provide tokens for free/standard/pro/admin).</p>
+      <p><strong>Tests:</strong></p>
+      <ul>
+        <li>Cross-tier access: free-tier token calls pro-only endpoints → expect 403</li>
+        <li>IDOR: user A's token accesses user B's resources by ID → expect 403 or empty</li>
+        <li>Expired JWT: token past exp claim → expect 401</li>
+        <li>Missing claims: JWT without required claims → expect 401/422</li>
+      </ul>
+
+      <h3>7.6 Task 87.6 &mdash; Dirty-State Testing (2h)</h3>
+      <p><strong>New spec format field:</strong></p>
+      <pre><code>{
+  "dirty_state": [
+    { "scenario": "back_button_after_mutation", "trigger_after_step": "save-profile" },
+    { "scenario": "stale_session", "wait_seconds": 3600 },
+    { "scenario": "concurrent_edit", "fields": ["headline", "bio"] }
+  ]
+}</code></pre>
+      <p>Dirty-state scenarios are injected by the Claude Code agent as additional steps after the specified trigger step. Not automated programmatically — the agent interprets the scenario description and acts accordingly.</p>
+
+      <div class="dod-box">
+        <h4>Definition of Done &mdash; Phase 87 (combined)</h4>
+        <ul>
+          <li>Migrations 0019 + 0021 applied.</li>
+          <li>QA probe router mounted in JP and CC (2 products initially); <code>curl https://jobc.phronex.com/api/v1/internal/qa-probe</code> returns 404 when PHRONEX_QA_PROBE_ENABLED unset.</li>
+          <li>&ge;3 contract YAML files in <code>phronex_common/contracts/</code>. <code>python -m phronex_common.testing.contract_runner</code> exits 0.</li>
+          <li><code>python -m phronex_common.testing.api_test_runner --product jp --base-url https://jobc.phronex.com</code> exits 0.</li>
+          <li>&ge;20 payload YAML entries across xss.yaml, sql_injection.yaml, format_abuse.yaml.</li>
+          <li>Adversarial results written to <code>qa_adversarial_results</code> table.</li>
+          <li>Auth boundary tests cover cross-tier (3 tests), IDOR (2 tests), expired JWT (1 test).</li>
+          <li>No stack traces, raw SQL, or 500 statuses in any adversarial response.</li>
+          <li>Resilience dimension in readiness scorer reads from adversarial results.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="phase-88">
+      <h2>8. Phase 88 &mdash; Closed-Loop &amp; Predictive Intelligence (~19h) <span class="badge badge-new">Closes G-11, G-12, G-13, G-14, G-15, G-19</span></h2>
+
+      <div class="callout callout-purple">
+        <strong>Objective:</strong> Close the loop: defects found &rarr; prevention rules &rarr; lint checks &rarr; cross-product propagation &rarr; risk prediction. Finding bugs is 1x value. Preventing them from being created is 10x value.
+        <strong>LLM Bootstrap:</strong> With &lt;30 data points, statistical models are unreliable &mdash; LLM reads the diff and makes a judgment call. After 50+ merges with journey outcomes, the statistical model takes over.
+      </div>
+
+      <h3>8.1 Task 88.1 &mdash; Enhanced QA Context Hook (4h)</h3>
+      <p><strong>File:</strong> <span class="file-ref">phronex_common/testing/qa_context_hook.py</span></p>
+      <p><strong>Current:</strong> Returns flat list of defects + wiki articles. <strong>Enhanced:</strong> Returns risk-informed planning context with:</p>
+      <ul>
+        <li><strong>Risk score per code area:</strong> Query <code>qa_defect_rca</code> grouped by file path prefix. Output: <code>subscription/: 0.40 defects/change, avg 3.2 runs to stabilize</code></li>
+        <li><strong>Required test coverage:</strong> For the phase's affected files, list which journey specs must exist/pass.</li>
+        <li><strong>Sprint estimation multiplier:</strong> Based on historical defect rate for the code area: <code>risk_multiplier = 1.0 + (defect_rate * 2.5)</code></li>
+        <li><strong>Anti-pattern injection:</strong> Specific code patterns to avoid, with evidence from past defects.</li>
+      </ul>
+
+      <p><strong>New table:</strong> <code>qa_velocity_metrics</code> (migration 0022)</p>
+      <pre><code>CREATE TABLE qa_velocity_metrics (
+    metric_id       SERIAL PRIMARY KEY,
+    product_slug    TEXT NOT NULL,
+    code_area       TEXT NOT NULL,     -- file path prefix, e.g. 'subscription/', 'profile/'
+    total_changes   INT DEFAULT 0,
+    total_defects   INT DEFAULT 0,
+    defect_rate     FLOAT,             -- defects / changes
+    avg_runs_to_stable INT,            -- average runs until journey stops failing
+    last_updated    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE(product_slug, code_area)
+);</code></pre>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 88.1</h4>
+        <ul>
+          <li><code>python -m phronex_common.testing.qa_context_hook jp</code> output includes "### Risk Scores by Code Area" section with numeric defect_rate values.</li>
+          <li>GSD planner prompt includes risk-adjusted estimation multiplier.</li>
+          <li><code>qa_velocity_metrics</code> populated after next run.</li>
+        </ul>
+      </div>
+
+      <h3>8.2 Task 88.2 &mdash; Defect &rarr; Prevention Rule &rarr; Lint Check Generator (6h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/rule_generator.py</span></p>
+      <p><strong>New table:</strong> <code>qa_prevention_rules</code> (migration 0023)</p>
+
+      <pre><code>CREATE TABLE qa_prevention_rules (
+    rule_id         SERIAL PRIMARY KEY,
+    product_slug    TEXT NOT NULL,
+    source_defect_id INT REFERENCES qa_known_defects(defect_id),
+    source_wiki_id  INT,
+
+    -- Rule definition
+    rule_type       TEXT NOT NULL,      -- 'ruff_custom' | 'grep_pattern' | 'ast_check' | 'architecture'
+    pattern_signature TEXT NOT NULL,    -- the antipattern to detect (grep pattern or AST node description)
+    replacement     TEXT,               -- the correct pattern
+    severity        TEXT DEFAULT 'WARNING',
+
+    -- Lifecycle
+    status          TEXT NOT NULL DEFAULT 'draft',  -- 'draft' | 'active' | 'retired'
+    confidence      FLOAT DEFAULT 0.50,
+    confirmed_count INT DEFAULT 0,      -- how many times this rule prevented a defect
+    false_positive_count INT DEFAULT 0,
+
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    activated_at    TIMESTAMPTZ,
+    retired_at      TIMESTAMPTZ
+);</code></pre>
+
+      <p><strong>Pipeline:</strong></p>
+      <ol>
+        <li><strong>Defect found</strong> → RCA classifies root cause → wiki article created (confidence 0.50)</li>
+        <li><strong>Prevention rule synthesized</strong> → LLM reads defect + fix diff + wiki article → generates grep pattern or AST check (status=draft)</li>
+        <li><strong>Cross-product confirmation</strong> → same pattern found in another product → confidence += 0.15</li>
+        <li><strong>Rule activation</strong> → confidence &ge; 0.75 AND confirmed_count &ge; 2 → status=active</li>
+        <li><strong>Grep enforcement</strong> → active rules with rule_type='grep_pattern' are checked by a pre-commit hook / CI step</li>
+        <li><strong>Retirement</strong> → false_positive_count &gt; confirmed_count → status=retired</li>
+      </ol>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 88.2</h4>
+        <ul>
+          <li>After a run with defects: <code>SELECT count(*) FROM qa_prevention_rules WHERE status='draft';</code> returns &ge;1.</li>
+          <li>Each rule has a non-empty <code>pattern_signature</code> (grep-able string).</li>
+          <li><code>python -m phronex_common.testing.rule_generator check --product jp</code> runs all active rules against the JP codebase and reports matches.</li>
+        </ul>
+      </div>
+
+      <h3>8.3 Task 88.3 &mdash; Cross-Product Propagation Engine (4h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/propagation_engine.py</span></p>
+      <p><strong>New table:</strong> <code>qa_propagation_alerts</code> (migration 0024)</p>
+
+      <pre><code>CREATE TABLE qa_propagation_alerts (
+    alert_id        SERIAL PRIMARY KEY,
+    source_defect_id INT NOT NULL,
+    source_product  TEXT NOT NULL,
+    target_product  TEXT NOT NULL,
+    pattern_signature TEXT NOT NULL,
+    match_file      TEXT,               -- file in target product where pattern was found
+    match_line      INT,
+    status          TEXT DEFAULT 'open', -- 'open' | 'fixed' | 'false_positive'
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    resolved_at     TIMESTAMPTZ
+);</code></pre>
+
+      <p><strong>Flow:</strong> After each run's RCA step, for each new defect with a <code>pattern_signature</code> in <code>qa_defect_rca</code>: grep all other product repos for the same pattern. If found, insert a propagation alert. The next <code>qa_context_hook</code> call for the target product surfaces the alert.</p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 88.3</h4>
+        <ul>
+          <li>After a JP defect with <code>pattern_signature='await file.read()'</code>: grep finds the same pattern in CC → <code>qa_propagation_alerts</code> has a row with target_product='cc'.</li>
+          <li><code>python -m phronex_common.testing.qa_context_hook cc</code> output includes "### Cross-Product Propagation Alerts" with the alert.</li>
+        </ul>
+      </div>
+
+      <h3>8.4 Task 88.4 &mdash; PR Merge Gate (4h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">.github/workflows/qa-gate.yml</span> (per product repo)</p>
+
+      <pre><code># .github/workflows/qa-gate.yml (template — copy to each product repo)
+name: QA Gate
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  qa-gate:
+    runs-on: [self-hosted, devserver]  # Runs on DevServer, not EC2
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Identify affected journeys
+        run: |
+          # Parse changed files from PR diff
+          # Map to journey specs via route→journey index
+          # If no journeys affected: skip
+      - name: Run affected journeys
+        run: |
+          cd ~/code/phronex-test-runner
+          ./run-journeyhawk.sh $PRODUCT $SPEC_FILE \
+            --strategist-mode=ACTIVE
+      - name: Check results
+        run: |
+          # Parse qa_journey_verdicts for affected journeys
+          # FAIL if any verdict is FAIL_ORACLE</code></pre>
+
+      <div class="callout callout-amber">
+        <strong>Constraint:</strong> GitHub Actions free minutes are exhausted. This workflow must run on DevServer (self-hosted runner) — not GitHub-hosted. Install: <code>./config.sh --url https://github.com/PhronexSolutions/{repo} --token {token}</code>
+      </div>
+
+      <h3>8.5 Task 88.5 &mdash; Architecture Feedback Report (2h)</h3>
+      <p><strong>New file:</strong> <span class="file-ref">phronex_common/testing/architecture_feedback.py</span></p>
+      <p>Quarterly aggregation of defect patterns → architecture recommendations. Reads from <code>qa_defect_rca</code>, <code>qa_prevention_rules</code>, <code>qa_velocity_metrics</code>. Outputs a structured report identifying systemic defect classes with ROI calculations for architecture fixes.</p>
+
+      <h3>8.6 Task 88.6 &mdash; Commit-to-Journey Mapping + Predictive Risk Scorer (4h)</h3>
+      <p><strong>New files:</strong> <span class="file-ref">phronex_common/testing/risk_mapper.py</span>, <span class="file-ref">phronex_common/testing/risk_scorer.py</span></p>
+      <p><strong>Risk mapper builds an index:</strong> file path &rarr; journey IDs that exercise that file. Sources: journey spec step URLs &rarr; route handler files, journey descriptions &rarr; feature areas, historical: <code>qa_defect_rca.affected_file</code> &rarr; <code>qa_journey_verdicts.journey_id</code>.</p>
+      <p><strong>Risk scorer formula:</strong> <code>P(break) = base_rate &times; area_multiplier &times; change_size_factor</code> where <code>change_size_factor = 1.0 + log2(lines_changed / 50)</code>.</p>
+
+      <h3>8.7 Task 88.7 &mdash; Flakiness Quarantine (1h)</h3>
+      <p>Journeys classified as FLAKY in <code>qa_confidence_scores</code> are quarantined: they still run, but their failures don't block the PR merge gate or reduce the composite readiness score. Instead, they are flagged for investigation.</p>
+
+      <div class="dod-box">
+        <h4>Definition of Done &mdash; Phase 88 (combined)</h4>
+        <ul>
+          <li>Migrations 0022 + 0023 + 0024 applied.</li>
+          <li><code>python -m phronex_common.testing.qa_context_hook jp</code> output includes "### Risk Scores by Code Area" with numeric defect_rate values.</li>
+          <li>After a run with defects: <code>SELECT count(*) FROM qa_prevention_rules WHERE status='draft';</code> returns &ge;1.</li>
+          <li>Cross-product propagation: JP defect with <code>pattern_signature</code> &rarr; grep finds match in CC &rarr; <code>qa_propagation_alerts</code> has target_product='cc' row.</li>
+          <li>PR merge gate template (qa-gate.yml) exists and is documented. Runs on DevServer self-hosted runner.</li>
+          <li><code>python -m phronex_common.testing.risk_scorer --product jp --diff HEAD~1</code> outputs ranked journey list with risk scores.</li>
+          <li>Flaky journeys quarantined: not counted in PR gate, flagged in readiness report.</li>
+          <li><code>qa_velocity_metrics</code> populated after run.</li>
+          <li>Architecture feedback report generator produces ROI-ranked recommendations.</li>
+          <li>ruff check passes on all new files.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="migrations">
+      <h2>9. Migration Plan</h2>
+
+      <p>All migrations are additive (CREATE TABLE or ALTER TABLE ADD COLUMN). No destructive changes. Each migration is idempotent-safe (CREATE TABLE IF NOT EXISTS or existence-checking upgrade logic).</p>
+
+      <table>
+        <tr><th>Migration</th><th>Table</th><th>Phase</th><th>Dependencies</th></tr>
+        <tr><td>0015_qa_test_resources.py</td><td>qa_test_resources</td><td>84</td><td>None</td></tr>
+        <tr><td>0016_qa_feature_coverage.py</td><td>qa_feature_coverage</td><td>85</td><td>None</td></tr>
+        <tr><td>0017_qa_readiness_reports.py</td><td>qa_readiness_reports</td><td>85</td><td>0016</td></tr>
+        <tr><td>0018_qa_confidence_scores.py</td><td>qa_confidence_scores</td><td>86</td><td>None</td></tr>
+        <tr><td>0019_qa_contract_tests.py</td><td>qa_contract_tests</td><td>87</td><td>None</td></tr>
+        <tr><td>0020_qa_data_invariants.py</td><td>qa_data_invariants</td><td>86</td><td>None</td></tr>
+        <tr><td>0021_qa_adversarial_results.py</td><td>qa_adversarial_results</td><td>87</td><td>None</td></tr>
+        <tr><td>0022_qa_velocity_metrics.py</td><td>qa_velocity_metrics</td><td>88</td><td>None</td></tr>
+        <tr><td>0023_qa_prevention_rules.py</td><td>qa_prevention_rules</td><td>88</td><td>None</td></tr>
+        <tr><td>0024_qa_propagation_alerts.py</td><td>qa_propagation_alerts</td><td>88</td><td>None</td></tr>
+      </table>
+
+      <p><strong>Migration chain:</strong> Current head is 0014. After all phases: head will be 0024. 10 new migrations, all additive.</p>
+
+      <div class="callout callout-amber">
+        <strong>Alembic rule:</strong> <code>alembic heads</code> must return exactly 1 line before every commit. If two phases develop in parallel, use <code>alembic merge</code> to create a merge migration.
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="pipeline-wiring">
+      <h2>10. Pipeline Wiring &mdash; Integration Map</h2>
+
+      <p>This section maps exactly where each new component plugs into the existing pipeline. No orphan modules.</p>
+
+      <h3>10.1 run-journeyhawk.sh Changes</h3>
+      <pre><code>Step 0    Pre-run cleanup (existing)
+Step 0b   DocChain stage gate (existing)
+<strong>Step 0c   Resource verification (NEW &mdash; Phase 84)</strong>
+<strong>Step 0d   Depth scoring + SMOKE rejection (NEW &mdash; Phase 85)</strong>
+Step 1a   FixtureGuard pre-filter (existing — MODIFIED to read qa_test_resources)
+Step 1a2  Pre-run strategist signals (existing)
+Step 1b   WikiMutations (existing)
+Step 1    cc-test-runner via RunArbiter (existing)
+Step 2    Intelligence pipeline (existing — MODIFIED, see below)
+Step 3    CycleCloseGate (existing)
+<strong>Step 3b   Data invariant check (NEW &mdash; Phase 86)</strong></code></pre>
+
+      <h3>10.2 runner.py Pipeline Changes</h3>
+      <pre><code>def run_pipeline(product_slug, results_dir, spec_file, db_url, ...):
+    # Existing steps (unchanged):
+    ctrf = load_ctrf(results_dir)
+    _apply_step_outcomes_to_ctrf(ctrf, results_dir)
+    _collect_evidence(conn, ctrf, results_dir)
+    gaps = _detect_gaps(ctrf)
+    defects_written = _detect_gaps_and_upsert(conn, gaps, product_slug, ...)  # includes RCA
+
+    # Phase 82 seam — existing strategist steps:
+    _phase82_seam(conn, ...)  # ValidationAuditor, UXObserver, FeedbackConsolidator, strategy state
+
+    # NEW steps (wired in Phase B-G):
+    <strong>_update_feature_coverage(conn, product_slug, spec_file, docs_dir)      # Phase 85</strong>
+    <strong>_update_confidence_scores(conn, product_slug, ctrf)                     # Phase 86</strong>
+    <strong>_check_visual_regression(conn, product_slug, results_dir)               # Phase 86</strong>
+    <strong>_run_propagation_check(conn, product_slug, defects_written)             # Phase 88</strong>
+    <strong>_update_velocity_metrics(conn, product_slug, defects_written)           # Phase 88</strong>
+    <strong>_generate_prevention_rules(conn, product_slug, defects_written)         # Phase 88</strong>
+    <strong>_compute_readiness_score(conn, product_slug)                            # Phase 85</strong>
+
+    # Existing steps:
+    _store_docchain(conn, product_slug, docs_dir)
+    _write_run_archive(conn, product_slug, ...)  # FIX: actually write to qa_journeys
+    conn.close()
+    return defects_written</code></pre>
+
+      <h3>10.3 New Module File Map</h3>
+      <table>
+        <tr><th>Module</th><th>Phase</th><th>Called from</th><th>Writes to</th></tr>
+        <tr><td><code>testing/resources/providers.py</code></td><td>84</td><td>run-journeyhawk.sh Step 0c</td><td>qa_test_resources</td></tr>
+        <tr><td><code>testing/resources/verify.py</code></td><td>84</td><td>run-journeyhawk.sh Step 0c</td><td>resource-verification.json</td></tr>
+        <tr><td><code>testing/coverage_analyzer.py</code></td><td>85</td><td>runner.py _update_feature_coverage</td><td>qa_feature_coverage</td></tr>
+        <tr><td><code>testing/depth_scorer.py</code></td><td>85</td><td>run-journeyhawk.sh Step 0d</td><td>stdout (filtered spec)</td></tr>
+        <tr><td><code>testing/readiness_scorer.py</code></td><td>85</td><td>runner.py _compute_readiness_score</td><td>qa_readiness_reports</td></tr>
+        <tr><td><code>testing/spec_generator.py</code></td><td>85</td><td>CLI (standalone)</td><td>qa_proposed_heuristics</td></tr>
+        <tr><td><code>testing/confidence_scorer.py</code></td><td>86</td><td>runner.py _update_confidence_scores</td><td>qa_confidence_scores</td></tr>
+        <tr><td><code>testing/visual_regression.py</code></td><td>86</td><td>runner.py _check_visual_regression</td><td>qa_evidence</td></tr>
+        <tr><td><code>testing/invariant_runner.py</code></td><td>86</td><td>run-journeyhawk.sh Step 3b</td><td>qa_data_invariants</td></tr>
+        <tr><td><code>testing/qa_probe.py</code></td><td>87</td><td>Product app mounts</td><td>HTTP response (no DB)</td></tr>
+        <tr><td><code>testing/contract_runner.py</code></td><td>87</td><td>CI / standalone</td><td>qa_contract_tests</td></tr>
+        <tr><td><code>testing/api_test_runner.py</code></td><td>87</td><td>Standalone / CI</td><td>qa_adversarial_results</td></tr>
+        <tr><td><code>testing/payloads/*.yaml</code></td><td>87</td><td>api_test_runner.py</td><td>&mdash;</td></tr>
+        <tr><td><code>testing/rule_generator.py</code></td><td>88</td><td>runner.py _generate_prevention_rules</td><td>qa_prevention_rules</td></tr>
+        <tr><td><code>testing/propagation_engine.py</code></td><td>88</td><td>runner.py _run_propagation_check</td><td>qa_propagation_alerts</td></tr>
+        <tr><td><code>testing/velocity_tracker.py</code></td><td>88</td><td>runner.py _update_velocity_metrics</td><td>qa_velocity_metrics</td></tr>
+        <tr><td><code>testing/architecture_feedback.py</code></td><td>88</td><td>CLI (quarterly)</td><td>stdout (report)</td></tr>
+        <tr><td><code>testing/risk_mapper.py</code></td><td>88</td><td>risk_scorer.py</td><td>&mdash;</td></tr>
+        <tr><td><code>testing/risk_scorer.py</code></td><td>88</td><td>PR gate / standalone</td><td>&mdash;</td></tr>
+      </table>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="risk-register">
+      <h2>11. Risk Register &amp; Execution Order</h2>
+
+      <h3>11.1 Execution Sequence</h3>
+      <div class="callout callout-blue">
+        <strong>Single milestone: v20.0 &mdash; Product Quality Intelligence Platform</strong><br>
+        <strong>Phase 84:</strong> Resource Accumulation + Foundations (10h) &mdash; prerequisites for everything<br>
+        <strong>Phase 85:</strong> Validation &amp; Coverage Intelligence (13h) &mdash; "was the right thing built?"<br>
+        <strong>Phase 86:</strong> Test Deepening &amp; Confidence (14h) &mdash; persistence, flakiness, invariants<br>
+        <strong>Phase 87:</strong> Resilience &amp; Integration (19h) &mdash; adversarial + service contracts<br>
+        <strong>Phase 88:</strong> Closed-Loop &amp; Predictive (19h) &mdash; prevention rules + risk prediction<br>
+        <strong>Total: ~75h</strong>
+      </div>
+
+      <h3>11.2 Dependency Graph</h3>
+      <pre><code>Phase 84 (Resources) ──→ Phase 85 (Validation) ──→ Phase 86 (Deepening)
+                                                            │
+                                                            ▼
+                                                  Phase 87 (Resilience)
+                                                            │
+                                                            ▼
+                                                  Phase 88 (Closed-Loop + Predictive)
+
+Key dependencies:
+  84 → 85:  Resource verification + qa_journeys fix must work before coverage analyzer runs
+  85 → 86:  qa_feature_coverage feeds into confidence scoring context; depth scorer filters specs
+  86 → 87:  Confidence scores inform which journeys are trustworthy for contract testing
+  87 → 88:  Defect data from resilience testing feeds prevention rules + risk prediction</code></pre>
+
+      <h3>11.3 Risk Register</h3>
+      <table>
+        <tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr>
+        <tr><td>USER-SPEC.html format varies across products — parser breaks on non-JP products</td><td>HIGH</td><td>Coverage analyzer returns 0 features</td><td>Parse defensively. Support both &lt;h2&gt;/&lt;h3&gt; and &lt;li&gt; patterns. Fall back to LLM extraction. Test on all 6 product specs before shipping.</td></tr>
+        <tr><td>QA probe endpoint on EC2 accidentally left enabled</td><td>MEDIUM</td><td>Exposes internal event data to authenticated users</td><td>Router returns 404 when PHRONEX_QA_PROBE_ENABLED unset. Double-guard: admin JWT required even when enabled. CI check: grep .env files for the var.</td></tr>
+        <tr><td>LLM cost exceeds budget on spec generation across all products</td><td>LOW</td><td>$50+ in LLM calls per run</td><td>Budget cap per invocation ($2 for spec gen, $0.50 for coverage analyzer). Use Haiku for classification, Sonnet only for generation. Deterministic depth scorer has zero LLM cost.</td></tr>
+        <tr><td>Product DB invariant queries too slow on large tables</td><td>LOW</td><td>Pipeline hangs during invariant check</td><td>All invariant queries must have EXPLAIN ANALYZE &lt; 5s. Add timeout_ms to connection. Skip invariant check if previous run was &lt;1h ago (debounce).</td></tr>
+        <tr><td>PR merge gate blocks legitimate merges due to flaky journeys</td><td>MEDIUM</td><td>Developer frustration; gate gets disabled</td><td>Flaky quarantine (Phase G.3): journeys with confidence_lower &lt; 0.80 are advisory-only in the gate. Gate only hard-blocks on STABLE + FAIL.</td></tr>
+        <tr><td>GSD planner strips DoD requirements to "code compiles"</td><td>HIGH</td><td>Features ship without verification</td><td>Every phase DoD includes a DB query that returns specific row counts. Verification is "run this SQL and confirm the number." Can't be stripped without losing the query.</td></tr>
+        <tr><td>Test account passwords rotated on EC2 without .qa.env update</td><td>MEDIUM</td><td>All trunk logins fail; entire run tree collapses</td><td>Phase R resource verification catches this pre-run. Resource status set to 'expired' with fix instructions.</td></tr>
+      </table>
+
+      <h3>11.4 Invariants (Non-Negotiable Across All Phases)</h3>
+      <ul>
+        <li><strong>G5:</strong> Zero SQLAlchemy/asyncpg imports in phronex-common. All DB access via raw psycopg2.</li>
+        <li><strong>Fail-safe:</strong> Every new pipeline step is wrapped in try/except. A broken component never crashes the pipeline. The run continues; the dimension score is NULL.</li>
+        <li><strong>phronex_qa only:</strong> All QA writes go to phronex_qa database. Product DB access is READ-ONLY (invariant checks only).</li>
+        <li><strong>Alembic head = 1:</strong> Before every commit. No branches in migration chain.</li>
+        <li><strong>Budget cap:</strong> Max $5/run total LLM spend. Exceeded → skip LLM-dependent components.</li>
+        <li><strong>Backward compatible:</strong> All new spec fields are optional. Existing specs run unchanged.</li>
+        <li><strong>ruff clean:</strong> <code>ruff check --fix src/ tests/</code> passes on every Python file change.</li>
+      </ul>
+
+      <h3>11.5 LLM Retirement Triggers (from PQIP-ARCHITECTURE.html &sect;6)</h3>
+      <table>
+        <tr><th>Component</th><th>LLM Role</th><th>Retirement Trigger</th><th>Phase</th></tr>
+        <tr><td>RCA Engine</td><td>Classify defects when heuristics miss</td><td>Heuristic hit rate &gt;90%</td><td>Existing (v18.0)</td></tr>
+        <tr><td>Coverage Analyzer</td><td>Extract features from USER-SPEC prose</td><td>Template covers all section formats</td><td>85</td></tr>
+        <tr><td>Spec Generator</td><td>Draft journey specs from feature descriptions</td><td>30+ approved specs with &lt;20% edit rate</td><td>85</td></tr>
+        <tr><td>Adversarial Payloads</td><td>Generate payloads per field type</td><td>Library covers 95%+ of field types</td><td>87</td></tr>
+        <tr><td>Prevention Rules</td><td>Synthesize defect &rarr; grep pattern</td><td>WikiStore confidence &gt;0.80</td><td>88</td></tr>
+        <tr><td>Readiness Narrative</td><td>CEO-readable summary from scores</td><td>Never fully retired (narrative quality)</td><td>85</td></tr>
+        <tr><td>Risk Scoring</td><td>Predict from diff when data sparse</td><td>50+ data points per code area</td><td>88</td></tr>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    PQIP Implementation Specification v2.0 (consolidated) &middot; 2026-05-03 &middot; Phronex Solutions &middot;
+    Companion to PQIP-ARCHITECTURE.html (vision document) &middot;
+    v20.0 milestone: 5 phases (84-88), ~75h total &middot;
+    Next: Phase 84 implementation via <code>/gsd:plan-phase 84</code>
+  </footer>
+
+</body>
+</html>

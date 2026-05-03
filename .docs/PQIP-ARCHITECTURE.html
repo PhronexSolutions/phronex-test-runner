@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PQIP — Product Quality Intelligence Platform Architecture</title>
+  <style>
+    :root { --navy: #0f1b2d; --off-white: #f5f4f0; --accent: #4f8ef7; --muted: #6b7280; --border: #e5e7eb; --code-bg: #1e293b; --green: #059669; --amber: #d97706; --red: #dc2626; --purple: #7c3aed; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--off-white); color: #1a202c; line-height: 1.7; }
+    .doc-header { background: var(--navy); color: white; padding: 2.5rem 3rem; }
+    .doc-header h1 { font-size: 1.75rem; font-weight: 700; }
+    .doc-header .subtitle { font-size: 1.1rem; color: #94a3b8; margin-top: 0.3rem; font-weight: 400; }
+    .doc-header .meta { color: #64748b; font-size: 0.85rem; margin-top: 0.75rem; }
+    .status-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-left: 0.75rem; }
+    .status-draft { background: #fbbf24; color: #1a202c; }
+    .status-vision { background: #a78bfa; color: white; }
+    nav { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 3rem; position: sticky; top: 0; z-index: 10; overflow-x: auto; white-space: nowrap; }
+    nav a { color: var(--accent); text-decoration: none; font-size: 0.8rem; margin-right: 1.25rem; }
+    nav a:hover { text-decoration: underline; }
+    main { max-width: 1020px; margin: 0 auto; padding: 2rem 3rem 4rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.35rem; font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1.25rem; margin-top: 2.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; color: #374151; margin: 1.5rem 0 0.75rem; }
+    h4 { font-size: 0.95rem; font-weight: 600; color: #4b5563; margin: 1rem 0 0.5rem; }
+    p { margin-bottom: 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.35rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.88rem; }
+    th { background: var(--navy); color: white; padding: 0.6rem 0.9rem; text-align: left; font-weight: 600; }
+    td { padding: 0.5rem 0.9rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: #f9fafb; }
+    code { background: var(--code-bg); color: #e2e8f0; padding: 0.15rem 0.4rem; border-radius: 3px; font-family: 'Menlo', 'Consolas', monospace; font-size: 0.85em; }
+    pre { background: var(--code-bg); color: #e2e8f0; padding: 1.25rem 1.5rem; border-radius: 6px; overflow-x: auto; margin: 1rem 0 1.5rem; font-size: 0.82rem; line-height: 1.55; }
+    pre code { background: none; padding: 0; }
+    .audience-note { background: #f0f9ff; border-left: 4px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; color: #0369a1; margin-bottom: 1.25rem; }
+    .warning-banner { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; color: #92400e; margin-bottom: 1.25rem; }
+    .principle-box { background: #f0fdf4; border-left: 4px solid var(--green); padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; color: #065f46; margin-bottom: 1.25rem; }
+    .llm-note { background: #faf5ff; border-left: 4px solid var(--purple); padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; color: #5b21b6; margin-bottom: 1.25rem; }
+    .fact-chip { display: inline-block; background: #ecfdf5; color: #065f46; font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 600; margin-right: 0.5rem; margin-bottom: 0.25rem; }
+    .chip-amber { background: #fffbeb; color: #92400e; }
+    .chip-blue { background: #eff6ff; color: #1e40af; }
+    .chip-purple { background: #faf5ff; color: #6b21a8; }
+    .layer-header { display: flex; align-items: center; gap: 0.75rem; margin: 1.5rem 0 0.75rem; }
+    .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 50%; color: white; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+    .l1 { background: var(--red); }
+    .l2 { background: var(--amber); }
+    .l3 { background: var(--accent); }
+    .l4 { background: var(--green); }
+    .l5 { background: var(--purple); }
+    .score-grid { display: grid; grid-template-columns: 1fr 80px 80px 80px; gap: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 1rem 0 1.5rem; font-size: 0.85rem; }
+    .score-grid .sg-header { background: var(--navy); color: white; padding: 0.5rem 0.75rem; font-weight: 600; }
+    .score-grid .sg-cell { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .score-grid .sg-cell:nth-child(8n+5), .score-grid .sg-cell:nth-child(8n+6), .score-grid .sg-cell:nth-child(8n+7), .score-grid .sg-cell:nth-child(8n+8) { background: #f9fafb; }
+    .score-low { color: var(--red); font-weight: 600; }
+    .score-mid { color: var(--amber); font-weight: 600; }
+    .score-high { color: var(--green); font-weight: 600; }
+    .phase-timeline { border-left: 3px solid var(--accent); margin: 1rem 0 1.5rem 1rem; padding-left: 1.5rem; }
+    .phase-item { position: relative; margin-bottom: 1.25rem; }
+    .phase-item::before { content: ''; position: absolute; left: -1.85rem; top: 0.4rem; width: 0.75rem; height: 0.75rem; border-radius: 50%; background: var(--accent); }
+    .phase-item.done::before { background: var(--green); }
+    .phase-item .phase-title { font-weight: 600; color: var(--navy); }
+    .phase-item .phase-meta { font-size: 0.8rem; color: var(--muted); }
+    .diagram-box { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+    .diagram-box pre { background: #f8fafc; color: #334155; border: 1px solid var(--border); margin: 0; }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+  </style>
+</head>
+<body>
+
+  <div class="doc-header">
+    <h1>PQIP — Product Quality Intelligence Platform <span class="status-badge status-vision">VISION</span></h1>
+    <div class="subtitle">From "Did the tests pass?" to "Is the product ready?"</div>
+    <div class="meta">
+      Architecture v1.0 · 2026-05-03 · Owner: Vivek Parmar (Phronex Solutions) ·
+      Status: Architecture vision — Layers 2 &amp; partial Layer 4 implemented (v18.0 milestone) ·
+      Scope: phronex-test-runner + phronex-common/testing/* · Total build estimate: ~80 hours
+    </div>
+  </div>
+
+  <nav>
+    <a href="#manifesto">Manifesto</a>
+    <a href="#current-state">Current State</a>
+    <a href="#four-layers">Four Test Layers</a>
+    <a href="#closed-loop">Closed-Loop Feedback</a>
+    <a href="#knowledge-compounding">Knowledge Compounding</a>
+    <a href="#llm-bootstrap">LLM Bootstrap Strategy</a>
+    <a href="#peripheral-systems">Peripheral Systems</a>
+    <a href="#spec-format">Spec Format v2</a>
+    <a href="#data-model">Data Model</a>
+    <a href="#scoring">Scoring &amp; Readiness</a>
+    <a href="#implementation-plan">Implementation Plan</a>
+    <a href="#appendix-glossary">Glossary</a>
+  </nav>
+
+  <main>
+
+    <!-- ================================================================ -->
+    <section id="manifesto">
+      <h2>1. Manifesto</h2>
+
+      <div class="principle-box">
+        <strong>Core conviction:</strong> The GUI is a medium, not the end goal. Testing whether a page renders is smoke testing.
+        Product quality testing means verifying that the user's intent — apply for a job, save a document, change a subscription —
+        actually succeeds end-to-end: data persists, events fire, downstream systems update, error paths recover gracefully.
+      </div>
+
+      <h3>1.1 What This System Is</h3>
+      <p>PQIP is a <strong>Product Quality Intelligence Platform</strong> — not a test framework, not a CI/CD gate, not an automation harness.
+        It answers three questions that no existing tool answers together:</p>
+      <ol>
+        <li><strong>"Is the product ready?"</strong> — composite readiness score across verification, validation, resilience, data integrity, and cross-product safety.</li>
+        <li><strong>"What will break next?"</strong> — predictive risk scoring from historical defect patterns, code change velocity, and flakiness analysis.</li>
+        <li><strong>"How do we stop making the same mistakes?"</strong> — closed-loop feedback from test results back into planning, linting, architecture, and sprint estimation.</li>
+      </ol>
+
+      <h3>1.2 Design Principles</h3>
+      <table>
+        <tr><th>Principle</th><th>Implication</th></tr>
+        <tr><td>Test outcomes, not interfaces</td><td>Every journey must verify a state change, not just a page render. "Button exists" is not a test — "button click caused the expected mutation" is.</td></tr>
+        <tr><td>Knowledge must compound</td><td>Every defect found must make the system permanently immune to that defect class. Defects → prevention rules → lint checks → architecture fixes.</td></tr>
+        <tr><td>LLM-assisted cold start</td><td>When historical data is thin, LLM expertise fills the gap — generating specs, classifying defects, predicting risk. As data accumulates, deterministic heuristics replace LLM calls.</td></tr>
+        <tr><td>Fail-safe by default</td><td>Every subsystem fails gracefully. A broken test layer never crashes the pipeline. DB unreachable → skip writes, not crash. LLM unavailable → fall back to heuristics.</td></tr>
+        <tr><td>Cross-product by design</td><td>Lessons from one product propagate to all products. A bug found in JP is a warning for CC, not just a JP defect.</td></tr>
+        <tr><td>Business-readable output</td><td>Every report must be understandable by a CEO. Technical details live in the detail layer; the summary is narrative-driven.</td></tr>
+      </table>
+
+      <h3>1.3 What This System Is NOT</h3>
+      <ul>
+        <li><strong>Not a unit test framework.</strong> pytest handles that. PQIP tests product behaviour, not function correctness.</li>
+        <li><strong>Not a CI/CD pipeline.</strong> GitHub Actions handles that. PQIP runs post-deploy (and pre-merge for affected journeys).</li>
+        <li><strong>Not a monitoring system.</strong> PQIP is active testing (runs journeys), not passive monitoring (watches metrics). The UXObserver bridges both.</li>
+        <li><strong>Not a performance testing tool.</strong> Load testing, concurrent user simulation, and latency benchmarking are out of scope for v1.</li>
+      </ul>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="current-state">
+      <h2>2. Current State (v18.0 — What's Built)</h2>
+
+      <div class="fact-chip">Layer 2 — Behavioral</div>
+      <div class="fact-chip chip-amber">Layer 4 — Partial</div>
+      <div class="fact-chip chip-blue">6 runs completed</div>
+      <div class="fact-chip">23/23 verification items green</div>
+
+      <h3>2.1 Implemented Components</h3>
+      <table>
+        <tr><th>Component</th><th>Module</th><th>Status</th></tr>
+        <tr><td>Tree journey executor</td><td><code>cli/src/index.ts</code></td><td>Shipped — 26-node dependency tree with topo sort</td></tr>
+        <tr><td>Browser state injection</td><td><code>cli/src/prompts/start-test.ts</code></td><td>Shipped — <code>--storage-state</code> / <code>--save-session</code></td></tr>
+        <tr><td>Intelligence pipeline</td><td><code>phronex_common.testing.runner</code></td><td>Shipped — CTRF → evidence → gaps → defects → RCA</td></tr>
+        <tr><td>ValidationAuditor</td><td><code>strategist/validation_auditor.py</code></td><td>Shipped — TEST-ORACLES.html → PASS/FAIL/NO_ORACLE</td></tr>
+        <tr><td>UXObserver</td><td><code>strategist/ux_observer.py</code></td><td>Shipped — 6 fatigue metrics to qa_ux_signals</td></tr>
+        <tr><td>RCAEngine</td><td><code>testing/rca/engine.py</code></td><td>Shipped — deterministic heuristics + LLM fallback</td></tr>
+        <tr><td>FeedbackConsolidator</td><td><code>strategist/feedback_consolidator.py</code></td><td>Shipped — 5 sinks, two-phase commit, rate guards</td></tr>
+        <tr><td>CycleCloseGate</td><td><code>strategist/cycle_gate.py</code></td><td>Shipped — blocks cycle closure until quality met</td></tr>
+        <tr><td>Strategy state machine</td><td><code>strategist/post_run.py</code></td><td>Shipped — COLD_START → EXPAND → FOCUS → MAINTAIN</td></tr>
+        <tr><td>Run filter (A/B/C)</td><td><code>testing/run_filter.py</code></td><td>Shipped — skip passed journeys, re-run broken fixes</td></tr>
+        <tr><td>DocChain integration</td><td><code>testing/docchain.py</code></td><td>Shipped — SHA256 snapshot comparison</td></tr>
+        <tr><td>WikiStore</td><td><code>testing/wiki_store.py</code></td><td>Shipped — cross-product knowledge, confidence scoring</td></tr>
+        <tr><td>QA Context Hook</td><td><code>testing/qa_context_hook.py</code></td><td>Shipped — injects defects + prevention rules into GSD planners</td></tr>
+      </table>
+
+      <h3>2.2 Current Scores</h3>
+      <div class="score-grid">
+        <div class="sg-header">Dimension</div>
+        <div class="sg-header">Current</div>
+        <div class="sg-header">After v2</div>
+        <div class="sg-header">Full PQIP</div>
+        <div class="sg-cell">Verification (does it work?)</div>
+        <div class="sg-cell"><span class="score-mid">7/10</span></div>
+        <div class="sg-cell"><span class="score-high">9.5/10</span></div>
+        <div class="sg-cell"><span class="score-high">10/10</span></div>
+        <div class="sg-cell">Validation (right thing built?)</div>
+        <div class="sg-cell"><span class="score-low">3/10</span></div>
+        <div class="sg-cell"><span class="score-high">8.5/10</span></div>
+        <div class="sg-cell"><span class="score-high">9.5/10</span></div>
+        <div class="sg-cell">Data integrity</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-mid">5/10</span></div>
+        <div class="sg-cell"><span class="score-high">9/10</span></div>
+        <div class="sg-cell">Resilience &amp; security</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-low">2/10</span></div>
+        <div class="sg-cell"><span class="score-high">8/10</span></div>
+        <div class="sg-cell">Cross-product safety</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-low">3/10</span></div>
+        <div class="sg-cell"><span class="score-high">9/10</span></div>
+        <div class="sg-cell">User experience quality</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-low">2/10</span></div>
+        <div class="sg-cell"><span class="score-high">8/10</span></div>
+        <div class="sg-cell">Predictive intelligence</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-mid">7/10</span></div>
+        <div class="sg-cell">Confidence (statistical)</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-low">2/10</span></div>
+        <div class="sg-cell"><span class="score-high">8.5/10</span></div>
+        <div class="sg-cell">Pre-deployment gating</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-high">8/10</span></div>
+        <div class="sg-cell">Business readability</div>
+        <div class="sg-cell"><span class="score-low">0/10</span></div>
+        <div class="sg-cell"><span class="score-low">1/10</span></div>
+        <div class="sg-cell"><span class="score-high">9/10</span></div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="four-layers">
+      <h2>3. Four Test Layers</h2>
+
+      <p>The testing engine operates at four layers. Each layer tests a different dimension of product quality.
+        Layers execute in sequence; results from all four feed into the intelligence pipeline.</p>
+
+      <div class="diagram-box">
+        <pre><code>Layer 4: Business Logic Validation
+  "Does the product deliver its promised value?"
+  USER-SPEC coverage · feature completeness · roadmap alignment
+  ────────────────────────────────────────────────────────────────
+Layer 3: Integration &amp; Flow Testing
+  "Do the services work together correctly?"
+  Service chains · event propagation · contract testing · cross-product flows
+  ────────────────────────────────────────────────────────────────
+Layer 2: Behavioral Verification                    ← CURRENT STATE
+  "Does the feature work end-to-end?"
+  Browser interaction · data persistence · state machines · narrative scenarios
+  ────────────────────────────────────────────────────────────────
+Layer 1: Resilience &amp; Security
+  "Does the system hold up under adversity?"
+  Invalid input · auth bypass · race conditions · error paths · dirty state
+  ────────────────────────────────────────────────────────────────
+  Periphery: DocChain · QA Probe · Contract Registry · LLM Bootstrap</code></pre>
+      </div>
+
+      <!-- Layer 1 -->
+      <div class="layer-header"><span class="layer-num l1">1</span><h3>Layer 1 — Resilience &amp; Security</h3></div>
+
+      <p><strong>Question answered:</strong> "If a user does something wrong, unexpected, or malicious — does the system reject it gracefully, hold its data integrity, and not expose sensitive information?"</p>
+
+      <h4>1.1 Adversarial Input Testing</h4>
+      <p>A new executor (<code>api-test-runner</code>) makes direct HTTP calls to product APIs using session tokens captured by the tree executor's trunk logins. It does not use the browser — it tests the API layer directly.</p>
+      <pre><code>// Adversarial step in journey spec
+{
+  "type": "adversarial",
+  "target": "profile_name_field",
+  "payloads": [
+    { "value": "&lt;script&gt;alert('xss')&lt;/script&gt;", "expect": "rejected_or_sanitized" },
+    { "value": "A".repeat(100000), "expect": "truncated_or_rejected" },
+    { "value": "'; DROP TABLE users; --", "expect": "rejected" }
+  ],
+  "assert_no": ["stack_trace_in_response", "raw_sql_in_error", "500_status"]
+}</code></pre>
+
+      <h4>1.2 Authorization Boundary Testing</h4>
+      <p>Using the multi-account tree (4 trunks: admin, free, standard, pro), test cross-tier access:</p>
+      <pre><code>{
+  "type": "security",
+  "action": "authorization_bypass",
+  "as_user": "free_tier",
+  "call": "POST /api/v1/pro-only-feature",
+  "expect": { "status": 403, "body_contains": "upgrade" }
+}</code></pre>
+      <p>Also tests IDOR (user A accessing user B's resources by ID guessing) and session integrity (expired JWT, revoked tokens).</p>
+
+      <h4>1.3 Dirty-State Testing</h4>
+      <table>
+        <tr><th>Scenario</th><th>Setup</th><th>Expected</th></tr>
+        <tr><td>Stale session</td><td>Login, wait past session timeout, attempt action</td><td>Redirect to login, then return with data preserved</td></tr>
+        <tr><td>Back button after mutation</td><td>Submit form, browser back, browser forward</td><td>No duplicate submission, page shows current state</td></tr>
+        <tr><td>Concurrent tabs</td><td>Edit name in tab A, edit bio in tab B, save both</td><td>Both changes persist, no overwrite</td></tr>
+        <tr><td>Interrupted upload</td><td>Start file upload, kill network mid-transfer</td><td>Error with retry option, no corrupted partial stored</td></tr>
+      </table>
+
+      <h4>1.4 Error Path Verification</h4>
+      <p>For every journey that tests a happy path, auto-generate an error-path counterpart: submit with missing required fields, trigger network timeout, exceed rate limit. Verify the error UX is correct — message is user-readable, no technical jargon, includes an action ("Try again" / "Contact support").</p>
+
+      <div class="llm-note">
+        <strong>LLM Bootstrap:</strong> At cold start, the LLM generates adversarial payloads per field type (text → XSS/SQL injection, email → format violations, file → type/size abuse).
+        As the system runs, successful payloads are promoted to a deterministic payload library. After 50+ runs, the LLM is only invoked for novel field types.
+      </div>
+
+      <!-- Layer 2 -->
+      <div class="layer-header"><span class="layer-num l2">2</span><h3>Layer 2 — Behavioral Verification (Current)</h3></div>
+
+      <p><strong>Question answered:</strong> "Does the feature work correctly from the user's perspective — not just render, but actually deliver the intended outcome?"</p>
+
+      <h4>2.1 Current Architecture (Implemented)</h4>
+      <p>The tree executor (<code>cc-test-runner</code>) runs 26-node dependency trees via Claude Code subprocesses with Playwright MCP. Trunks log in, branches navigate, leaves verify features. Browser state is injected via <code>--storage-state</code> and <code>--save-session</code> flags.</p>
+
+      <h4>2.2 Data Persistence Verification (Enhancement)</h4>
+      <p>After every mutation step (form submit, file upload, config change), the runner:</p>
+      <ol>
+        <li>Navigates away from the current page (to /dashboard or another route)</li>
+        <li>Navigates back to the mutation page</li>
+        <li>Re-asserts the mutated data is still present</li>
+      </ol>
+      <pre><code>// Persistence assertion in journey spec
+{
+  "persistence": {
+    "after_step": "save-profile",
+    "navigate_away": "/dashboard",
+    "navigate_back": "/profile",
+    "assert": "headline field contains '{{expectedHeadline}}'"
+  }
+}</code></pre>
+      <p>This catches: optimistic UI without backend save, session-only state, stale cache, race between save and subsequent read.</p>
+
+      <h4>2.3 Narrative-Driven Scenarios (Enhancement)</h4>
+      <p>Beyond individual feature tests, full user-narrative scenarios that create their own data and flow through features in the order a real user would encounter them:</p>
+      <pre><code>// Narrative scenario
+{
+  "type": "narrative",
+  "persona": "Sarah, recent CS graduate, Free tier",
+  "narrative": "Sign up → profile → resume → search → save → apply → check status",
+  "steps": [
+    { "action": "signup_with_fresh_email" },
+    { "action": "complete_profile", "params": { "required_fields": ["name", "headline"] }},
+    { "action": "upload_resume", "params": { "file": "test_resume.pdf" }},
+    { "action": "verify_resume_parsed", "assert": { "extracted_skills_min": 3 }},
+    { "action": "search_jobs", "params": { "query": "junior developer" }},
+    { "action": "save_jobs", "params": { "count": 3 }},
+    { "action": "apply_to_first_saved", "params": { "with_cover_letter": true }},
+    { "action": "verify_cover_letter_uses_resume_skills" },
+    { "action": "logout_login_next_day" },
+    { "action": "verify_application_still_visible" }
+  ],
+  "success_criteria": "User accomplished goal without confusion or dead ends"
+}</code></pre>
+
+      <h4>2.4 UX Quality Assertions (Enhancement)</h4>
+      <table>
+        <tr><th>Assertion Type</th><th>What It Tests</th><th>Threshold</th></tr>
+        <tr><td><code>response_time_max_ms</code></td><td>User-perceived latency for an action</td><td>2000ms for mutations, 1000ms for navigations</td></tr>
+        <tr><td><code>feedback_visible_within_ms</code></td><td>Time until success/error indicator appears</td><td>500ms after action</td></tr>
+        <tr><td><code>error_message_quality</code></td><td>No SQL, no stack traces, includes user action</td><td>Must not contain technical identifiers</td></tr>
+        <tr><td><code>visual_state_reflects_change</code></td><td>UI updates without page refresh after mutation</td><td>Within 1000ms of backend confirmation</td></tr>
+        <tr><td><code>max_clicks_from_dashboard</code></td><td>Feature discoverability</td><td>≤ 3 clicks to reach any primary feature</td></tr>
+      </table>
+
+      <h4>2.5 Statistical Confidence (Enhancement)</h4>
+      <p>Run each critical journey N times (default: 5) instead of once. Compute Wilson confidence interval:</p>
+      <pre><code>Journey: jp-verify-job-apply
+  Runs: 5 | Passes: 4 | Fails: 1 (network timeout attempt 3)
+  Confidence: 80% ± 17% (Wilson)
+  Classification: FLAKY — investigate timeout
+
+Journey: jp-verify-tier-pro
+  Runs: 5 | Passes: 5 | Fails: 0
+  Confidence: &gt;93% (lower bound Wilson, 0 failures in 5 trials)
+  Classification: STABLE</code></pre>
+
+      <!-- Layer 3 -->
+      <div class="layer-header"><span class="layer-num l3">3</span><h3>Layer 3 — Integration &amp; Flow Testing</h3></div>
+
+      <p><strong>Question answered:</strong> "Do the modules, services, and systems that compose the product actually work together — not just individually, but as a chain?"</p>
+
+      <h4>3.1 QA Probe Endpoint</h4>
+      <p>Each product backend exposes a lightweight probe endpoint (guarded by <code>PHRONEX_QA_PROBE_ENABLED=true</code> — stripped from production):</p>
+      <pre><code>GET /api/v1/internal/qa-probe?request_id={uuid}
+
+Response:
+{
+  "request_id": "abc-123",
+  "events_fired": ["ApplicationCreated", "NotificationQueued"],
+  "services_called": ["phronex-auth:verify_token", "notification-router:send"],
+  "db_writes": [
+    { "table": "job_applications", "operation": "INSERT", "count": 1 },
+    { "table": "notifications", "operation": "INSERT", "count": 1 }
+  ],
+  "duration_ms": 342
+}</code></pre>
+      <p>The test runner captures the <code>X-Request-Id</code> header from the browser response, then queries the probe to verify the full service chain fired.</p>
+
+      <h4>3.2 Integration Assertions</h4>
+      <pre><code>// Integration verification after a mutation step
+{
+  "type": "verify_integration",
+  "after_step": "apply-button-click",
+  "probe": {
+    "endpoint": "/api/v1/internal/qa-probe",
+    "params": { "request_id": "{{last_request_id}}" },
+    "expect": {
+      "events_fired": ["ApplicationCreated"],
+      "services_called": ["phronex-auth", "notification-router"],
+      "db_writes": [{ "table": "job_applications", "count_delta": 1 }]
+    }
+  }
+}</code></pre>
+
+      <h4>3.3 Cross-Product Contract Testing</h4>
+      <p>Products communicate via shared contracts (JWT claims, API shapes, event schemas). Changes to a contract must be tested against all consumers:</p>
+      <pre><code># Contract definition: contracts/phronex_auth_jwt.yaml
+name: phronex_auth_jwt
+producer: phronex-auth
+consumers: [jp, cc, portal, praxis, comc]
+schema:
+  required_claims: [sub, iss, exp, product_slug, tier]
+  iss_must_be: "auth.phronex.com"
+test: "Token generated by producer accepted by every consumer"</code></pre>
+      <p>When any product's auth middleware changes, the contract test verifies all consumers still accept the token format.</p>
+
+      <h4>3.4 Cross-Product Flow Testing</h4>
+      <p>End-to-end flows that span multiple Phronex products:</p>
+      <table>
+        <tr><th>Flow</th><th>Products</th><th>What It Tests</th></tr>
+        <tr><td>BYOK → Content → Cover Letter</td><td>CC → JP</td><td>API key set in CC used when JP generates cover letter via CC sidecar</td></tr>
+        <tr><td>Account deletion cascade</td><td>Auth → JP, CC, Praxis, Portal</td><td>Delete in auth → all product data for user removed</td></tr>
+        <tr><td>Password change → session invalidation</td><td>Auth → all products</td><td>Old JWTs rejected within 60s across all products</td></tr>
+        <tr><td>Tier upgrade → feature unlock</td><td>Portal (Razorpay) → JP</td><td>Upgrade payment → Pro features accessible in JP within 10s</td></tr>
+      </table>
+
+      <h4>3.5 Data Invariant Testing</h4>
+      <p>Business rules that must hold true at all times, checked after every mutation step:</p>
+      <pre><code># Data invariants: invariants/jp_business_rules.yaml
+invariants:
+  - name: salary_range_valid
+    table: job_postings
+    rule: "salary_min &lt;= salary_max OR salary_max IS NULL"
+    severity: CRITICAL
+
+  - name: tier_consistency
+    tables: [subscriptions, razorpay_payments]
+    rule: "subscription.tier matches latest successful payment plan_id"
+    severity: CRITICAL
+
+  - name: application_count_matches
+    tables: [job_applications, dashboard_stats]
+    rule: "COUNT(applications WHERE user_id=X) = dashboard_stats.applied_count"
+    severity: HIGH</code></pre>
+
+      <div class="llm-note">
+        <strong>LLM Bootstrap:</strong> At cold start, the LLM reads the product's DB schema (via Alembic models or <code>\d table_name</code>) and generates candidate invariants.
+        The operator reviews and approves invariant candidates. As invariants are validated across runs, confidence scores increase and false-positive invariants are pruned automatically.
+      </div>
+
+      <!-- Layer 4 -->
+      <div class="layer-header"><span class="layer-num l4">4</span><h3>Layer 4 — Business Logic Validation</h3></div>
+
+      <p><strong>Question answered:</strong> "Was the right thing built? Does the product match the CEO's vision? Are all features specified in USER-SPEC.html actually implemented, testable, and working?"</p>
+
+      <h4>4.1 USER-SPEC Coverage Analyzer</h4>
+      <p>Parses USER-SPEC.html and extracts every discrete user capability. Maps each capability to three verification levels:</p>
+      <table>
+        <tr><th>Level</th><th>Question</th><th>Source</th></tr>
+        <tr><td>Code exists?</td><td>Is there a backend route and/or portal component for this feature?</td><td>AST parse of routes + component scan</td></tr>
+        <tr><td>Spec exists?</td><td>Is there a journey spec that tests this feature?</td><td>Journey spec → feature mapping</td></tr>
+        <tr><td>Test passes?</td><td>Does the journey spec pass with PASS_ORACLE?</td><td>qa_journey_verdicts</td></tr>
+      </table>
+      <pre><code>// Output: qa_feature_coverage table
+Feature: "Users can export professional profile as PDF"
+  ├── Backend route: /api/v1/profile/export-pdf     ✅ EXISTS
+  ├── Portal component: ProfileExportButton          ✅ EXISTS
+  ├── Journey spec: NONE                             ❌ UNTESTED
+  └── Last tested: NEVER
+
+Feature: "Users can set up BYOK API keys"
+  ├── Backend route: /api/v1/config/byok             ✅ EXISTS
+  ├── Portal component: BYOKKeyForm                  ✅ EXISTS
+  ├── Journey spec: jp-verify-config-byok            ✅ EXISTS
+  └── Last tested: 2026-05-03, PASS_ORACLE           ✅ PASSING</code></pre>
+
+      <h4>4.2 Auto-Generated Journey Specs</h4>
+      <p>When the coverage analyzer finds an UNTESTED feature, the system generates a draft journey spec from the USER-SPEC description + codebase analysis:</p>
+      <ol>
+        <li>Parse the USER-SPEC feature description</li>
+        <li>Find the backend route handler (from route scan)</li>
+        <li>Find the portal component (from component scan)</li>
+        <li>Generate a multi-step journey spec with: navigation, interaction, assertion, persistence check</li>
+        <li>Submit as a <code>queued_for_approval</code> proposal — operator reviews before it runs</li>
+      </ol>
+
+      <div class="llm-note">
+        <strong>LLM Bootstrap:</strong> Auto-spec generation relies heavily on LLM understanding of the USER-SPEC prose and the route handler's purpose.
+        Early specs will be rough — the operator refines them. Each refinement is learned: the LLM sees what the operator changed and adjusts future generations.
+        After 30+ approved specs, the LLM generates specs that require minimal edits. After 100+, the LLM may be replaced with template-based generation for common patterns.
+      </div>
+
+      <h4>4.3 Journey Depth Scoring</h4>
+      <p>Every journey spec is automatically classified by depth:</p>
+      <table>
+        <tr><th>Depth</th><th>Definition</th><th>JourneyHawk Policy</th></tr>
+        <tr><td><span class="score-low">SMOKE</span></td><td>Only checks page loads (navigate, verify element exists)</td><td>REJECTED — belongs in CI, not here</td></tr>
+        <tr><td><span class="score-mid">SURFACE</span></td><td>Clicks buttons, fills forms, checks immediate response</td><td>FLAGGED — should be deepened with persistence/integration assertions</td></tr>
+        <tr><td><span class="score-high">DEEP</span></td><td>Verifies state changes, data persistence, cross-page effects</td><td>ACCEPTED — this is the minimum standard</td></tr>
+        <tr><td><span class="score-high">BEHAVIORAL</span></td><td>Full narrative scenario with data dependencies across steps</td><td>IDEAL — tests the feature's actual value to the user</td></tr>
+      </table>
+
+      <h4>4.4 Regression Anchor Auto-Generation</h4>
+      <p>When a defect is found and fixed, auto-generate a minimal journey spec that reproduces the exact failure scenario. Store as a permanent regression anchor:</p>
+      <pre><code>// Auto-generated from defect #55 (fixed)
+{
+  "id": "regression-d55-tier-mismatch",
+  "auto_generated_from": "defect_id:55",
+  "description": "Verify Standard tier page shows correct label after Razorpay webhook",
+  "steps": [
+    { "action": "navigate", "url": "/subscription" },
+    { "action": "assert_text", "selector": ".tier-label", "expected": "Standard Seeker" },
+    { "action": "assert_no", "selector": ".tier-label", "text": "Free" }
+  ],
+  "persistence": { "navigate_away": "/dashboard", "navigate_back": "/subscription", "re_assert": true }
+}</code></pre>
+
+      <h4>4.5 Visual Regression Baselines</h4>
+      <p>Store baseline screenshots for each journey step. On subsequent runs, pixel-diff against baseline. Flag significant visual changes (layout shifts, missing elements, color changes). Stored in <code>qa_evidence</code> with <code>evidence_type: 'visual_baseline'</code>.</p>
+
+      <h4>4.6 Business Readiness Reports</h4>
+      <pre><code>JP READINESS REPORT — 2026-05-03
+
+Executive Summary:
+  First-time user experience: ⚠️ DEGRADED
+    - Login works                                    ✅
+    - Dashboard loads with real data                  ✅
+    - Profile setup                                   ❌ (returns 404)
+    - Job search and save                             ✅
+    - Job application                                 ✅
+    - AI cover letter generation                      ❌ (feature not found)
+
+  Subscription tiers:
+    - Free: ✅ fully functional
+    - Standard: ⚠️ missing billing management link
+    - Pro: ✅ fully functional
+
+  Demo-safe flows (for investor/client presentations):
+    ✅ Login → Dashboard → Search → Save → Apply
+    ❌ Login → Profile (404)
+    ❌ Login → Cover Letter (missing)
+
+  Validation coverage: 55% of USER-SPEC features verified
+  Composite readiness: 72%
+  Investor readiness: MODERATE — avoid profile and cover letter demos</code></pre>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="closed-loop">
+      <h2>4. Closed-Loop Feedback Architecture</h2>
+
+      <div class="principle-box">
+        <strong>Core conviction:</strong> Finding bugs is valuable. Preventing bugs from being created is 10x more valuable.
+        Every defect found must make the system permanently immune to that defect class.
+      </div>
+
+      <div class="diagram-box">
+        <pre><code>                  ┌────────────────────────────────────────────┐
+                  │        ARCHITECTURE DECISIONS               │
+                  │  Informed by defect density analysis         │
+                  │  Quarterly architecture feedback report      │
+                  └──────────────────┬───────────────────────────┘
+                                     │
+                                     ▼
+                  ┌────────────────────────────────────────────┐
+                  │        GSD PLANNING PHASE                   │
+                  │  QA context hook injects:                   │
+                  │  • Risk score for affected code areas       │
+                  │  • Anti-patterns from WikiStore             │
+                  │  • Required test coverage for this phase    │
+                  │  • Time estimate adjustment from velocity   │
+                  └──────────────────┬───────────────────────────┘
+                                     │
+                                     ▼
+                  ┌────────────────────────────────────────────┐
+                  │        CODE WRITING                         │
+                  │  Lint rules block known-bad patterns        │
+                  │  IDE shows inline prevention rules          │
+                  │  Pre-commit hook runs affected journeys     │
+                  └──────────────────┬───────────────────────────┘
+                                     │
+                                     ▼
+                  ┌────────────────────────────────────────────┐
+                  │        PR MERGE GATE                        │
+                  │  Affected journeys run against PR branch    │
+                  │  Contract tests verify cross-product        │
+                  │  Data invariants checked                    │
+                  └──────────────────┬───────────────────────────┘
+                                     │
+                                     ▼
+                  ┌────────────────────────────────────────────┐
+                  │        PRODUCTION DEPLOYMENT                │
+                  │  Full PQIP suite runs (all 4 layers)        │
+                  └──────────────────┬───────────────────────────┘
+                                     │
+                                     ▼
+               ┌─────────────────────┴─────────────────────┐
+               │        INTELLIGENCE PIPELINE               │
+               │  Gap detector → RCA engine → Auditor →     │
+               │  UXObserver → FeedbackConsolidator         │
+               └─────────────────────┬─────────────────────┘
+                                     │
+                     ┌───────────────┼───────────────┐
+                     ▼               ▼               ▼
+              ┌────────────┐  ┌──────────┐  ┌──────────────┐
+              │ WikiStore   │  │ Patterns │  │ Defect + RCA │
+              │ (cross-prod │  │ (coding  │  │ Archive      │
+              │  knowledge) │  │  rules)  │  │              │
+              └──────┬──────┘  └────┬─────┘  └──────┬───────┘
+                     │              │               │
+                     └──────────────┼───────────────┘
+                                    │
+                  ┌─────────────────┴──────────────────────┐
+                  │   KNOWLEDGE COMPOUNDING ENGINE          │
+                  │                                         │
+                  │  Channel 1: QA Hook → Planning context  │
+                  │  Channel 2: Defect → Rule → Lint check  │
+                  │  Channel 3: Cross-product propagation   │
+                  │  Channel 4: Velocity → Estimation       │
+                  │  Channel 5: Patterns → Architecture     │
+                  └─────────────────┬──────────────────────┘
+                                    │
+                                    │ FEEDS BACK INTO
+                                    ▼
+                     Architecture · Planning · Linting
+                     Estimation · PR Gates · Specs</code></pre>
+      </div>
+
+      <h3>4.1 Five Feedback Channels</h3>
+
+      <h4>Channel 1: QA Context → Planning (PARTIALLY BUILT)</h4>
+      <p>Current: <code>qa_context_hook.py</code> injects a flat list of defects and wiki articles into GSD planners.</p>
+      <p>Enhanced: injects <strong>risk-informed planning context</strong> with defect density per code area, specific anti-patterns with evidence, required test coverage based on historical failures, and time estimate adjustments.</p>
+      <pre><code>## QA Context — Risk-Informed Planning
+
+### High-Risk Patterns for This Phase
+This phase modifies subscription routes. Historical data:
+- subscription-related code: 0.40 defects/change, avg 3.2 runs to stabilize
+- Most common: tier mismatch between DB and UI after Razorpay webhook
+- Prevention rule (confidence 0.85): "Re-read tier from DB after webhook,
+  never trust cached session value"
+
+### Required Test Coverage
+- [ ] Journey spec for tier upgrade E2E
+- [ ] Negative test: webhook failure → UI shows stale-data warning
+- [ ] Data invariant: subscription.tier matches last payment.plan_id</code></pre>
+
+      <h4>Channel 2: Defect → Prevention Rule → Lint Check (NEW)</h4>
+      <p>The most powerful compounding mechanism. Each defect progresses through 6 stages:</p>
+      <table>
+        <tr><th>Stage</th><th>What Happens</th><th>Example</th></tr>
+        <tr><td>1. Defect found</td><td>Written to qa_known_defects + qa_defect_rca</td><td>"Subscription shows 'Pro' but DB has 'free'"</td></tr>
+        <tr><td>2. Prevention rule</td><td>WikiStore article created (confidence 0.50)</td><td>"Re-read tier from DB after mutation"</td></tr>
+        <tr><td>3. Cross-product confirm</td><td>Same bug in another product → confidence 0.75</td><td>Found in CC too → promoted to qa_patterns</td></tr>
+        <tr><td>4. Coding pattern</td><td>Written to CODING-PATTERNS.md by FeedbackConsolidator</td><td>"SUBSCRIPTION-001: Always re-read after webhook"</td></tr>
+        <tr><td>5. Lint rule generated</td><td>AST-based check blocks the pattern at commit time</td><td>ruff custom rule flags tier read from session variable</td></tr>
+        <tr><td>6. Architecture fix</td><td>Structural change eliminates the defect class entirely</td><td>Standard useMutation hook auto-invalidates tier cache</td></tr>
+      </table>
+      <p>By stage 5, the bug is a compile-time error. By stage 6, the class of bug is structurally impossible.</p>
+
+      <h4>Channel 3: Cross-Product Propagation (NEW)</h4>
+      <p>When a defect class is found in product A and the same code pattern exists in product B:</p>
+      <ol>
+        <li>Grep all products for the antipattern signature (e.g., <code>await file.read()</code> before size check)</li>
+        <li>Write propagation alert to <code>qa_propagation_alerts</code></li>
+        <li>Next planning phase for product B receives: <em>"JP defect #55 has same pattern in your routes_upload.py:47 — fix proactively"</em></li>
+        <li>Bug prevented in product B without ever running JourneyHawk against it</li>
+      </ol>
+
+      <h4>Channel 4: Velocity → Estimation (NEW)</h4>
+      <p>Historical run data feeds sprint estimation:</p>
+      <pre><code>DEVELOPMENT VELOCITY — JP
+
+Code Areas by Risk:
+  subscription/   — 0.40 defects/change, avg 3.2 runs to stabilize
+  profile/        — 0.25 defects/change, avg 1.5 runs to stabilize
+  jobs/           — 0.10 defects/change, avg 1.0 runs to stabilize
+
+Sprint Estimation:
+  Task: "Add billing link to Standard tier page"
+  Naive estimate: 2 hours
+  Risk-adjusted: 4.5 hours (subscription area, 40% rework rate)</code></pre>
+
+      <h4>Channel 5: Patterns → Architecture Decisions (NEW)</h4>
+      <p>Quarterly report identifies systemic defect classes and recommends architecture changes:</p>
+      <pre><code>ARCHITECTURE FEEDBACK — Q2 2026
+
+Pattern: "Optimistic UI without confirmation" — 12 defects across 4 products
+  Root cause: Frontend shows success before backend confirms
+  Fix: Standard "pending → confirmed" state machine for all mutations
+  ROI: 12 defects × 1.5h = 18h saved; fix cost = 4h; net saving = 14h
+
+Pattern: "Session state diverges from DB" — 8 defects across 3 products
+  Root cause: No standard re-fetch after mutation
+  Fix: useMutation hook auto-invalidates affected queries
+  ROI: 8 defects × 1.5h = 12h saved; fix cost = 3h; net saving = 9h</code></pre>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="knowledge-compounding">
+      <h2>5. Knowledge Compounding Model</h2>
+
+      <h3>5.1 The Exponential Decay Curve</h3>
+      <p>Defect rate decreases exponentially as the knowledge base grows. This isn't aspirational — it's the mathematical consequence of permanently blocking each defect class.</p>
+
+      <table>
+        <tr><th>Month</th><th>Prevention Rules</th><th>Lint Checks</th><th>Data Invariants</th><th>Defect Rate</th><th>Monthly Hours/Product</th></tr>
+        <tr><td>1 (cold start)</td><td>0</td><td>0</td><td>0</td><td>100% baseline</td><td>30h</td></tr>
+        <tr><td>3</td><td>15</td><td>5</td><td>8</td><td>70% (−30%)</td><td>21h</td></tr>
+        <tr><td>6</td><td>40</td><td>18</td><td>25</td><td>40% (−60%)</td><td>12h</td></tr>
+        <tr><td>12</td><td>80+</td><td>35+</td><td>50+</td><td>20% (−80%)</td><td>6h</td></tr>
+      </table>
+
+      <p><strong>Across 6 products over 12 months:</strong></p>
+      <ul>
+        <li>Without compounding: 30 × 6 × 12 = <strong>2,160 hours</strong> of defect work</li>
+        <li>With compounding: ~<strong>870 hours</strong> (60% cumulative reduction)</li>
+        <li><strong>Savings: ~1,290 hours</strong></li>
+      </ul>
+
+      <h3>5.2 What Makes This Exponential (Not Linear)</h3>
+      <p>Traditional testing is linear: write more tests → find more bugs → fix them → same types recur. PQIP is exponential because each defect permanently removes a defect class:</p>
+      <ol>
+        <li>Test catches the bug (runtime detection)</li>
+        <li>Pattern is learned (WikiStore knowledge capture)</li>
+        <li>Pattern prevents recurrence (QA context injection into planning)</li>
+        <li>Check blocks the code (lint rule, pre-commit gate)</li>
+        <li>Architecture removes the class (structural elimination)</li>
+      </ol>
+      <p>After stage 5, that entire class of bug cannot exist in the codebase. Not because developers memorised a rule, but because the system physically prevents the bad pattern from being committed.</p>
+
+      <h3>5.3 Oracle and Spec Freshness</h3>
+      <p>Static test oracles (TEST-ORACLES.html) and journey specs (jp-deep.json) decay as the product evolves. PQIP prevents oracle staleness through:</p>
+      <ul>
+        <li><strong>DocChain SHA256 tracking:</strong> when product .docs/ artefacts change, affected oracles are flagged for refresh</li>
+        <li><strong>Auto-oracle generation:</strong> parse backend route handlers + frontend components to generate oracle rubrics that track the code, not a manual snapshot</li>
+        <li><strong>Stale oracle detection:</strong> when a journey passes but the oracle hasn't been updated in 30+ days, flag as <code>STALE_ORACLE</code> — the pass may be against outdated criteria</li>
+      </ul>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="llm-bootstrap">
+      <h2>6. LLM Bootstrap Strategy</h2>
+
+      <div class="llm-note">
+        <strong>Philosophy:</strong> The system starts LLM-heavy and becomes deterministic over time. LLM expertise fills gaps in historical data;
+        as the data accumulates, heuristics replace LLM calls. Think of the LLM as the training wheels — essential at the start, removed when the system can ride on its own data.
+      </div>
+
+      <h3>6.1 Where LLM Assists at Cold Start</h3>
+      <table>
+        <tr><th>Component</th><th>LLM Role at Cold Start</th><th>Transition to Deterministic</th><th>LLM Retirement Trigger</th></tr>
+        <tr>
+          <td>RCA Engine</td>
+          <td>Classifies defects when deterministic heuristics don't match (currently 10 heuristic patterns)</td>
+          <td>Each LLM classification is reviewed; confirmed matches become new heuristic rules</td>
+          <td>Heuristic hit rate &gt; 90% (LLM fallback fires &lt;10% of the time)</td>
+        </tr>
+        <tr>
+          <td>Journey Spec Generation</td>
+          <td>Generates draft journey specs from USER-SPEC.html prose + codebase analysis</td>
+          <td>Operator edits are tracked; common patterns become template-based generation</td>
+          <td>30+ approved specs with &lt;20% operator edit rate</td>
+        </tr>
+        <tr>
+          <td>Adversarial Payload Generation</td>
+          <td>Generates adversarial payloads per field type (XSS, SQL injection, format violations)</td>
+          <td>Successful payloads promoted to deterministic payload library</td>
+          <td>Payload library covers &gt;95% of field types encountered</td>
+        </tr>
+        <tr>
+          <td>Data Invariant Generation</td>
+          <td>Reads DB schema and generates candidate business rule invariants</td>
+          <td>Validated invariants become permanent; false-positive invariants pruned</td>
+          <td>Invariant library covers all tables; new tables use templates</td>
+        </tr>
+        <tr>
+          <td>Prevention Rule Synthesis</td>
+          <td>Summarises a defect + its fix into a generalised prevention rule</td>
+          <td>Rules with high confidence become CODING-PATTERNS.md entries</td>
+          <td>WikiStore confidence &gt; 0.80 for the domain → rule is permanent</td>
+        </tr>
+        <tr>
+          <td>Business Readiness Report</td>
+          <td>Translates technical test results into CEO-readable narrative summaries</td>
+          <td>Common summary patterns become template-based; LLM handles novel situations</td>
+          <td>Never fully retired — narrative quality benefits from LLM even with templates</td>
+        </tr>
+        <tr>
+          <td>Predictive Risk Scoring</td>
+          <td>Estimates bug probability from commit diffs when historical data is sparse</td>
+          <td>Statistical model trained on actual defect→commit correlations replaces LLM</td>
+          <td>50+ data points per code area → statistical model reliable</td>
+        </tr>
+      </table>
+
+      <h3>6.2 Cost Management</h3>
+      <p>LLM calls are gated by the existing <code>phronex_common.llm</code> factory with capability-based routing and budget caps:</p>
+      <ul>
+        <li><strong>RCA fallback:</strong> uses Claude Haiku (cheapest) — classification only, no generation</li>
+        <li><strong>Spec generation:</strong> uses Claude Sonnet — needs understanding of USER-SPEC prose</li>
+        <li><strong>Report generation:</strong> uses Claude Sonnet — narrative quality matters</li>
+        <li><strong>Budget cap:</strong> max $5/run across all LLM calls. If exceeded, skip LLM-dependent components (deterministic pipeline continues)</li>
+        <li><strong>Trending toward zero:</strong> as deterministic alternatives mature, monthly LLM spend drops from ~$50 (month 1) to ~$5 (month 12) to ~$2 (month 18, reports only)</li>
+      </ul>
+
+      <h3>6.3 LLM-Generated Content Review Flow</h3>
+      <p>All LLM-generated artefacts go through operator review before becoming permanent:</p>
+      <pre><code>LLM generates → qa_proposed_heuristics (status: queued_for_approval)
+                → Operator reviews in portal QA tab
+                → Approved: applied + confidence += 0.10
+                → Rejected: archived + LLM receives rejection feedback
+                → After 5 approvals with &lt;10% rejection rate:
+                  auto-approve for this pattern class (operator still notified)</code></pre>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="peripheral-systems">
+      <h2>7. Peripheral Systems</h2>
+
+      <p>PQIP doesn't operate in isolation. Several peripheral systems must evolve to support the full architecture:</p>
+
+      <h3>7.1 DocChain (Enhanced)</h3>
+      <p><strong>Current:</strong> generates and reconciles .docs/ HTML artefacts (USER-SPEC.html, ARCHITECTURE.html, ROADMAP-NARRATIVE.html). Stores SHA256 snapshots for change detection.</p>
+      <p><strong>Enhanced for PQIP:</strong></p>
+      <ul>
+        <li><strong>Feature extraction:</strong> DocChain parses USER-SPEC.html into a structured feature inventory (Section → Feature → Capability → Acceptance Criteria). This is the input for Layer 4's coverage analyzer.</li>
+        <li><strong>Change-to-journey mapping:</strong> when a USER-SPEC section changes, DocChain identifies which journey specs are affected and flags them for re-validation via the run filter (Reason B).</li>
+        <li><strong>Oracle generation:</strong> DocChain generates TEST-ORACLES.html from the feature inventory + codebase analysis, ensuring oracle rubrics track the current spec rather than a stale manual snapshot.</li>
+        <li><strong>Precision upgrade:</strong> current DocChain uses section-level SHA256 to detect changes. Enhanced DocChain uses paragraph-level diffing to pinpoint exactly which capability changed, enabling surgical journey re-runs instead of full-suite re-validation.</li>
+      </ul>
+
+      <h3>7.2 QA Probe Endpoints (New — per product)</h3>
+      <p>Each Phronex backend needs a QA probe endpoint for Layer 3 integration testing. Specification:</p>
+      <table>
+        <tr><th>Aspect</th><th>Specification</th></tr>
+        <tr><td>Endpoint</td><td><code>GET /api/v1/internal/qa-probe?request_id={uuid}</code></td></tr>
+        <tr><td>Guard</td><td><code>PHRONEX_QA_PROBE_ENABLED=true</code> env var. Endpoint returns 404 when disabled. Must NEVER be enabled in production.</td></tr>
+        <tr><td>Data source</td><td>Reads from <code>system_error_log</code>, event tables, audit log — no new tables required</td></tr>
+        <tr><td>Response TTL</td><td>Probe data retained for 1 hour, then garbage-collected. No permanent storage.</td></tr>
+        <tr><td>Auth</td><td>Requires admin JWT — not accessible to regular users even when enabled</td></tr>
+        <tr><td>Build effort</td><td>~3 hours per product (5 products × 3h = 15h total)</td></tr>
+      </table>
+      <p>The probe endpoint is implemented in <code>phronex-common</code> as a reusable FastAPI router factory, then mounted in each product's app. One implementation, five mounts.</p>
+
+      <h3>7.3 Contract Registry (New)</h3>
+      <p>Shared contracts (JWT schemas, API shapes, event formats) are defined in YAML files in <code>phronex-common/contracts/</code>. The contract test runner reads these definitions and verifies producer↔consumer compatibility.</p>
+      <pre><code>phronex-common/
+  contracts/
+    phronex_auth_jwt.yaml      # JWT claim schema
+    cc_sidecar_api.yaml        # CC content generation API
+    notification_events.yaml   # Cross-product event schemas
+    razorpay_webhook.yaml      # Payment webhook format
+  testing/
+    contract_runner.py         # Reads contracts, tests compatibility</code></pre>
+
+      <h3>7.4 GSD Integration (Enhanced)</h3>
+      <p>Current <code>qa_context_hook.py</code> provides a flat context block. Enhanced integration:</p>
+      <ul>
+        <li><strong>Risk-aware phase planning:</strong> hook computes risk score per affected file based on historical defect density</li>
+        <li><strong>Required test coverage:</strong> hook specifies which journey specs must exist/pass before the phase can be marked complete</li>
+        <li><strong>Sprint estimation adjustment:</strong> hook provides a multiplier based on code area rework rates</li>
+        <li><strong>Anti-pattern injection:</strong> hook includes specific code patterns to avoid with evidence from past defects</li>
+      </ul>
+
+      <h3>7.5 Portal QA Dashboard (Enhanced)</h3>
+      <p>The existing portal QA tab (<code>/admin/qa</code>) displays defect counts and run history. Enhanced to show:</p>
+      <ul>
+        <li>Composite readiness score per product (all 10 dimensions)</li>
+        <li>Feature coverage heat map (USER-SPEC → journey → pass/fail)</li>
+        <li>Proposal approval queue (operator reviews LLM-generated specs, invariants, prevention rules)</li>
+        <li>Knowledge compounding dashboard (prevention rules created over time, defect rate trend)</li>
+        <li>Business readiness report (CEO view — demo-safe flows, investor readiness)</li>
+      </ul>
+
+      <h3>7.6 Predictive Risk Engine (New)</h3>
+      <p>Analyses git diffs pre-merge to predict which journeys are likely to break:</p>
+      <ol>
+        <li>Parse the commit diff → identify changed files, routes, components</li>
+        <li>Map changed files to journey specs that exercise them (via route↔journey index)</li>
+        <li>Query defect history for the changed code area (defect density, flakiness score)</li>
+        <li>Compute risk score: <code>P(break) = base_rate × area_multiplier × change_size_factor</code></li>
+        <li>Output: ranked list of journeys most likely to fail, with confidence intervals</li>
+      </ol>
+      <div class="llm-note">
+        <strong>LLM Bootstrap:</strong> With &lt; 30 data points, the statistical model is unreliable. LLM reads the diff and makes a judgment call ("this changes the subscription webhook handler — historically fragile").
+        After 50+ merges with associated journey outcomes, the statistical model takes over.
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="spec-format">
+      <h2>8. Journey Spec Format v2</h2>
+
+      <p>The journey spec format extends from the current flat step list to support all four test layers in a single file:</p>
+
+      <pre><code>{
+  "id": "jp-verify-profile-update",
+  "role": "verify",
+  "dependsOn": "jp-branch-profile",
+  "params": { "expectedHeadline": "QA Test Headline" },
+
+  // Layer 2 — Behavioral verification (current)
+  "steps": [
+    { "id": "1", "description": "Edit headline to '{{expectedHeadline}}'" },
+    { "id": "2", "description": "Click Save button" },
+    { "id": "3", "description": "Verify success toast appears" }
+  ],
+
+  // Layer 2 — Persistence check (new)
+  "persistence": {
+    "after_step": "2",
+    "navigate_away": "/dashboard",
+    "navigate_back": "/profile",
+    "assert": "headline field contains '{{expectedHeadline}}'"
+  },
+
+  // Layer 2 — UX quality assertions (new)
+  "ux": {
+    "response_time_max_ms": 2000,
+    "feedback_visible_within_ms": 500,
+    "error_message_must_not_contain": ["SQL", "constraint", "500"]
+  },
+
+  // Layer 3 — Integration verification (new)
+  "integration": {
+    "after_step": "2",
+    "probe": {
+      "expect": {
+        "db_writes": [
+          { "table": "user_profiles", "column": "headline",
+            "value": "{{expectedHeadline}}" }
+        ]
+      }
+    }
+  },
+
+  // Layer 3 — Data invariants (new)
+  "invariants": ["profile_completeness_score_updated"],
+
+  // Layer 1 — Adversarial testing (new)
+  "adversarial": [
+    {
+      "target": "headline_field",
+      "payloads": [
+        { "value": "&lt;script&gt;alert(1)&lt;/script&gt;", "expect": "sanitized" },
+        { "value": "x".repeat(10000), "expect": "truncated_or_rejected" }
+      ]
+    }
+  ],
+
+  // Layer 1 — Security (new)
+  "security": {
+    "authorization": {
+      "as_different_user": true,
+      "action": "GET /api/v1/users/{{userId}}/profile",
+      "expect_status": 403
+    }
+  }
+}</code></pre>
+
+      <p><strong>Backward compatibility:</strong> all new fields are optional. Existing specs with only <code>steps</code> continue to work — they just test at Layer 2 only. The depth scorer flags them as SURFACE.</p>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="data-model">
+      <h2>9. Data Model</h2>
+
+      <h3>9.1 Existing Tables (phronex_qa database)</h3>
+      <table>
+        <tr><th>Table</th><th>Purpose</th><th>Written by</th></tr>
+        <tr><td><code>qa_known_defects</code></td><td>Every defect: title, severity, category, is_false_positive, journey_name</td><td>Gap detector</td></tr>
+        <tr><td><code>qa_defect_rca</code></td><td>Root cause classification per defect</td><td>RCA Engine</td></tr>
+        <tr><td><code>qa_journey_verdicts</code></td><td>PASS/FAIL/NO_ORACLE per journey per run</td><td>ValidationAuditor</td></tr>
+        <tr><td><code>qa_ux_signals</code></td><td>6 fatigue metrics per run</td><td>UXObserver</td></tr>
+        <tr><td><code>qa_proposed_heuristics</code></td><td>Proposals from EthosBridge + FeedbackConsolidator</td><td>FeedbackConsolidator</td></tr>
+        <tr><td><code>qa_wiki_articles</code></td><td>Cross-product knowledge with confidence scores</td><td>Learning consolidation</td></tr>
+        <tr><td><code>qa_patterns</code></td><td>Promoted patterns (seen 2+ times)</td><td>Learning consolidation</td></tr>
+        <tr><td><code>qa_runs</code></td><td>Run archive with metrics</td><td>QARunLog</td></tr>
+        <tr><td><code>qa_evidence</code></td><td>Screenshots, DOM traces, step outcomes</td><td>Evidence collector</td></tr>
+        <tr><td><code>qa_strategy_state</code></td><td>COLD_START / EXPAND / FOCUS / MAINTAIN per product</td><td>post_run.py</td></tr>
+        <tr><td><code>qa_cycle_log</code></td><td>Cycle gate pass/fail decisions</td><td>CycleCloseGate</td></tr>
+        <tr><td><code>qa_docchain_snapshots</code></td><td>SHA256 hashes of .docs/ artefacts</td><td>DocChain</td></tr>
+        <tr><td><code>qa_ethos_rules</code></td><td>Governance rules for auto-fix vs escalate</td><td>ethos_seed</td></tr>
+      </table>
+
+      <h3>9.2 New Tables (PQIP extensions)</h3>
+      <table>
+        <tr><th>Table</th><th>Purpose</th><th>Written by</th></tr>
+        <tr><td><code>qa_feature_coverage</code></td><td>USER-SPEC feature → code → spec → verdict mapping</td><td>Coverage Analyzer (Layer 4)</td></tr>
+        <tr><td><code>qa_data_invariants</code></td><td>Business rule definitions + pass/fail per run</td><td>Invariant Runner (Layer 3)</td></tr>
+        <tr><td><code>qa_adversarial_results</code></td><td>Payload → endpoint → response for each adversarial test</td><td>API Test Runner (Layer 1)</td></tr>
+        <tr><td><code>qa_contract_tests</code></td><td>Producer↔consumer compatibility results</td><td>Contract Runner (Layer 3)</td></tr>
+        <tr><td><code>qa_propagation_alerts</code></td><td>Cross-product defect pattern alerts</td><td>Propagation Engine (Channel 3)</td></tr>
+        <tr><td><code>qa_prevention_rules</code></td><td>Generated lint rules with status (draft/active/retired)</td><td>Rule Generator (Channel 2)</td></tr>
+        <tr><td><code>qa_velocity_metrics</code></td><td>Defect rate / stabilization time per code area</td><td>Velocity Tracker (Channel 4)</td></tr>
+        <tr><td><code>qa_readiness_reports</code></td><td>Composite readiness snapshots per product per run</td><td>Report Generator (Layer 4)</td></tr>
+        <tr><td><code>qa_visual_baselines</code></td><td>Screenshot baselines + diff results</td><td>Visual Regression (Layer 4)</td></tr>
+        <tr><td><code>qa_confidence_scores</code></td><td>Multi-run confidence intervals per journey</td><td>Confidence Scorer (Layer 2)</td></tr>
+      </table>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="scoring">
+      <h2>10. Composite Readiness Scoring</h2>
+
+      <h3>10.1 Ten Dimensions</h3>
+      <p>Each product receives a score across 10 dimensions. The composite score is a weighted average:</p>
+      <table>
+        <tr><th>Dimension</th><th>Weight</th><th>Source</th></tr>
+        <tr><td>Verification (does it work?)</td><td>20%</td><td>qa_journey_verdicts pass rate</td></tr>
+        <tr><td>Validation (right thing built?)</td><td>15%</td><td>qa_feature_coverage coverage %</td></tr>
+        <tr><td>Data integrity</td><td>15%</td><td>qa_data_invariants pass rate</td></tr>
+        <tr><td>Resilience &amp; security</td><td>10%</td><td>qa_adversarial_results pass rate</td></tr>
+        <tr><td>Cross-product safety</td><td>10%</td><td>qa_contract_tests pass rate</td></tr>
+        <tr><td>User experience quality</td><td>10%</td><td>UX assertion pass rate + response time compliance</td></tr>
+        <tr><td>Predictive intelligence</td><td>5%</td><td>Predicted risk vs actual outcome correlation</td></tr>
+        <tr><td>Confidence (statistical)</td><td>5%</td><td>Average Wilson confidence lower bound</td></tr>
+        <tr><td>Pre-deployment gating</td><td>5%</td><td>% of PRs that passed gate before merge</td></tr>
+        <tr><td>Business readability</td><td>5%</td><td>Report freshness + narrative coverage</td></tr>
+      </table>
+
+      <h3>10.2 Readiness Thresholds</h3>
+      <table>
+        <tr><th>Composite Score</th><th>Readiness</th><th>What It Means</th></tr>
+        <tr><td><span class="score-high">≥ 85%</span></td><td>SHIP</td><td>Product is ready for users. All critical flows verified. Known issues documented.</td></tr>
+        <tr><td><span class="score-mid">70-84%</span></td><td>DEMO</td><td>Product is demo-safe with caveats. Report identifies which flows to avoid in presentations.</td></tr>
+        <tr><td><span class="score-mid">50-69%</span></td><td>DEVELOP</td><td>Active development. Major features working but gaps remain.</td></tr>
+        <tr><td><span class="score-low">&lt; 50%</span></td><td>HOLD</td><td>Not ready for any external exposure. Critical flows broken.</td></tr>
+      </table>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="implementation-plan">
+      <h2>11. Implementation Plan</h2>
+
+      <h3>11.1 Phase Sequence</h3>
+      <div class="phase-timeline">
+        <div class="phase-item done">
+          <div class="phase-title">Phase A — Foundation (v18.0) ✅ COMPLETE</div>
+          <div class="phase-meta">Shipped May 2026 · Tree executor, intelligence pipeline, strategist layer, all 23 verification items green</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-title">Phase B — Layer 4 Validation (~12h)</div>
+          <div class="phase-meta">USER-SPEC Coverage Analyzer · Auto-spec generation (LLM) · Journey depth scoring · Business readiness reports</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-title">Phase C — Layer 2 Deepening (~10h)</div>
+          <div class="phase-meta">Persistence verification · Narrative scenarios · UX assertions · Statistical confidence · Visual regression baselines</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-title">Phase D — Layer 3 Integration (~16h)</div>
+          <div class="phase-meta">QA probe endpoints (5 products) · Integration assertions · Contract registry + runner · Cross-product flow tests · Data invariant engine</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-title">Phase E — Layer 1 Resilience (~12h)</div>
+          <div class="phase-meta">API test runner · Adversarial payload library (LLM bootstrap) · Auth boundary testing · Dirty-state scenarios · Error path generation</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-title">Phase F — Closed-Loop Feedback (~20h)</div>
+          <div class="phase-meta">Enhanced QA context hook · Defect → lint rule generator · Cross-product propagation · Velocity tracking · Architecture feedback · PR merge gate</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-title">Phase G — Predictive Intelligence (~10h)</div>
+          <div class="phase-meta">Risk scoring engine (LLM bootstrap → statistical) · Commit-to-journey mapping · Flakiness detection · Readiness prediction</div>
+        </div>
+      </div>
+
+      <h3>11.2 Effort Summary</h3>
+      <table>
+        <tr><th>Phase</th><th>Effort</th><th>Dependencies</th><th>Primary Value</th></tr>
+        <tr><td>Phase B</td><td>12h</td><td>DocChain feature extraction</td><td>Validation score: 3→8.5</td></tr>
+        <tr><td>Phase C</td><td>10h</td><td>Spec format v2</td><td>Verification score: 7→9.5</td></tr>
+        <tr><td>Phase D</td><td>16h</td><td>QA probe (phronex-common)</td><td>Integration + Data Integrity: 0→7</td></tr>
+        <tr><td>Phase E</td><td>12h</td><td>API test runner binary</td><td>Resilience: 0→8</td></tr>
+        <tr><td>Phase F</td><td>20h</td><td>30+ runs of data</td><td>Knowledge compounding: prevention &gt; detection</td></tr>
+        <tr><td>Phase G</td><td>10h</td><td>50+ merges with outcomes</td><td>Predictive: 0→7</td></tr>
+        <tr><td><strong>Total</strong></td><td><strong>~80h</strong></td><td></td><td>Full PQIP operational</td></tr>
+      </table>
+
+      <h3>11.3 Milestone Integration</h3>
+      <p>PQIP phases align with the existing GSD milestone cadence. Each phase is a GSD milestone in <code>phronex-common</code> and/or <code>phronex-test-runner</code>:</p>
+      <ul>
+        <li><strong>v19.0:</strong> Phases B + C (Layer 4 Validation + Layer 2 Deepening) — 22h</li>
+        <li><strong>v20.0:</strong> Phases D + E (Layer 3 Integration + Layer 1 Resilience) — 28h</li>
+        <li><strong>v21.0:</strong> Phases F + G (Closed-Loop + Predictive) — 30h</li>
+      </ul>
+    </section>
+
+    <!-- ================================================================ -->
+    <section id="appendix-glossary">
+      <h2>Appendix — Glossary</h2>
+      <table>
+        <tr><th>Term</th><th>Definition</th></tr>
+        <tr><td>PQIP</td><td>Product Quality Intelligence Platform — the combined system described in this document</td></tr>
+        <tr><td>JourneyHawk</td><td>The existing E2E browser test harness (cc-test-runner + intelligence pipeline). Becomes Layer 2 of PQIP.</td></tr>
+        <tr><td>DocChain</td><td>The documentation lifecycle system that generates/reconciles .docs/ artefacts. Feeds Layer 4.</td></tr>
+        <tr><td>WikiStore</td><td>Cross-product knowledge base in qa_wiki_articles. Central to the closed-loop feedback system.</td></tr>
+        <tr><td>RCA Engine</td><td>Root Cause Analysis engine — deterministic heuristics + LLM fallback for defect classification.</td></tr>
+        <tr><td>QA Probe</td><td>Lightweight backend endpoint that exposes recent events/writes for a given request ID (Layer 3).</td></tr>
+        <tr><td>Composite readiness</td><td>Weighted average across 10 quality dimensions — the answer to "is the product ready?"</td></tr>
+        <tr><td>Knowledge compounding</td><td>The exponential effect where each defect permanently removes a defect class from the system.</td></tr>
+        <tr><td>LLM bootstrap</td><td>Strategy where LLM expertise fills data gaps at cold start, then gets replaced by deterministic heuristics as data accumulates.</td></tr>
+        <tr><td>Prevention rule</td><td>A WikiStore article that describes a coding anti-pattern with evidence from past defects. Eventually becomes a lint check.</td></tr>
+        <tr><td>Propagation alert</td><td>Cross-product warning when a defect pattern found in product A also exists (undetected) in product B.</td></tr>
+        <tr><td>G5 invariant</td><td>phronex-common must not import SQLAlchemy/asyncpg. All QA DB access via raw psycopg2.</td></tr>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    PQIP Architecture v1.0 · 2026-05-03 · Phronex Solutions ·
+    Generated by Claude Opus 4.6 from discussion with Vivek Parmar ·
+    Next review: after Phase B completion
+  </footer>
+
+</body>
+</html>
