@@ -1,0 +1,76 @@
+# QA Merge Gate -- blocks PR merge on BROKEN findings.
+# Template: copy to product repo .github/workflows/ and configure.
+#
+# Prerequisites:
+#   1. DevServer self-hosted runner registered as GitHub Actions runner
+#      (label: self-hosted, devserver)
+#   2. PHRONEX_QA_DATABASE_URL_SYNC set in runner environment
+#   3. COMC_ADMIN_SECRET set in runner environment
+#
+# See: phronex-test-runner/docs/DEVSERVER-RUNNER-SETUP.md (Phase 88 deliverable)
+name: QA Merge Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  qa-gate:
+    runs-on: [self-hosted, devserver]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Determine product slug
+        id: slug
+        run: |
+          # Infer from repo name
+          REPO="${{ github.event.repository.name }}"
+          case "$REPO" in
+            jobportal) echo "slug=jp" >> "$GITHUB_OUTPUT" ;;
+            contentcompanion) echo "slug=cc" >> "$GITHUB_OUTPUT" ;;
+            phronex-portal) echo "slug=portal" >> "$GITHUB_OUTPUT" ;;
+            praxis) echo "slug=praxis" >> "$GITHUB_OUTPUT" ;;
+            *) echo "slug=unknown" >> "$GITHUB_OUTPUT" ;;
+          esac
+      - name: Run JourneyHawk in gate mode
+        id: journeyhawk
+        run: |
+          cd "$HOME/code/phronex-test-runner"
+          ./run-journeyhawk.sh --gate-mode ${{ steps.slug.outputs.slug }} \
+            ${{ steps.slug.outputs.slug }}-journeys/${{ steps.slug.outputs.slug }}-deep.json
+        continue-on-error: true
+      - name: Post PR comment with findings
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const resultsDir = `${process.env.HOME}/code/phronex-test-runner/results-gate-${context.payload.pull_request.number}`;
+            let body = '## QA Gate Results\n\n';
+            try {
+              const report = fs.readFileSync(`${resultsDir}/gate-report.md`, 'utf8');
+              body += report;
+            } catch {
+              body += '_No gate report generated._\n';
+            }
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body?.startsWith('## QA Gate Results'));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                comment_id: existing.id, body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: context.issue.number, body,
+              });
+            }
+      - name: Fail if BROKEN findings
+        if: steps.journeyhawk.outcome == 'failure'
+        run: |
+          echo "::error::BROKEN findings detected -- merge blocked."
+          exit 1

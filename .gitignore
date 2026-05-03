@@ -145,6 +145,10 @@ tmp/
 jp-journeys/results/
 *.png
 *.yml
+# But keep GitHub Actions workflows tracked
+!.github/
+!.github/workflows/
+!.github/workflows/*.yml
 cli/*.png
 # But keep test fixture images tracked
 !fixtures/*.png

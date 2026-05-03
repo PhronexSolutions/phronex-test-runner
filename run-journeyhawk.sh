@@ -28,9 +28,17 @@ set -euo pipefail
 # Claude Max subscription) which is the correct auth path for DevServer runs.
 unset ANTHROPIC_API_KEY
 
+# ---------- Phase 88 — gate mode for PR merge blocking ----------
+GATE_MODE=0
+
 # ---------- Phase 82 STRAT-16 — per-run mode override ----------
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --gate-mode)
+      GATE_MODE=1
+      shift
+      continue
+      ;;
     --strategist-mode=*)
       val="${1#*=}"
       ;;
@@ -545,6 +553,33 @@ echo "  pipeline exit       : ${PIPE_EXIT}"
 echo "  Results dir         : ${RESULTS_DIR}"
 echo "  Finished: $(date -Iseconds)"
 echo "========================================"
+
+# ---------- Phase 88 gate-mode exit ----------
+if [[ "$GATE_MODE" -eq 1 ]]; then
+  GATE_DIR="${RESULTS_DIR}"
+  GATE_REPORT="${GATE_DIR}/gate-report.md"
+
+  # Count BROKEN findings from CTRF output
+  BROKEN_COUNT=$(grep -c '"severity":"BROKEN"' "${GATE_DIR}"/*.json 2>/dev/null || echo 0)
+
+  echo "## Findings Summary" > "${GATE_REPORT}"
+  echo "" >> "${GATE_REPORT}"
+  echo "| Severity | Count |" >> "${GATE_REPORT}"
+  echo "|----------|-------|" >> "${GATE_REPORT}"
+  for sev in BROKEN HALF_BUILT FRICTION DRIFT; do
+    count=$(grep -c "\"severity\":\"$sev\"" "${GATE_DIR}"/*.json 2>/dev/null || echo 0)
+    echo "| $sev | $count |" >> "${GATE_REPORT}"
+  done
+  echo "" >> "${GATE_REPORT}"
+
+  if [[ "$BROKEN_COUNT" -gt 0 ]]; then
+    echo "**BLOCKED:** $BROKEN_COUNT BROKEN finding(s) detected. Fix before merging." >> "${GATE_REPORT}"
+    exit 1
+  else
+    echo "**PASSED:** No BROKEN findings. Non-blocking findings reported above." >> "${GATE_REPORT}"
+    exit 0
+  fi
+fi
 
 # Exit non-zero only if pipeline failed (test failures are not pipeline errors)
 exit ${PIPE_EXIT}
