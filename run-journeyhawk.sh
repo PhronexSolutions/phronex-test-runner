@@ -183,35 +183,64 @@ fi
 #   PHRONEX_AUTH_TEST_URL            — defaults to https://auth.phronex.com
 #   PHRONEX_QA_ALLOWED_HOSTS         — must include target hosts (production denylist bypass)
 echo ""
+# G-22: cleanup SDK key validation — on non-200, warn and expire resource in qa_test_resources.
+_cleanup_check_response() {
+  local http_code="$1" resource_key="$2" response_body="$3"
+  if [[ "${http_code}" != "200" && "${http_code}" != "ERR" ]]; then
+    echo "  WARNING: cleanup SDK key validation failed for ${resource_key} (HTTP ${http_code})" >&2
+    "${PYTHON}" -c "
+from phronex_common.testing.runner import _mark_cleanup_key_expired, _make_db_connection
+import os
+db_url = os.environ.get('PHRONEX_QA_DATABASE_URL_SYNC', '')
+if db_url:
+    try:
+        conn = _make_db_connection(db_url)
+        _mark_cleanup_key_expired(conn, '${resource_key}', 'HTTP ${http_code}: ${response_body}')
+        conn.close()
+    except Exception:
+        pass
+" 2>/dev/null || true
+  fi
+}
+
 if [[ "${PRODUCT}" == "jp" ]] && [[ -n "${JP_TEST_CLEANUP_SDK_KEY:-}" ]]; then
   JP_CLEANUP_URL="${PHRONEX_JP_TEST_URL:-https://jobc.phronex.com}"
   echo "[0/3] Pre-run JP cleanup at ${JP_CLEANUP_URL}..."
   for resource in users jobs applications; do
-    HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+    _RESP_BODY=$(mktemp)
+    HTTP=$(curl -s -o "${_RESP_BODY}" -w "%{http_code}" \
       -X POST "${JP_CLEANUP_URL}/api/admin/test-cleanup/${resource}" \
       -H "X-SDK-Key: ${JP_TEST_CLEANUP_SDK_KEY}" \
       --max-time 10 2>/dev/null || echo "ERR")
     echo "  cleanup/${resource}: HTTP ${HTTP}"
+    _cleanup_check_response "${HTTP}" "jp_cleanup_sdk_key" "$(head -c 200 "${_RESP_BODY}" 2>/dev/null)"
+    rm -f "${_RESP_BODY}"
   done
 elif [[ "${PRODUCT}" == "cc" ]] && [[ -n "${CC_TEST_CLEANUP_SDK_KEY:-}" ]]; then
   CC_CLEANUP_URL="${PHRONEX_CC_TEST_URL:-https://cc.phronex.com}"
   echo "[0/3] Pre-run CC cleanup at ${CC_CLEANUP_URL}..."
   for resource in conversations widgets; do
-    HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+    _RESP_BODY=$(mktemp)
+    HTTP=$(curl -s -o "${_RESP_BODY}" -w "%{http_code}" \
       -X POST "${CC_CLEANUP_URL}/api/admin/test-cleanup/${resource}" \
       -H "X-SDK-Key: ${CC_TEST_CLEANUP_SDK_KEY}" \
       --max-time 10 2>/dev/null || echo "ERR")
     echo "  cleanup/${resource}: HTTP ${HTTP}"
+    _cleanup_check_response "${HTTP}" "cc_cleanup_sdk_key" "$(head -c 200 "${_RESP_BODY}" 2>/dev/null)"
+    rm -f "${_RESP_BODY}"
   done
 elif [[ "${PRODUCT}" == "auth" ]] && [[ -n "${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY:-}" ]]; then
   AUTH_CLEANUP_URL="${PHRONEX_AUTH_TEST_URL:-https://auth.phronex.com}"
   echo "[0/3] Pre-run Auth cleanup at ${AUTH_CLEANUP_URL}..."
   for resource in users instances impersonation_tokens payment_records; do
-    HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+    _RESP_BODY=$(mktemp)
+    HTTP=$(curl -s -o "${_RESP_BODY}" -w "%{http_code}" \
       -X POST "${AUTH_CLEANUP_URL}/admin/test-cleanup/${resource}" \
       -H "X-SDK-Key: ${PHRONEX_AUTH_TEST_CLEANUP_SDK_KEY}" \
       --max-time 10 2>/dev/null || echo "ERR")
     echo "  cleanup/${resource}: HTTP ${HTTP}"
+    _cleanup_check_response "${HTTP}" "auth_cleanup_sdk_key" "$(head -c 200 "${_RESP_BODY}" 2>/dev/null)"
+    rm -f "${_RESP_BODY}"
   done
 else
   echo "[0/3] Pre-run cleanup skipped (${PRODUCT}_TEST_CLEANUP_SDK_KEY not set in .qa.env)"
@@ -280,6 +309,26 @@ if [[ -d "${_DOCS_DIR}" ]]; then
   fi
 else
   echo "[0b/3] DocChain stage gate skipped — docs dir not found: ${_DOCS_DIR}"
+fi
+
+# Step 0c: Resource verification (Phase 84 — pre-run resource inventory check)
+# Verifies all test resources (accounts, credentials, documents, infra) are available.
+# Populates _resource_cache used by fixture_guard's detect_seed_test_account.
+echo ""
+echo "[0c/3] Resource verification (Phase 84)..."
+_RESOURCE_REPORT="${RESULTS_DIR}/resource-verification.json"
+"${PYTHON}" -m phronex_common.testing.resources verify \
+  --product "${PRODUCT}" \
+  --report "${_RESOURCE_REPORT}" \
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC}" 2>&1
+_RES_EXIT=$?
+if [[ ${_RES_EXIT} -eq 2 ]]; then
+  echo "[0c/3] Resource verification: INFRASTRUCTURE UNREACHABLE — aborting." >&2
+  exit 2
+elif [[ ${_RES_EXIT} -eq 1 ]]; then
+  echo "[0c/3] Resource verification: some resources missing (see ${_RESOURCE_REPORT}). Continuing with degraded coverage."
+else
+  echo "[0c/3] Resource verification: all resources available."
 fi
 
 # Step 1a: Strategist Block A — fixture_guard pre-filter
