@@ -43,11 +43,11 @@
       },
       {
         "id": 2,
-        "description": "Enter the email address qa-jp-free@phronex.com into the email input field"
+        "description": "Enter the email address QA_JP_FREE_EMAIL into the email input field"
       },
       {
         "id": 3,
-        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
+        "description": "Enter the password QA_JP_FREE_PASSWORD into the password field"
       },
       {
         "id": 4,
@@ -73,11 +73,11 @@
       },
       {
         "id": 2,
-        "description": "Enter the email address qa-jp-standard@phronex.com into the email input field"
+        "description": "Enter the email address QA_JP_STANDARD_EMAIL into the email input field"
       },
       {
         "id": 3,
-        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
+        "description": "Enter the password QA_JP_STANDARD_PASSWORD into the password field"
       },
       {
         "id": 4,
@@ -103,11 +103,11 @@
       },
       {
         "id": 2,
-        "description": "Enter the email address qa-jp-pro@phronex.com into the email input field"
+        "description": "Enter the email address QA_JP_PRO_EMAIL into the email input field"
       },
       {
         "id": 3,
-        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
+        "description": "Enter the password QA_JP_PRO_PASSWORD into the password field"
       },
       {
         "id": 4,
@@ -394,7 +394,7 @@
       },
       {
         "id": 3,
-        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies — either showing filtered results or a meaningful empty state. Report the outcome."
+        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies \u2014 either showing filtered results or a meaningful empty state. Report the outcome."
       },
       {
         "id": 4,
@@ -404,7 +404,7 @@
   },
   {
     "id": "jp-verify-jobs-save",
-    "description": "Verify job save/bookmark functionality — save a job, verify it saves, then undo",
+    "description": "Verify job save/bookmark functionality \u2014 save a job, verify it saves, then undo",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "jp-branch-jobs-list",
@@ -442,7 +442,7 @@
       },
       {
         "id": 2,
-        "description": "If an Apply button exists, click it. Verify the application flow starts — a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
+        "description": "If an Apply button exists, click it. Verify the application flow starts \u2014 a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
       },
       {
         "id": 3,
@@ -472,7 +472,7 @@
       },
       {
         "id": 3,
-        "description": "Wait up to 15 seconds for the AI generation to complete or show progress. Report the outcome — did it generate, timeout, or show an error?"
+        "description": "Wait up to 15 seconds for the AI generation to complete or show progress. Report the outcome \u2014 did it generate, timeout, or show an error?"
       },
       {
         "id": 4,
@@ -605,7 +605,7 @@
       },
       {
         "id": 3,
-        "description": "Verify an upgrade CTA is visible — a button or link prompting the user to upgrade to a higher tier. FAIL if no upgrade CTA exists for this {{expectedTier}}-tier user."
+        "description": "Verify an upgrade CTA is visible \u2014 a button or link prompting the user to upgrade to a higher tier. FAIL if no upgrade CTA exists for this {{expectedTier}}-tier user."
       },
       {
         "id": 4,

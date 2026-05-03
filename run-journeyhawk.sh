@@ -121,12 +121,21 @@ trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}"' EXIT
 #   qa-test-journeyhawk@phronex.com ← PHRONEX_PORTAL_TEST_EMAIL
 #   QA_OWNER_EMAIL / QA_OWNER_PASSWORD ← RBAC gate (owner role, not superadmin)
 #   QA_USER_EMAIL  / QA_USER_PASSWORD  ← RBAC gate (regular user, not superadmin)
+#   QA_JP_FREE_EMAIL / QA_JP_FREE_PASSWORD ← JP tree spec jp-trunk-free
+#   QA_JP_STANDARD_EMAIL / QA_JP_STANDARD_PASSWORD ← JP tree spec jp-trunk-standard
+#   QA_JP_PRO_EMAIL / QA_JP_PRO_PASSWORD ← JP tree spec jp-trunk-pro
 _PORTAL_PASS="${PHRONEX_PORTAL_TEST_PASSWORD:-${QA_SUPERADMIN_PASSWORD:-}}"
 _PORTAL_EMAIL="${PHRONEX_PORTAL_TEST_EMAIL:-qa-test-journeyhawk@phronex.com}"
 _OWNER_EMAIL="${QA_OWNER_EMAIL:-qa-owner@phronex.com}"
 _OWNER_PASS="${QA_OWNER_PASSWORD:-}"
 _USER_EMAIL="${QA_USER_EMAIL:-qa-user@phronex.com}"
 _USER_PASS="${QA_USER_PASSWORD:-}"
+_JP_FREE_EMAIL="${QA_JP_FREE_EMAIL:-qa-jp-free@phronex.com}"
+_JP_FREE_PASS="${QA_JP_FREE_PASSWORD:-${_PORTAL_PASS}}"
+_JP_STANDARD_EMAIL="${QA_JP_STANDARD_EMAIL:-qa-jp-standard@phronex.com}"
+_JP_STANDARD_PASS="${QA_JP_STANDARD_PASSWORD:-${_PORTAL_PASS}}"
+_JP_PRO_EMAIL="${QA_JP_PRO_EMAIL:-qa-jp-pro@phronex.com}"
+_JP_PRO_PASS="${QA_JP_PRO_PASSWORD:-${_PORTAL_PASS}}"
 sed \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
@@ -135,6 +144,12 @@ sed \
   -e "s|QA_OWNER_PASSWORD|${_OWNER_PASS}|g" \
   -e "s|QA_USER_EMAIL|${_USER_EMAIL}|g" \
   -e "s|QA_USER_PASSWORD|${_USER_PASS}|g" \
+  -e "s|QA_JP_FREE_EMAIL|${_JP_FREE_EMAIL}|g" \
+  -e "s|QA_JP_FREE_PASSWORD|${_JP_FREE_PASS}|g" \
+  -e "s|QA_JP_STANDARD_EMAIL|${_JP_STANDARD_EMAIL}|g" \
+  -e "s|QA_JP_STANDARD_PASSWORD|${_JP_STANDARD_PASS}|g" \
+  -e "s|QA_JP_PRO_EMAIL|${_JP_PRO_EMAIL}|g" \
+  -e "s|QA_JP_PRO_PASSWORD|${_JP_PRO_PASS}|g" \
   "${SPEC_FILE}" > "${TEMP_SPEC}"
 if [[ -n "${_PORTAL_PASS}" ]]; then
   echo "[env] Portal credentials: ${_PORTAL_EMAIL} (password injected)"
@@ -146,6 +161,15 @@ if [[ -z "${_OWNER_PASS}" ]]; then
 fi
 if [[ -z "${_USER_PASS}" ]]; then
   echo "[env] WARNING: QA_USER_PASSWORD not set — RBAC user gate journey will fail"
+fi
+if [[ -z "${QA_JP_FREE_PASSWORD:-}" ]]; then
+  echo "[env] WARNING: QA_JP_FREE_PASSWORD not set — jp-trunk-free falling back to superadmin password"
+fi
+if [[ -z "${QA_JP_STANDARD_PASSWORD:-}" ]]; then
+  echo "[env] WARNING: QA_JP_STANDARD_PASSWORD not set — jp-trunk-standard falling back to superadmin password"
+fi
+if [[ -z "${QA_JP_PRO_PASSWORD:-}" ]]; then
+  echo "[env] WARNING: QA_JP_PRO_PASSWORD not set — jp-trunk-pro falling back to superadmin password"
 fi
 
 # Step 0: Pre-run test data cleanup (optional — skipped if SDK key not set)
