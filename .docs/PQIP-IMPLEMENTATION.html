@@ -466,7 +466,7 @@ python -m phronex_common.testing.resources expire --key jp_free_tier_account --r
 
     <!-- ================================================================ -->
     <section id="phase-85">
-      <h2>5. Phase 85 &mdash; Validation &amp; Coverage Intelligence (~13h) <span class="badge badge-new">Closes G-03, G-04, G-16, G-18, G-20</span></h2>
+      <h2>5. Phase 85 &mdash; Validation &amp; Coverage Intelligence (~17h) <span class="badge badge-new">Closes G-03, G-04, G-16, G-18, G-20</span></h2>
 
       <div class="callout callout-green">
         <strong>Objective:</strong> Answer "Was the right thing built? Are all USER-SPEC features implemented, testable, and working?" Build the scoring + spec generation pipeline.
@@ -616,6 +616,40 @@ CREATE TABLE qa_readiness_reports (
       </div>
     </section>
 
+      <h3>5.5 Task 85.5 &mdash; Portal QA Dashboard: Coverage &amp; Readiness (4h)</h3>
+      <p><strong>Repos:</strong> phronex-command-centre (new endpoints), phronex-portal (new sub-tab content)</p>
+
+      <p><strong>ComC endpoints (routes/qa.py):</strong></p>
+      <ul>
+        <li><code>GET /api/v1/qa/feature-coverage?product=X</code> &mdash; returns <code>qa_feature_coverage</code> rows grouped by feature_section. Fields: feature_name, code_exists, spec_exists, test_passes, last_tested.</li>
+        <li><code>GET /api/v1/qa/readiness?product=X</code> &mdash; returns latest <code>qa_readiness_reports</code> row: all 10 dimension scores, composite_score, readiness_level, narrative.</li>
+        <li><code>GET /api/v1/qa/readiness-history?product=X&amp;limit=N</code> &mdash; returns last N readiness reports for trend sparkline.</li>
+        <li><code>GET /api/v1/qa/resources?product=X</code> &mdash; returns <code>qa_test_resources</code> rows: resource_key, category, status, last_verified, verification_error (Phase 84 table).</li>
+      </ul>
+
+      <p><strong>Portal components (enhance existing QA Dashboard sub-tabs):</strong></p>
+      <ul>
+        <li><strong>OverviewTab.tsx</strong> &mdash; add readiness score gauge (10-dimension radar/spider chart or horizontal bar breakdown), readiness_level badge (SHIP/DEMO/DEVELOP/HOLD with colour), CEO narrative text. Replace or augment existing grade strips with composite score. Uses <code>@phronex/ui</code> components: Badge, Card.</li>
+        <li><strong>New: CoverageTab.tsx</strong> &mdash; feature coverage heat map. Group features by USER-SPEC section. Each feature shows 3 status indicators (code_exists, spec_exists, test_passes) as coloured dots. Filter by product. Uses <code>@phronex/ui</code> components: Card, Badge, SubTabBar (if product selector needed).</li>
+        <li><strong>ResourcesTab.tsx</strong> &mdash; enhance existing tab to show <code>qa_test_resources</code> data from Phase 84. Per-resource status badges (available/missing/expired), last_verified timestamp, verification_error tooltip. Group by category. Uses <code>@phronex/ui</code> components: Badge, Card, Alert (for missing resources).</li>
+      </ul>
+
+      <p><strong>Portal proxy routes:</strong> Add to <code>app/api/admin/command-centre/qa/[...path]/route.ts</code> catch-all (already handles arbitrary paths). No new portal route files needed &mdash; the catch-all proxies <code>/api/admin/command-centre/qa/feature-coverage?product=X</code> to ComC.</p>
+
+      <div class="dod-box">
+        <h4>DoD &mdash; 85.5</h4>
+        <ul>
+          <li>ComC <code>GET /api/v1/qa/feature-coverage?product=jp</code> returns &ge;10 rows.</li>
+          <li>ComC <code>GET /api/v1/qa/readiness?product=jp</code> returns composite_score + readiness_level.</li>
+          <li>ComC <code>GET /api/v1/qa/resources?product=jp</code> returns qa_test_resources rows.</li>
+          <li>Portal OverviewTab shows readiness score + level badge + narrative text.</li>
+          <li>Portal CoverageTab shows feature heat map with 3 status indicators per feature.</li>
+          <li>Portal ResourcesTab shows per-resource status from qa_test_resources.</li>
+          <li>All new components use <code>@phronex/ui</code> (Badge, Card, Alert). No hardcoded hex colours.</li>
+          <li><code>pnpm build</code> passes on phronex-portal with zero errors.</li>
+        </ul>
+      </div>
+
       <div class="dod-box">
         <h4>Definition of Done &mdash; Phase 85 (combined)</h4>
         <ul>
@@ -624,7 +658,8 @@ CREATE TABLE qa_readiness_reports (
           <li><code>from phronex_common.testing.depth_scorer import score_journey</code> &mdash; SMOKE journeys rejected, DEEP+ accepted.</li>
           <li><code>SELECT composite_score, readiness_level FROM qa_readiness_reports WHERE product_slug='jp' ORDER BY created_at DESC LIMIT 1;</code> returns a row with readiness_level in (SHIP, DEMO, DEVELOP, HOLD).</li>
           <li><code>python -m phronex_common.testing.spec_generator --product jp --dry-run</code> prints &ge;1 DEEP-scored draft spec.</li>
-          <li>ruff check passes. LLM budget &le;$2.50 per product invocation.</li>
+          <li>Portal QA Dashboard: OverviewTab shows readiness, CoverageTab shows feature heat map, ResourcesTab shows qa_test_resources data.</li>
+          <li>ruff check passes. <code>pnpm build</code> passes. LLM budget &le;$2.50 per product invocation.</li>
         </ul>
       </div>
     </section>
@@ -942,7 +977,7 @@ payloads:
 
     <!-- ================================================================ -->
     <section id="phase-88">
-      <h2>8. Phase 88 &mdash; Closed-Loop &amp; Predictive Intelligence (~19h) <span class="badge badge-new">Closes G-11, G-12, G-13, G-14, G-15, G-19</span></h2>
+      <h2>8. Phase 88 &mdash; Closed-Loop &amp; Predictive Intelligence (~24h) <span class="badge badge-new">Closes G-11, G-12, G-13, G-14, G-15, G-19</span></h2>
 
       <div class="callout callout-purple">
         <strong>Objective:</strong> Close the loop: defects found &rarr; prevention rules &rarr; lint checks &rarr; cross-product propagation &rarr; risk prediction. Finding bugs is 1x value. Preventing them from being created is 10x value.
@@ -1102,6 +1137,51 @@ jobs:
       <h3>8.7 Task 88.7 &mdash; Flakiness Quarantine (1h)</h3>
       <p>Journeys classified as FLAKY in <code>qa_confidence_scores</code> are quarantined: they still run, but their failures don't block the PR merge gate or reduce the composite readiness score. Instead, they are flagged for investigation.</p>
 
+      <h3>8.8 Task 88.8 &mdash; Portal QA Dashboard: Predictive Intelligence &amp; CEO View (5h)</h3>
+      <p><strong>Extends:</strong> Portal QA Dashboard (<code>QADashboardPanel.tsx</code>) with 3 new or enhanced sub-tabs that surface closed-loop intelligence and executive readiness reporting.</p>
+      <p><strong>Architecture:</strong> Portal &rarr; ComC proxy (<code>/api/v1/qa/*</code>) &rarr; phronex_qa DB. All components use <code>@phronex/ui</code> library (Badge, Card, Alert, SubTabBar, etc.).</p>
+
+      <h4>8.8.1 New ComC Endpoints (phronex-command-centre)</h4>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Source Table(s)</th><th>Returns</th></tr>
+        <tr><td>GET</td><td><code>/api/v1/qa/prevention-rules?product=&amp;status=</code></td><td>qa_prevention_rules</td><td>Rules list with confidence, confirmed/FP counts, pattern_signature</td></tr>
+        <tr><td>PATCH</td><td><code>/api/v1/qa/prevention-rules/{rule_id}/activate</code></td><td>qa_prevention_rules</td><td>Status transition: draft&rarr;active (requires confidence &ge;0.75)</td></tr>
+        <tr><td>PATCH</td><td><code>/api/v1/qa/prevention-rules/{rule_id}/retire</code></td><td>qa_prevention_rules</td><td>Status transition: active&rarr;retired</td></tr>
+        <tr><td>GET</td><td><code>/api/v1/qa/propagation-alerts?product=&amp;status=</code></td><td>qa_propagation_alerts</td><td>Alerts with source defect, target product, match file/line</td></tr>
+        <tr><td>PATCH</td><td><code>/api/v1/qa/propagation-alerts/{alert_id}/resolve</code></td><td>qa_propagation_alerts</td><td>Mark fixed or false_positive</td></tr>
+        <tr><td>GET</td><td><code>/api/v1/qa/velocity-metrics?product=</code></td><td>qa_velocity_metrics</td><td>Defect rate + avg_runs_to_stable per code area</td></tr>
+        <tr><td>GET</td><td><code>/api/v1/qa/risk-map?product=</code></td><td>qa_velocity_metrics + qa_defect_rca</td><td>Risk heat map: code area &rarr; P(break) score</td></tr>
+        <tr><td>GET</td><td><code>/api/v1/qa/ceo-readiness-report?product=</code></td><td>qa_readiness_reports + qa_velocity_metrics + qa_prevention_rules</td><td>Executive summary: composite score, trend, risk areas, knowledge compounding rate</td></tr>
+      </table>
+
+      <h4>8.8.2 Prevention Rules Management (sub-tab: &ldquo;Prevention Rules&rdquo;)</h4>
+      <p><strong>New sub-tab</strong> in QADashboardPanel (<code>?qtab=prevention-rules</code>). Surfaces the draft&rarr;active&rarr;retired lifecycle from Task 88.2.</p>
+      <ul>
+        <li><strong>Table view:</strong> All rules for selected product. Columns: rule_type badge, pattern_signature (monospace), source defect link, confidence bar, confirmed/FP counts, status badge (draft=amber, active=green, retired=gray).</li>
+        <li><strong>Inline actions:</strong> &ldquo;Activate&rdquo; button (visible when confidence &ge;0.75 + confirmed &ge;2, status=draft). &ldquo;Retire&rdquo; button (visible when status=active). Both confirm via dialog before PATCH.</li>
+        <li><strong>Stats header:</strong> Total rules, active count, retired count, total confirmed preventions.</li>
+        <li><strong>Components:</strong> <code>@phronex/ui</code> DataTable, Badge, Button, ConfirmDialog.</li>
+      </ul>
+
+      <h4>8.8.3 Cross-Product Propagation Alerts (sub-tab: &ldquo;Propagation&rdquo;)</h4>
+      <p><strong>New sub-tab</strong> (<code>?qtab=propagation</code>). Shows defect patterns that were found in one product and detected in another&rsquo;s codebase.</p>
+      <ul>
+        <li><strong>Alert cards:</strong> Source product badge &rarr; arrow &rarr; target product badge. Pattern signature in monospace. Match file + line number. Status badge (open=red, fixed=green, false_positive=gray).</li>
+        <li><strong>Resolution actions:</strong> &ldquo;Mark Fixed&rdquo; and &ldquo;False Positive&rdquo; buttons per alert. Both PATCH to resolve endpoint.</li>
+        <li><strong>Aggregate view:</strong> Product-pair matrix showing alert counts (e.g. JP&rarr;CC: 3 open, 1 fixed).</li>
+        <li><strong>Components:</strong> <code>@phronex/ui</code> Card, Badge, Button, Alert.</li>
+      </ul>
+
+      <h4>8.8.4 CEO Readiness Report (enhancement to OverviewTab)</h4>
+      <p><strong>Enhances</strong> the existing OverviewTab (<code>?qtab=overview</code>) with executive-grade reporting. This is the view the CEO sees to understand product quality at a glance.</p>
+      <ul>
+        <li><strong>Readiness trend chart:</strong> Recharts AreaChart showing composite readiness score over time (from <code>qa_readiness_reports</code>). Shows threshold lines at 85% (SHIP), 70% (DEMO), 50% (DEVELOP).</li>
+        <li><strong>Risk heat map:</strong> Treemap or grid of code areas sized by change frequency, coloured by defect rate (green &lt;0.1, amber 0.1&ndash;0.3, red &gt;0.3). Data from <code>/api/v1/qa/risk-map</code>.</li>
+        <li><strong>Knowledge compounding gauge:</strong> Shows how many prevention rules are active vs total defects found &mdash; the &ldquo;learning rate&rdquo; of the QA system. Formula: <code>active_rules / total_defects_found</code>. Display as a progress ring with label &ldquo;X% of defects have generated active prevention rules.&rdquo;</li>
+        <li><strong>Velocity metrics summary:</strong> Top 5 riskiest code areas by defect_rate. Sparkline of runs_to_stable trend per area.</li>
+        <li><strong>Components:</strong> <code>@phronex/ui</code> Card, Badge. Recharts: AreaChart, Treemap (or custom grid), sparklines.</li>
+      </ul>
+
       <div class="dod-box">
         <h4>Definition of Done &mdash; Phase 88 (combined)</h4>
         <ul>
@@ -1114,6 +1194,8 @@ jobs:
           <li>Flaky journeys quarantined: not counted in PR gate, flagged in readiness report.</li>
           <li><code>qa_velocity_metrics</code> populated after run.</li>
           <li>Architecture feedback report generator produces ROI-ranked recommendations.</li>
+          <li>Portal QA Dashboard: &ldquo;Prevention Rules&rdquo; sub-tab renders rules with activate/retire actions. &ldquo;Propagation&rdquo; sub-tab shows cross-product alerts with resolution. OverviewTab shows readiness trend chart, risk heat map, and knowledge compounding gauge.</li>
+          <li>All new portal components use <code>@phronex/ui</code> library exclusively &mdash; no inline component definitions.</li>
           <li>ruff check passes on all new files.</li>
         </ul>
       </div>
