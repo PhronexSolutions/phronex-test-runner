@@ -331,6 +331,32 @@ else
   echo "[0c/3] Resource verification: all resources available."
 fi
 
+# Step 0d: Journey depth scoring (Phase 85 — G-18)
+# Classifies each journey as SMOKE/SURFACE/DEEP/BEHAVIORAL.
+# SMOKE journeys are warned but NOT dropped (D-01: warn only, don't reject).
+echo ""
+echo "[0d/3] Journey depth scoring (Phase 85)..."
+"${PYTHON}" -c "
+import json, sys
+from phronex_common.testing.depth_scorer import score_journey, DepthLevel
+specs = json.loads(open('${TEMP_SPEC}').read())
+smoke = []
+surface = []
+for j in specs:
+    depth = score_journey(j)
+    if depth == DepthLevel.SMOKE:
+        smoke.append(j.get('id', '?'))
+    elif depth == DepthLevel.SURFACE:
+        surface.append(j.get('id', '?'))
+if smoke:
+    print(f'  WARNING: {len(smoke)} SMOKE journeys (shallow, should be enriched): {smoke}', file=sys.stderr)
+if surface:
+    print(f'  FLAGGED: {len(surface)} SURFACE journeys: {surface}', file=sys.stderr)
+total = len(specs)
+deep_plus = total - len(smoke) - len(surface)
+print(f'  Depth: {deep_plus} DEEP+, {len(surface)} SURFACE, {len(smoke)} SMOKE out of {total} total')
+" 2>&1 || echo "[0d/3] WARN: depth scoring failed (non-fatal, continuing)"
+
 # Step 1a: Strategist Block A — fixture_guard pre-filter
 # STRATEGIST_MODE controls behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
 # Per-run override: --strategist-mode=VALUE flag exports STRATEGIST_MODE_OVERRIDE
