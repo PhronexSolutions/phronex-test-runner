@@ -377,6 +377,7 @@ echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE}
 # suffix qa_journeys.suite_scope with ':aborted'.
 echo ""
 echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter)..."
+CC_EXIT=0
 "${PYTHON}" -m phronex_common.testing.strategist.run_arbiter \
   --product "${PRODUCT}" \
   --results-dir "${RESULTS_DIR}" \
@@ -385,9 +386,8 @@ echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter)..."
   "${SCRIPT_DIR}/cli/cc-test-runner" \
     -t "${MUTATED_SPEC}" \
     -o "${RESULTS_DIR}" \
-    --maxTurns 50
-
-CC_EXIT=$?
+    --maxTurns 50 \
+  || CC_EXIT=$?
 if [[ ${CC_EXIT} -ne 0 ]]; then
   echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
 fi

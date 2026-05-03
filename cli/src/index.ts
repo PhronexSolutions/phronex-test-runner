@@ -76,11 +76,11 @@ async function runJourney(
     // Resolve params before setting state — Claude sees substituted step text
     const resolvedSteps = resolveParams(testCase.steps, testCase.params ?? {});
 
-    // Shared roots: append a synthetic step instructing Claude to save browser
-    // storage state (cookies + localStorage) so child nodes can load it via
-    // --storage-state.  The step uses the Playwright MCP browser_storage_state
-    // tool which writes the state JSON to a specified filename.
-    const steps = (testCase.isSharedRoot && testCase.stateOutputPath)
+    // Any node with stateOutputPath: append a synthetic step instructing Claude
+    // to save browser storage state (cookies + localStorage) so child nodes can
+    // load it via --storage-state.  Both trunks (isSharedRoot) and branches need
+    // this — leaves that dependsOn a branch need the branch's navigated-page state.
+    const steps = (testCase.stateOutputPath)
         ? [
             ...resolvedSteps,
             {

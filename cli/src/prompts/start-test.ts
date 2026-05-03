@@ -84,7 +84,7 @@ export const startTest = (testCase: TestCase, storageStatePath: string | null = 
         throw new Error("Claude not found on PATH. Did you run `bun install`?");
     }
 
-    const needsStorageCaps = testCase.isSharedRoot || storageStatePath !== null;
+    const needsStorageCaps = !!testCase.stateOutputPath || storageStatePath !== null;
     const playwrightArgs: string[] = [
         playwrightMcpCliPath(),
         "--output-dir",
