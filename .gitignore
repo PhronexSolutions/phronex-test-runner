@@ -146,6 +146,8 @@ jp-journeys/results/
 *.png
 *.yml
 cli/*.png
+# But keep test fixture images tracked
+!fixtures/*.png
 
 # JourneyHawk run output directories
 journeys-output/
