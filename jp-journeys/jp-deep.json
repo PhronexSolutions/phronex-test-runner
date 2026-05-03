@@ -17,7 +17,7 @@
       },
       {
         "id": 3,
-        "description": "Enter the password from environment variable QA_PASS_MAIN (from .qa.env) into the password field"
+        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
       },
       {
         "id": 4,
@@ -47,7 +47,7 @@
       },
       {
         "id": 3,
-        "description": "Enter the password from environment variable QA_PASS_FREE (from .qa.env) into the password field"
+        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
       },
       {
         "id": 4,
@@ -77,7 +77,7 @@
       },
       {
         "id": 3,
-        "description": "Enter the password from environment variable QA_PASS_STANDARD (from .qa.env) into the password field"
+        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
       },
       {
         "id": 4,
@@ -107,7 +107,7 @@
       },
       {
         "id": 3,
-        "description": "Enter the password from environment variable QA_PASS_PRO (from .qa.env) into the password field"
+        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
       },
       {
         "id": 4,
