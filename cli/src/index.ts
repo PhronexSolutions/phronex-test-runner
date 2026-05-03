@@ -1,3 +1,5 @@
+import { mkdirSync } from "fs";
+import { dirname, resolve } from "path";
 import { MCPStateServer } from "./mcp/test-state/server";
 import { inputs } from "./utils/args";
 import { startTest, resolveParams } from "./prompts/start-test";
@@ -72,13 +74,27 @@ async function runJourney(
     server.clearState();
 
     // Resolve params before setting state — Claude sees substituted step text
-    const resolvedTestCase = {
-        ...testCase,
-        steps: resolveParams(testCase.steps, testCase.params ?? {}),
-    };
+    const resolvedSteps = resolveParams(testCase.steps, testCase.params ?? {});
+
+    // Shared roots: append a synthetic step instructing Claude to save browser
+    // storage state (cookies + localStorage) so child nodes can load it via
+    // --storage-state.  The step uses the Playwright MCP browser_storage_state
+    // tool which writes the state JSON to a specified filename.
+    const steps = (testCase.isSharedRoot && testCase.stateOutputPath)
+        ? [
+            ...resolvedSteps,
+            {
+                id: resolvedSteps.length + 1,
+                description: `IMPORTANT — Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to "${resolve(testCase.stateOutputPath)}" to save cookies and localStorage for downstream test nodes. This step is critical — without it, dependent journeys will fail.`,
+                status: "pending" as const,
+            },
+        ]
+        : resolvedSteps;
+
+    const resolvedTestCase = { ...testCase, steps };
     server.setTestState(resolvedTestCase);
 
-    for await (const message of startTest(testCase, parentStatePath)) {
+    for await (const message of startTest(resolvedTestCase, parentStatePath)) {
         logger.debug("Received Claude Code message", {
             test_id: testCase.id,
             message: JSON.stringify(message),
@@ -99,7 +115,14 @@ async function runJourney(
     });
 }
 
-// 4. Main loop — topo-sorted so parents always run before children
+// 4. Pre-create directories for state output paths
+for (const tc of inputs.testCases) {
+    if (tc.stateOutputPath) {
+        mkdirSync(dirname(resolve(tc.stateOutputPath)), { recursive: true });
+    }
+}
+
+// 5. Main loop — topo-sorted so parents always run before children
 const orderedCases = topoSort(inputs.testCases);
 for (const testCase of orderedCases) {
     // Resolve parent state: if parent captured a state file, pass it down

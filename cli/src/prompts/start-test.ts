@@ -84,26 +84,18 @@ export const startTest = (testCase: TestCase, storageStatePath: string | null = 
         throw new Error("Claude not found on PATH. Did you run `bun install`?");
     }
 
+    const needsStorageCaps = testCase.isSharedRoot || storageStatePath !== null;
     const playwrightArgs: string[] = [
         playwrightMcpCliPath(),
         "--output-dir",
         `${inputs.resultsPath}/${testCase.id}/playwright`,
-        // NOTE: `--save-trace` was supported in @playwright/mcp
-        // v0.0.31 but DROPPED in v0.0.70+. Including it causes
-        // the MCP server to exit with "unknown option" before
-        // the JSON-RPC handshake completes. Output traces are
-        // still saved by default into --output-dir.
         "--image-responses",
         "omit",
-        // --isolated: in-memory profile per MCP connection; prevents
-        // Chrome SingletonLock conflicts between sequential test cases.
         "--isolated",
+        ...(needsStorageCaps ? ["--caps", "storage"] : []),
     ];
     if (storageStatePath !== null) {
         playwrightArgs.push("--storage-state", storageStatePath);
-    }
-    if (testCase.isSharedRoot && testCase.stateOutputPath) {
-        playwrightArgs.push("--save-session", testCase.stateOutputPath);
     }
 
     return query({
@@ -164,6 +156,10 @@ export const startTest = (testCase: TestCase, storageStatePath: string | null = 
                 "mcp__cctr-playwright__browser_tab_close",
                 "mcp__cctr-playwright__browser_take_screenshot",
                 "mcp__cctr-playwright__browser_wait_for",
+                // Storage state tools — save/restore cookies + localStorage
+                // between tree-executor nodes (trunk saves, branch/leaf loads)
+                "mcp__cctr-playwright__browser_storage_state",
+                "mcp__cctr-playwright__browser_set_storage_state",
                 // Custom MCP tools for managing the test state
                 "mcp__cctr-state__get_test_plan",
                 "mcp__cctr-state__update_test_step",
