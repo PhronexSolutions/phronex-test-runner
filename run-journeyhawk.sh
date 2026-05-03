@@ -559,8 +559,70 @@ if [[ "$GATE_MODE" -eq 1 ]]; then
   GATE_DIR="${RESULTS_DIR}"
   GATE_REPORT="${GATE_DIR}/gate-report.md"
 
-  # Count BROKEN findings from CTRF output
-  BROKEN_COUNT=$(grep -c '"severity":"BROKEN"' "${GATE_DIR}"/*.json 2>/dev/null || echo 0)
+  # Phase 89: Query FLAKY journey IDs from qa_confidence_scores for quarantine.
+  # If DB unavailable, FLAKY_IDS_FILE stays empty and all BROKEN findings count.
+  FLAKY_IDS_FILE=$(mktemp)
+  trap "rm -f '${FLAKY_IDS_FILE}'" EXIT
+  FLAKY_QUARANTINED=0
+
+  if [[ -n "${PHRONEX_QA_DATABASE_URL_SYNC:-}" ]]; then
+    _FLAKY_IDS_FILE="${FLAKY_IDS_FILE}" "${PYTHON}" - <<'FLAKY_EOF' || true
+import os, sys
+try:
+    import psycopg2
+    db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+    if not db_url:
+        sys.exit(0)
+    clean_url = db_url.replace("postgresql+psycopg2://", "postgresql://")
+    conn = psycopg2.connect(clean_url)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT journey_id FROM qa_confidence_scores "
+                "WHERE classification = 'FLAKY'"
+            )
+            flaky_ids = [row[0] for row in cur.fetchall()]
+    finally:
+        conn.close()
+    if flaky_ids:
+        # Write one ID per line to the file path passed via env
+        flaky_file = os.environ.get("_FLAKY_IDS_FILE", "")
+        if flaky_file:
+            with open(flaky_file, "w") as f:
+                for fid in flaky_ids:
+                    f.write(fid + "\n")
+            print(f"[gate] loaded {len(flaky_ids)} FLAKY journey IDs for quarantine", file=sys.stderr)
+except Exception as e:
+    print(f"[gate] WARNING: FLAKY query failed (non-fatal, counting all BROKEN): {e}", file=sys.stderr)
+FLAKY_EOF
+  fi
+
+  # Count all BROKEN findings
+  BROKEN_RAW=$(grep -c '"severity":"BROKEN"' "${GATE_DIR}"/*.json 2>/dev/null || echo 0)
+
+  # Filter out FLAKY journey IDs from BROKEN count
+  if [[ -s "${FLAKY_IDS_FILE}" ]]; then
+    # Extract BROKEN lines, then exclude any that contain a FLAKY journey ID
+    BROKEN_LINES=$(grep '"severity":"BROKEN"' "${GATE_DIR}"/*.json 2>/dev/null || true)
+    if [[ -n "${BROKEN_LINES}" ]]; then
+      BROKEN_COUNT=$(echo "${BROKEN_LINES}" | grep -v -F -f "${FLAKY_IDS_FILE}" | grep -c . || echo 0)
+      FLAKY_QUARANTINED=$(( BROKEN_RAW - BROKEN_COUNT ))
+    else
+      BROKEN_COUNT=0
+    fi
+  else
+    BROKEN_COUNT="${BROKEN_RAW}"
+  fi
+
+  # Log quarantined FLAKY journeys
+  if [[ "${FLAKY_QUARANTINED}" -gt 0 ]]; then
+    echo "[gate] ${FLAKY_QUARANTINED} BROKEN finding(s) quarantined (FLAKY journey)" >&2
+    while IFS= read -r flaky_id; do
+      if grep -q "${flaky_id}" "${GATE_DIR}"/*.json 2>/dev/null; then
+        echo "[gate] WARNING: FLAKY quarantined: ${flaky_id}" >&2
+      fi
+    done < "${FLAKY_IDS_FILE}"
+  fi
 
   echo "## Findings Summary" > "${GATE_REPORT}"
   echo "" >> "${GATE_REPORT}"
@@ -570,13 +632,14 @@ if [[ "$GATE_MODE" -eq 1 ]]; then
     count=$(grep -c "\"severity\":\"$sev\"" "${GATE_DIR}"/*.json 2>/dev/null || echo 0)
     echo "| $sev | $count |" >> "${GATE_REPORT}"
   done
+  echo "| FLAKY_QUARANTINED | $FLAKY_QUARANTINED |" >> "${GATE_REPORT}"
   echo "" >> "${GATE_REPORT}"
 
   if [[ "$BROKEN_COUNT" -gt 0 ]]; then
-    echo "**BLOCKED:** $BROKEN_COUNT BROKEN finding(s) detected. Fix before merging." >> "${GATE_REPORT}"
+    echo "**BLOCKED:** $BROKEN_COUNT BROKEN finding(s) detected (${FLAKY_QUARANTINED} FLAKY quarantined). Fix before merging." >> "${GATE_REPORT}"
     exit 1
   else
-    echo "**PASSED:** No BROKEN findings. Non-blocking findings reported above." >> "${GATE_REPORT}"
+    echo "**PASSED:** No BROKEN findings (${FLAKY_QUARANTINED} FLAKY quarantined). Non-blocking findings reported above." >> "${GATE_REPORT}"
     exit 0
   fi
 fi

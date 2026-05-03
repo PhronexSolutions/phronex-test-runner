@@ -37,6 +37,21 @@ marked is more valuable than one with more actions but incomplete step records.
 Every step in the plan MUST end with either status "passed" or "failed" — never leave a
 step in "pending" state if you have attempted it.
 
+## Persistence verification
+If the test case has a "persistence" field:
+- After completing the step matching "after_step", navigate to the "navigate_away" URL
+- Then navigate back to "navigate_back"
+- Verify the assertion in "assert" — this confirms data persists across navigation
+
+## Dirty-state testing
+If the test case has a "dirty_state" field:
+- For each scenario in the array:
+  - If "trigger_after_step" is specified, execute the scenario after that step completes
+  - The "scenario" field describes what to do (e.g., "close browser tab", "wait for session timeout")
+  - Execute the scenario as described and verify the application handles it gracefully
+  - If "wait_seconds" is specified, wait that many seconds before checking
+  - If "fields" is specified, verify those specific fields are preserved or properly handled
+
 ## Security and privacy
 - Do not share any sensitive information (e.g. passwords, API keys, PII, etc.) in chat.
 `;

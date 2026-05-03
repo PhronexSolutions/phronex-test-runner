@@ -25,6 +25,18 @@ export const testCaseSchema = z.object({
     dependsOn: z.string().optional(),
     params: z.record(z.string(), z.unknown()).optional().default({}),
     cleanupSteps: z.array(stepSchema).optional(),
+    persistence: z.object({
+        after_step: z.string(),
+        navigate_away: z.string(),
+        navigate_back: z.string(),
+        assert: z.string(),
+    }).optional(),
+    dirty_state: z.array(z.object({
+        scenario: z.string(),
+        trigger_after_step: z.string().optional(),
+        wait_seconds: z.number().optional(),
+        fields: z.array(z.string()).optional(),
+    })).optional(),
 });
 
 /**
