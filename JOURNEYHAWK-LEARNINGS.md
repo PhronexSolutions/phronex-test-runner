@@ -476,3 +476,15 @@ psql "$PHRONEX_QA_DATABASE_URL_SYNC" \
 **Pattern:** When a journey starts in a fresh browser context (`--isolated`), the initial page is `about:blank`. Calling `page.evaluate()` on `about:blank` fails with "Need to navigate to a page first before executing JavaScript." The tester must navigate to any page (even one that returns 404) before `page.evaluate()` can execute fetch calls.
 **Fix in specs:** Add an explicit "First navigate to https://cc.phronex.com/ to establish a page context" instruction as the first step in any API-only journey that uses `page.evaluate()`. Note: a 404 on the root URL is expected — CC serves no homepage.
 **Applied to:** cc-J06, cc-J07, cc-J08, cc-J09 step 1 descriptions (commit da049e1).
+
+---
+
+### CC widget `data-auth-mode='portal'` breaks anonymous visitors — use `anonymous` for public sites
+
+**Discovered:** 2026-05-04, cc-phronexweb-J02 browser console log.
+**Pattern:** The phronexweb CC widget was embedded on phronex.com with `data-auth-mode='portal'`. This mode requires the visitor to be authenticated in `app.phronex.com` via an iframe token frame at `/api/cc/token-frame`. Anonymous public website visitors are never portal-authenticated, so the widget loops: it polls `token-frame` every ~15 seconds, receives "not authenticated", and cannot issue a chat token. The chat panel opens correctly (widget JS loads) but messages never get a response — the AI is blocked waiting for a token.
+**Detection in console log:** Repeated `[CC] portal auth: loading iframe https://app.phronex.com/api/cc/token-frame` followed immediately by `[CC] portal auth: not authenticated` — repeating every ~15s.
+**Why J01 (API test) passed but J02 (browser test) failed:** The API test used `POST /auth/anonymous` directly with the right `instance_id`, bypassing widget auth entirely. The browser widget uses a different code path that respects `data-auth-mode` on the script tag.
+**Fix:** Set `data-auth-mode='anonymous'` on the widget script tag for any instance embedded on a public-facing website where visitors are not portal users. Remove `data-portal-auth-frame` attribute too (it's only needed with `portal` mode). Fix: phronex-website commit `b9fa368`, defect #225 in `qa_known_defects`.
+**Rule for future instances:** Only use `portal` auth mode when the embedding page is behind the Phronex portal login (`app.phronex.com`). For all public-facing sites (customer websites, phronex.com), use `anonymous` mode.
+
