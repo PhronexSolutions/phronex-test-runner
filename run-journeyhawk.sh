@@ -470,8 +470,12 @@ echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE}
 # / per-journey 5 min hang / >50% network failure rate). On abort it writes
 # ${RESULTS_DIR}/abort_reason.json which the pipeline (Step 2) reads to
 # suffix qa_journeys.suite_scope with ':aborted'.
+#
+# 24-journey spec needs ~90s avg per journey; cap at 90 min so a stuck journey
+# can't stall the run indefinitely. Override with STRATEGIST_ABORT_MAX_RUNTIME_SEC.
+export STRATEGIST_ABORT_MAX_RUNTIME_SEC="${STRATEGIST_ABORT_MAX_RUNTIME_SEC:-5400}"
 echo ""
-echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter)..."
+echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter, max_runtime=${STRATEGIST_ABORT_MAX_RUNTIME_SEC}s)..."
 CC_EXIT=0
 "${PYTHON}" -m phronex_common.testing.strategist.run_arbiter \
   --product "${PRODUCT}" \
