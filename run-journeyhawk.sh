@@ -377,6 +377,28 @@ deep_plus = total - len(smoke) - len(surface)
 print(f'  Depth: {deep_plus} DEEP+, {len(surface)} SURFACE, {len(smoke)} SMOKE out of {total} total')
 " 2>&1 || echo "[0d/3] WARN: depth scoring failed (non-fatal, continuing)"
 
+# Step 0e: Strategist run filter (Phase 90)
+# Applies depth gate (Reason D) + coverage-based filtering. Writes filtered spec
+# to a temp file. If it succeeds, use the filtered spec downstream; otherwise
+# continue with the original TEMP_SPEC unchanged (fail-open).
+echo ""
+echo "[0e/3] Strategist run filter (Phase 90)..."
+RUN_FILTER_OUTPUT=$(mktemp /tmp/jh-run-filter-XXXXXX.json)
+if "${PYTHON}" -m phronex_common.testing.run_filter \
+  --product "${PRODUCT}" \
+  --spec "${TEMP_SPEC}" \
+  --output "${RUN_FILTER_OUTPUT}" 2>&1; then
+  if [ -s "${RUN_FILTER_OUTPUT}" ]; then
+    cp "${RUN_FILTER_OUTPUT}" "${TEMP_SPEC}"
+    echo "[0e/3] Run filter applied — using filtered spec"
+  else
+    echo "[0e/3] WARN: run filter produced empty output — using original spec"
+  fi
+else
+  echo "[0e/3] WARN: run filter failed (non-fatal) — using original spec"
+fi
+rm -f "${RUN_FILTER_OUTPUT}"
+
 # Step 1a: Strategist Block A — fixture_guard pre-filter
 # STRATEGIST_MODE controls behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
 # Per-run override: --strategist-mode=VALUE flag exports STRATEGIST_MODE_OVERRIDE
@@ -400,7 +422,7 @@ echo "[1a/3] Fixture guard pre-filter (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE
 export JOURNEYHAWK_PRODUCT="${PRODUCT}"
 export JOURNEYHAWK_FILTERED_SPEC="${FILTERED_SPEC}"
 echo ""
-echo "[1a2/3] Pre-run strategist signals (Q1-Q4)..."
+echo "[1a2/3] Pre-run strategist signals (Q1-Q6)..."
 "${PYTHON}" - <<'SIGNALS_EOF' || true
 import os, sys, json
 
@@ -420,6 +442,7 @@ try:
     from phronex_common.testing.strategist.questions import (
         answer_coverage_gap, answer_yield_trend,
         answer_ethos_priority, answer_fixture_health,
+        answer_depth_quality, answer_docchain_freshness,
     )
     _clean_url = _db_url.replace("postgresql+psycopg2://", "postgresql://")
     _conn = psycopg2.connect(_clean_url)
@@ -428,7 +451,10 @@ try:
         q2 = answer_yield_trend(_product, _conn)
         q3 = answer_ethos_priority(_product, _conn)
         q4 = answer_fixture_health(_product, _conn)
+        q5 = answer_depth_quality(_product, _conn)
+        q6 = answer_docchain_freshness(_product, _conn)
         print(f"[strategist:pre-run] Q1 coverage_gap={q1:.3f}  Q2 yield_trend={q2:.3f}  Q3 ethos_priority={q3:.3f}  Q4 fixture_health={q4:.3f}", file=sys.stderr)
+        print(f"[strategist:pre-run] Q5 depth_quality={q5:.3f}  Q6 docchain_freshness={q6:.3f}", file=sys.stderr)
 
         # JourneyRecommender ranking (log top journeys by priority score)
         if _spec_file:
