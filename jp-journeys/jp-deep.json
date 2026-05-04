@@ -202,7 +202,7 @@
   },
   {
     "id": "jp-branch-profile",
-    "description": "Navigate to the JP profile page and verify all profile form fields are visible",
+    "description": "Navigate to the JP config page Personal Info tab and verify profile form fields are visible",
     "isSharedRoot": false,
     "role": "branch",
     "dependsOn": "jp-trunk-main",
@@ -211,19 +211,19 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/profile"
+        "description": "Navigate to https://app.phronex.com/jp/config"
       },
       {
         "id": 2,
-        "description": "Wait for the profile form to load"
+        "description": "Wait for the config page to load, then click the 'Personal Info' tab to switch to the personal information form"
       },
       {
         "id": 3,
-        "description": "Verify that profile form fields are visible (e.g. name, bio, display name, or similar). Report the field names that are present."
+        "description": "Verify that personal info form fields are visible (e.g. name, email, phone, experience, skills, or similar). Report the field names that are present."
       },
       {
         "id": 4,
-        "description": "Take a screenshot of the profile page"
+        "description": "Take a screenshot of the Personal Info tab"
       }
     ]
   },
@@ -368,7 +368,7 @@
       },
       {
         "id": 3,
-        "description": "Check the browser console for any JavaScript errors. Report any errors found."
+        "description": "Check the browser console for critical JavaScript errors that visibly break dashboard functionality (e.g. React crash, blank page, missing data). Ignore network errors from background health-checks (/api/auth/me, /billing/pending) that do not affect displayed content. PASS if the dashboard renders stat cards correctly even if background network requests show errors."
       },
       {
         "id": 4,
@@ -404,7 +404,7 @@
   },
   {
     "id": "jp-verify-jobs-save",
-    "description": "Verify job save/bookmark functionality \u2014 save a job, verify it saves, then undo",
+    "description": "Verify job thumbs-up feedback functionality \u2014 mark a job as good match, verify color changes, then undo",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "jp-branch-jobs-list",
@@ -416,15 +416,15 @@
       },
       {
         "id": 2,
-        "description": "Look for a save or bookmark button on a job card. If no jobs are listed, report the empty state and end the test with a note."
+        "description": "Look for thumbs-up (\ud83d\udc4d) and thumbs-down (\ud83d\udc4e) buttons on a job row. These are the feedback/save buttons. If no jobs are listed, report the empty state and end the test with a note."
       },
       {
         "id": 3,
-        "description": "If a save button exists, click it on the first job. Verify the icon changes or the job appears in a saved list indicating it was saved."
+        "description": "Click the thumbs-up button on the first job. Verify the button color changes from gray/muted to green (indicating the job is marked as a good match). The change is a color shift, not a popup or toast."
       },
       {
         "id": 4,
-        "description": "Click the save/bookmark button again to undo the save (cleanup). Verify the job is unsaved. Take a screenshot."
+        "description": "Click the same thumbs-up button again to undo the feedback. Verify the button color reverts to gray/muted. Take a screenshot."
       }
     ]
   },
@@ -482,7 +482,7 @@
   },
   {
     "id": "jp-verify-profile-update",
-    "description": "Verify profile form updates persist after save and navigation",
+    "description": "Verify personal info form updates persist after save and navigation",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "jp-branch-profile",
@@ -490,19 +490,19 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/profile if not already there"
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there. Click the 'Personal Info' tab to switch to the personal information form."
       },
       {
         "id": 2,
-        "description": "Find a safe text field to edit (bio, display name, or similar). Note the current value. Edit it to a test value (e.g. append ' QA-test-marker')."
+        "description": "Find a safe text field to edit (a text input for name, summary, or similar). Note the current value. Edit it to a test value (e.g. append ' QA-test-marker')."
       },
       {
         "id": 3,
-        "description": "Save the profile form by clicking the Save button. Verify the save succeeds (no error shown, success message or toast appears)."
+        "description": "Save the personal info form by clicking the Save button. Verify the save succeeds (no error shown, success message or toast appears)."
       },
       {
         "id": 4,
-        "description": "Navigate away to https://app.phronex.com/jp/dashboard, then navigate back to https://app.phronex.com/jp/profile. Verify the edited field still shows the test value. Report whether persistence works. Optionally restore the original value. Take a screenshot."
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard, then navigate back to https://app.phronex.com/jp/config and click the 'Personal Info' tab. Verify the edited field still shows the test value. Report whether persistence works. Optionally restore the original value. Take a screenshot."
       }
     ]
   },
@@ -638,7 +638,7 @@
       },
       {
         "id": 4,
-        "description": "Check that a billing management link is present. Click it and verify it navigates to a valid billing destination (not a 404 or blank page). Take a screenshot clearly showing the tier label '{{expectedTierLabel}}' and the upgrade CTA."
+        "description": "Verify the subscription page shows billing information (renewal/cancellation date, monthly price, or usage limits). Billing is managed in-page via buttons, not a separate link. Take a screenshot clearly showing the tier label '{{expectedTierLabel}}' and the upgrade CTA."
       }
     ]
   },
