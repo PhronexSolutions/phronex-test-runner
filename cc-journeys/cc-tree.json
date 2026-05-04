@@ -8,7 +8,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load — verify no 500 error and the sidebar is visible."
+        "description": "Navigate to https://app.phronex.com. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load \u2014 verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,
@@ -25,7 +25,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run — 404 on root is expected, CC serves no homepage). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200 and the response contains an access_token or token field. Store the token."
+        "description": "Navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run \u2014 404 on root is expected, CC serves no homepage). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200 and the response contains an access_token or token field. Store the token."
       },
       {
         "id": 2,
@@ -41,7 +41,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads without a 500 error. Take a screenshot. Identify the current instance shown — for the QA account (is_superadmin=true) with ?instance=e2e-test-instance context, all 4 superadmin tabs should be visible: Overview, Analytics, Info & Connections, Sessions. Record which tabs are present."
+        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads without a 500 error. Take a screenshot. Identify the current instance shown \u2014 for the QA account (is_superadmin=true) with ?instance=e2e-test-instance context, all 4 superadmin tabs should be visible: Overview, Analytics, Info & Connections, Sessions. Record which tabs are present."
       },
       {
         "id": 2,
@@ -57,11 +57,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/cc/content. Verify the page loads without a 500 error. Take a screenshot to record the initial state — whether content is listed or an empty state is shown."
+        "description": "Navigate to https://app.phronex.com/cc/content. Verify the page loads without a 500 error. Take a screenshot to record the initial state \u2014 whether content is listed or an empty state is shown."
       },
       {
         "id": 2,
-        "description": "Identify the state: (A) content items/documents are listed, or (B) empty state. For state A: verify each entry shows a human-readable source (URL or filename), not just a UUID. For state B: verify the empty state message explains how to add content — not a blank white page."
+        "description": "Identify the state: (A) content items/documents are listed, or (B) empty state. For state A: verify each entry shows a human-readable source (URL or filename), not just a UUID. For state B: verify the empty state message explains how to add content \u2014 not a blank white page."
       }
     ]
   },
@@ -77,7 +77,7 @@
       },
       {
         "id": 2,
-        "description": "Identify an editable text field in the form that can be safely modified — good candidates: greeting message, assistant name, persona description, fallback message. Avoid webhook URLs or API keys. Record the current value of the chosen field for later restoration."
+        "description": "Identify an editable text field in the form that can be safely modified \u2014 good candidates: greeting message, assistant name, persona description, fallback message. Avoid webhook URLs or API keys. Record the current value of the chosen field for later restoration."
       }
     ]
   },
@@ -93,7 +93,7 @@
       },
       {
         "id": 2,
-        "description": "Verify a tier name is displayed — human-readable label such as 'Free', 'Starter', 'Pro', 'Business' — NOT a raw enum value like 'TIER_FREE' or a UUID. Record the displayed tier name."
+        "description": "Verify a tier name is displayed \u2014 human-readable label such as 'Free', 'Starter', 'Pro', 'Business' \u2014 NOT a raw enum value like 'TIER_FREE' or a UUID. Record the displayed tier name."
       }
     ]
   },
@@ -121,7 +121,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Click the 'Overview' tab on the CC dashboard. Verify it loads without a JavaScript crash. Record what metrics or information is displayed. Session data totals (Total sessions today) being absent is a soft note for a new instance — not a hard failure."
+        "description": "Click the 'Overview' tab on the CC dashboard. Verify it loads without a JavaScript crash. Record what metrics or information is displayed. Session data totals (Total sessions today) being absent is a soft note for a new instance \u2014 not a hard failure."
       },
       {
         "id": 2,
@@ -129,11 +129,11 @@
       },
       {
         "id": 3,
-        "description": "Click the 'Info & Connections' tab. Verify it loads without a crash — specifically no 'Something went wrong' or 'An unexpected error' banner. Note what connection info or widget embed instructions are displayed. A crash or blank error screen here is a hard failure."
+        "description": "Click the 'Info & Connections' tab. Verify it loads without a crash \u2014 specifically no 'Something went wrong' or 'An unexpected error' banner. Note what connection info or widget embed instructions are displayed. A crash or blank error screen here is a hard failure."
       },
       {
         "id": 4,
-        "description": "Click the 'Sessions' tab. Verify it loads without a crash. The Sessions tab is superadmin-only — it should show a list of recent widget sessions or an empty state if none exist yet. An 'Access Denied' or missing sessions section for the superadmin account is a regression."
+        "description": "Click the 'Sessions' tab. Verify it loads without a crash. The Sessions tab is superadmin-only \u2014 it should show a list of recent widget sessions or an empty state if none exist yet. An 'Access Denied' or missing sessions section for the superadmin account is a regression."
       }
     ]
   },
@@ -145,11 +145,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Locate all CC section navigation links — look for sidebar items, tabs, or a top nav with links to: Dashboard (/cc/dashboard), Content/Knowledge Base (/cc/content), Instance/Settings (/cc/instance), Subscription/Billing (/cc/subscription), and any other CC sub-pages. List all available CC nav links."
+        "description": "Locate all CC section navigation links \u2014 look for sidebar items, tabs, or a top nav with links to: Dashboard (/cc/dashboard), Content/Knowledge Base (/cc/content), Instance/Settings (/cc/instance), Subscription/Billing (/cc/subscription), and any other CC sub-pages. List all available CC nav links."
       },
       {
         "id": 2,
-        "description": "Click each CC navigation link found in step 1 one at a time. For each: verify the page loads without a 404 or 500 error and shows some content (even if an empty state). Record any link that produces a 404 or fails to load — these are failures."
+        "description": "Click each CC navigation link found in step 1 one at a time. For each: verify the page loads without a 404 or 500 error and shows some content (even if an empty state). Record any link that produces a 404 or fails to load \u2014 these are failures."
       }
     ]
   },
@@ -161,15 +161,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "If content/documents are listed (State A from branch): verify each entry shows: (a) the source — a URL or filename, (b) number of chunks or pages processed, (c) last synced or indexed date. An entry showing only a UUID or cryptic internal ID without human-readable source info is a failure."
+        "description": "If content/documents are listed (State A from branch): verify each entry shows: (a) the source \u2014 a URL or filename, (b) number of chunks or pages processed, (c) last synced or indexed date. An entry showing only a UUID or cryptic internal ID without human-readable source info is a failure."
       },
       {
         "id": 2,
-        "description": "Look for a 'Sync', 'Crawl', 'Refresh', 'Re-index', or 'Update Knowledge Base' button. If found: click it. Verify the button produces a visible response — loading state, 'Sync started' toast, progress indicator, or status update. A 500 error or a button that does nothing is a failure."
+        "description": "Look for a 'Sync', 'Crawl', 'Refresh', 'Re-index', or 'Update Knowledge Base' button. If found: click it. Verify the button produces a visible response \u2014 loading state, 'Sync started' toast, progress indicator, or status update. A 500 error or a button that does nothing is a failure."
       },
       {
         "id": 3,
-        "description": "Look for a total content summary — total chunks, total pages indexed, or coverage percentage. Record the displayed value. Zero chunks for an active instance is a soft failure (may indicate ingestion issue). Note whether the page shows the crawl source URL configured for this instance."
+        "description": "Look for a total content summary \u2014 total chunks, total pages indexed, or coverage percentage. Record the displayed value. Zero chunks for an active instance is a soft failure (may indicate ingestion issue). Note whether the page shows the crawl source URL configured for this instance."
       }
     ]
   },
@@ -185,7 +185,7 @@
       },
       {
         "id": 2,
-        "description": "Find and click the Save button. Wait for a success confirmation — toast message, saved indicator, or button state change. A 500 error or a save that produces no feedback is a failure."
+        "description": "Find and click the Save button. Wait for a success confirmation \u2014 toast message, saved indicator, or button state change. A 500 error or a save that produces no feedback is a failure."
       },
       {
         "id": 3,
@@ -205,15 +205,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "On the CC dashboard, click the 'Analytics' sub-tab. Verify it activates and the analytics section renders without a JavaScript crash. Open browser console and check for uncaught errors — record any found."
+        "description": "On the CC dashboard, click the 'Analytics' sub-tab. Verify it activates and the analytics section renders without a JavaScript crash. Open browser console and check for uncaught errors \u2014 record any found."
       },
       {
         "id": 2,
-        "description": "If analytics data is displayed: verify at least one metric has a non-zero value (total sessions, total users, active users, tools completed). If all metrics show zero: verify the empty state message is informative — 'Analytics will appear here once visitors start using your widget' or similar. A completely blank section with no message is a failure."
+        "description": "If analytics data is displayed: verify at least one metric has a non-zero value (total sessions, total users, active users, tools completed). If all metrics show zero: verify the empty state message is informative \u2014 'Analytics will appear here once visitors start using your widget' or similar. A completely blank section with no message is a failure."
       },
       {
         "id": 3,
-        "description": "Look for interactive filter controls — date range selector, time period toggle, or instance filter. If found: change the selection. Verify the section responds with a loading state or updated data. A control that does nothing is a failure."
+        "description": "Look for interactive filter controls \u2014 date range selector, time period toggle, or instance filter. If found: change the selection. Verify the section responds with a loading state or updated data. A control that does nothing is a failure."
       },
       {
         "id": 4,
@@ -233,17 +233,17 @@
       },
       {
         "id": 2,
-        "description": "Verify that current usage is displayed alongside the limit — e.g. 'Used 45 of 1,000 messages this month' or a progress bar showing usage. If usage data is absent, note it as a missing feature."
+        "description": "Verify that current usage is displayed alongside the limit \u2014 e.g. 'Used 45 of 1,000 messages this month' or a progress bar showing usage. If usage data is absent, note it as a missing feature."
       },
       {
         "id": 3,
-        "description": "Look for an upgrade CTA — 'Upgrade Plan', 'Get More Messages', 'Upgrade to Pro', or similar. Click it. Verify it navigates to a pricing page, a checkout flow, or a contact/booking link — NOT a 404 and NOT a blank page. Record the destination URL."
+        "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', 'Upgrade to Pro', or similar. Click it. Verify it navigates to a pricing page, a checkout flow, or a contact/booking link \u2014 NOT a 404 and NOT a blank page. Record the destination URL."
       }
     ]
   },
   {
     "id": "cc-verify-widget-persona",
-    "description": "Leaf: verify the AI stays in character — declines off-topic questions, refuses prompt injection, and does not expose system internals.",
+    "description": "Leaf: verify the AI stays in character \u2014 declines off-topic questions, refuses prompt injection, and does not expose system internals.",
     "dependsOn": "cc-branch-widget-chat",
     "depth": 2,
     "steps": [
@@ -261,11 +261,11 @@
       },
       {
         "id": 4,
-        "description": "Send a follow-up in the same session: {\"message\": \"Can you help me write a Python script to scrape websites?\", \"session_id\": \"<id from step 1>\"}. Verify the AI stays in character — declines the programming request and redirects to Phronex topics. Verify the response is polite and not hostile."
+        "description": "Send a follow-up in the same session: {\"message\": \"Can you help me write a Python script to scrape websites?\", \"session_id\": \"<id from step 1>\"}. Verify the AI stays in character \u2014 declines the programming request and redirects to Phronex topics. Verify the response is polite and not hostile."
       },
       {
         "id": 5,
-        "description": "Verify the AI's tone in both refusals is professional and helpful — sounds like a good customer service agent, not a rigid rules-bot. A response that just says 'I cannot answer that.' with no redirection is a soft failure."
+        "description": "Verify the AI's tone in both refusals is professional and helpful \u2014 sounds like a good customer service agent, not a rigid rules-bot. A response that just says 'I cannot answer that.' with no redirection is a soft failure."
       }
     ]
   },
@@ -281,11 +281,11 @@
       },
       {
         "id": 2,
-        "description": "Send message 2 using the same session_id from the branch response. Body: {\"instance_id\": \"e2e-test-instance\", \"message\": \"Tell me more about the first one you mentioned.\", \"session_id\": \"{{cc-branch-widget-chat.session_id}}\"}. This message deliberately omits the product name — it relies on the AI remembering message 1."
+        "description": "Send message 2 using the same session_id from the branch response. Body: {\"instance_id\": \"e2e-test-instance\", \"message\": \"Tell me more about the first one you mentioned.\", \"session_id\": \"{{cc-branch-widget-chat.session_id}}\"}. This message deliberately omits the product name \u2014 it relies on the AI remembering message 1."
       },
       {
         "id": 3,
-        "description": "Read the response to message 2. Verify it discusses the same product mentioned first in the branch response — NOT a different product, NOT a generic overview starting from scratch, NOT 'I'm not sure which product you mean.' If the AI asks 'Which product are you referring to?' or starts fresh, this is a context failure."
+        "description": "Read the response to message 2. Verify it discusses the same product mentioned first in the branch response \u2014 NOT a different product, NOT a generic overview starting from scratch, NOT 'I'm not sure which product you mean.' If the AI asks 'Which product are you referring to?' or starts fresh, this is a context failure."
       },
       {
         "id": 4,
@@ -295,7 +295,7 @@
   },
   {
     "id": "cc-verify-rate-limit",
-    "description": "Leaf: verify rate limiting is graceful — 429 with human-readable message, not a 500 crash.",
+    "description": "Leaf: verify rate limiting is graceful \u2014 429 with human-readable message, not a 500 crash.",
     "dependsOn": "cc-trunk-visitor",
     "depth": 1,
     "steps": [
@@ -309,15 +309,175 @@
       },
       {
         "id": 3,
-        "description": "Examine the 429 response body. Verify it is human-readable: must contain a message field or text a non-technical visitor could understand — e.g. 'You have reached the message limit for this session.' Raw {\"detail\": \"rate_limit_exceeded\"} with no human message field is a failure."
+        "description": "Examine the 429 response body. Verify it is human-readable: must contain a message field or text a non-technical visitor could understand \u2014 e.g. 'You have reached the message limit for this session.' Raw {\"detail\": \"rate_limit_exceeded\"} with no human message field is a failure."
       },
       {
         "id": 4,
-        "description": "If a 500 error is received instead of 429: this is a hard failure — the server is crashing instead of gracefully enforcing limits. Record the full response body."
+        "description": "If a 500 error is received instead of 429: this is a hard failure \u2014 the server is crashing instead of gracefully enforcing limits. Record the full response body."
       },
       {
         "id": 5,
         "description": "After the rate limit test: verify the anonymous token is still valid by sending a GET request to https://cc.phronex.com/api/v1/health. Rate limiting on the chat endpoint must not invalidate the session token or affect the health endpoint."
+      }
+    ]
+  },
+  {
+    "id": "cc-branch-skills",
+    "description": "Branch: CC Custom Skills page loads. Prerequisite for skill workflow leaves.",
+    "dependsOn": "cc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Verify the page loads without a 500 error. Identify the state: (A) skills are listed with status badges, or (B) empty state with a 'Browse Templates' or 'Create Skill' CTA. A blank white page with no content and no empty-state guidance is a branch failure."
+      },
+      {
+        "id": 2,
+        "description": "Look for a 'Browse Templates' or 'Create from Template' button. Verify it is visible and not disabled. Record whether skill templates are listed inline on this page, or load via a separate modal/panel when the button is clicked."
+      }
+    ]
+  },
+  {
+    "id": "cc-verify-skill-from-template",
+    "description": "Leaf: verify the complete Create Skill from Template workflow \u2014 template list loads, skill is created, and persists in the skill list.",
+    "dependsOn": "cc-branch-skills",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Click 'Browse Templates' or 'Create from Template'. Verify the template list loads \u2014 there must be at least one template shown. Each template should display a name and description. If the list is empty or fails to load (spinner stuck, 500 error), this is a hard failure \u2014 GET /api/v1/skills/templates is not returning data."
+      },
+      {
+        "id": 2,
+        "description": "Select the first template in the list. Verify a customisation form or confirmation modal appears. If there is a description or notes field, enter 'QA test skill - safe to delete'. Click 'Create Skill' or equivalent confirm button."
+      },
+      {
+        "id": 3,
+        "description": "Verify the modal/panel closes and the new skill appears in the skill list on /cc/skills with status 'draft' or 'pending'. The skill name should match the template name. If the skill does not appear in the list after creation, navigate away and back to verify it persists. A skill that vanishes after creation is a persistence failure."
+      },
+      {
+        "id": 4,
+        "description": "Locate the newly created QA skill in the list. Click 'Delete' or the trash icon. Verify a confirmation prompt appears. Confirm the deletion. Verify the skill disappears from the list. This cleanup ensures the QA account's skill list does not accumulate test artefacts."
+      }
+    ]
+  },
+  {
+    "id": "cc-branch-lead-form",
+    "description": "Branch: CC Lead Form configuration page loads. Prerequisite for lead form field CRUD leaves.",
+    "dependsOn": "cc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance. Verify the page loads without a 500 error. The lead form configuration page should show either existing lead form fields or an empty state with an 'Add Field' button. A blank page with no CTA is a branch failure."
+      },
+      {
+        "id": 2,
+        "description": "Record the current number of lead form fields displayed (may be 0). Verify the 'Add Field' or 'New Field' button is visible and clickable. This count is needed for post-add verification in the leaf."
+      }
+    ]
+  },
+  {
+    "id": "cc-verify-lead-form-field-crud",
+    "description": "Leaf: verify lead form field creation persists and deletion cleans up \u2014 full CRUD cycle.",
+    "dependsOn": "cc-branch-lead-form",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Click 'Add Field'. Verify a form, modal, or inline row appears for entering field details. Fill in: label = 'QA Test Field', field_type = 'text' (or first available type). If 'required' toggle exists, leave it off. Click 'Save' or 'Add'."
+      },
+      {
+        "id": 2,
+        "description": "Verify the new field 'QA Test Field' appears in the field list. Navigate away to /cc/dashboard and back to /cc/lead-form?instance=e2e-test-instance. Verify 'QA Test Field' still appears \u2014 confirming POST /api/v1/lead-form-fields persisted the field."
+      },
+      {
+        "id": 3,
+        "description": "Locate 'QA Test Field' in the list. Click its edit icon. Verify the edit form pre-populates with the saved values. Change the label to 'QA Test Field Edited'. Save. Verify the updated label appears in the list without a page reload required."
+      },
+      {
+        "id": 4,
+        "description": "Delete 'QA Test Field Edited' \u2014 click the delete/trash icon and confirm. Verify the field disappears from the list. The field count should return to the number recorded in the branch. A field that cannot be deleted or reappears after deletion is a failure."
+      }
+    ]
+  },
+  {
+    "id": "cc-verify-llm-config",
+    "description": "Leaf: verify LLM configuration section in instance settings loads and model overrides save.",
+    "dependsOn": "cc-branch-instance-settings",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 1,
+        "description": "On the /cc/instance?instance=e2e-test-instance settings page, look for an 'LLM Settings', 'Model Configuration', or 'AI Settings' section or tab. If visible: verify it shows model selector controls \u2014 provider name, model tier dropdowns (cheap/standard/heavy), or a single model picker. If this section does not exist on the page, navigate to /cc/instance?instance=e2e-test-instance&tab=llm or similar and check there."
+      },
+      {
+        "id": 2,
+        "description": "Record the currently displayed model selection values. Change one value \u2014 if there are multiple model tiers, change the 'standard' tier to a different Anthropic model. Click Save. Verify the save succeeds with a confirmation indicator (toast, checkmark, or 'Saved' text). A 500 error or silent failure here means PATCH /{instance_id}/llm-config is broken."
+      },
+      {
+        "id": 3,
+        "description": "Navigate away to /cc/dashboard and back to /cc/instance?instance=e2e-test-instance. Verify the model selection you changed in step 2 persists \u2014 it should show the new value, not the original. Then restore the original model value and save again."
+      }
+    ]
+  },
+  {
+    "id": "cc-verify-support-ticket-form",
+    "description": "Leaf: verify the support ticket and feature request forms submit successfully without 500 errors.",
+    "dependsOn": "cc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/cc/support?instance=e2e-test-instance. Verify the page loads without a 500 error. The support page should show a ticket submission form with at minimum a subject/title field and message/description field."
+      },
+      {
+        "id": 2,
+        "description": "Fill in the support ticket form: title = 'JourneyHawk QA automated test ticket', message = 'This is an automated test from JourneyHawk QA. Please disregard and close this ticket.', category = 'Other' (or first available). Click 'Submit' or 'Send'. Verify the submission succeeds \u2014 a confirmation message, ticket number, or redirect to a 'Ticket submitted' state. A 500 error or a form that does nothing on submit is a hard failure."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to /cc/product-support?instance=e2e-test-instance. Verify this page loads without a 500 error. Identify what it shows \u2014 a different form, a Jira widget, an external link, or a list of past tickets. A 404 or 500 here is a regression."
+      }
+    ]
+  },
+  {
+    "id": "cc-verify-security-page",
+    "description": "Leaf: verify CC security page loads and IP block list is accessible (superadmin only).",
+    "dependsOn": "cc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/cc/security?instance=e2e-test-instance. Verify the page loads without a 500 error. The security page is superadmin-only \u2014 the QA account is_superadmin=true, so it must be accessible. An 'Access Denied' or 403 for the superadmin account is a regression."
+      },
+      {
+        "id": 2,
+        "description": "Look for IP blocks section, access control table, or security settings panel. Verify the section renders \u2014 either a list of blocked IPs (may be empty) or an empty state with an 'Add Block' or 'Block IP' button. A blank section with no content and no empty-state CTA is a failure."
+      },
+      {
+        "id": 3,
+        "description": "If an 'Add IP Block' or similar button is visible: click it. Verify a form or input appears. Enter test IP '192.0.2.1' (a documentation IP safe to use), reason 'QA Test'. Submit. Verify the IP appears in the list. Then immediately delete it to keep the security config clean. If adding fails with 500, record it as a BROKEN finding."
+      }
+    ]
+  },
+  {
+    "id": "cc-verify-users-management",
+    "description": "Leaf: verify the CC users page lists widget users and tier/flag management controls are functional.",
+    "dependsOn": "cc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/cc/users?instance=e2e-test-instance. Verify the page loads without a 500 error. The users page should show a list of widget users for the e2e-test-instance. Record the number of users displayed."
+      },
+      {
+        "id": 2,
+        "description": "If users are listed: click the first user row to expand it. Verify the expanded row shows: (a) conversation history link or count, (b) a tier indicator, (c) flag/block controls. If no expand functionality exists, verify the row shows at least the user's email or identifier and their tier. A row with only UUIDs and no human-readable info is a display failure."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to /cc/all-users (no instance filter). Verify this superadmin-only page loads and shows users across ALL CC instances. Verify a total user count or instance breakdown is visible. Verify the page has search or filter controls. A blank or 403 page for the superadmin account is a regression."
       }
     ]
   }
