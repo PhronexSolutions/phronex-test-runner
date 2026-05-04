@@ -490,19 +490,19 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/config if not already there. Click the 'Personal Info' tab to switch to the personal information form."
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there. Click the 'Personal Info' tab button to switch to the personal information editor. This tab contains a JSON text editor (a single large textbox), not individual form fields."
       },
       {
         "id": 2,
-        "description": "Find a safe text field to edit (a text input for name, summary, or similar). Note the current value. Edit it to a test value (e.g. append ' QA-test-marker')."
+        "description": "The personal info is displayed as editable JSON in a textbox. Read the current JSON content. Find the 'location' field inside the 'basic' object and change its value to a unique test string like 'QA-City-YYYYMMDD-HHMM' using today's date and current time (e.g. 'QA-City-20260504-0730'). Make sure the resulting text is still valid JSON \u2014 only change the value string, not the structure. Click inside the textbox and carefully edit only that one field value."
       },
       {
         "id": 3,
-        "description": "Save the personal info form by clicking the Save button. Verify the save succeeds (no error shown, success message or toast appears)."
+        "description": "Click the 'Save' button below the JSON textbox. Wait 2-3 seconds and look for a success confirmation message (text saying 'Configuration saved successfully' or similar). If a success message appears, this step passes. Take a snapshot showing the confirmation."
       },
       {
         "id": 4,
-        "description": "Navigate away to https://app.phronex.com/jp/dashboard, then navigate back to https://app.phronex.com/jp/config and click the 'Personal Info' tab. Verify the edited field still shows the test value. Report whether persistence works. Optionally restore the original value. Take a screenshot."
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard. Wait for the dashboard to load. Then navigate back to https://app.phronex.com/jp/config and click the 'Personal Info' tab. Read the JSON in the textbox and verify the 'location' field inside 'basic' still contains your QA-City test value from step 2. If the value persisted, this step passes. Take a screenshot showing the persisted value."
       }
     ]
   },
