@@ -479,12 +479,16 @@ psql "$PHRONEX_QA_DATABASE_URL_SYNC" \
 
 ---
 
-### CC widget `data-auth-mode='portal'` breaks anonymous visitors — use `anonymous` for public sites
+### CC widget `data-auth-mode='portal'` breaks anonymous visitors — use `auto` for public sites with tiered access
 
-**Discovered:** 2026-05-04, cc-phronexweb-J02 browser console log.
+**Discovered:** 2026-05-04, cc-phronexweb-J02 browser console log. Corrected same session after initial wrong fix.
 **Pattern:** The phronexweb CC widget was embedded on phronex.com with `data-auth-mode='portal'`. This mode requires the visitor to be authenticated in `app.phronex.com` via an iframe token frame at `/api/cc/token-frame`. Anonymous public website visitors are never portal-authenticated, so the widget loops: it polls `token-frame` every ~15 seconds, receives "not authenticated", and cannot issue a chat token. The chat panel opens correctly (widget JS loads) but messages never get a response — the AI is blocked waiting for a token.
 **Detection in console log:** Repeated `[CC] portal auth: loading iframe https://app.phronex.com/api/cc/token-frame` followed immediately by `[CC] portal auth: not authenticated` — repeating every ~15s.
-**Why J01 (API test) passed but J02 (browser test) failed:** The API test used `POST /auth/anonymous` directly with the right `instance_id`, bypassing widget auth entirely. The browser widget uses a different code path that respects `data-auth-mode` on the script tag.
-**Fix:** Set `data-auth-mode='anonymous'` on the widget script tag for any instance embedded on a public-facing website where visitors are not portal users. Remove `data-portal-auth-frame` attribute too (it's only needed with `portal` mode). Fix: phronex-website commit `b9fa368`, defect #225 in `qa_known_defects`.
-**Rule for future instances:** Only use `portal` auth mode when the embedding page is behind the Phronex portal login (`app.phronex.com`). For all public-facing sites (customer websites, phronex.com), use `anonymous` mode.
+**Why J01 (API test) passed but J02 (browser test) failed:** The API test used `POST /auth/anonymous` directly with the right `instance_id`, bypassing widget auth entirely. The browser widget uses a different code path that respects `data-auth-mode` on the script tag. In Playwright isolated mode with no portal session cookie, the portal iframe check always returns "not authenticated" — this is NOT a real failure; real users with portal sessions get their tier correctly.
+**Correct fix:** Set `data-auth-mode='auto'` and keep `data-portal-auth-frame` pointing to `${COMPANY.portalUrl}/api/cc/token-frame`. The `auto` cascade tries portal iframe first (gives logged-in Phronex users their subscription tier), then falls back to anonymous for unauthenticated visitors. Fix: phronex-website, defect #225 in `qa_known_defects`.
+**Why NOT `anonymous`:** Using `data-auth-mode='anonymous'` skips the portal iframe check entirely, permanently breaking tiered access for Phronex portal users who visit phronex.com while logged in. Those users should get their subscription tier, not anonymous rate limits.
+**Rule for future instances:**
+- `portal` mode: ONLY when embedding page is EXCLUSIVELY behind portal login (app.phronex.com). No anonymous fallback.
+- `auto` mode: Public sites where SOME visitors are logged-in portal users (phronex.com). Gets tier for logged-in users, falls back to anonymous for guests. Always pair with `data-portal-auth-frame`.
+- `anonymous` mode: Sites with ZERO logged-in Phronex users expected (external customer sites, public demos). Skips all portal auth — fastest load.
 
