@@ -329,11 +329,13 @@ fi
 echo ""
 echo "[0c/3] Resource verification (Phase 84)..."
 _RESOURCE_REPORT="${RESULTS_DIR}/resource-verification.json"
+# || true prevents set -e from exiting on exit 1 (partial) or exit 2 (infra down).
+# _RES_EXIT captures the actual code from PIPESTATUS before the || branch runs.
 "${PYTHON}" -m phronex_common.testing.resources verify \
   --product "${PRODUCT}" \
   --report "${_RESOURCE_REPORT}" \
-  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC}" 2>&1
-_RES_EXIT=$?
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC}" 2>&1 || true
+_RES_EXIT=${PIPESTATUS[0]}
 if [[ ${_RES_EXIT} -eq 2 ]]; then
   echo "[0c/3] Resource verification: INFRASTRUCTURE UNREACHABLE — aborting." >&2
   exit 2
