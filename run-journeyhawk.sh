@@ -555,9 +555,18 @@ product = os.environ.get("JOURNEYHAWK_PRODUCT", os.environ.get("PRODUCT", ""))
 if not product:
     print("[invariants] skipped (no PRODUCT set)", file=sys.stderr)
     sys.exit(0)
+product_db_url = os.environ.get(f"PHRONEX_{product.upper()}_DATABASE_URL")
+if not product_db_url:
+    print(f"[invariants] skipped: PHRONEX_{product.upper()}_DATABASE_URL not set", file=sys.stderr)
+    sys.exit(0)
+qa_db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
 try:
     from phronex_common.testing.invariant_runner import run_invariants
-    results = run_invariants(product)
+    results = run_invariants(
+        product,
+        product_db_url=product_db_url,
+        qa_db_url=qa_db_url or None,
+    )
     total = len(results)
     passed = sum(1 for r in results if r.get("passed", False))
     failed = total - passed
