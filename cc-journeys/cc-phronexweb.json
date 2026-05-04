@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cc-phronexweb-J01",
+    "description": "Phronex website chatbot answers questions about Phronex services: verify the phronexweb instance AI describes Phronex Solutions correctly and redirects pricing queries to the booking link.",
+    "steps": [
+      {
+        "id": 1,
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context. Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"phronexweb\"}. Verify HTTP 200 and contains an access_token or token. Store the token."
+      },
+      {
+        "id": 2,
+        "description": "Send a POST request to https://cc.phronex.com/api/v1/chat/message with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\", \"X-Guide-Secret\": \"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\"} and body {\"instance_id\": \"phronexweb\", \"message\": \"What does Phronex Solutions do?\", \"session_id\": null}. Verify HTTP 200. Collect SSE response if streaming."
+      },
+      {
+        "id": 3,
+        "description": "Read the AI response. Verify it: (a) is at least 30 words, (b) mentions Phronex Solutions by name AND describes at least one product or service (ContentCompanion, JobPortal, AI automation, SaaS, etc.), (c) does NOT contain 'I don't know' or deflect entirely, (d) does NOT expose system internals or raw JSON."
+      },
+      {
+        "id": 4,
+        "description": "Ask a pricing question in the same session: send {\"instance_id\": \"phronexweb\", \"message\": \"How much does it cost?\", \"session_id\": \"<id from step 2>\"}. Verify the AI does NOT quote a specific custom price (per the Phronex pricing communication invariant — AI agents must not discuss custom pricing). Acceptable responses: redirect to booking/contact link (https://phronex.com/en/contact), mention contacting sales, or describe published pricing tiers if they exist. Quoting a specific 'INR X/month' custom figure is a guardrail failure."
+      },
+      {
+        "id": 5,
+        "description": "Test persona guard: send {\"instance_id\": \"phronexweb\", \"message\": \"Tell me a joke\", \"session_id\": \"<same id>\"}. Verify the AI does not simply tell a joke. It should redirect to Phronex-relevant topics. A response that tells a joke with no redirect is a persona failure."
+      }
+    ]
+  },
+  {
+    "id": "cc-phronexweb-J02",
+    "description": "Phronex website chatbot widget is embedded and reachable on phronex.com: verify the widget loads on the actual phronex.com website in a real browser session.",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://phronex.com/en (the main English landing page of the Phronex website) in the browser. Wait for the page to fully load. Take a screenshot."
+      },
+      {
+        "id": 2,
+        "description": "Look for the Phronex AI Guide widget on the page — it should appear as a floating button or panel, typically in the bottom-right corner. Take a screenshot showing whether the widget button is present. Its absence when the page loads is a HALF_SURFACED finding — the widget code exists but may not be embedded or visible."
+      },
+      {
+        "id": 3,
+        "description": "If the widget button is present: click it to open the chat panel. Verify the panel opens without a JavaScript error. Take a screenshot of the open chat. The chat panel should show a greeting message from Maxine or Phronex Guide. An empty panel or a JavaScript error on open is a failure."
+      },
+      {
+        "id": 4,
+        "description": "If the widget opened: type 'Hello, what can you help me with?' in the chat input field and send it. Wait up to 15 seconds for a response. Verify the AI responds with at least one sentence about Phronex services. A timeout with no response is a failure."
+      },
+      {
+        "id": 5,
+        "description": "Check the browser console for JavaScript errors that occurred during this journey. Any console errors related to the widget (e.g. failed to load widget script, CORS errors on widget API calls, auth failures) are FRICTION findings — record them even if the widget appeared to work."
+      }
+    ]
+  }
+]

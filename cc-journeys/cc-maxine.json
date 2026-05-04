@@ -1,0 +1,46 @@
+[
+  {
+    "id": "cc-maxine-J01",
+    "description": "Maxine widget responds to financial coaching questions: verify the Maxine AI returns a substantive answer about mindful money management for the maxine instance.",
+    "steps": [
+      {
+        "id": 1,
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"maxine\"}. Verify the response has HTTP status 200 and contains an 'access_token' or 'token' field. Store the token value. Note: 404 on the root URL is expected — CC serves no homepage, only the API matters."
+      },
+      {
+        "id": 2,
+        "description": "Send a POST request to https://cc.phronex.com/api/v1/chat/message with headers {\"Authorization\": \"Bearer <token from step 1>\", \"Content-Type\": \"application/json\", \"X-Guide-Secret\": \"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\"} and body {\"instance_id\": \"maxine\", \"message\": \"How can I start building better money habits?\", \"session_id\": null}. The X-Guide-Secret header bypasses reCAPTCHA for QA. Verify HTTP 200. If response is SSE (Content-Type: text/event-stream), collect all data: lines until the done event and concatenate text fields."
+      },
+      {
+        "id": 3,
+        "description": "Read the AI response text from step 2. Verify it meets ALL criteria: (a) at least 30 words long, (b) discusses money management, financial habits, budgeting, savings, or coaching — NOT generic topics unrelated to personal finance, (c) does NOT say 'I don't know' or deflect entirely, (d) does NOT contain a stack trace or raw JSON. The persona is Maxine Financial Coach — responses should be warm and coaching-oriented."
+      },
+      {
+        "id": 4,
+        "description": "Verify the response does NOT expose any system internals: it must not contain the words 'system prompt', 'SYSTEM:', 'your instructions', or literal configuration text. The persona must remain intact."
+      },
+      {
+        "id": 5,
+        "description": "Ask an off-topic question in the same session: send {\"instance_id\": \"maxine\", \"message\": \"What is 2+2?\", \"session_id\": \"<id from step 2>\"}. Verify the AI does NOT answer '4' and instead gently redirects to financial topics. A pure mathematical answer without any redirect is a persona failure."
+      }
+    ]
+  },
+  {
+    "id": "cc-maxine-J02",
+    "description": "Maxine widget maintains conversation context: verify multi-turn conversation works with session_id.",
+    "steps": [
+      {
+        "id": 1,
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context. Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"maxine\"} to obtain a fresh token. Verify HTTP 200 and extract the token."
+      },
+      {
+        "id": 2,
+        "description": "Send message 1: POST to https://cc.phronex.com/api/v1/chat/message with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\", \"X-Guide-Secret\": \"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\"} and body {\"instance_id\": \"maxine\", \"message\": \"I want to save for a house. What should I start with?\", \"session_id\": null}. Record the session_id from the response and the advice given (look for key first steps or concepts mentioned)."
+      },
+      {
+        "id": 3,
+        "description": "Send message 2 using the same session_id: {\"instance_id\": \"maxine\", \"message\": \"How long would that typically take?\", \"session_id\": \"<id from step 2>\"}. The message deliberately omits 'saving for a house' — it relies on context memory. Verify the AI's response is about the house saving timeline, NOT a generic answer that ignores the prior context. A response that asks 'What are you referring to?' is a context failure."
+      }
+    ]
+  }
+]
