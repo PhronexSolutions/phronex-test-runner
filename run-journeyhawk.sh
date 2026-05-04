@@ -649,6 +649,16 @@ echo "[4/3] Generating strategist report..."
   || echo "[strategist:report] WARNING: report generation failed (non-fatal)" >&2
 
 echo ""
+echo "[4.5/3] Generating comprehensive HTML strategist report..."
+"${PYTHON}" -m phronex_common.testing.strategist.report_html \
+  --product "${PRODUCT}" \
+  --run-id "${JOURNEYHAWK_RUN_ID}" \
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
+  --out-dir "${RESULTS_DIR}" \
+  --suite-scope "${SUITE_SCOPE:-full}" \
+  || echo "[strategist:report_html] WARNING: HTML report generation failed (non-fatal)" >&2
+
+echo ""
 echo "========================================"
 echo "  JourneyHawk COMPLETE"
 echo "  cc-test-runner exit : ${CC_EXIT}"
