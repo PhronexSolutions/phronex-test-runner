@@ -277,6 +277,8 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 
 **ChatMessageRequest body fields:** `{"instance_id": "...", "message": "...", "session_id": null}`. The field is `session_id` NOT `conversation_id`. The field is `message` NOT `content`.
 
+**CC SkillResponse field name (defect #252, fixed 2026-05-05):** Backend `SkillResponse` Pydantic model uses `id: str` (NOT `skill_id`). Portal `SkillsClient.tsx` originally declared `Skill.skill_id` — causing all delete/submit/preview handlers to pass `undefined`. Corrected to `Skill.id`. When checking CC Skills API responses, the field is `id`, not `skill_id`. This is a TypeScript `as Type[]` cast hazard — the compiler cannot catch mismatches at cast boundaries.
+
 **⚠️ P0: CC Anthropic credits exhausted (discovered 2026-04-30):** CC EC2 server's `ANTHROPIC_API_KEY` in `/opt/contentcompanion/.env` is out of credits. All chat requests return HTTP 200 with `{"type":"error","error":{"code":"service_unavailable",...}}`. The production CC widget is non-functional for all visitors. Requires Vivek to top up the Anthropic account at console.anthropic.com/settings/billing.
 
 ---
@@ -347,6 +349,47 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 
 ---
 
+### cctr-state MCP disconnects when trunk hits max_turns (discovered CC run 7, 2026-05-05)
+
+**Signature:** Leaf journey runs browser navigation correctly (console log shows real HTTP calls, page snapshots captured) but ALL steps remain `pending` in CTRF. The debug log shows `update_test_step` tool call returned `"Unable to connect. Is the computer able to access the url?"`. The leaf's summary says steps 1-3 passed and step 4 failed — but the runner reports the journey `succeeded: false` with all steps pending.
+
+**Root cause:** The cctr-state HTTP server (`localhost:3001`) runs per-test-case. When a trunk journey hits `error_max_turns` before calling `mcp__cctr-state__update_test_step`, the runner moves on and resets the state server for the next test case. If the leaf's child Claude subprocess is still running when the state server resets, its subsequent `update_test_step` calls arrive at a server that no longer knows about that test case — returning a connection error.
+
+**Reading the evidence:** The child Claude's final `result.subtype: success` message contains the full step summary in plain text — use this to determine actual pass/fail even when CTRF is stale. Look for it in `debug.log`: `grep '"subtype":"success"' debug.log | grep -o '"result":"[^"]*"'`.
+
+**Fix:** Keep trunk journeys ≤ 3 steps to stay inside the 30-turn budget. The current cc-trunk-superadmin has 4 steps (3 and 4 are both identical "Save browser session" — the duplicate is wasted budget). Deduplicating step 4 would save the trunk ~5 turns per run.
+
+**Also:** The trunk's storage state file (`.tmp/cc-trunk-superadmin-state.json`) is preserved from prior runs. If the file is fresh (<2h old) and the leaf loads it successfully, trunk failures are non-fatal for the leaf — the leaf logs in from saved state, not from a fresh trunk run.
+
+---
+
+### React 19 canary fiber contamination — functional state updater crash (discovered CC run 7, 2026-05-05)
+
+**Signature:** Full-page "Something went wrong" ErrorBoundary overlay when switching to the Info & Connections tab on the CC dashboard. Browser console: `TypeError: Cannot convert undefined or null to object` at `Object.entries (<anonymous>)` inside React's `processUpdateQueue`. Stack trace includes minified chunk hashes (e.g. `8849-{hash}.js:31367`).
+
+**Root cause:** React 19.2.0-canary concurrent mode bug. When a component (e.g. `RecentIssues`) mounts with `useState(null)`, a stale functional state updater from a previous fiber iteration — one that calls `Object.entries(state)` where `state` is null — gets replayed by `processUpdateQueue` during the new fiber's mount. This is a framework-level bug: the updater originated in application code (`BreakdownTable.tsx`) but is applied to a different component's hook queue due to fiber contamination.
+
+**Why `key={activeTab}` didn't fully fix it:** Adding a `key` prop forces React to unmount and remount the tab content on every tab switch, which changes the chunk hash and restores isolation for most components. However, `RecentIssues` has its own internal state initialised to `null` that gets a stale updater from the previous fiber tree replayed against it before its own initialisation is complete.
+
+**Fix:** Wrap the crashing component in an `ErrorBoundary` with a silent inline fallback. This contains the crash to the widget level without showing the full-page overlay:
+```tsx
+<ErrorBoundary fallback={
+  <div className="rounded-xl border border-white/10 bg-black/20 backdrop-blur-sm p-5 text-xs text-white/40">
+    Recent issues unavailable.
+  </div>
+}>
+  <RecentIssues apiPath={apiUrl} />
+</ErrorBoundary>
+```
+
+**Secondary fix (good hygiene regardless):** Add `AbortController` to `useEffect` in async-fetch components so in-flight fetches are cancelled on unmount — prevents stale `setState` calls that accumulate in the fiber queue across tab switches.
+
+**What NOT to do:** Exhaustive static analysis of all minified chunks to find `Object.entries(null)` — the updater lives in framework internals, not application code. The `ErrorBoundary` isolation is the correct fix.
+
+**Detection pattern:** If a tab switch causes a full-page "Something went wrong" with `Object.entries` in the stack trace, look for components that: (a) have `useState(null)` or `useState({})`, (b) later call `Object.entries(state)`, and (c) are mounted/unmounted on tab switches. Wrap each in `ErrorBoundary`.
+
+---
+
 ### CC billing/status HTTP 500: MultipleResultsFound on phronex-auth shadow users (defect #60, fixed 2026-04-30)
 
 **Signature:** `GET /api/v1/billing/status` returns HTTP 500. EC2 logs show `sqlalchemy.exc.MultipleResultsFound: Multiple rows were found when one or none was required` from `routes_billing.py:166 scalar_one_or_none()`. The subscription page in the portal shows a 500 in the billing section.
@@ -388,6 +431,7 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 | 2026-04-30 | jp | jp-deep.json (12 d-series) | 10 | 2 | 0 | Run 9. --isolated Chrome fix confirmed (zero profile conflicts). jp-d07a/b/c PASS (billing fix ada45d1 validated across free/standard/pro). jp-d05 scan history fix e927e2f confirmed. 2 FPs: jp-d01 rate-limit, jp-d08 spec-execution (/cc 404 — bare route, spec already said /cc/dashboard; minor portal UX gap fixed with redirect page.tsx). |
 | 2026-04-30 | cc | cc-deep.json (10) | 8 | 2 | 2 | CC Run 5. J06+J07 FPs (pre-OAuth-swap, prepaid key exhausted — will pass run 6). J05: no analytics chart (FRICTION defect #54). J10: subscription page HTTP 500, tiers.yaml schema mismatch (BROKEN defect #55 — fixed EC2 2026-04-30). |
 | 2026-04-30 | cc | cc-deep.json (10) | 6 | 4 | 1 | CC Run 6. J01/J03/J04: browser isolation FPs (cold-start — BROWSER RESET fails on very first journey of run). J05 ✅ (analytics chart defect #54 fixed). J06–J09 all pass. J10 ❌ new defect #60: billing/status HTTP 500 MultipleResultsFound — duplicate phronex-auth shadow user row (fixed: EC2 data cleanup + Alembic migration 96bc1ed1496a adding partial UNIQUE on phronex_account_id+instance_id). |
+| 2026-05-05 | cc | cc-tree.json (verify-dashboard-tabs) | 1/1 PASS | — | 2 real defects fixed | CC Run 7 (tree-executor, targeted). Defect #251: Info & Connections tab crash (Object.entries(null) React 19 fiber contamination — fixed ErrorBoundary + AbortController, portal commits 993083a+20d1b69). Defect #252: Skills page delete/submit/preview all sent undefined skill ID (API contract drift skill_id vs id — fixed CC commit 2e350b8 + portal commit 9d2c8b7). Both verified: dashboard-tabs PASS on step 3; skills DELETE now returns 422 not 500. |
 
 ---
 
