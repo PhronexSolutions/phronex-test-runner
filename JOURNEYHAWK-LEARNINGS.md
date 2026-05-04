@@ -449,3 +449,30 @@ psql "$PHRONEX_QA_DATABASE_URL_SYNC" \
 **Pattern:** The Next.js `/cc` path has a `layout.tsx` but no `page.tsx`. Navigating directly to `/cc` returns 404. The correct entry point for the CC product section is `/cc/dashboard`. All journey specs must use `/cc/dashboard` (or deeper paths) — never bare `/cc`.
 **Also applies to:** Any similar product layout-only routes (e.g. if `/jp` had no page.tsx).
 **Secondary finding (FRICTION):** A user clicking a link to `/cc` gets a 404 instead of a redirect to `/cc/dashboard`. This is a minor UX gap — worth a future portal task to add a redirect in the CC layout.
+
+---
+
+### CC superadmin instance navigation — `?instance=` query param required
+
+**Discovered:** 2026-05-04, cc-J04 step 5.
+**Pattern:** For superadmin users in the CC portal section, instance context comes from the `?instance=` URL query parameter (not from an `access_grant.instance_slug` like non-superadmins). The `CCLayoutClient` auto-selects the first available instance when no `?instance=` param is present. When a spec navigates to `/cc/instance` or `/cc/dashboard` without preserving the param, the auto-select may pick a *different* instance — causing false "persistence failure" findings.
+**Fix in specs:** Always use `/cc/instance?instance=e2e-test-instance` (include the param explicitly) when testing as superadmin and instance context matters.
+**Portal behaviour is correct:** `tabHref()` in `CCLayoutClient.tsx` correctly appends `?instance=<id>` to all tab links when a superadmin has an instance selected. The spec was wrong, not the product.
+
+---
+
+### Deployment race with QA run — phronex-auth restart mid-run causes login failure
+
+**Discovered:** 2026-05-04, cc-J05 run-20260504-cc-test2.
+**Pattern:** phronex-auth restarted at 08:03:37 UTC during cc-J05's login attempt at 08:03:23 UTC. The restart interrupted the active connection, causing Auth.js to receive a connection error and return "Invalid email or password" to the portal login page.
+**Detection:** Cross-reference `systemctl show phronex-auth --property=ActiveEnterTimestamp` against journey timestamps when login fails with "Invalid email or password" for a known-good account.
+**Mitigation:** When deploying a fix during an active QA run, accept that any journey in-flight at restart time will fail. Always deploy before starting a run, not during.
+
+---
+
+### API-only journeys need page navigation before `page.evaluate()`
+
+**Discovered:** 2026-05-04, cc-J09 step 1 (and previously cc-J06/J07/J08).
+**Pattern:** When a journey starts in a fresh browser context (`--isolated`), the initial page is `about:blank`. Calling `page.evaluate()` on `about:blank` fails with "Need to navigate to a page first before executing JavaScript." The tester must navigate to any page (even one that returns 404) before `page.evaluate()` can execute fetch calls.
+**Fix in specs:** Add an explicit "First navigate to https://cc.phronex.com/ to establish a page context" instruction as the first step in any API-only journey that uses `page.evaluate()`. Note: a 404 on the root URL is expected — CC serves no homepage.
+**Applied to:** cc-J06, cc-J07, cc-J08, cc-J09 step 1 descriptions (commit da049e1).
