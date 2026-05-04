@@ -145,10 +145,20 @@ class MCPStateServer {
     }
 
     public start(): Promise<void> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             this.server = this.app.listen(this.port, () => {
                 logger.debug(`testState MCP Server running on port ${this.port}`);
                 resolve();
+            });
+            this.server.on('error', (err: NodeJS.ErrnoException) => {
+                if (err.code === 'EADDRINUSE') {
+                    reject(new Error(
+                        `Port ${this.port} already in use — another cc-test-runner may be running. `
+                        + `Use --statePort to specify a different port.`
+                    ));
+                } else {
+                    reject(err);
+                }
             });
         });
     }

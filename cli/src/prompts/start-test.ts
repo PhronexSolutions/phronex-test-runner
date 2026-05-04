@@ -123,7 +123,7 @@ export const startTest = (testCase: TestCase, storageStatePath: string | null = 
                 },
                 "cctr-state": {
                     type: "http",
-                    url: "http://localhost:3001/",
+                    url: `http://localhost:${inputs.statePort}/`,
                     headers: {
                         "Content-Type": "application/json",
                     },

@@ -72,6 +72,10 @@ RESULTS_DIR="${3:-journeys-output/${PRODUCT}-${TIMESTAMP}}"
 export JOURNEYHAWK_RUN_ID="${PRODUCT}-${TIMESTAMP}"
 export JOURNEYHAWK_PRODUCT="${PRODUCT}"
 
+# MCPStateServer port — configurable for parallel execution.
+# Default 3001 preserves backward compatibility with single-product runs.
+CCTR_STATE_PORT="${CCTR_STATE_PORT:-3001}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo ""
@@ -284,11 +288,11 @@ if [[ "${PRODUCT}" == "portal" ]] && [[ -n "${_PORTAL_PASS}" ]]; then
   fi
 fi
 
-# Kill any stale cctr-state MCP server on port 3001 from a previous aborted run.
+# Kill any stale cctr-state MCP server on this port from a previous aborted run.
 # If left running it serves the last journey's stale test plan to the next run.
-_STALE_PID=$(lsof -ti:3001 2>/dev/null || true)
+_STALE_PID=$(lsof -ti:${CCTR_STATE_PORT} 2>/dev/null || true)
 if [[ -n "${_STALE_PID}" ]]; then
-  echo "[preflight] Killing stale cctr-state server (PID ${_STALE_PID}) on port 3001"
+  echo "[preflight] Killing stale cctr-state server (PID ${_STALE_PID}) on port ${CCTR_STATE_PORT}"
   kill "${_STALE_PID}" 2>/dev/null || true
   sleep 1
 fi
@@ -478,6 +482,7 @@ CC_EXIT=0
     -t "${MUTATED_SPEC}" \
     -o "${RESULTS_DIR}" \
     --maxTurns 50 \
+    --statePort "${CCTR_STATE_PORT}" \
   || CC_EXIT=$?
 if [[ ${CC_EXIT} -ne 0 ]]; then
   echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"

@@ -12,6 +12,7 @@ interface CLIOptions {
     screenshots: boolean;
     model?: string;
     runJourney?: string;
+    statePort: number;
 }
 
 const program = new Command()
@@ -22,6 +23,7 @@ const program = new Command()
     .option("--maxTurns <turns>", "Maximum number of turns Claude Code can take for each test case.", "30")
     .option("-m, --model <model>", "The model to use for the test run.")
     .option("--runJourney <id>", "Run only the journey with this id and its dependsOn ancestors")
+    .option("--statePort <port>", "Port for MCPStateServer (default: 3001)", "3001")
     .parse(process.argv);
 
 const args = program.opts<CLIOptions>();
@@ -61,6 +63,7 @@ if (args.runJourney) {
 
 const inputs: CLIOptions & { testCases: TestCase[] } = {
     ...args,
+    statePort: parseInt(args.statePort as unknown as string, 10) || 3001,
     testCases,
 };
 
