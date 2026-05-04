@@ -638,6 +638,16 @@ except Exception as e:
     print(f"[invariants] WARNING: invariant check failed (non-fatal): {e}", file=sys.stderr)
 INVARIANT_EOF
 
+# Step 4: Strategist Post-Run Report — aggregates all intelligence pipeline outputs
+# into a single visible summary. Fail-open: report errors never crash the run.
+echo ""
+echo "[4/3] Generating strategist report..."
+"${PYTHON}" -m phronex_common.testing.strategist.report \
+  --product "${PRODUCT}" \
+  --run-id "${JOURNEYHAWK_RUN_ID}" \
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
+  || echo "[strategist:report] WARNING: report generation failed (non-fatal)" >&2
+
 echo ""
 echo "========================================"
 echo "  JourneyHawk COMPLETE"
