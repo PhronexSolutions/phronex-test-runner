@@ -545,6 +545,31 @@ except Exception as e:
     print(f"[strategist] WARNING: CycleCloseGate error (non-fatal): {e}", file=sys.stderr)
 GATE_EOF
 
+# Step 3b (Phase 86): Data invariant check — run business-rule invariants
+# against the product DB. Fail-open: invariant_runner errors never crash the run.
+echo ""
+echo "[3b/3] Data invariant check (Phase 86)..."
+"${PYTHON}" - <<'INVARIANT_EOF' || true
+import os, sys
+product = os.environ.get("JOURNEYHAWK_PRODUCT", os.environ.get("PRODUCT", ""))
+if not product:
+    print("[invariants] skipped (no PRODUCT set)", file=sys.stderr)
+    sys.exit(0)
+try:
+    from phronex_common.testing.invariant_runner import run_invariants
+    results = run_invariants(product)
+    total = len(results)
+    passed = sum(1 for r in results if r.get("passed", False))
+    failed = total - passed
+    print(f"[invariants] {total} invariants checked: {passed} passed, {failed} failed")
+    if failed > 0:
+        for r in results:
+            if not r.get("passed", False):
+                print(f"  FAIL: {r.get('name', 'unknown')} — {r.get('error', 'no detail')}", file=sys.stderr)
+except Exception as e:
+    print(f"[invariants] WARNING: invariant check failed (non-fatal): {e}", file=sys.stderr)
+INVARIANT_EOF
+
 echo ""
 echo "========================================"
 echo "  JourneyHawk COMPLETE"
