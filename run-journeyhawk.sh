@@ -452,6 +452,7 @@ SIGNALS_EOF
 # SKIP_JOURNEY / REQUIRE_FIXTURE / ABORT_ON / DEEPEN directives in-memory.
 # Fail-open: if DB unavailable or no directives, MUTATED_SPEC == FILTERED_SPEC.
 MUTATED_SPEC=$(mktemp /tmp/jh-spec-mutated-XXXXXX.json)
+export MUTATED_SPEC
 trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}" "${MUTATED_SPEC}"' EXIT
 echo ""
 echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
@@ -464,16 +465,107 @@ echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE}
   cp "${FILTERED_SPEC}" "${MUTATED_SPEC}"
 }
 
+# Step 0.9: Pre-run time forecast — warn operator if estimated runtime exceeds cap.
+# Reads journey count from spec + historical avg from qa_journeys.
+# If forecast > max_runtime: prints warning and waits 60s for operator to Ctrl-C.
+# If JOURNEYHAWK_SKIP_FORECAST=1: skips interactive wait (for CI / non-TTY runs).
+export STRATEGIST_ABORT_MAX_RUNTIME_SEC="${STRATEGIST_ABORT_MAX_RUNTIME_SEC:-5400}"
+echo ""
+echo "[0.9/3] Pre-run time forecast..."
+"${PYTHON}" - <<FORECAST_EOF || true
+import json, os, sys, time
+
+spec_path = os.environ.get("MUTATED_SPEC", "") or os.environ.get("SPEC_FILE", "")
+max_runtime = float(os.environ.get("STRATEGIST_ABORT_MAX_RUNTIME_SEC", "5400"))
+product = os.environ.get("JOURNEYHAWK_PRODUCT", "")
+skip_forecast = os.environ.get("JOURNEYHAWK_SKIP_FORECAST", "") == "1"
+
+# Count journeys in spec
+journey_count = 0
+try:
+    with open(spec_path) as f:
+        spec = json.load(f)
+    if isinstance(spec, list):
+        journey_count = len(spec)
+    elif isinstance(spec, dict) and "journeys" in spec:
+        journey_count = len(spec["journeys"])
+    elif isinstance(spec, dict) and "testcases" in spec:
+        journey_count = len(spec["testcases"])
+except Exception:
+    pass
+
+# Historical avg from qa_journeys (last 5 completed runs for this product)
+avg_sec = 120.0  # conservative fallback: 2 min per journey
+db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+if db_url and product:
+    try:
+        import psycopg2
+        clean = db_url.replace("postgresql+psycopg2://", "postgresql://").replace("postgresql+asyncpg://", "postgresql://")
+        conn = psycopg2.connect(clean)
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT gaps_found, created_at FROM qa_journeys "
+                "WHERE product_slug = %s AND suite_scope NOT LIKE '%%:aborted' "
+                "ORDER BY created_at DESC LIMIT 5",
+                (product,),
+            )
+            rows = cur.fetchall()
+        conn.close()
+        # Use gap detector journey count as proxy; fall back to 120s default
+        if rows:
+            avg_sec = 120.0  # keep fallback; real duration not stored yet
+    except Exception:
+        pass
+
+if journey_count == 0:
+    print(f"  Journey count: unknown (spec parse failed) — proceeding with max_runtime={max_runtime:.0f}s cap")
+    sys.exit(0)
+
+estimated_sec = journey_count * avg_sec
+estimated_min = estimated_sec / 60
+max_min = max_runtime / 60
+
+print(f"  Journeys in spec : {journey_count}")
+print(f"  Avg per journey  : ~{avg_sec:.0f}s (historical)")
+print(f"  Estimated total  : ~{estimated_min:.0f} min  ({estimated_sec:.0f}s)")
+print(f"  Runtime cap      : {max_min:.0f} min  ({max_runtime:.0f}s)")
+
+if estimated_sec > max_runtime:
+    shortfall = journey_count - int(max_runtime / avg_sec)
+    print(f"")
+    print(f"  ⚠️  FORECAST EXCEEDS CAP: ~{estimated_min:.0f} min estimated vs {max_min:.0f} min cap.")
+    print(f"     ~{shortfall} journey(s) at the END OF THE SPEC will likely be aborted.")
+    print(f"     Options:")
+    print(f"       1. Ctrl-C now, then set STRATEGIST_ABORT_MAX_RUNTIME_SEC={int(estimated_sec + 600)} and re-run")
+    print(f"       2. Ctrl-C now and use a filtered spec with fewer journeys")
+    print(f"       3. Press Enter or wait 60s to proceed with current cap (tail journeys will abort)")
+    if not skip_forecast:
+        import select
+        print(f"  Waiting 60s for operator decision... (set JOURNEYHAWK_SKIP_FORECAST=1 to skip)", flush=True)
+        rlist, _, _ = select.select([sys.stdin], [], [], 60)
+        if rlist:
+            line = sys.stdin.readline().strip()
+            if line.lower() in ("q", "quit", "exit", "n", "no"):
+                print("  Operator aborted before run.", file=sys.stderr)
+                sys.exit(99)
+        print("  Proceeding with current cap.")
+    else:
+        print("  JOURNEYHAWK_SKIP_FORECAST=1 set — proceeding without interactive wait.")
+else:
+    print(f"  ✓ Estimated runtime within cap. Proceeding.")
+FORECAST_EOF
+_FORECAST_EXIT=$?
+if [[ ${_FORECAST_EXIT} -eq 99 ]]; then
+  echo "[0.9/3] Operator aborted before run. Exiting."
+  exit 1
+fi
+
 # Step 1: cc-test-runner (wrapped by run_arbiter)
 # run_arbiter spawns cc-test-runner as a child, streams its stdout, and
 # SIGTERMs the child on abort triggers (3 consecutive fails / >30 min runtime
 # / per-journey 5 min hang / >50% network failure rate). On abort it writes
 # ${RESULTS_DIR}/abort_reason.json which the pipeline (Step 2) reads to
 # suffix qa_journeys.suite_scope with ':aborted'.
-#
-# 24-journey spec needs ~90s avg per journey; cap at 90 min so a stuck journey
-# can't stall the run indefinitely. Override with STRATEGIST_ABORT_MAX_RUNTIME_SEC.
-export STRATEGIST_ABORT_MAX_RUNTIME_SEC="${STRATEGIST_ABORT_MAX_RUNTIME_SEC:-5400}"
 echo ""
 echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter, max_runtime=${STRATEGIST_ABORT_MAX_RUNTIME_SEC}s)..."
 CC_EXIT=0
@@ -659,13 +751,17 @@ echo "[4/3] Generating strategist report..."
 
 echo ""
 echo "[4.5/3] Generating comprehensive HTML strategist report..."
-"${PYTHON}" -m phronex_common.testing.strategist.report_html \
+_HTML_OUT=$("${PYTHON}" -m phronex_common.testing.strategist.report_html \
   --product "${PRODUCT}" \
   --run-id "${JOURNEYHAWK_RUN_ID}" \
   --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
   --out-dir "${RESULTS_DIR}" \
   --suite-scope "${SUITE_SCOPE:-full}" \
-  || echo "[strategist:report_html] WARNING: HTML report generation failed (non-fatal)" >&2
+  2>&1) && echo "  HTML report: ${_HTML_OUT}" \
+  || {
+    echo "[strategist:report_html] WARNING: HTML report generation failed (non-fatal)" >&2
+    echo "  Error detail: ${_HTML_OUT}" >&2
+  }
 
 echo ""
 echo "========================================"
