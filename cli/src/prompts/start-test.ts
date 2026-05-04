@@ -99,7 +99,7 @@ export const startTest = (testCase: TestCase, storageStatePath: string | null = 
     }
 
     return query({
-        prompt: "Query the test plan from mcp__testState__get_test_plan MCP tool to get started.",
+        prompt: "Query the test plan from mcp__cctr-state__get_test_plan MCP tool to get started.",
         options: {
             customSystemPrompt: systemPrompt(),
             maxTurns: inputs.maxTurns,
