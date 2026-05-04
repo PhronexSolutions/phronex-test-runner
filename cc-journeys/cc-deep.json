@@ -31,7 +31,7 @@
   },
   {
     "id": "cc-J02",
-    "description": "CC dashboard navigation works for an instance owner: verify the three owner-visible tabs (Overview, Analytics, Info & Connections) all load without errors. Sessions tab is superadmin-only \u2014 its absence for a non-superadmin owner is CORRECT behavior (known product design, defect #42 tracks the owner-visibility gap as a future enhancement, not a current regression).",
+    "description": "CC dashboard navigation works for a superadmin: verify all four superadmin-visible tabs (Overview, Analytics, Info & Connections, Sessions) load without errors. The QA account qa-test-journeyhawk@phronex.com is is_superadmin=true, so all 4 tabs MUST be present \u2014 their absence would be a regression.",
     "steps": [
       {
         "id": 1,
@@ -39,11 +39,11 @@
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads without a 500 error. Take a screenshot. Note which sub-tabs are visible. The expected tabs for a non-superadmin owner are: Overview, Analytics, Info & Connections \u2014 exactly these three. The Sessions tab is intentionally restricted to superadmin accounts only (CCDashboardClient.tsx BASE_TABS vs SUPERADMIN_TABS gate). If Sessions IS visible to this non-superadmin QA account, that is a SECURITY/DESIGN REGRESSION \u2014 flag immediately. If Sessions is absent: that is the correct PASS condition."
+        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the page loads without a 500 error. Take a screenshot. Note which sub-tabs are visible. The QA account is a superadmin (is_superadmin=true in DB), so the expected tabs are all 4: Overview, Analytics, Info & Connections, Sessions (CCDashboardClient.tsx SUPERADMIN_TABS). If any of these 4 tabs is MISSING, that is a regression. If FEWER than 4 tabs appear, flag immediately with exact tab count and labels observed."
       },
       {
         "id": 3,
-        "description": "Click the 'Overview' tab. Verify the overview section loads without a JavaScript crash. Record what metrics or information is displayed. Note whether visitor session data (even aggregate counts like 'Total sessions today') is available to the owner \u2014 its total absence is a product gap to note (not a failure if the instance is new)."
+        "description": "Click the 'Overview' tab. Verify the overview section loads without a JavaScript crash. Record what metrics or information is displayed. Note whether visitor session data (even aggregate counts like 'Total sessions today') is available \u2014 its total absence is a product gap to note (not a failure if the instance is new)."
       },
       {
         "id": 4,
@@ -51,11 +51,11 @@
       },
       {
         "id": 5,
-        "description": "Click the 'Info & Connections' tab. Verify it loads without a crash. Note what connection info or widget embed instructions are displayed \u2014 this is the owner's primary integration guide. The tab should show at minimum the widget embed script/code or the instance ID needed to integrate. If the tab shows only a blank screen with no content and no instructions, that is a failure."
+        "description": "Click the 'Info & Connections' tab. Verify it loads without a crash \u2014 specifically no 'Something went wrong' or 'An unexpected error' banner. Note what connection info or widget embed instructions are displayed. The superadmin Info view (SuperadminInfoSection) should show instance configuration options. A crash or blank error screen here is a hard failure."
       },
       {
         "id": 6,
-        "description": "Final navigation check: verify that NO fourth tab labelled 'Sessions' (or any similar label) is visible in the tab bar for this non-superadmin owner account. Sessions data access for non-superadmin owners is tracked as a product gap under defect #42 \u2014 when it ships, this step should be updated to EXPECT Sessions tab and verify its content. For now: Sessions tab absent = PASS. Sessions tab present for non-superadmin = REGRESSION, flag as HIGH severity."
+        "description": "Click the 'Sessions' tab. Verify it loads without a crash. The Sessions tab is superadmin-only \u2014 it should show a list of recent widget sessions or an empty state if no sessions exist yet. An 'Access Denied' or missing sessions section for the superadmin account is a regression. Record the content shown (session count, or empty state message)."
       }
     ]
   },
@@ -111,7 +111,7 @@
       },
       {
         "id": 5,
-        "description": "Navigate away to https://app.phronex.com/cc/dashboard, wait for it to load, then navigate back to https://app.phronex.com/cc/instance. Verify the field edited in step 3 still contains the QA marker ('QA-TEST-2026' or '-QA'). If the value reverted to the original, this is a persistence failure."
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard, wait for it to load, then navigate back to https://app.phronex.com/cc/instance?instance=e2e-test-instance (the ?instance= query param is required for superadmin context — without it, the portal redirects to a different instance). Verify the field edited in step 3 still contains the QA marker ('QA-TEST-2026' or '-QA'). If the value reverted to the original, this is a persistence failure."
       },
       {
         "id": 6,
@@ -155,7 +155,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Using Playwright's page.evaluate() to make fetch calls from the browser context: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify the response has HTTP status 200 and contains an 'access_token' or 'token' field. Store the token value."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls from the browser context: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify the response has HTTP status 200 and contains an 'access_token' or 'token' field. Store the token value. Note: 404 on the root URL is expected (CC serves no homepage) — only the API needs to respond correctly."
       },
       {
         "id": 2,
@@ -181,7 +181,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected — CC serves no homepage, only the API matters."
       },
       {
         "id": 2,
@@ -211,7 +211,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected — CC serves no homepage, only the API matters."
       },
       {
         "id": 2,
@@ -241,7 +241,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected — CC serves no homepage, only the API matters."
       },
       {
         "id": 2,
