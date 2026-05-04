@@ -37,6 +37,15 @@ export const testCaseSchema = z.object({
         wait_seconds: z.number().optional(),
         fields: z.array(z.string()).optional(),
     })).optional(),
+    human_required: z.object({
+        reason: z.enum([
+            "mic_input", "video_watch", "captcha",
+            "biometric", "visual_verify", "physical_action",
+        ]),
+        instruction: z.string(),
+        max_seconds: z.number().optional().default(30),
+        after_step: z.string().optional(),
+    }).optional(),
 });
 
 /**

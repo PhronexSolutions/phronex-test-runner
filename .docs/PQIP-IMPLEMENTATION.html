@@ -77,6 +77,7 @@
     <a href="#migrations">Migrations</a>
     <a href="#pipeline-wiring">Pipeline Wiring</a>
     <a href="#risk-register">Risk Register</a>
+    <a href="#handoff-queue">Handoff Queue (Human-in-Loop)</a>
   </nav>
 
   <main>
@@ -1365,13 +1366,243 @@ Key dependencies:
       </table>
     </section>
 
+    <!-- ================================================================ -->
+    <section id="handoff-queue">
+      <h2>12. Handoff Queue &mdash; Human-in-the-Loop Testing <span class="badge badge-new">NEW</span></h2>
+
+      <p>Some journeys require human sensory interaction that no automation can perform: watching video playback, speaking into a microphone, solving a CAPTCHA, verifying audio output, or approving a biometric prompt. These steps are rare but unavoidable.</p>
+
+      <div class="callout callout-purple">
+        <strong>Design Constraint:</strong> Minimize human wall-clock time. The operator should spend &le;90 seconds total per run, even if the run takes 30 minutes of automated work. Pre-stage all context; batch all handoff steps; resume automatically after human input.
+      </div>
+
+      <h3>12.1 Architecture Overview</h3>
+      <pre>
+┌────────────────────────────────────────────────────────────┐
+│  cc-test-runner (automated)                                 │
+│                                                             │
+│  Steps 1-5 ──→ HUMAN_REQUIRED step ──→ CHECKPOINT + PAUSE  │
+│                        │                                    │
+│                        ▼                                    │
+│            ┌──────────────────────┐                         │
+│            │   qa_handoff_queue    │  (phronex_qa DB)       │
+│            └──────────────────────┘                         │
+│                        │                                    │
+│  Meanwhile: runner continues OTHER non-blocked journeys     │
+│                                                             │
+│  ─── After ALL automated journeys complete ───              │
+│                        │                                    │
+│                        ▼                                    │
+│         ┌───────────────────────────────┐                   │
+│         │ Handoff Notification (Telegram │                   │
+│         │ or CLI "serve" mode)          │                   │
+│         └───────────────────────────────┘                   │
+│                        │                                    │
+│         Operator completes step, marks done                 │
+│                        │                                    │
+│                        ▼                                    │
+│  Remaining steps resume from checkpoint (storage-state)     │
+└────────────────────────────────────────────────────────────┘
+      </pre>
+
+      <h3>12.2 Journey Spec Extension</h3>
+      <p>New optional field <code>human_required</code> on any step. Backward compatible &mdash; specs without it execute unchanged.</p>
+      <pre>
+{
+  "id": "praxis-verify-voice-note",
+  "steps": [
+    { "id": 1, "description": "Navigate to voice notes page" },
+    { "id": 2, "description": "Click 'Record' button" },
+    {
+      "id": 3,
+      "description": "Record a 5-second voice note",
+      "human_required": {
+        "reason": "mic_input",
+        "instruction": "Speak any sentence for 5 seconds into the microphone, then click Stop.",
+        "max_seconds": 15,
+        "checkpoint": true
+      }
+    },
+    { "id": 4, "description": "Verify the recording appears in the list with duration badge" }
+  ]
+}
+      </pre>
+
+      <h4>human_required field schema:</h4>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        <tr><td><code>reason</code></td><td>enum</td><td>Yes</td><td>Why human is needed: <code>mic_input</code>, <code>video_watch</code>, <code>captcha</code>, <code>biometric</code>, <code>visual_verify</code>, <code>physical_action</code></td></tr>
+        <tr><td><code>instruction</code></td><td>string</td><td>Yes</td><td>One-sentence instruction for operator. Must be completable in &le;<code>max_seconds</code></td></tr>
+        <tr><td><code>max_seconds</code></td><td>int</td><td>Yes</td><td>Time budget for human action. Design target: &le;30s per step</td></tr>
+        <tr><td><code>checkpoint</code></td><td>bool</td><td>No</td><td>Whether to save browser state before pausing (default: true)</td></tr>
+        <tr><td><code>pre_actions</code></td><td>string[]</td><td>No</td><td>Automated actions to perform before handing off (e.g., "click Record button")</td></tr>
+      </table>
+
+      <h3>12.3 Strategist Integration</h3>
+      <p>The test strategist must treat human steps as expensive resources and minimize their use:</p>
+      <ul>
+        <li><strong>JourneyRecommender:</strong> Adds a <code>human_cost_penalty</code> to the ranking score for journeys containing <code>human_required</code> steps. A journey with 2 human steps scores lower than one with 0 human steps at the same priority level. This ensures automated-only journeys run first unless the human journey has significantly higher risk/priority.</li>
+        <li><strong>Depth Scorer:</strong> Journeys with <code>human_required</code> steps are classified as <code>DEEP+</code> (minimum) regardless of other heuristics &mdash; they test something no automation can reach.</li>
+        <li><strong>Fixture Guard:</strong> Human-required journeys are pre-filtered if the handoff queue already has &ge;5 pending items (batch size cap to prevent operator fatigue).</li>
+        <li><strong>Run Filter (Reason A/B/C):</strong> Human journeys only qualify under Reason A (known broken + fix landed) or Reason C (new journey). They do NOT qualify under Reason B (DocChain changed) unless the changed section directly involves the human-interaction feature.</li>
+      </ul>
+
+      <h3>12.4 Database Schema</h3>
+      <pre>
+-- Migration: 0015_handoff_queue.py
+CREATE TABLE qa_handoff_queue (
+    handoff_id    SERIAL PRIMARY KEY,
+    run_id        TEXT NOT NULL,
+    product_slug  VARCHAR(64) NOT NULL,
+    journey_id    TEXT NOT NULL,
+    step_id       INTEGER NOT NULL,
+    reason        VARCHAR(32) NOT NULL,   -- mic_input | video_watch | captcha | ...
+    instruction   TEXT NOT NULL,
+    max_seconds   INTEGER NOT NULL DEFAULT 30,
+    screenshot_path  TEXT,                -- pre-handoff screenshot for context
+    browser_state_path TEXT,              -- saved storage-state JSON path
+    status        VARCHAR(16) NOT NULL DEFAULT 'pending',  -- pending | served | completed | skipped | expired
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    served_at     TIMESTAMPTZ,           -- when operator opened it
+    completed_at  TIMESTAMPTZ,
+    operator_notes TEXT,                  -- optional operator annotation
+    CONSTRAINT chk_handoff_status CHECK (status IN ('pending','served','completed','skipped','expired'))
+);
+
+CREATE INDEX idx_handoff_queue_pending ON qa_handoff_queue (status, product_slug) WHERE status = 'pending';
+CREATE INDEX idx_handoff_queue_run ON qa_handoff_queue (run_id);
+      </pre>
+
+      <h3>12.5 Pipeline Integration (run-journeyhawk.sh)</h3>
+      <p>The handoff queue integrates between Step 1 (cc-test-runner) and Step 2 (intelligence pipeline):</p>
+      <pre>
+# Step 1: cc-test-runner runs all journeys
+#   - Automated journeys: execute fully
+#   - Human-required steps: cc-test-runner SKIPS the step,
+#     marks it "pending_human" in step-outcomes.json,
+#     saves browser state, inserts into qa_handoff_queue
+
+# Step 1b (NEW): Handoff batch notification
+#   If qa_handoff_queue has pending items for this run_id:
+#     - Print summary to stdout (operator sees it)
+#     - Send Telegram notification via phronex_common.communications
+#     - Enter poll loop (check every 30s for completion)
+#     - Max wait: 10 minutes, then expire remaining handoffs
+#     - On completion: resume paused journeys from checkpoint
+
+# Step 2: Intelligence pipeline (runs after all journeys, including resumed ones)
+      </pre>
+
+      <h3>12.6 Operator Interface</h3>
+      <p>Two modes for operator interaction:</p>
+
+      <h4>Mode A: CLI serve (primary &mdash; lowest latency)</h4>
+      <pre>
+$ python -m phronex_common.testing.handoff serve
+
+╔══════════════════════════════════════════════════════════════╗
+║  HANDOFF QUEUE — 3 steps waiting (ETA: ~45 seconds)         ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║  1/3  praxis-verify-voice-note  step 3                       ║
+║       🎤 Speak any sentence for 5s, click Stop               ║
+║       Budget: 15s │ Browser: Chromium tab 2                  ║
+║       [screenshot attached]                                  ║
+║                                                              ║
+║  Press ENTER when done, or 's' to skip...                    ║
+╚══════════════════════════════════════════════════════════════╝
+      </pre>
+
+      <h4>Mode B: Telegram notification (async &mdash; operator away from terminal)</h4>
+      <p>Uses <code>phronex_common.communications</code> to send a structured message:</p>
+      <pre>
+🔔 JourneyHawk Handoff — 3 steps waiting
+
+1. [praxis] Voice note recording (15s)
+2. [praxis] Video playback verification (10s)
+3. [cc] CAPTCHA solve (5s)
+
+Total ETA: ~30 seconds
+Reply "serve" to open CLI, or complete in browser and reply "done"
+      </pre>
+
+      <h3>12.7 cc-test-runner Integration (TypeScript)</h3>
+      <p>New behaviour in cc-test-runner when a step has <code>human_required</code>:</p>
+      <ul>
+        <li>Before the step: execute any <code>pre_actions</code> (automated setup)</li>
+        <li>Save browser storage state to <code>.tmp/{journey_id}-handoff-state.json</code></li>
+        <li>Take a screenshot and save to results dir</li>
+        <li>Mark step as <code>pending_human</code> in step-outcomes (NOT "failed")</li>
+        <li>Continue to next journey in the tree (do NOT block on this step)</li>
+        <li>After all other journeys complete, poll <code>qa_handoff_queue</code> for completion</li>
+        <li>On completion: reload storage state, continue remaining steps</li>
+      </ul>
+
+      <h3>12.8 Confidence Scorer Treatment</h3>
+      <p>Handoff journeys have special treatment in the confidence scorer:</p>
+      <ul>
+        <li><strong>Skipped handoff = neutral:</strong> A journey where the human step was skipped (operator unavailable) does NOT count as a failure. It is excluded from the Wilson interval calculation for that run.</li>
+        <li><strong>Expired handoff = failure:</strong> If the handoff expired (10-minute timeout), the journey counts as failed. This prevents journeys from staying STABLE if the human interaction is never actually tested.</li>
+        <li><strong>Completed handoff = normal:</strong> Steps completed by human are scored the same as automated steps. Pass/fail determined by subsequent automated verification steps.</li>
+      </ul>
+
+      <h3>12.9 Implementation Files</h3>
+      <table>
+        <tr><th>File</th><th>New/Modify</th><th>Purpose</th></tr>
+        <tr><td class="file-ref">phronex-common/src/phronex_common/testing/handoff.py</td><td>New</td><td>Core module: HandoffItem dataclass, queue operations (insert, serve, complete, expire), CLI serve command</td></tr>
+        <tr><td class="file-ref">phronex-common/migrations/qa/versions/0015_handoff_queue.py</td><td>New</td><td>Alembic migration for qa_handoff_queue table</td></tr>
+        <tr><td class="file-ref">phronex-common/src/phronex_common/testing/strategist/recommender.py</td><td>Modify</td><td>Add human_cost_penalty to journey ranking</td></tr>
+        <tr><td class="file-ref">phronex-common/src/phronex_common/testing/depth_scorer.py</td><td>Modify</td><td>Classify human_required journeys as DEEP+ minimum</td></tr>
+        <tr><td class="file-ref">phronex-common/src/phronex_common/testing/confidence_scorer.py</td><td>Modify</td><td>Handle pending_human / expired / skipped outcomes</td></tr>
+        <tr><td class="file-ref">phronex-test-runner/run-journeyhawk.sh</td><td>Modify</td><td>Add Step 1b (handoff batch + poll loop)</td></tr>
+        <tr><td class="file-ref">phronex-test-runner/cli/src/types/test-case.ts</td><td>Modify</td><td>Add human_required field to zod schema</td></tr>
+        <tr><td class="file-ref">phronex-test-runner/cli/src/prompts/start-test.ts</td><td>Modify</td><td>Inject handoff behaviour for human_required steps</td></tr>
+      </table>
+
+      <h3>12.10 Definition of Done</h3>
+      <div class="dod-box">
+        <h4>Phase 89 (Handoff Queue) &mdash; DoD</h4>
+        <ul>
+          <li><code>qa_handoff_queue</code> table exists in phronex_qa (migration applied)</li>
+          <li><code>python -m phronex_common.testing.handoff serve</code> starts CLI, shows pending items, polls for completion</li>
+          <li><code>python -m phronex_common.testing.handoff insert --run-id X --journey-id Y --step-id 3 --reason mic_input --instruction "Speak for 5s"</code> inserts a row</li>
+          <li><code>python -m phronex_common.testing.handoff complete --handoff-id N</code> marks completed</li>
+          <li>JourneyRecommender applies <code>human_cost_penalty = 0.15</code> to journeys with human_required steps</li>
+          <li>Depth scorer classifies human_required journeys as DEEP+ minimum</li>
+          <li>cc-test-runner zod schema accepts <code>human_required</code> field; <code>bun check</code> passes</li>
+          <li>Confidence scorer excludes <code>pending_human</code> skipped outcomes from Wilson interval</li>
+          <li>run-journeyhawk.sh Step 1b polls qa_handoff_queue and resumes after completion</li>
+          <li>Telegram notification fires when handoffs are pending (via phronex_common.communications)</li>
+          <li>Max batch size cap: fixture guard drops human journeys when &ge;5 already pending</li>
+          <li>Expired handoffs (10-min timeout) count as failures in confidence scoring</li>
+          <li>ruff check passes on all new/modified Python files</li>
+        </ul>
+        <pre>
+-- Verification query:
+SELECT status, count(*) FROM qa_handoff_queue GROUP BY status;
+-- Expected after a clean run with handoff journeys:
+-- pending: 0, completed: N, expired: 0
+        </pre>
+      </div>
+
+      <h3>12.11 Design Constraints (Non-Negotiable)</h3>
+      <ul>
+        <li><strong>Human time budget &le;90s per run:</strong> If total human_required time across all journeys exceeds 90s, the fixture guard must shed lowest-priority human journeys until the budget fits.</li>
+        <li><strong>No blocking:</strong> The runner never blocks waiting for a human. It continues all automated work, then polls with a timeout.</li>
+        <li><strong>Fail-open on timeout:</strong> Expired handoffs mark the step as failed and the pipeline continues. Never hang indefinitely.</li>
+        <li><strong>G5 compliant:</strong> All DB access via raw psycopg2. No ORM.</li>
+        <li><strong>Backward compatible:</strong> Specs without <code>human_required</code> field behave exactly as today.</li>
+        <li><strong>Strategist awareness:</strong> The recommender, fixture guard, and run filter all know about human cost and gate accordingly.</li>
+      </ul>
+    </section>
+
   </main>
 
   <footer>
-    PQIP Implementation Specification v2.0 (consolidated) &middot; 2026-05-03 &middot; Phronex Solutions &middot;
+    PQIP Implementation Specification v2.1 (consolidated) &middot; 2026-05-04 &middot; Phronex Solutions &middot;
     Companion to PQIP-ARCHITECTURE.html (vision document) &middot;
-    v20.0 milestone: 5 phases (84-88), ~75h total &middot;
-    Next: Phase 84 implementation via <code>/gsd:plan-phase 84</code>
+    v20.0 milestone: 5 phases (84-88) + Phase 89 (Handoff Queue), ~85h total &middot;
+    Next: Phase 89 implementation via <code>/gsd:plan-phase 89</code>
   </footer>
 
 </body>

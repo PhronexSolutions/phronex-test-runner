@@ -68,6 +68,10 @@ SPEC_FILE="${2:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-di
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 RESULTS_DIR="${3:-journeys-output/${PRODUCT}-${TIMESTAMP}}"
 
+# Run ID for handoff queue and intelligence pipeline correlation.
+export JOURNEYHAWK_RUN_ID="${PRODUCT}-${TIMESTAMP}"
+export JOURNEYHAWK_PRODUCT="${PRODUCT}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo ""
@@ -473,6 +477,57 @@ CC_EXIT=0
   || CC_EXIT=$?
 if [[ ${CC_EXIT} -ne 0 ]]; then
   echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
+fi
+
+# Step 1b (PQIP §12): Handoff Queue — poll for human-in-the-loop steps.
+# If any journey steps were queued for operator action during cc-test-runner,
+# poll until resolved or timeout (600s). Fail-open: if no handoffs or DB unavailable, skip.
+echo ""
+echo "[1b/3] Checking handoff queue (human-in-the-loop steps)..."
+"${PYTHON}" - <<'HANDOFF_EOF' || true
+import os, sys
+
+_db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+_run_id = os.environ.get("JOURNEYHAWK_RUN_ID", "")
+if not _db_url or not _run_id:
+    print("[handoff] skipped: no DB URL or RUN_ID", file=sys.stderr)
+    sys.exit(0)
+
+try:
+    import psycopg2
+    from phronex_common.testing._qa_db import clean_dsn
+    from phronex_common.testing.handoff import get_pending, poll_until_done
+
+    _conn = psycopg2.connect(clean_dsn(_db_url))
+    try:
+        pending = get_pending(_conn, run_id=_run_id)
+        if not pending:
+            print("[handoff] no pending items — continuing", file=sys.stderr)
+            sys.exit(0)
+
+        print(f"[handoff] {len(pending)} items pending — polling (max 600s)...", file=sys.stderr)
+        for item in pending:
+            print(f"  [{item.reason}] {item.journey_id} step {item.step_id}: {item.instruction}", file=sys.stderr)
+
+        completed, skipped, expired = poll_until_done(_conn, _run_id)
+        print(f"[handoff] done: {completed} completed, {skipped} skipped, {expired} expired", file=sys.stderr)
+    finally:
+        _conn.close()
+except Exception as e:
+    print(f"[handoff] WARNING: poll failed (non-fatal): {e}", file=sys.stderr)
+HANDOFF_EOF
+
+# Re-export OAuth token for intelligence pipeline LLM calls.
+# cc-test-runner is done — safe to restore ANTHROPIC_API_KEY from Claude credentials.
+if [[ -f "$HOME/.claude/.credentials.json" ]]; then
+  _OAUTH_TOKEN=$(python3 -c "
+import json, sys
+try:
+    d = json.load(open('$HOME/.claude/.credentials.json'))
+    print(d['claudeAiOauth']['accessToken'])
+except Exception:
+    sys.exit(1)
+" 2>/dev/null) && export ANTHROPIC_API_KEY="${_OAUTH_TOKEN}"
 fi
 
 # Step 2: intelligence pipeline via phronex_common.testing.runner
