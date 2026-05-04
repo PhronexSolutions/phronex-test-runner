@@ -381,16 +381,22 @@ print(f'  Depth: {deep_plus} DEEP+, {len(surface)} SURFACE, {len(smoke)} SMOKE o
 # Applies depth gate (Reason D) + coverage-based filtering. Writes filtered spec
 # to a temp file. If it succeeds, use the filtered spec downstream; otherwise
 # continue with the original TEMP_SPEC unchanged (fail-open).
+# Exports JH_RUN_FILTER_INCLUDED / JH_RUN_FILTER_SKIPPED for runner.py to
+# persist in qa_runs (portal Strategist tab reads these).
 echo ""
 echo "[0e/3] Strategist run filter (Phase 90)..."
 RUN_FILTER_OUTPUT=$(mktemp /tmp/jh-run-filter-XXXXXX.json)
+PRE_FILTER_COUNT=$("${PYTHON}" -c "import json,sys; d=json.load(open('${TEMP_SPEC}')); print(len(d) if isinstance(d,list) else 1)" 2>/dev/null || echo "0")
 if "${PYTHON}" -m phronex_common.testing.run_filter \
   --product "${PRODUCT}" \
   --spec "${TEMP_SPEC}" \
   --output "${RUN_FILTER_OUTPUT}" 2>&1; then
   if [ -s "${RUN_FILTER_OUTPUT}" ]; then
+    POST_FILTER_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${RUN_FILTER_OUTPUT}'))))" 2>/dev/null || echo "${PRE_FILTER_COUNT}")
     cp "${RUN_FILTER_OUTPUT}" "${TEMP_SPEC}"
-    echo "[0e/3] Run filter applied — using filtered spec"
+    export JH_RUN_FILTER_INCLUDED="${POST_FILTER_COUNT}"
+    export JH_RUN_FILTER_SKIPPED=$(( PRE_FILTER_COUNT - POST_FILTER_COUNT ))
+    echo "[0e/3] Run filter applied — ${JH_RUN_FILTER_INCLUDED} included, ${JH_RUN_FILTER_SKIPPED} skipped"
   else
     echo "[0e/3] WARN: run filter produced empty output — using original spec"
   fi
