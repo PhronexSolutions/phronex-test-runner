@@ -308,18 +308,18 @@ fi
 # In READ_ONLY mode: advisory only (non-blocking). In ACTIVE mode: non-zero exit blocks run.
 # Docs dir resolved relative to product codebase: ${PHRONEX_CODE_ROOT}/<product>/.docs/
 # Product slug → repo name mapping (slug != repo name for jp and cc)
-declare -A _PRODUCT_REPO_MAP=(["jp"]="jobportal" ["cc"]="contentcompanion")
+declare -A _PRODUCT_REPO_MAP=(["jp"]="jobportal" ["cc"]="contentcompanion" ["comc"]="phronex-command-centre" ["website"]="phronex-website")
 _PRODUCT_REPO="${_PRODUCT_REPO_MAP[${PRODUCT}]:-${PRODUCT}}"
 _DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/ouroborous/code}/${_PRODUCT_REPO}/.docs"
 if [[ -d "${_DOCS_DIR}" ]]; then
   echo ""
   echo "[0b/3] DocChain stage gate (STRAT-09, STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
   _GATE_MODE="${STRATEGIST_MODE_OVERRIDE:-${STRATEGIST_MODE:-ACTIVE}}"
+  _GATE_EXIT=0
   "${PYTHON}" -m phronex_common.docchain.stage_gate \
     --stage pre_run \
     --docs-dir "${_DOCS_DIR}" \
-    --product "${PRODUCT}"
-  _GATE_EXIT=$?
+    --product "${PRODUCT}" || _GATE_EXIT=$?
   if [[ ${_GATE_EXIT} -ne 0 ]]; then
     if [[ "${_GATE_MODE}" == "ACTIVE" ]]; then
       echo "[0b/3] DocChain gate: BLOCKED (ACTIVE mode) — aborting run. Fix missing artefacts above." >&2
@@ -331,6 +331,33 @@ if [[ -d "${_DOCS_DIR}" ]]; then
 else
   echo "[0b/3] DocChain stage gate skipped — docs dir not found: ${_DOCS_DIR}"
 fi
+
+# Step 0b-gen: Journey generation (Phase 92 — coverage gap fill)
+# Discovers portal pages + backend endpoints, identifies features without journey
+# coverage, and generates DEEP specs for uncovered features. Merges with existing
+# spec (existing take precedence). Fail-open: if generation fails, original spec used.
+echo ""
+echo "[0b-gen/3] Journey generation (coverage gap fill)..."
+_GEN_OUTPUT=$(mktemp /tmp/jh-generated-XXXXXX.json)
+if "${PYTHON}" -m phronex_common.testing.journey_generator \
+  --product "${PRODUCT}" \
+  --existing-spec "${TEMP_SPEC}" \
+  --output "${_GEN_OUTPUT}" \
+  --max-journeys 60 \
+  --min-depth DEEP \
+  --no-llm 2>&1; then
+  if [ -s "${_GEN_OUTPUT}" ]; then
+    _ORIG_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "?")
+    _NEW_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${_GEN_OUTPUT}'))))" 2>/dev/null || echo "?")
+    cp "${_GEN_OUTPUT}" "${TEMP_SPEC}"
+    echo "[0b-gen/3] Merged: ${_ORIG_COUNT} existing + generated = ${_NEW_COUNT} total journeys"
+  else
+    echo "[0b-gen/3] WARN: generation produced empty output — using original spec"
+  fi
+else
+  echo "[0b-gen/3] WARN: journey generation failed (non-fatal) — using original spec"
+fi
+rm -f "${_GEN_OUTPUT}"
 
 # Step 0c: Resource verification (Phase 84 — pre-run resource inventory check)
 # Verifies all test resources (accounts, credentials, documents, infra) are available.
