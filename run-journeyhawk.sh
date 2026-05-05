@@ -333,17 +333,20 @@ else
 fi
 
 # Step 0b-gen: Journey generation (Phase 92 — coverage gap fill)
-# Discovers portal pages + backend endpoints, identifies features without journey
-# coverage, and generates DEEP specs for uncovered features. Merges with existing
-# spec (existing take precedence). Fail-open: if generation fails, original spec used.
+# Three signal sources: portal pages, backend endpoint clusters, .docs/ artefacts.
+# Identifies features without journey coverage and generates DEEP specs for them.
+# Merges with existing spec (existing take precedence). Fail-open: if generation
+# fails, original spec used.
 echo ""
 echo "[0b-gen/3] Journey generation (coverage gap fill)..."
 _GEN_OUTPUT=$(mktemp /tmp/jh-generated-XXXXXX.json)
+_DOCS_DIR="${PHRONEX_CODE_ROOT:-${HOME}/code}/${_PRODUCT_REPO}/.docs"
 if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --product "${PRODUCT}" \
   --existing-spec "${TEMP_SPEC}" \
+  --docs-dir "${_DOCS_DIR}" \
   --output "${_GEN_OUTPUT}" \
-  --max-journeys 60 \
+  --max-journeys 150 \
   --min-depth DEEP \
   --no-llm 2>&1; then
   if [ -s "${_GEN_OUTPUT}" ]; then
