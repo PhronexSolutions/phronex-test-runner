@@ -46,6 +46,11 @@ while [[ $# -gt 0 ]]; do
       val="$2"
       shift
       ;;
+    --waive-resources)
+      export JOURNEYHAWK_WAIVE_RESOURCES=1
+      shift
+      continue
+      ;;
     *)
       break
       ;;
@@ -351,6 +356,42 @@ else
   echo "[0c/3] Resource verification: all resources available."
 fi
 
+# Step 0c2: Resource criticality gate (D-02) — block on missing critical resources.
+# --waive-resources flag skips this gate (JOURNEYHAWK_WAIVE_RESOURCES=1).
+echo ""
+if [[ "${JOURNEYHAWK_WAIVE_RESOURCES:-0}" == "0" ]]; then
+    echo "[0c2/3] Resource criticality gate (D-02)..."
+    "${PYTHON}" -c "
+import sys
+try:
+    from phronex_common.testing.resources.seed import _build_inventory
+    import os
+    inventory = _build_inventory('${PRODUCT}')
+    missing_critical = []
+    for entry in inventory:
+        if entry.get('default_criticality') == 'critical':
+            ptype = entry.get('provider_type', '')
+            if ptype == 'env_var':
+                var = entry.get('provider_config', {}).get('var_name', '')
+                if var and not os.environ.get(var):
+                    missing_critical.append(entry['display_name'])
+    if missing_critical:
+        print(f'CRITICAL: {len(missing_critical)} missing critical resources:', file=sys.stderr)
+        for name in missing_critical:
+            print(f'  - {name}', file=sys.stderr)
+        print('Use --waive-resources to skip this check.', file=sys.stderr)
+        sys.exit(1)
+    print('[0c2/3] All critical resources present.')
+except Exception as exc:
+    print(f'  warn: resource gate check failed (non-fatal): {exc}', file=sys.stderr)
+" || {
+    echo "BLOCKED: Missing critical resources. Use --waive-resources to skip." >&2
+    exit 1
+}
+else
+    echo "[0c2/3] Resource gate waived (--waive-resources flag)."
+fi
+
 # Step 0d: Journey depth scoring (Phase 85 — G-18)
 # Classifies each journey as SMOKE/SURFACE/DEEP/BEHAVIORAL.
 # SMOKE journeys are warned but NOT dropped (D-01: warn only, don't reject).
@@ -447,20 +488,23 @@ try:
     import psycopg2
     from phronex_common.testing.strategist.questions import (
         answer_coverage_gap, answer_yield_trend,
-        answer_ethos_priority, answer_fixture_health,
+        answer_sweep_priority,
+        answer_fixture_health,
         answer_depth_quality, answer_docchain_freshness,
+        answer_ethos_coverage,
     )
     _clean_url = _db_url.replace("postgresql+psycopg2://", "postgresql://")
     _conn = psycopg2.connect(_clean_url)
     try:
         q1 = answer_coverage_gap(_product, _conn)
         q2 = answer_yield_trend(_product, _conn)
-        q3 = answer_ethos_priority(_product, _conn)
+        q3 = answer_sweep_priority(_product, _conn)
         q4 = answer_fixture_health(_product, _conn)
         q5 = answer_depth_quality(_product, _conn)
         q6 = answer_docchain_freshness(_product, _conn)
-        print(f"[strategist:pre-run] Q1 coverage_gap={q1:.3f}  Q2 yield_trend={q2:.3f}  Q3 ethos_priority={q3:.3f}  Q4 fixture_health={q4:.3f}", file=sys.stderr)
-        print(f"[strategist:pre-run] Q5 depth_quality={q5:.3f}  Q6 docchain_freshness={q6:.3f}", file=sys.stderr)
+        q7 = answer_ethos_coverage(_product, _conn)
+        print(f"[strategist:pre-run] Q1 coverage_gap={q1:.3f}  Q2 yield_trend={q2:.3f}  Q3 sweep_priority={q3:.3f}  Q4 fixture_health={q4:.3f}", file=sys.stderr)
+        print(f"[strategist:pre-run] Q5 depth_quality={q5:.3f}  Q6 docchain_freshness={q6:.3f}  Q7 ethos_coverage={q7:.3f}", file=sys.stderr)
 
         # JourneyRecommender ranking (log top journeys by priority score)
         if _spec_file:
