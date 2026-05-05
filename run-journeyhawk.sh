@@ -347,8 +347,7 @@ if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --docs-dir "${_DOCS_DIR}" \
   --output "${_GEN_OUTPUT}" \
   --max-journeys 150 \
-  --min-depth DEEP \
-  --no-llm 2>&1; then
+  --min-depth DEEP 2>&1; then
   if [ -s "${_GEN_OUTPUT}" ]; then
     _ORIG_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "?")
     _NEW_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${_GEN_OUTPUT}'))))" 2>/dev/null || echo "?")
