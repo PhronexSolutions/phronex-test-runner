@@ -332,6 +332,22 @@ else
   echo "[0b/3] DocChain stage gate skipped — docs dir not found: ${_DOCS_DIR}"
 fi
 
+# Restore OAuth token for Python LLM calls in journey generation (Step 0b-gen).
+# ANTHROPIC_API_KEY was unset above to prevent cc-test-runner from using it.
+# The Python intelligence pipeline (journey_generator, business_journey_generator)
+# uses phronex_common.llm which needs ANTHROPIC_API_KEY = OAuth access token.
+if [[ -z "${ANTHROPIC_API_KEY:-}" ]] && [[ -f "$HOME/.claude/.credentials.json" ]]; then
+  _EARLY_OAUTH=$(python3 -c "
+import json, sys
+try:
+    d = json.load(open('$HOME/.claude/.credentials.json'))
+    print(d['claudeAiOauth']['accessToken'])
+except Exception:
+    sys.exit(1)
+" 2>/dev/null) && export ANTHROPIC_API_KEY="${_EARLY_OAUTH}" \
+  && echo "[env] Restored OAuth token for Python LLM calls"
+fi
+
 # Step 0b-gen: Journey generation (Phase 92 — coverage gap fill)
 # Three signal sources: portal pages, backend endpoint clusters, .docs/ artefacts.
 # Identifies features without journey coverage and generates DEEP specs for them.
@@ -711,6 +727,9 @@ fi
 # / per-journey 5 min hang / >50% network failure rate). On abort it writes
 # ${RESULTS_DIR}/abort_reason.json which the pipeline (Step 2) reads to
 # suffix qa_journeys.suite_scope with ':aborted'.
+# Re-unset ANTHROPIC_API_KEY before cc-test-runner — it uses Claude OAuth, not API key.
+unset ANTHROPIC_API_KEY
+
 echo ""
 echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter, max_runtime=${STRATEGIST_ABORT_MAX_RUNTIME_SEC}s)..."
 CC_EXIT=0
