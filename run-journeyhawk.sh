@@ -308,7 +308,7 @@ fi
 # In READ_ONLY mode: advisory only (non-blocking). In ACTIVE mode: non-zero exit blocks run.
 # Docs dir resolved relative to product codebase: ${PHRONEX_CODE_ROOT}/<product>/.docs/
 # Product slug → repo name mapping (slug != repo name for jp and cc)
-declare -A _PRODUCT_REPO_MAP=(["jp"]="jobportal" ["cc"]="contentcompanion" ["comc"]="phronex-command-centre" ["website"]="phronex-website")
+declare -A _PRODUCT_REPO_MAP=(["jp"]="jobportal" ["cc"]="contentcompanion" ["comc"]="phronex-command-centre" ["website"]="phronex-website" ["portal"]="phronex-portal" ["praxis"]="praxis")
 _PRODUCT_REPO="${_PRODUCT_REPO_MAP[${PRODUCT}]:-${PRODUCT}}"
 _DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/ouroborous/code}/${_PRODUCT_REPO}/.docs"
 if [[ -d "${_DOCS_DIR}" ]]; then
@@ -419,31 +419,71 @@ else
     echo "[0c2/3] Resource gate waived (--waive-resources flag)."
 fi
 
-# Step 0d: Journey depth scoring (Phase 85 — G-18)
+# Step 0d: Journey depth enforcement (Phase 92 — Fix 4)
 # Classifies each journey as SMOKE/SURFACE/DEEP/BEHAVIORAL.
-# SMOKE journeys are warned but NOT dropped (D-01: warn only, don't reject).
+# Policy: SMOKE journeys are auto-deepened via LLM or DROPPED.
+# SURFACE journeys are flagged but run.  Override: JH_ALLOW_SMOKE=1.
 echo ""
-echo "[0d/3] Journey depth scoring (Phase 85)..."
+echo "[0d/3] Journey depth enforcement (Phase 92)..."
 "${PYTHON}" -c "
-import json, sys
+import json, sys, os
 from phronex_common.testing.depth_scorer import score_journey, DepthLevel
+
 specs = json.loads(open('${TEMP_SPEC}').read())
+allow_smoke = os.environ.get('JH_ALLOW_SMOKE', '0') == '1'
+
 smoke = []
 surface = []
+kept = []
+
 for j in specs:
     depth = score_journey(j)
     if depth == DepthLevel.SMOKE:
-        smoke.append(j.get('id', '?'))
+        smoke.append(j)
     elif depth == DepthLevel.SURFACE:
-        surface.append(j.get('id', '?'))
-if smoke:
-    print(f'  WARNING: {len(smoke)} SMOKE journeys (shallow, should be enriched): {smoke}', file=sys.stderr)
+        surface.append(j)
+        kept.append(j)
+    else:
+        kept.append(j)
+
+if smoke and allow_smoke:
+    print(f'  ALLOWED (override): {len(smoke)} SMOKE journeys pass via JH_ALLOW_SMOKE=1')
+    kept.extend(smoke)
+elif smoke:
+    # Attempt auto-deepening via LLM
+    deepened_count = 0
+    try:
+        from phronex_common.testing.spec_generator import deepen_journey_spec
+        docs_dir = os.environ.get('_DOCS_DIR', '')
+        for s in smoke:
+            result = deepen_journey_spec(s, docs_dir=docs_dir or None)
+            if result:
+                new_depth = score_journey(result)
+                if new_depth not in (DepthLevel.SMOKE,):
+                    kept.append(result)
+                    deepened_count += 1
+                    continue
+            # Could not deepen — DROP this journey
+            print(f'  DROPPED: {s.get(\"id\", \"?\")} (SMOKE, could not auto-deepen)', file=sys.stderr)
+        if deepened_count:
+            print(f'  DEEPENED: {deepened_count}/{len(smoke)} SMOKE -> DEEP via LLM')
+    except Exception as exc:
+        print(f'  WARN: auto-deepen unavailable ({exc}) — dropping {len(smoke)} SMOKE journeys', file=sys.stderr)
+
 if surface:
-    print(f'  FLAGGED: {len(surface)} SURFACE journeys: {surface}', file=sys.stderr)
-total = len(specs)
-deep_plus = total - len(smoke) - len(surface)
-print(f'  Depth: {deep_plus} DEEP+, {len(surface)} SURFACE, {len(smoke)} SMOKE out of {total} total')
-" 2>&1 || echo "[0d/3] WARN: depth scoring failed (non-fatal, continuing)"
+    ids = [s.get('id', '?') for s in surface]
+    print(f'  FLAGGED: {len(surface)} SURFACE journeys (running but shallow): {ids}', file=sys.stderr)
+
+total_original = len(specs)
+total_kept = len(kept)
+dropped = total_original - total_kept
+deep_plus = total_kept - len(surface)
+print(f'  Depth: {deep_plus} DEEP+, {len(surface)} SURFACE, {dropped} dropped out of {total_original} total')
+
+# Write filtered spec back
+with open('${TEMP_SPEC}', 'w') as f:
+    json.dump(kept, f, indent=2)
+" 2>&1 || echo "[0d/3] WARN: depth enforcement failed (non-fatal, continuing)"
 
 # Step 0e: Strategist run filter (Phase 90)
 # Applies depth gate (Reason D) + coverage-based filtering. Writes filtered spec
