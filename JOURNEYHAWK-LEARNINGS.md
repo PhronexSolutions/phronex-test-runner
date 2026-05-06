@@ -406,6 +406,29 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 
 ---
 
+### Command Centre (comc)
+
+| Item | Value |
+|------|-------|
+| Deep spec | `comc-journeys/comc-deep.json` (45 static journeys) |
+| Backend URL | `http://localhost:8004` (DevServer — NOT EC2) |
+| Portal URL | `http://localhost:3002` (DevServer — production build required) |
+| QA account | `qa-test-journeyhawk@phronex.com` (command-centre premium grant, role_id set, rate_limit_exempt=true) |
+| Trunk journey | `comc-trunk-superadmin` — login + save browser session state; all 44 leaf journeys load from saved state |
+| Run 1 | 2026-05-06 — TBD (first full run with LLM enrichment enabled) |
+
+**ComC backend URL:** All journey specs must use `http://localhost:8004` for direct API calls. ComC runs on DevServer only — never EC2. There is no production domain for ComC yet (comc.phronex.com is planned).
+
+**Portal for ComC journeys:** The portal at `http://localhost:3002` must be a production Next.js build (not `pnpm dev`). ComC features are accessed via the portal — the spec navigates to `/comc/*` routes in the portal, which proxy to the local ComC backend.
+
+**No QA cleanup endpoint:** As of 2026-05-06, ComC has no QA cleanup SDK. Test data from initiative/CRM/meeting creation accumulates between runs. Use unique test-data names with timestamps (e.g. "JH-Test-Initiative-{date}") to avoid false failures from prior-run data. This is a known gap — flagged in TO-DISCUSS-WITH-VIVEK.md.
+
+**Oracle coverage:** TEST-ORACLES.html is 74KB with multiple tables. Phase 0 DocChain gate will populate oracle-driven steps for ComC journeys in future runs via the flow_extractor pipeline.
+
+**ComC `rate_limit_exempt`:** Already set for `qa-test-journeyhawk@phronex.com`. No need to restart phronex-auth before ComC runs.
+
+---
+
 ## Wiki Integration Status
 
 `qa_wiki_articles` is written by the pipeline after every run (one article per `GapFinding`). As of 2026-04-29: 10 articles (8 CC + 2 JP).
@@ -520,6 +543,41 @@ psql "$PHRONEX_QA_DATABASE_URL_SYNC" \
 **Pattern:** When a journey starts in a fresh browser context (`--isolated`), the initial page is `about:blank`. Calling `page.evaluate()` on `about:blank` fails with "Need to navigate to a page first before executing JavaScript." The tester must navigate to any page (even one that returns 404) before `page.evaluate()` can execute fetch calls.
 **Fix in specs:** Add an explicit "First navigate to https://cc.phronex.com/ to establish a page context" instruction as the first step in any API-only journey that uses `page.evaluate()`. Note: a 404 on the root URL is expected — CC serves no homepage.
 **Applied to:** cc-J06, cc-J07, cc-J08, cc-J09 step 1 descriptions (commit da049e1).
+
+---
+
+### phronex-auth `rate_limit_exempt` — never restart auth to reset rate limits
+
+**Discovered:** 2026-05-06.
+**Context:** The `accounts` table in phronex-auth has a `rate_limit_exempt` column. When `true`, the account bypasses the per-IP and per-account login rate limits entirely.
+
+**Run this once per QA account, not per run:**
+```sql
+UPDATE accounts SET rate_limit_exempt = true
+WHERE email = 'qa-test-journeyhawk@phronex.com'
+RETURNING email, rate_limit_exempt;
+```
+(confirmed already set for `qa-test-journeyhawk@phronex.com` as of 2026-05-06)
+
+**Consequence:** The `sudo systemctl restart phronex-auth` pre-flight step in the runbook is UNNECESSARY if `rate_limit_exempt` is true for the QA account. Do NOT restart phronex-auth for rate-limit reasons — a restart mid-run causes active journey logins to fail with "Invalid email or password" (see "Deployment race" section). Reserve restarts for actual service failures.
+
+**Multi-product note:** For new QA accounts on any product, immediately set `rate_limit_exempt = true` in phronex-auth. This is a one-time provisioning step that the `Phronex_Internal_QA_JourneyHawk` skill skill gates must enforce.
+
+---
+
+### LLM factory OAuth fallback — DevServer/JourneyHawk runs must not set ANTHROPIC_API_KEY
+
+**Discovered:** 2026-05-06, ComC PHASE 0 pre-run.
+**Root cause:** `phronex_common.llm.factory._resolve_platform_key()` previously returned `""` when `ANTHROPIC_API_KEY` was unset, passing `api_key=""` to `AnthropicProvider`. The Anthropic SDK then raised an unhelpful "Could not resolve authentication method" error far from the call site — appearing as a silent LLM enrichment failure (all 39 doc-signal journeys fell back to heuristic stubs).
+
+**Fix (commit 9a38764e):**
+- `_resolve_platform_key("anthropic")` now falls back to `~/.claude/.credentials.json → claudeAiOauth.accessToken` when `ANTHROPIC_API_KEY` is unset.
+- When neither env var nor credentials file has a key, a `WARNING` log with actionable fix instructions is emitted (not a silent empty string).
+- `_enrich_batch` in `journey_generator.py` detects OAuth tokens (`sk-ant-oat` prefix) and uses: `batch_size=3`, `inter_batch_sleep=35s` (vs prepaid: `batch_size=5`, `3s` sleep). This prevents cascade 429s where all 5 concurrent calls in a batch hit the OAuth rate limit simultaneously.
+
+**How to detect the original bug:** All `[journey-gen] LLM enrichment failed for ...: "Could not resolve authentication method"` lines in journey generator output → all generated journeys are heuristic stubs.
+
+**DevServer invariant:** `run-journeyhawk.sh` already does `unset ANTHROPIC_API_KEY` at startup. Combined with the OAuth fallback in factory.py, JourneyHawk on DevServer now correctly uses Claude Code OAuth with zero additional config.
 
 ---
 
