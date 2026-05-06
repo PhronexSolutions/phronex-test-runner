@@ -23,21 +23,18 @@
 
 ---
 
-## D-02: ComC portal routes vs backend URL map — needs verification
+## D-02: ComC portal routes vs backend URL map — RESOLVED (2026-05-06)
 
-**Context:** The 45 static journey specs navigate to `/comc/*` portal routes. These are currently untested. The portal's ComC section may have different route paths, tab names, or missing sections compared to what the spec expects.
+**Status:** RESOLVED — all 4 questioned routes exist in the portal (51 ComC pages confirmed). URL prefix was `/command-centre/`, not `/comc/`. Fixed in commit `be7acc96`.
 
-**Specific uncertainties:**
-- Does `/comc/pulse` map to the dashboard? Or is it `/comc/dashboard`?
-- Is `/comc/strategy/ip-register` a real portal route? 
-- Does `/comc/settings/llm-credentials` exist?
-- What happens on `/comc/autoresearch` — is this a portal page or backend-only?
+| Spec assumed | Actual portal route | Exists? |
+|---|---|---|
+| `/comc/pulse` | `/command-centre/dashboard` | Yes |
+| `/comc/strategy/ip-register` | `/command-centre/strategy/ip-register` | Yes |
+| `/comc/settings/llm-credentials` | `/command-centre/settings/llm-credentials` | Yes |
+| `/comc/autoresearch` | `/command-centre/autoresearch` | Yes |
 
-**Impact:** Many journeys will fail on step 1 if routes are wrong. This is expected on a first run — the run will surface the right routes. But we should document them systematically rather than patch one by one.
-
-**Recommendation:** Run the full suite once (accepting failures), then update the spec with correct routes in a single batch. After run 1, add a "Portal Route Map" table to this document.
-
-**Decision needed by:** After Run 1 results are available.
+**No decision needed.**
 
 ---
 
@@ -60,21 +57,19 @@
 
 ---
 
-## D-04: `rate_limit_exempt` flag — should JourneyHawk skill enforce this at provision time?
+## D-04: `rate_limit_exempt` flag — RESOLVED (2026-05-06)
 
-**Context:** The `phronex-auth.accounts.rate_limit_exempt` column must be `true` for any QA account to avoid login rate-limit failures across runs. Currently this is a manual one-time step.
+**Status:** RESOLVED — Step 1e (QA Account Provisioning Check) added to JourneyHawk SKILL.md PHASE 1.
 
-**Gap:** The JourneyHawk skill's PHASE 1 (Intelligence Load) queries `qa_known_defects` and wiki articles, but does NOT verify QA account provisioning state including `rate_limit_exempt`. A new machine or a new QA account would silently fail on run 1.
+The new step queries phronex-auth admin API (`GET /admin/accounts?email={email}`) to verify:
+1. Account exists
+2. `rate_limit_exempt = true`
 
-**Recommendation:** Add a Phase 1 sub-step to check `rate_limit_exempt` for the configured portal email:
-```sql
-SELECT rate_limit_exempt FROM accounts WHERE email = '{portal_email}'
-```
-If `false` → log a WARNING in the Intelligence Load summary and auto-set it (or ask operator to set it).
+Implemented as a WARNING gate (not HALT) — surfaces clear diagnostic messages when
+the account is missing or rate-limit-exempt is false. Integrated into Step 1d summary
+display. Uses the auth token from the login pre-check already performed by `run-journeyhawk.sh`.
 
-**Requires:** Update to `Phronex_Internal_QA_JourneyHawk/SKILL.md` via `/Phronex_Builder_Dev_SkillBuilder`. Not implemented here (SkillBuilder gate applies).
-
-**Decision needed by:** Before this becomes a pain point on a new machine.
+**No decision needed.**
 
 ---
 
@@ -110,21 +105,24 @@ If `false` → log a WARNING in the Intelligence Load summary and auto-set it (o
 
 ---
 
-## D-07: Generated business journeys not persisted — regenerated fresh every run
+## D-07: Generated business journeys not persisted — RESOLVED (2026-05-06)
 
-**Context:** The business journey generator produces 21 cross-feature E2E + 20 deep feature + N security journeys via LLM calls during the pre-flight `[0b-gen/3]` phase. These are **not** written back to `comc-deep.json`. Every run starts from the 45 static journeys and regenerates all business journeys from scratch.
+**Status:** RESOLVED — spec persistence + forensic trail implemented (commits `e4dfb907`, `e2874f2d` in phronex-common; `06b33da` in phronex-test-runner).
 
-**Impact:** 
-1. **Pre-flight cost:** 41 LLM calls per run × 35s inter-call sleep = ~24 min minimum generation time when calls succeed. When rate-limited (5 attempts × 30s each), worst case is ~100 min of generation before cc-test-runner starts executing journeys.
-2. **Wasted compute:** Runs 13-15 each re-generated the same 37 business journeys identically. 
-3. **Rate limit amplification:** Sustained runs in the same day exhaust OAuth token quota during generation, not during testing.
+**Solution shipped:**
+- `phronex_common/testing/spec_persistence.py` — new module with:
+  - SHA256-based cache: `comc-deep.json` → `comc-deep.generated.json` alongside static spec
+  - `qa_journey_spec_provenance` table (migration 0034): stores per-run doc SHA256s + journey IDs
+  - `load_cached_spec()`: on cache hit (all docs unchanged), skips entire LLM pipeline (~0 min vs ~24 min)
+  - `save_spec_with_provenance()`: writes cache + forensic provenance row after each generation
+  - `assess_doc_quality()`: LLM-based document adequacy check (replaces the 5KB size threshold in SKILL.md PHASE 0)
+- `journey_generator.py`: wired in cache check at Step 1b (before any route discovery), provenance save at Step 6b
+- `run-journeyhawk.sh`: passes `--base-spec SPEC_FILE` + `--db-url` to generator
 
-**Proposed fix:** At the end of each `[0b-gen/3]` phase, write the merged spec (static + generated) back to `comc-deep.json` (or a `comc-deep-generated.json` alongside it). On the next run, the generator sees 82 existing journeys, skips LLM generation for already-covered IDs, and starts cc-test-runner immediately.
+**Run 15 will write the first provenance row.** Run 16+ will get cache hits when ComC `.docs/` is unchanged — generation completes in ~0 seconds. When DocChain produces a new doc version (different SHA256), only the changed document's affected journeys are regenerated.
 
-**Trade-off:** Generated journeys become "sticky" — the generator would need logic to replace stale business journeys when DocChain changes. A simple approach: regenerate only if `delta.user_spec_changed` (already computed in the DocChain delta step).
-
-**Decision needed by:** Before Run 16 if rate limits continue to be a problem.
+**No decision needed.**
 
 ---
 
-*Last updated: 2026-05-06 (Run 15 pre-flight — sustained rate limiting during business journey generation)*
+*Last updated: 2026-05-06 (D-02 + D-04 resolved; D-07 added during Run 15 and resolved same session)*
