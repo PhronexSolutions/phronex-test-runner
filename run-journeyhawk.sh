@@ -348,6 +348,20 @@ except Exception:
   && echo "[env] Restored OAuth token for Python LLM calls"
 fi
 
+# ── Pipeline funnel tracking ────────────────────────────────────────────────
+# Each stage updates these counters so the final funnel summary is accurate.
+_STAGE_BASELINE=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "?")
+_STAGE_AFTER_GEN="${_STAGE_BASELINE}"
+_STAGE_AFTER_DEPTH="${_STAGE_BASELINE}"
+_STAGE_AFTER_RUNFILTER="${_STAGE_BASELINE}"
+_STAGE_AFTER_FIXTURE="${_STAGE_BASELINE}"
+_STAGE_AFTER_MUTATIONS="${_STAGE_BASELINE}"
+_STAGE_GEN_STATUS="skipped"
+_STAGE_DEPTH_STATUS="ok"
+_STAGE_RUNFILTER_STATUS="ok"
+_STAGE_FIXTURE_STATUS="ok"
+_STAGE_MUTATIONS_STATUS="ok"
+
 # Step 0b-gen: Journey generation (Phase 92 — coverage gap fill)
 # Three signal sources: portal pages, backend endpoint clusters, .docs/ artefacts.
 # Identifies features without journey coverage and generates DEEP specs for them.
@@ -357,6 +371,7 @@ echo ""
 echo "[0b-gen/3] Journey generation (coverage gap fill + spec cache)..."
 if [ "${JOURNEYHAWK_SKIP_GENERATION:-0}" = "1" ]; then
   echo "[0b-gen/3] SKIP: JOURNEYHAWK_SKIP_GENERATION=1 — using original spec without LLM generation"
+  _STAGE_GEN_STATUS="skipped (JOURNEYHAWK_SKIP_GENERATION=1)"
 else
 _GEN_OUTPUT=$(mktemp /tmp/jh-generated-XXXXXX.json)
 _DOCS_DIR="${PHRONEX_CODE_ROOT:-${HOME}/code}/${_PRODUCT_REPO}/.docs"
@@ -383,13 +398,18 @@ if "${PYTHON}" -m phronex_common.testing.journey_generator \
     _NEW_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${_GEN_OUTPUT}'))))" 2>/dev/null || echo "?")
     cp "${_GEN_OUTPUT}" "${TEMP_SPEC}"
     echo "[0b-gen/3] Merged: ${_ORIG_COUNT} existing + generated = ${_NEW_COUNT} total journeys"
+    _STAGE_AFTER_GEN="${_NEW_COUNT}"
+    _STAGE_GEN_STATUS="ok (+$(( ${_NEW_COUNT} - ${_ORIG_COUNT} )) generated)"
   else
     echo "[0b-gen/3] WARN: generation produced empty output — using original spec"
+    _STAGE_GEN_STATUS="WARN: empty output — kept ${_STAGE_BASELINE}"
   fi
 else
   echo "[0b-gen/3] WARN: journey generation failed (non-fatal) — using original spec"
+  _STAGE_GEN_STATUS="WARN: failed — kept ${_STAGE_BASELINE}"
 fi
 rm -f "${_GEN_OUTPUT}"
+_STAGE_AFTER_GEN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
 fi  # end JOURNEYHAWK_SKIP_GENERATION check
 
 # Step 0c: Resource verification (Phase 84 — pre-run resource inventory check)
@@ -511,7 +531,7 @@ total_original = len(specs)
 total_kept = len(kept)
 dropped = total_original - total_kept
 deep_plus = total_kept - len(surface)
-print(f'  Depth: {deep_plus} DEEP+, {len(surface)} SURFACE, {dropped} dropped out of {total_original} total')
+print(f'  Depth gate: {total_original} in → {total_kept} kept ({deep_plus} DEEP+, {len(surface)} SURFACE, {dropped} dropped/deepened)')
 
 # Sanitize before writing: strip non-schema fields (pillar, persistence,
 # _depth_warning, etc.) that break cc-test-runner's strict zod schema.
@@ -521,7 +541,8 @@ kept = sanitize_journey_spec(kept)
 # Write filtered spec back
 with open('${TEMP_SPEC}', 'w') as f:
     json.dump(kept, f, indent=2)
-" 2>&1 || echo "[0d/3] WARN: depth enforcement failed (non-fatal, continuing)"
+" 2>&1 && _STAGE_DEPTH_STATUS="ok" || { echo "[0d/3] WARN: depth enforcement failed (non-fatal, continuing)"; _STAGE_DEPTH_STATUS="WARN: failed"; }
+_STAGE_AFTER_DEPTH=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
 
 # Step 0e: Strategist run filter (Phase 90)
 # Applies depth gate (Reason D) + coverage-based filtering. Writes filtered spec
@@ -536,20 +557,25 @@ PRE_FILTER_COUNT=$("${PYTHON}" -c "import json,sys; d=json.load(open('${TEMP_SPE
 if "${PYTHON}" -m phronex_common.testing.run_filter \
   --product "${PRODUCT}" \
   --spec "${TEMP_SPEC}" \
-  --output "${RUN_FILTER_OUTPUT}" 2>&1; then
+  --output "${RUN_FILTER_OUTPUT}" \
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" 2>&1; then
   if [ -s "${RUN_FILTER_OUTPUT}" ]; then
     POST_FILTER_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${RUN_FILTER_OUTPUT}'))))" 2>/dev/null || echo "${PRE_FILTER_COUNT}")
     cp "${RUN_FILTER_OUTPUT}" "${TEMP_SPEC}"
     export JH_RUN_FILTER_INCLUDED="${POST_FILTER_COUNT}"
     export JH_RUN_FILTER_SKIPPED=$(( PRE_FILTER_COUNT - POST_FILTER_COUNT ))
-    echo "[0e/3] Run filter applied — ${JH_RUN_FILTER_INCLUDED} included, ${JH_RUN_FILTER_SKIPPED} skipped"
+    echo "[0e/3] Run filter: ${PRE_FILTER_COUNT} in → ${JH_RUN_FILTER_INCLUDED} included, ${JH_RUN_FILTER_SKIPPED} skipped"
+    _STAGE_RUNFILTER_STATUS="ok (${JH_RUN_FILTER_INCLUDED} of ${PRE_FILTER_COUNT} selected)"
   else
-    echo "[0e/3] WARN: run filter produced empty output — using original spec"
+    echo "[0e/3] WARN: run filter produced empty output — using original spec (all ${PRE_FILTER_COUNT} journeys)"
+    _STAGE_RUNFILTER_STATUS="WARN: empty output — all ${PRE_FILTER_COUNT} kept"
   fi
 else
-  echo "[0e/3] WARN: run filter failed (non-fatal) — using original spec"
+  echo "[0e/3] WARN: run filter failed (non-fatal) — using original spec (all ${PRE_FILTER_COUNT} journeys)"
+  _STAGE_RUNFILTER_STATUS="WARN: failed — all ${PRE_FILTER_COUNT} kept"
 fi
 rm -f "${RUN_FILTER_OUTPUT}"
+_STAGE_AFTER_RUNFILTER=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_DEPTH}")
 
 # Step 1a: Strategist Block A — fixture_guard pre-filter
 # STRATEGIST_MODE controls behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
@@ -562,10 +588,22 @@ rm -f "${RUN_FILTER_OUTPUT}"
 mkdir -p "${RESULTS_DIR}"
 echo ""
 echo "[1a/3] Fixture guard pre-filter (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
-"${PYTHON}" -m phronex_common.testing.strategist.fixture_guard \
+_FIXTURE_IN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "?")
+if "${PYTHON}" -m phronex_common.testing.strategist.fixture_guard \
   --spec "${TEMP_SPEC}" \
   --report "${RESULTS_DIR}/fixture-decisions.json" \
-  > "${FILTERED_SPEC}"
+  > "${FILTERED_SPEC}"; then
+  _FIXTURE_OUT=$("${PYTHON}" -c "import json; print(len(json.load(open('${FILTERED_SPEC}'))))" 2>/dev/null || echo "?")
+  _FIXTURE_DROPPED=$(( ${_FIXTURE_IN} - ${_FIXTURE_OUT} )) 2>/dev/null || _FIXTURE_DROPPED="?"
+  echo "[1a/3] Fixture guard: ${_FIXTURE_IN} in → ${_FIXTURE_OUT} kept, ${_FIXTURE_DROPPED} dropped (fixture unsatisfied)"
+  _STAGE_AFTER_FIXTURE="${_FIXTURE_OUT}"
+  _STAGE_FIXTURE_STATUS="ok (${_FIXTURE_OUT} of ${_FIXTURE_IN} passed)"
+else
+  echo "[1a/3] WARN: fixture guard failed — using pre-filter spec as-is"
+  cp "${TEMP_SPEC}" "${FILTERED_SPEC}"
+  _STAGE_FIXTURE_STATUS="WARN: failed — all ${_FIXTURE_IN} kept"
+  _STAGE_AFTER_FIXTURE="${_FIXTURE_IN}"
+fi
 
 # Step 1a2: Pre-run strategist signals (Q1-Q4)
 # Log coverage_gap, yield_trend, ethos_priority, fixture_health signals to stderr.
@@ -637,14 +675,45 @@ export MUTATED_SPEC
 trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}" "${MUTATED_SPEC}"' EXIT
 echo ""
 echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
-"${PYTHON}" -m phronex_common.testing.strategist.mutations \
+_MUTATIONS_IN=$("${PYTHON}" -c "import json; print(len(json.load(open('${FILTERED_SPEC}'))))" 2>/dev/null || echo "?")
+if "${PYTHON}" -m phronex_common.testing.strategist.mutations \
   --spec "${FILTERED_SPEC}" \
   --product "${PRODUCT}" \
   --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
-  > "${MUTATED_SPEC}" || {
+  > "${MUTATED_SPEC}"; then
+  _MUTATIONS_OUT=$("${PYTHON}" -c "import json; print(len(json.load(open('${MUTATED_SPEC}'))))" 2>/dev/null || echo "${_MUTATIONS_IN}")
+  _MUTATIONS_ADDED=$(( ${_MUTATIONS_OUT} - ${_MUTATIONS_IN} )) 2>/dev/null || _MUTATIONS_ADDED="0"
+  if [[ "${_MUTATIONS_ADDED}" -gt 0 ]] 2>/dev/null; then
+    echo "[1b/3] Wiki mutations: ${_MUTATIONS_IN} journeys → ${_MUTATIONS_OUT} (${_MUTATIONS_ADDED} injected from wiki directives)"
+  else
+    echo "[1b/3] Wiki mutations: no directives applied (${_MUTATIONS_OUT} journeys unchanged)"
+  fi
+  _STAGE_AFTER_MUTATIONS="${_MUTATIONS_OUT}"
+  _STAGE_MUTATIONS_STATUS="ok"
+else
   echo "[1b/3] WARN: mutations applier failed — using filtered spec as-is" >&2
   cp "${FILTERED_SPEC}" "${MUTATED_SPEC}"
-}
+  _STAGE_MUTATIONS_STATUS="WARN: failed — kept ${_MUTATIONS_IN}"
+  _STAGE_AFTER_MUTATIONS="${_MUTATIONS_IN}"
+fi
+
+# ── Pipeline funnel summary ──────────────────────────────────────────────────
+echo ""
+echo "============================================================"
+echo "  Pipeline Funnel — ${PRODUCT}"
+echo "============================================================"
+echo "  Stage                  In       Out      Status"
+echo "  ─────────────────────────────────────────────────────────"
+printf "  %-22s %-8s %-8s %s\n" "Baseline (spec file)"    "${_STAGE_BASELINE}"       "${_STAGE_BASELINE}"       "source spec"
+printf "  %-22s %-8s %-8s %s\n" "0b-gen  (generation)"    "${_STAGE_BASELINE}"       "${_STAGE_AFTER_GEN}"      "${_STAGE_GEN_STATUS}"
+printf "  %-22s %-8s %-8s %s\n" "0d      (depth gate)"    "${_STAGE_AFTER_GEN}"      "${_STAGE_AFTER_DEPTH}"    "${_STAGE_DEPTH_STATUS}"
+printf "  %-22s %-8s %-8s %s\n" "0e      (run filter)"    "${_STAGE_AFTER_DEPTH}"    "${_STAGE_AFTER_RUNFILTER}" "${_STAGE_RUNFILTER_STATUS}"
+printf "  %-22s %-8s %-8s %s\n" "1a      (fixture guard)" "${_STAGE_AFTER_RUNFILTER}" "${_STAGE_AFTER_FIXTURE}"  "${_STAGE_FIXTURE_STATUS}"
+printf "  %-22s %-8s %-8s %s\n" "1b      (wiki mutations)" "${_STAGE_AFTER_FIXTURE}"  "${_STAGE_AFTER_MUTATIONS}" "${_STAGE_MUTATIONS_STATUS}"
+echo "  ─────────────────────────────────────────────────────────"
+printf "  %-22s          %-8s %s\n" "FINAL for cc-test-runner" "${_STAGE_AFTER_MUTATIONS}" "journeys queued"
+echo "============================================================"
+echo ""
 
 # Step 0.9: Pre-run time forecast — warn operator if estimated runtime exceeds cap.
 # Reads journey count from spec + historical avg from qa_journeys.
