@@ -734,6 +734,38 @@ if [[ ${_FORECAST_EXIT} -eq 99 ]]; then
   exit 1
 fi
 
+# Step 0.95: Start real-time verdict sink.
+# Writes qa_journey_verdicts rows as each journey completes — durable even if
+# Step 2 crashes. The sink starts without a run_id (buffering verdicts) and
+# runner.py registers the qa_runs UUID via PUT /register-run-id at the top of
+# Step 2. The sink process is killed after Step 2 completes.
+_SINK_PORT_FILE="$(mktemp /tmp/jh-verdict-sink-port.XXXXXX)"
+_SINK_PID=""
+export JOURNEYHAWK_VERDICT_SINK_URL=""
+if [[ -n "${PHRONEX_QA_DATABASE_URL_SYNC:-}" ]]; then
+  "${PYTHON}" -m phronex_common.testing.verdict_sink \
+    --product "${PRODUCT}" \
+    --port-file "${_SINK_PORT_FILE}" \
+    > /tmp/jh-verdict-sink-${PRODUCT}.log 2>&1 &
+  _SINK_PID=$!
+  # Poll until port-file is written (sink is ready) — max 5s
+  for _i in 1 2 3 4 5; do
+    if [[ -s "${_SINK_PORT_FILE}" ]]; then break; fi
+    sleep 1
+  done
+  if [[ -s "${_SINK_PORT_FILE}" ]]; then
+    export JOURNEYHAWK_VERDICT_SINK_URL="http://127.0.0.1:$(cat "${_SINK_PORT_FILE}")"
+    echo "[0.95/3] Verdict sink started (${JOURNEYHAWK_VERDICT_SINK_URL})"
+  else
+    echo "[0.95/3] Verdict sink startup timeout — continuing without real-time verdicts"
+    kill "${_SINK_PID}" 2>/dev/null || true
+    _SINK_PID=""
+  fi
+else
+  echo "[0.95/3] Verdict sink skipped (no PHRONEX_QA_DATABASE_URL_SYNC)"
+fi
+rm -f "${_SINK_PORT_FILE}"
+
 # Step 1: cc-test-runner (wrapped by run_arbiter)
 # run_arbiter spawns cc-test-runner as a child, streams its stdout, and
 # SIGTERMs the child on abort triggers (3 consecutive fails / >30 min runtime
@@ -825,6 +857,12 @@ echo "[2/3] Running intelligence pipeline (phronex_common.testing.runner)..."
   ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"}
 
 PIPE_EXIT=$?
+
+# Teardown verdict sink now that Step 2 is complete.
+if [[ -n "${_SINK_PID}" ]]; then
+  kill "${_SINK_PID}" 2>/dev/null || true
+  _SINK_PID=""
+fi
 
 # Step 3 (Strategist Block B): CycleCloseGate — quality gate before cycle_closed emission.
 # Per REQUIREMENTS.md STRAT-05 / CONTEXT.md A2.Q1-A2.Q3.

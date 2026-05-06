@@ -109,10 +109,26 @@ async function runJourney(
 
     const endTime = new Date();
     reporter.addTestResult(testState, startTime, endTime);
-    logger.info("completed_test_case", {
-        ...testState,
-        succeeded: testState?.steps.every((step) => step.status === "passed"),
-    });
+    const succeeded = testState.steps.every((step) => step.status === "passed");
+    logger.info("completed_test_case", { ...testState, succeeded });
+
+    // Real-time verdict sink — fire-and-forget, never blocks the runner.
+    const sinkUrl = process.env.JOURNEYHAWK_VERDICT_SINK_URL;
+    if (sinkUrl) {
+        fetch(`${sinkUrl}/verdict`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                journey_id: testCase.id,
+                succeeded,
+                steps: testState.steps.map((s) => ({
+                    id: s.id,
+                    status: s.status ?? "pending",
+                    error: s.error ?? null,
+                })),
+            }),
+        }).catch(() => {}); // non-fatal: sink down = no real-time verdict, batch still runs
+    }
 }
 
 // 4. Pre-create directories for state output paths
