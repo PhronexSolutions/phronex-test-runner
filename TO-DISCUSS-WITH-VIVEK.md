@@ -78,21 +78,19 @@ If `false` → log a WARNING in the Intelligence Load summary and auto-set it (o
 
 ---
 
-## D-05: `flow_extractor.py` and `business_journey_generator.py` — planned modules not yet built
+## D-05: `flow_extractor.py` and `business_journey_generator.py` — IMPLEMENTED (2026-05-06)
 
-**Context:** The active plan (`proud-waddling-goblet.md`) describes two new modules:
-- `flow_extractor.py` — extracts structured user flows from DocChain artefacts (oracle tables, explicit flows, data-step flows, inferred flows)
-- `business_journey_generator.py` — LLM-driven E2E cross-feature + security journey generation
+**Status:** RESOLVED — both modules are now implemented and active.
 
-These are NOT yet implemented. The current pipeline generates 39 surface-level journeys from route discovery; it does NOT generate business-logic or security journeys.
+- `business_journey_generator.py` — LLM-driven cross-feature, deep, and security journey generation is implemented and running in the pipeline (Runs 11-13).
+- `flow_extractor.py` — implemented and integrated into `journey_generator.py` pipeline.
 
-**Impact on ComC Run 1:** 45 static + 39 LLM-enriched surface = 84 total. The plan target of "76 + 29 LLM enriched" was based on a pre-`--code-root` count. With `--code-root` fixed, the actual count is ~84.
+**Current known issues (being fixed in Runs 13-14):**
+- Business journeys used wrong URL (`comc.phronex.com` vs `app.phronex.com/command-centre`) — fixed in commit `be7acc96`
+- State-loading step was ambiguous ("click login OR load state") — fixed in commit `e967454e`
+- `dependsOn` key naming conflict (snake_case vs camelCase) — fixed in commit `11484fb0`
 
-The 44 oracle tables in ComC's `TEST-ORACLES.html` are NOT yet being used to drive journey steps. This is the most significant gap in current QA depth.
-
-**Recommendation:** Implement `flow_extractor.py` and `business_journey_generator.py` after Run 1 establishes a surface-level baseline. Run 1 findings will inform which features need deep business-logic journeys first.
-
-**Decision needed by:** After Run 1. Scope into next phronex-common milestone.
+**No decision needed — implementation complete, iterating.**
 
 ---
 
@@ -112,4 +110,21 @@ The 44 oracle tables in ComC's `TEST-ORACLES.html` are NOT yet being used to dri
 
 ---
 
-*Last updated: 2026-05-06 (Run 1 pre-flight)*
+## D-07: Generated business journeys not persisted — regenerated fresh every run
+
+**Context:** The business journey generator produces 21 cross-feature E2E + 20 deep feature + N security journeys via LLM calls during the pre-flight `[0b-gen/3]` phase. These are **not** written back to `comc-deep.json`. Every run starts from the 45 static journeys and regenerates all business journeys from scratch.
+
+**Impact:** 
+1. **Pre-flight cost:** 41 LLM calls per run × 35s inter-call sleep = ~24 min minimum generation time when calls succeed. When rate-limited (5 attempts × 30s each), worst case is ~100 min of generation before cc-test-runner starts executing journeys.
+2. **Wasted compute:** Runs 13-15 each re-generated the same 37 business journeys identically. 
+3. **Rate limit amplification:** Sustained runs in the same day exhaust OAuth token quota during generation, not during testing.
+
+**Proposed fix:** At the end of each `[0b-gen/3]` phase, write the merged spec (static + generated) back to `comc-deep.json` (or a `comc-deep-generated.json` alongside it). On the next run, the generator sees 82 existing journeys, skips LLM generation for already-covered IDs, and starts cc-test-runner immediately.
+
+**Trade-off:** Generated journeys become "sticky" — the generator would need logic to replace stale business journeys when DocChain changes. A simple approach: regenerate only if `delta.user_spec_changed` (already computed in the DocChain delta step).
+
+**Decision needed by:** Before Run 16 if rate limits continue to be a problem.
+
+---
+
+*Last updated: 2026-05-06 (Run 15 pre-flight — sustained rate limiting during business journey generation)*
