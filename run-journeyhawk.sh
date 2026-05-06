@@ -499,6 +499,11 @@ dropped = total_original - total_kept
 deep_plus = total_kept - len(surface)
 print(f'  Depth: {deep_plus} DEEP+, {len(surface)} SURFACE, {dropped} dropped out of {total_original} total')
 
+# Sanitize before writing: strip non-schema fields (pillar, persistence,
+# _depth_warning, etc.) that break cc-test-runner's strict zod schema.
+from phronex_common.testing.journey_generator import sanitize_journey_spec
+kept = sanitize_journey_spec(kept)
+
 # Write filtered spec back
 with open('${TEMP_SPEC}', 'w') as f:
     json.dump(kept, f, indent=2)
