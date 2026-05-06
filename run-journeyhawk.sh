@@ -355,10 +355,18 @@ fi
 # fails, original spec used.
 echo ""
 echo "[0b-gen/3] Journey generation (coverage gap fill + spec cache)..."
+if [ "${JOURNEYHAWK_SKIP_GENERATION:-0}" = "1" ]; then
+  echo "[0b-gen/3] SKIP: JOURNEYHAWK_SKIP_GENERATION=1 — using original spec without LLM generation"
+else
 _GEN_OUTPUT=$(mktemp /tmp/jh-generated-XXXXXX.json)
 _DOCS_DIR="${PHRONEX_CODE_ROOT:-${HOME}/code}/${_PRODUCT_REPO}/.docs"
 # --existing-spec: the credential-substituted temp copy (for correct journey loading)
 # --base-spec:     the stable original spec path (for cache/provenance location)
+_NO_LLM_FLAG=""
+if [ "${JOURNEYHAWK_NO_LLM:-0}" = "1" ]; then
+  _NO_LLM_FLAG="--no-llm"
+  echo "[0b-gen/3] JOURNEYHAWK_NO_LLM=1 — heuristic-only generation (no LLM calls)"
+fi
 if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --product "${PRODUCT}" \
   --existing-spec "${TEMP_SPEC}" \
@@ -368,7 +376,8 @@ if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --output "${_GEN_OUTPUT}" \
   --max-journeys 150 \
   --min-depth DEEP \
-  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" 2>&1; then
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
+  ${_NO_LLM_FLAG} 2>&1; then
   if [ -s "${_GEN_OUTPUT}" ]; then
     _ORIG_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "?")
     _NEW_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${_GEN_OUTPUT}'))))" 2>/dev/null || echo "?")
@@ -381,6 +390,7 @@ else
   echo "[0b-gen/3] WARN: journey generation failed (non-fatal) — using original spec"
 fi
 rm -f "${_GEN_OUTPUT}"
+fi  # end JOURNEYHAWK_SKIP_GENERATION check
 
 # Step 0c: Resource verification (Phase 84 — pre-run resource inventory check)
 # Verifies all test resources (accounts, credentials, documents, infra) are available.
