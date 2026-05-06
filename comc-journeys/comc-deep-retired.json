@@ -1,0 +1,299 @@
+[
+  {
+    "id": "comc-pulse-dashboard-metrics",
+    "description": "Leaf: Verify dashboard stat cards (Org Health, Pending Approvals, Active Agents, Brief status), department health cards, and no undefined/NaN values.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/dashboard. Wait for the page to fully load (wait 3 seconds for async data fetches to resolve)."
+      },
+      {
+        "id": 2,
+        "description": "Verify the dashboard shows 4 stat cards in the top row: 'Org Health' (should show a percentage or score), 'Pending Approvals' (should show a number), 'Active Agents' (should show a count), and 'Brief Status' (should show last brief date or generation status). None of these values should display 'undefined', 'NaN', 'null', or be completely empty. Take a screenshot of the stat cards row."
+      },
+      {
+        "id": 3,
+        "description": "Scroll down to the department health section. Verify department health cards or a department breakdown section renders below the stat cards. Each department card should show a department name and a health score or status indicator. Verify no card shows 'undefined' or 'NaN' for its score. If no departments are configured, verify an empty state message appears (not a broken layout). Take a final screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844236+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-pulse-agent-pause-resume",
+    "description": "Leaf: Verify agent detail page at /agents/[id]/portrait loads and shows pause/resume control.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/agents. Wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "If agents are listed: click the first agent in the list to navigate to its detail page. The URL should become https://app.phronex.com/command-centre/agents/[id]/portrait (or /agents/[id]). Verify the detail page loads and shows the agent's full profile \u2014 name, role, model, description, and heartbeat/activity history."
+      },
+      {
+        "id": 3,
+        "description": "On the agent detail page, look for a 'Pause' or 'Resume' button (toggle control). Verify the button is present and indicates the current agent state. Do NOT click it (to avoid disrupting real agent operations) \u2014 just verify its presence and that it's not disabled/greyed out without explanation. If no agents exist, document this as 'no agents configured \u2014 pause/resume untestable' (not a defect). Take a screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844260+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-people-agents-detail",
+    "description": "Leaf: Navigate to agent detail portrait page, verify name, skills, and heartbeat history render.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/agents. Wait for the agents list to load."
+      },
+      {
+        "id": 2,
+        "description": "If agents are listed: click the first agent to navigate to its portrait page (URL should be /command-centre/agents/[uuid]/portrait or /command-centre/agents/[uuid]). Verify the page loads and displays: agent name (heading), assigned skills or capabilities list, and a heartbeat/activity history section showing recent executions with timestamps."
+      },
+      {
+        "id": 3,
+        "description": "On the agent detail page, verify no field shows 'undefined', 'null', or 'NaN'. Check that the heartbeat history section either shows timestamped entries or an empty state like 'No recent activity'. If no agents exist at all, document 'no agents configured \u2014 detail page untestable'. Take a screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844267+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-strategy-initiatives-create",
+    "description": "Leaf: Create a new initiative via the form, verify it appears in the list or document any 422 error.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/initiatives. Wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "Click the 'New Initiative' or 'Create Initiative' button. In the form, fill: Title = 'JH-QA-Initiative-Test', Goal/Description = 'E2E test of initiative creation via JourneyHawk', Requesting Department = select the first available option from the dropdown, Priority = select 'high' or the second option if priority is a dropdown. Submit the form."
+      },
+      {
+        "id": 3,
+        "description": "After submission: verify either (A) the initiative 'JH-QA-Initiative-Test' appears in the initiatives list with its title and status visible, OR (B) if a 422/400 validation error occurs, document the EXACT error message text shown in the toast/banner. Both outcomes are valid test results. Take a screenshot of the result."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844271+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-pulse-notifications",
+    "description": "Leaf: Verify notifications page loads with notification list or meaningful empty state.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/notifications. Verify the page loads without 500 error or blank screen."
+      },
+      {
+        "id": 2,
+        "description": "Examine the notifications page: if notifications exist, verify each entry shows a timestamp, source/type indicator, and message text. If no notifications exist, verify an empty state message like 'No notifications' or 'No recent notifications' is shown (not a broken layout). Verify there are no 'undefined' values in any notification entry. Take a screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844274+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-ops-meetings-prep",
+    "description": "Leaf: Click a meeting in the list, verify detail panel shows title/date/summary, and 'Generate Prep' button exists.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/meetings. Wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "If meetings are listed: click the first meeting in the list. Verify the right panel (or detail section) populates with: meeting title, date/time, summary or notes content. Look for a 'Generate Prep' or 'Prepare Brief' button on the detail panel. Verify the button is present."
+      },
+      {
+        "id": 3,
+        "description": "If no meetings exist: document 'no meetings available \u2014 prep generation untestable'. If the 'Generate Prep' button exists, verify it is clickable (not disabled) but do NOT click it (it may trigger an LLM call). Take a screenshot showing the meeting detail with the prep button visible."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844283+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-e2e-dashboard-no-errors",
+    "description": "Leaf: Load dashboard, verify no 5xx errors or unhandled JS exceptions. 404s from data-absent endpoints are PASS.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/dashboard. Wait 5 seconds for all parallel API fetches to complete (the dashboard makes multiple simultaneous requests)."
+      },
+      {
+        "id": 2,
+        "description": "Take a screenshot of the fully-loaded dashboard. Visually inspect for: (A) any red/orange error banners or toast notifications, (B) any sections showing 'Error loading data' or 'Failed to fetch' messages, (C) any sections stuck in a loading/spinner state after 5 seconds. Document all errors found."
+      },
+      {
+        "id": 3,
+        "description": "Check browser console using browser_console_messages. PASS CRITERIA: zero 5xx server errors. PASS CRITERIA: /api/admin/command-centre/api/v1/briefs/latest returning 404 is EXPECTED and ACCEPTABLE \u2014 this org has no briefs yet, so this 404 is a data-absent response, not a missing route. PASS CRITERIA: /billing/pending errors are not relevant to ComC testing. FAIL CRITERIA: any 5xx error on any URL. FAIL CRITERIA: any unhandled JavaScript TypeError or ReferenceError (except 'caches is not defined' on about:blank which is expected). Mark this step PASSED if the only console errors are the acceptable 404 from briefs/latest. Take a screenshot of the console output."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844286+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-intel-briefs-structured",
+    "description": "Leaf: Open the most recent brief, verify it has structured section headers (Executive Summary, Action Items, Key Metrics).",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/briefs. Verify the page loads."
+      },
+      {
+        "id": 2,
+        "description": "If briefs exist: click the most recent brief (topmost in the list) to open its full content. Verify the brief body contains structured section headers \u2014 look specifically for headings like 'Executive Summary', 'Action Items', 'Key Metrics', 'Risks', or 'Recommendations'. The brief should NOT be a single paragraph of unstructured text."
+      },
+      {
+        "id": 3,
+        "description": "Under the 'Action Items' section (if present), verify items are rendered as a list (bulleted or numbered), not inline text. If no briefs exist, document 'no briefs generated yet \u2014 structured content test skipped'. Take a screenshot of the brief detail showing section headers."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844289+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-strategy-ip-register",
+    "description": "Leaf: Verify IP register page loads at /strategy/ip-register.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/strategy/ip-register. Verify the page loads without 500 error."
+      },
+      {
+        "id": 2,
+        "description": "Verify the IP register page shows either: (A) a list/table of intellectual property assets with fields like name, type, status, and filing date, or (B) an empty state explaining what the IP register tracks. The page must not show a blank screen or unhandled exception. Take a screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844292+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-trunk-superadmin",
+    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
+    "isSharedRoot": true,
+    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to https://app.phronex.com/auth/login \u2014 append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal to load \u2014 verify no 500 error and the sidebar is visible."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+      },
+      {
+        "id": 3,
+        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844295+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-people-dept-templates",
+    "description": "Leaf: Navigate into a department detail, look for Templates tab, verify /departments/[id]/templates loads.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/departments. Wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "If departments are listed: click the first department to open its detail page. On the detail page, look for a 'Templates' tab, link, or navigation item. Click it to navigate to the templates sub-page (expected URL pattern: /command-centre/departments/[id]/templates). Verify the templates page loads."
+      },
+      {
+        "id": 3,
+        "description": "On the department templates page: verify it shows either a list of department-specific templates (brief templates, report templates, workflow templates) or an empty state. If no departments exist, try navigating directly to https://app.phronex.com/command-centre/departments and document 'no departments configured \u2014 templates untestable'. Take a screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844298+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-config-erp-sync",
+    "description": "Leaf: Verify ERP sync settings page shows doctype status cards, sync schedule dropdown, and 'Trigger Full Sync' button.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/settings/erp-sync. Verify the page loads without error."
+      },
+      {
+        "id": 2,
+        "description": "Verify the ERP sync page shows: (A) doctype status cards showing which ERPNext doctypes are configured for sync (e.g., Customer, Sales Invoice, Item) with last-synced timestamps, (B) a sync schedule dropdown showing the current interval (e.g., 'Every 6 hours', 'Daily'), and (C) a 'Trigger Full Sync' button. All three elements must be present."
+      },
+      {
+        "id": 3,
+        "description": "Verify the 'Trigger Full Sync' button is present and clickable. Do NOT click it (it may trigger actual ERPNext API calls). Verify the sync schedule dropdown opens when clicked and shows interval options. Take a screenshot showing the ERP sync configuration page."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844300+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-config-brief-settings",
+    "description": "Leaf: Verify brief section configuration page loads at /settings/briefs.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/settings/briefs. Verify the page loads without error."
+      },
+      {
+        "id": 2,
+        "description": "Verify the brief settings page shows configuration options for daily brief generation \u2014 this could include: which sections to include in briefs, brief delivery time, recipient list, or data sources to pull from. Verify the page has form controls (toggles, dropdowns, or checkboxes) that represent configurable brief sections. Take a screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844303+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-strategy-goals",
+    "description": "Leaf: Verify goals/OKR page loads at /goals with goal list and alignment data.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/goals. Verify the page loads without error."
+      },
+      {
+        "id": 2,
+        "description": "Verify the goals page shows either: (A) a list of goals/OKRs with title, metric type, target value, current progress, and alignment info (linked initiative or department), or (B) an empty state explaining how goals are created. If goals exist, verify progress percentages are numeric (not NaN) and progress bars render correctly."
+      },
+      {
+        "id": 3,
+        "description": "If goals have alignment data (linked to initiatives or departments): verify the alignment links are clickable and navigate to the correct target. If no alignment data exists, this is acceptable \u2014 just verify the field shows 'Unaligned' or similar placeholder. Take a screenshot."
+      }
+    ],
+    "_retired_at": "2026-05-06T19:58:54.844306+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  }
+]

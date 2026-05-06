@@ -1,46 +1,5 @@
 [
   {
-    "id": "comc-trunk-superadmin",
-    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
-    "isSharedRoot": true,
-    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
-    "depth": 0,
-    "steps": [
-      {
-        "id": 1,
-        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to https://app.phronex.com/auth/login — append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal to load — verify no 500 error and the sidebar is visible."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to https://app.phronex.com/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console — if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
-      },
-      {
-        "id": 3,
-        "description": "IMPORTANT — Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical — without it, dependent journeys will fail."
-      }
-    ]
-  },
-  {
-    "id": "comc-pulse-dashboard-metrics",
-    "description": "Leaf: Verify dashboard stat cards (Org Health, Pending Approvals, Active Agents, Brief status), department health cards, and no undefined/NaN values.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/dashboard. Wait for the page to fully load (wait 3 seconds for async data fetches to resolve)."
-      },
-      {
-        "id": 2,
-        "description": "Verify the dashboard shows 4 stat cards in the top row: 'Org Health' (should show a percentage or score), 'Pending Approvals' (should show a number), 'Active Agents' (should show a count), and 'Brief Status' (should show last brief date or generation status). None of these values should display 'undefined', 'NaN', 'null', or be completely empty. Take a screenshot of the stat cards row."
-      },
-      {
-        "id": 3,
-        "description": "Scroll down to the department health section. Verify department health cards or a department breakdown section renders below the stat cards. Each department card should show a department name and a health score or status indicator. Verify no card shows 'undefined' or 'NaN' for its score. If no departments are configured, verify an empty state message appears (not a broken layout). Take a final screenshot."
-      }
-    ]
-  },
-  {
     "id": "comc-pulse-brief-list",
     "description": "Leaf: Verify briefs list page loads, shows daily briefs or explains generation schedule, and brief detail has structured sections.",
     "dependsOn": "comc-trunk-superadmin",
@@ -52,7 +11,7 @@
       },
       {
         "id": 2,
-        "description": "Examine the briefs page: if briefs exist, verify the list shows each brief with a date/timestamp and title or summary preview. Click the first (most recent) brief to open its detail view. Verify the detail contains structured sections — look for headings like 'Executive Summary', 'Action Items', 'Key Metrics', or similar section markers. The content should NOT be a single unformatted text blob."
+        "description": "Examine the briefs page: if briefs exist, verify the list shows each brief with a date/timestamp and title or summary preview. Click the first (most recent) brief to open its detail view. Verify the detail contains structured sections \u2014 look for headings like 'Executive Summary', 'Action Items', 'Key Metrics', or similar section markers. The content should NOT be a single unformatted text blob."
       },
       {
         "id": 3,
@@ -81,26 +40,6 @@
     ]
   },
   {
-    "id": "comc-pulse-agent-pause-resume",
-    "description": "Leaf: Verify agent detail page at /agents/[id]/portrait loads and shows pause/resume control.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/agents. Wait for the page to load."
-      },
-      {
-        "id": 2,
-        "description": "If agents are listed: click the first agent in the list to navigate to its detail page. The URL should become https://app.phronex.com/command-centre/agents/[id]/portrait (or /agents/[id]). Verify the detail page loads and shows the agent's full profile — name, role, model, description, and heartbeat/activity history."
-      },
-      {
-        "id": 3,
-        "description": "On the agent detail page, look for a 'Pause' or 'Resume' button (toggle control). Verify the button is present and indicates the current agent state. Do NOT click it (to avoid disrupting real agent operations) — just verify its presence and that it's not disabled/greyed out without explanation. If no agents exist, document this as 'no agents configured — pause/resume untestable' (not a defect). Take a screenshot."
-      }
-    ]
-  },
-  {
     "id": "comc-pulse-dept-health",
     "description": "Leaf: Verify departments page shows health scores and department detail page loads at /departments/[id].",
     "dependsOn": "comc-trunk-superadmin",
@@ -121,24 +60,8 @@
     ]
   },
   {
-    "id": "comc-pulse-notifications",
-    "description": "Leaf: Verify notifications page loads with notification list or meaningful empty state.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/notifications. Verify the page loads without 500 error or blank screen."
-      },
-      {
-        "id": 2,
-        "description": "Examine the notifications page: if notifications exist, verify each entry shows a timestamp, source/type indicator, and message text. If no notifications exist, verify an empty state message like 'No notifications' or 'No recent notifications' is shown (not a broken layout). Verify there are no 'undefined' values in any notification entry. Take a screenshot."
-      }
-    ]
-  },
-  {
     "id": "comc-revenue-vendor-sub-crud",
-    "description": "Leaf: Full CRUD lifecycle for vendor subscriptions — create, verify in list, edit cost, then deactivate.",
+    "description": "Leaf: Full CRUD lifecycle for vendor subscriptions \u2014 create, verify in list, edit cost, then deactivate.",
     "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
     "steps": [
@@ -148,7 +71,7 @@
       },
       {
         "id": 2,
-        "description": "Click the 'Add Subscription' or 'Create' button. In the form: (1) Name = 'JH-QA-VendorTest', (2) Category = select the first available dropdown option, (3) Monthly Cost = '99.99', (4) Billing Cycle = 'monthly', (5) Renewal Date = use browser_evaluate to set the date input value directly: document.querySelector('input[type=date][name*=renewal], input[type=date][placeholder*=renewal], input[type=date]:last-of-type').value = '2026-06-30' — this ISO format bypasses date-picker UI issues. If no date input found, enter '2026-06-30' via fill() on the input. (6) Payment Method = 'Credit Card'. Submit. Verify entry appears in list without a 422 error."
+        "description": "Click the 'Add Subscription' or 'Create' button. In the form: (1) Name = 'JH-QA-VendorTest', (2) Category = select the first available dropdown option, (3) Monthly Cost = '99.99', (4) Billing Cycle = 'monthly', (5) Renewal Date = use browser_evaluate to set the date input value directly: document.querySelector('input[type=date][name*=renewal], input[type=date][placeholder*=renewal], input[type=date]:last-of-type').value = '2026-06-30' \u2014 this ISO format bypasses date-picker UI issues. If no date input found, enter '2026-06-30' via fill() on the input. (6) Payment Method = 'Credit Card'. Submit. Verify entry appears in list without a 422 error."
       },
       {
         "id": 3,
@@ -212,13 +135,13 @@
       },
       {
         "id": 3,
-        "description": "If contacts are listed: verify the table supports basic interaction — look for sort headers, search/filter input, or pagination. Click a column header to verify sorting works (or verify the search input accepts text). Take a screenshot showing the CRM contacts view."
+        "description": "If contacts are listed: verify the table supports basic interaction \u2014 look for sort headers, search/filter input, or pagination. Click a column header to verify sorting works (or verify the search input accepts text). Take a screenshot showing the CRM contacts view."
       }
     ]
   },
   {
     "id": "comc-revenue-crm-interaction",
-    "description": "Leaf: Log an interaction on a CRM contact — fill type and date, submit, verify it appears in timeline.",
+    "description": "Leaf: Log an interaction on a CRM contact \u2014 fill type and date, submit, verify it appears in timeline.",
     "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
     "steps": [
@@ -232,7 +155,7 @@
       },
       {
         "id": 3,
-        "description": "After submission, verify the interaction appears in the contact's activity timeline or interaction history section. It should show the type 'call', today's date, and the notes text. If no contacts exist in CRM, document 'no CRM contacts configured — interaction logging untestable' (not a defect). Take a screenshot."
+        "description": "After submission, verify the interaction appears in the contact's activity timeline or interaction history section. It should show the type 'call', today's date, and the notes text. If no contacts exist in CRM, document 'no CRM contacts configured \u2014 interaction logging untestable' (not a defect). Take a screenshot."
       }
     ]
   },
@@ -280,47 +203,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the accountability page renders its intended content — this could be accountability chains, responsibility matrices, or ownership mappings. Whether populated or empty, the page must show a proper layout (not broken components or raw error text). Take a screenshot showing the page state."
-      }
-    ]
-  },
-  {
-    "id": "comc-people-agents-detail",
-    "description": "Leaf: Navigate to agent detail portrait page, verify name, skills, and heartbeat history render.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/agents. Wait for the agents list to load."
-      },
-      {
-        "id": 2,
-        "description": "If agents are listed: click the first agent to navigate to its portrait page (URL should be /command-centre/agents/[uuid]/portrait or /command-centre/agents/[uuid]). Verify the page loads and displays: agent name (heading), assigned skills or capabilities list, and a heartbeat/activity history section showing recent executions with timestamps."
-      },
-      {
-        "id": 3,
-        "description": "On the agent detail page, verify no field shows 'undefined', 'null', or 'NaN'. Check that the heartbeat history section either shows timestamped entries or an empty state like 'No recent activity'. If no agents exist at all, document 'no agents configured — detail page untestable'. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-people-dept-templates",
-    "description": "Leaf: Navigate into a department detail, look for Templates tab, verify /departments/[id]/templates loads.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/departments. Wait for the page to load."
-      },
-      {
-        "id": 2,
-        "description": "If departments are listed: click the first department to open its detail page. On the detail page, look for a 'Templates' tab, link, or navigation item. Click it to navigate to the templates sub-page (expected URL pattern: /command-centre/departments/[id]/templates). Verify the templates page loads."
-      },
-      {
-        "id": 3,
-        "description": "On the department templates page: verify it shows either a list of department-specific templates (brief templates, report templates, workflow templates) or an empty state. If no departments exist, try navigating directly to https://app.phronex.com/command-centre/departments and document 'no departments configured — templates untestable'. Take a screenshot."
+        "description": "Verify the accountability page renders its intended content \u2014 this could be accountability chains, responsibility matrices, or ownership mappings. Whether populated or empty, the page must show a proper layout (not broken components or raw error text). Take a screenshot showing the page state."
       }
     ]
   },
@@ -356,11 +239,11 @@
       },
       {
         "id": 2,
-        "description": "If pending approval items exist: click the first pending item to open its detail view. Verify the detail shows the full context of what is being approved (description, requester, date submitted, impact summary). Verify that both 'Approve' and 'Reject' buttons are visible and enabled (not greyed out). Do NOT click either button — just verify their presence."
+        "description": "If pending approval items exist: click the first pending item to open its detail view. Verify the detail shows the full context of what is being approved (description, requester, date submitted, impact summary). Verify that both 'Approve' and 'Reject' buttons are visible and enabled (not greyed out). Do NOT click either button \u2014 just verify their presence."
       },
       {
         "id": 3,
-        "description": "If no pending items exist: verify the empty state message is clear (e.g., 'No pending approvals' or 'All approvals have been processed'). Document 'no pending approvals available — approve/reject button test skipped'. This is not a defect. Take a screenshot of whatever state is shown."
+        "description": "If no pending items exist: verify the empty state message is clear (e.g., 'No pending approvals' or 'All approvals have been processed'). Document 'no pending approvals available \u2014 approve/reject button test skipped'. This is not a defect. Take a screenshot of whatever state is shown."
       }
     ]
   },
@@ -381,26 +264,6 @@
       {
         "id": 3,
         "description": "If meetings are listed: verify each entry shows a title and date. If no meetings exist, verify the list panel shows an empty state (not a broken layout). Take a screenshot showing the two-panel meetings view."
-      }
-    ]
-  },
-  {
-    "id": "comc-ops-meetings-prep",
-    "description": "Leaf: Click a meeting in the list, verify detail panel shows title/date/summary, and 'Generate Prep' button exists.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/meetings. Wait for the page to load."
-      },
-      {
-        "id": 2,
-        "description": "If meetings are listed: click the first meeting in the list. Verify the right panel (or detail section) populates with: meeting title, date/time, summary or notes content. Look for a 'Generate Prep' or 'Prepare Brief' button on the detail panel. Verify the button is present."
-      },
-      {
-        "id": 3,
-        "description": "If no meetings exist: document 'no meetings available — prep generation untestable'. If the 'Generate Prep' button exists, verify it is clickable (not disabled) but do NOT click it (it may trigger an LLM call). Take a screenshot showing the meeting detail with the prep button visible."
       }
     ]
   },
@@ -468,31 +331,11 @@
       },
       {
         "id": 2,
-        "description": "Verify the initiatives page shows: (A) stat cards at the top with counts (Active, Blocked, Completed — or similar status breakdowns), all showing numeric values (not NaN/undefined), and (B) a table or list of initiatives below. Look for filter pills or tabs labeled 'Active', 'Blocked', 'Completed' (or 'All', 'In Progress', 'Done'). Click each filter to verify it changes the displayed list without error."
+        "description": "Verify the initiatives page shows: (A) stat cards at the top with counts (Active, Blocked, Completed \u2014 or similar status breakdowns), all showing numeric values (not NaN/undefined), and (B) a table or list of initiatives below. Look for filter pills or tabs labeled 'Active', 'Blocked', 'Completed' (or 'All', 'In Progress', 'Done'). Click each filter to verify it changes the displayed list without error."
       },
       {
         "id": 3,
         "description": "If initiatives exist in the table: verify each row shows a title, status badge, priority indicator, and owning department. If no initiatives exist: verify the empty state is informative. Take a screenshot showing the initiatives page with filter pills visible."
-      }
-    ]
-  },
-  {
-    "id": "comc-strategy-initiatives-create",
-    "description": "Leaf: Create a new initiative via the form, verify it appears in the list or document any 422 error.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/initiatives. Wait for the page to load."
-      },
-      {
-        "id": 2,
-        "description": "Click the 'New Initiative' or 'Create Initiative' button. In the form, fill: Title = 'JH-QA-Initiative-Test', Goal/Description = 'E2E test of initiative creation via JourneyHawk', Requesting Department = select the first available option from the dropdown, Priority = select 'high' or the second option if priority is a dropdown. Submit the form."
-      },
-      {
-        "id": 3,
-        "description": "After submission: verify either (A) the initiative 'JH-QA-Initiative-Test' appears in the initiatives list with its title and status visible, OR (B) if a 422/400 validation error occurs, document the EXACT error message text shown in the toast/banner. Both outcomes are valid test results. Take a screenshot of the result."
       }
     ]
   },
@@ -517,26 +360,6 @@
     ]
   },
   {
-    "id": "comc-strategy-goals",
-    "description": "Leaf: Verify goals/OKR page loads at /goals with goal list and alignment data.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/goals. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the goals page shows either: (A) a list of goals/OKRs with title, metric type, target value, current progress, and alignment info (linked initiative or department), or (B) an empty state explaining how goals are created. If goals exist, verify progress percentages are numeric (not NaN) and progress bars render correctly."
-      },
-      {
-        "id": 3,
-        "description": "If goals have alignment data (linked to initiatives or departments): verify the alignment links are clickable and navigate to the correct target. If no alignment data exists, this is acceptable — just verify the field shows 'Unaligned' or similar placeholder. Take a screenshot."
-      }
-    ]
-  },
-  {
     "id": "comc-strategy-ethos",
     "description": "Leaf: Verify ethos rules page loads at /ethos with rules displayed (title/description) or purpose explanation.",
     "dependsOn": "comc-trunk-superadmin",
@@ -549,22 +372,6 @@
       {
         "id": 2,
         "description": "Verify the ethos page shows organisational governance rules. Each rule should display a title and description/rationale. If rules exist, verify at least one rule has both fields populated (not 'undefined'). If no rules exist, verify an empty state explains the purpose of ethos rules (governance principles that guide AI agent behaviour). Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-strategy-ip-register",
-    "description": "Leaf: Verify IP register page loads at /strategy/ip-register.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/strategy/ip-register. Verify the page loads without 500 error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the IP register page shows either: (A) a list/table of intellectual property assets with fields like name, type, status, and filing date, or (B) an empty state explaining what the IP register tracks. The page must not show a blank screen or unhandled exception. Take a screenshot."
       }
     ]
   },
@@ -585,26 +392,6 @@
       {
         "id": 3,
         "description": "If feed items exist: click the first item to verify it expands or navigates to a detail view showing the full content. Verify the content is readable text (not raw JSON or HTML). Take a screenshot of the intelligence feed."
-      }
-    ]
-  },
-  {
-    "id": "comc-intel-briefs-structured",
-    "description": "Leaf: Open the most recent brief, verify it has structured section headers (Executive Summary, Action Items, Key Metrics).",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/briefs. Verify the page loads."
-      },
-      {
-        "id": 2,
-        "description": "If briefs exist: click the most recent brief (topmost in the list) to open its full content. Verify the brief body contains structured section headers — look specifically for headings like 'Executive Summary', 'Action Items', 'Key Metrics', 'Risks', or 'Recommendations'. The brief should NOT be a single paragraph of unstructured text."
-      },
-      {
-        "id": 3,
-        "description": "Under the 'Action Items' section (if present), verify items are rendered as a list (bulleted or numbered), not inline text. If no briefs exist, document 'no briefs generated yet — structured content test skipped'. Take a screenshot of the brief detail showing section headers."
       }
     ]
   },
@@ -668,47 +455,11 @@
       },
       {
         "id": 2,
-        "description": "Verify the platform overview page shows KPI/SLA metrics — these could be uptime percentages, response time p95/p99, error rates, or product health scores. Verify ALL displayed numeric values are valid numbers (not 'NaN', 'undefined', 'null', or blank). If metrics are shown as cards, verify each card has a label and a formatted value."
+        "description": "Verify the platform overview page shows KPI/SLA metrics \u2014 these could be uptime percentages, response time p95/p99, error rates, or product health scores. Verify ALL displayed numeric values are valid numbers (not 'NaN', 'undefined', 'null', or blank). If metrics are shown as cards, verify each card has a label and a formatted value."
       },
       {
         "id": 3,
         "description": "If charts or trend lines are shown on this page, verify they render SVG elements (not empty containers or perpetual loading spinners). Take a screenshot of the platform overview showing the metric values."
-      }
-    ]
-  },
-  {
-    "id": "comc-config-erp-sync",
-    "description": "Leaf: Verify ERP sync settings page shows doctype status cards, sync schedule dropdown, and 'Trigger Full Sync' button.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/settings/erp-sync. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the ERP sync page shows: (A) doctype status cards showing which ERPNext doctypes are configured for sync (e.g., Customer, Sales Invoice, Item) with last-synced timestamps, (B) a sync schedule dropdown showing the current interval (e.g., 'Every 6 hours', 'Daily'), and (C) a 'Trigger Full Sync' button. All three elements must be present."
-      },
-      {
-        "id": 3,
-        "description": "Verify the 'Trigger Full Sync' button is present and clickable. Do NOT click it (it may trigger actual ERPNext API calls). Verify the sync schedule dropdown opens when clicked and shows interval options. Take a screenshot showing the ERP sync configuration page."
-      }
-    ]
-  },
-  {
-    "id": "comc-config-brief-settings",
-    "description": "Leaf: Verify brief section configuration page loads at /settings/briefs.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/settings/briefs. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the brief settings page shows configuration options for daily brief generation — this could include: which sections to include in briefs, brief delivery time, recipient list, or data sources to pull from. Verify the page has form controls (toggles, dropdowns, or checkboxes) that represent configurable brief sections. Take a screenshot."
       }
     ]
   },
@@ -741,26 +492,6 @@
       {
         "id": 2,
         "description": "Verify the onboarding page shows either: (A) a multi-step setup wizard with progress indicators (steps like 'Connect ERPNext', 'Configure Departments', 'Set Up Agents'), or (B) a completed state showing all onboarding steps marked as done with green checkmarks. The page must render a proper layout. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-e2e-dashboard-no-errors",
-    "description": "Leaf: Load dashboard, verify no 5xx errors or unhandled JS exceptions. 404s from data-absent endpoints are PASS.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to https://app.phronex.com/command-centre/dashboard. Wait 5 seconds for all parallel API fetches to complete (the dashboard makes multiple simultaneous requests)."
-      },
-      {
-        "id": 2,
-        "description": "Take a screenshot of the fully-loaded dashboard. Visually inspect for: (A) any red/orange error banners or toast notifications, (B) any sections showing 'Error loading data' or 'Failed to fetch' messages, (C) any sections stuck in a loading/spinner state after 5 seconds. Document all errors found."
-      },
-      {
-        "id": 3,
-        "description": "Check browser console using browser_console_messages. PASS CRITERIA: zero 5xx server errors. PASS CRITERIA: /api/admin/command-centre/api/v1/briefs/latest returning 404 is EXPECTED and ACCEPTABLE — this org has no briefs yet, so this 404 is a data-absent response, not a missing route. PASS CRITERIA: /billing/pending errors are not relevant to ComC testing. FAIL CRITERIA: any 5xx error on any URL. FAIL CRITERIA: any unhandled JavaScript TypeError or ReferenceError (except 'caches is not defined' on about:blank which is expected). Mark this step PASSED if the only console errors are the acceptable 404 from briefs/latest. Take a screenshot of the console output."
       }
     ]
   },
@@ -816,7 +547,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect — the QA superadmin account should have access."
+        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect \u2014 the QA superadmin account should have access."
       },
       {
         "id": 3,
@@ -843,5 +574,2041 @@
         "description": "If explainability entries exist: click the first entry to verify it expands or navigates to a detail view showing the full decision context (input data, reasoning chain, output, confidence). Take a screenshot of the explainability page."
       }
     ]
+  },
+  {
+    "id": "comc-deep-agent-detail",
+    "description": "[DEEP] Agent Detail \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/agents/{agent_id}. Check: HTTP 200; agent detail enriched with live Paperclip status (heartbeat, budget usage)"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/agents/{agent_id}. Check: HTTP 200; agent detail from DB only (graceful degradation); no 503"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/agents/{agent_id}/heartbeats. Check: HTTP 200; list of last 20 heartbeat records with timestamps and status"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger ENRICHMENT_FAIL condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-companies",
+    "description": "[general] Companies \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate and log in if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/command-centre/companies. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors)."
+      },
+      {
+        "id": 3,
+        "description": "Verify the data table/list section renders. Check that either data rows appear OR a proper empty state message is shown (not a blank section or error)."
+      },
+      {
+        "id": 4,
+        "description": "Locate the form on this page. Fill in all required fields with valid test data. Submit the form. Verify success response (toast notification, redirect, or entry appears in list)."
+      },
+      {
+        "id": 5,
+        "description": "Verify the created/modified data persists: navigate away to the dashboard, then return to https://app.phronex.com/command-centre/companies and confirm the data is still visible and correct."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-approval-approve-reject",
+    "description": "[DEEP] Approval Approve/Reject \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/approvals/{id}/approvewith optional notes. Check: HTTP 200; item status changed to \"approved\"; no longer appears in pending list"
+      },
+      {
+        "id": 3,
+        "description": "Click to post /api/v1/approvals/{id}/approve. Check: HTTP 409 Conflict (item already resolved)"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/approvals/{id}/rejectwith notes explaining reason. Check: HTTP 200; item status changed to \"rejected\"; notes stored for audit trail"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger STILL_PENDING condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-dashboard-metrics",
+    "description": "[DEEP] Dashboard Metrics \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to navigate to/command-centredashboard page. Check: Page loads with metric cards showing agent count, active brief count, pending approvals count, and department health summary"
+      },
+      {
+        "id": 3,
+        "description": "Check that agent status aggregation widget. Check: Widget shows counts by status (active, idle, paused_ceo) matchingGET /api/v1/agentsresponse totals"
+      },
+      {
+        "id": 4,
+        "description": "Click to view dashboard in empty org state. Check: Dashboard renders with empty-state messaging and onboarding CTA; no JS errors in console"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger BLANK_STATE condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-brief-list",
+    "description": "[DEEP] Brief List \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/briefs. Check: HTTP 200; JSON array of brief objects with id, created_at, content summary; most recent first"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/briefs/morning. Check: HTTP 503 with detail \"Paperclip client not initialised\""
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/briefs/morning. Check: HTTP 200; brief JSON includes sections from both Paperclip agent tasks and ERPNext human tasks"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger EMPTY_WHEN_DATA_EXISTS condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-team-audit",
+    "description": "[DEEP] Team Audit \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/team-audit/run. Check: HTTP 200 or 202; audit run initiated; results stored in DB"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/team-audit/results. Check: HTTP 200; list of TeamAuditResultResponse objects with findings, recommendations"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/team-audit/org-chart. Check: HTTP 200; {\"departments\": [...]} with each dept containing agents array grouped correctly"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger LLM_TIMEOUT condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-costs-overview",
+    "description": "[DEEP] Costs Overview \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/costs/summary. Check: HTTP 200; 4-level cost rollup (org total, dept totals, agent totals, per-call costs) for current month"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/costs/budget. Check: HTTP 200; list of budget allocations for org with dept_type, hard_limit_usd, soft_limit_minutes"
+      },
+      {
+        "id": 4,
+        "description": "POST /api/v1/costs/budgetwith dept_type and limits. Check: HTTP 200; budget allocation created/updated; visible in subsequent GET"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger WRONG_MONTH condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-sales-freelancing",
+    "description": "[general] Sales Freelancing \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate and log in if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/command-centre/sales/freelancing. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors)."
+      },
+      {
+        "id": 3,
+        "description": "Verify the data table/list section renders. Check that either data rows appear OR a proper empty state message is shown (not a blank section or error)."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-ci-intelligence-analysis",
+    "description": "[DEEP] CI Intelligence Analysis \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/ci/health. Check: HTTP 200; 30-day per-product stats with failure counts, success rates, trend direction"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/ci/patterns?product=comc. Check: HTTP 200; pattern analysis showing recurring failure categories, frequency, suggested fixes"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/ci/webhook/githubwith workflow_run event payload. Check: HTTP 200; failure recorded if workflow failed; success counted for stats"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger AUTH_BYPASS condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-meetings-list",
+    "description": "[DEEP] Meetings List \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/meetings/upcoming. Check: HTTP 200; list of meetings with id, title, meeting_date, meeting_datetime, source, dept_id"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/meetings/upcoming. Check: HTTP 200; empty list []; no error"
+      },
+      {
+        "id": 4,
+        "description": "Click to view meetings two-panel layout. Check: Left panel: meeting list sorted by date; right panel: selected meeting detail with prep/notes/actions tabs"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger ERP_TIMEOUT condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-proposals-lifecycle",
+    "description": "[DEEP] Proposals lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new proposals. Check: 201/200 returned with new proposals ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created proposals. Check: Response contains the proposals with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-ethos-engine",
+    "description": "[DEEP] Ethos Engine \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/ethos/rules. Check: HTTP 200; list of enabled ethos rules with name, description, rule_type (soft/hard), severity, condition_json"
+      },
+      {
+        "id": 3,
+        "description": "POST /api/v1/ethos/ruleswith name (3-200 chars), rule_type=\"hard\", severity, condition_json. Check: HTTP 201; rule created with classification warning if ambiguous; enabled=True by default"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/ethos/evaluatewith action description. Check: HTTP 200; evaluation result (pass/fail/warn) with explanation of which rules triggered"
+      },
+      {
+        "id": 5,
+        "description": "Click to get /api/v1/ethos/violations. Check: HTTP 200; list of violations for daily review feed with agent, rule, severity, timestamp"
+      },
+      {
+        "id": 6,
+        "description": "Click to trigger DISABLED_SHOWN condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 7,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-auto-research",
+    "description": "[DEEP] Auto-Research \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/autoresearch/with topic, scope, depth parameters. Check: HTTP 202 Accepted; AutoresearchRunResponse with id, status (completed or failed), results if completed"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/autoresearch/{run_id}. Check: HTTP 200; run record with status, results, created_at; results contain structured findings"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/autoresearch/{other_org_run_id}. Check: HTTP 404 (tenant isolation)"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger LLM_TIMEOUT condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-revenue-pipeline",
+    "description": "[DEEP] Revenue Pipeline \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/revenue-intel/pipeline. Check: HTTP 200; PipelineResponse with stages array (stage, count, value), total_count, total_value"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/revenue-intel/pipeline. Check: Graceful degradation: HTTP 200 with empty stages array or HTTP 503 with clear \"ERPNext not configured\" message"
+      },
+      {
+        "id": 4,
+        "description": "Click to view pipeline funnel visualisation. Check: Funnel chart renders with stage names and values; total displayed at bottom"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger ERP_UNREACHABLE condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-sec-session-handling",
+    "description": "[DEEP] Session handling \u2014 verify expired tokens redirect gracefully",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Click login and type valid credentials into the email and password fields for comc. Submit the login form."
+      },
+      {
+        "id": 2,
+        "description": "Click on a protected page link. Check it loads with data."
+      },
+      {
+        "id": 3,
+        "description": "Click on the browser developer tools. Select the Application tab and click to clear the auth cookie or token from browser storage."
+      },
+      {
+        "id": 4,
+        "description": "Click on another protected page link and press Enter to navigate."
+      },
+      {
+        "id": 5,
+        "description": "Check the page redirects to the login page, NOT a blank page or error."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-platform-overview",
+    "description": "[DEEP] Platform Overview \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /platform-overview. Check: HTTP 200; strategy analysis with capabilities, platform_ip, route_coverage, documents, projects"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /platform-overview. Check: HTTP 403 Forbidden with \"Superadmin role required\" detail"
+      },
+      {
+        "id": 4,
+        "description": "Check that platform overview contains SWOT, IP scores, reuse matrix, strategic actions. Check: Response includes all four sections with valid structure (may be empty for v1 but keys must exist)"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger AUTH_FAIL condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-initiatives-create",
+    "description": "[DEEP] Initiatives Create \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/initiativeswith title, description, priority, target_date. Check: HTTP 201; initiative created; from_dept_id set server-side (not client-provided per T-03-05-02); CEO sentinel applied"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/initiatives/{initiative_id}. Check: HTTP 200; full detail with conversation thread, tasks, status history"
+      },
+      {
+        "id": 4,
+        "description": "Click to patch /api/v1/initiatives/{initiative_id}with status=\"completed\". Check: HTTP 200; status updated; transition validated server-side (T-03-05-04); updated_at refreshed"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger CLIENT_OVERRIDE condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-meeting-prep",
+    "description": "[DEEP] Meeting Prep \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/meetings/{id}/prep. Check: HTTP 200; auto-generated prep_content returned (LLM-generated context, talking points, attendee background)"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/meetings/{id}/prep. Check: HTTP 200; cached prep_content returned (no LLM re-generation); same content as previously generated"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/meetings/{id}/noteswith notes string and action_items array. Check: HTTP 200; notes and action_items persisted; visible in subsequent meeting detail GET"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger LLM_TIMEOUT condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-cost-efficiency",
+    "description": "[DEEP] Cost Efficiency \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/costs/efficiency. Check: HTTP 200; efficiency recommendations with per-dept analysis, over-budget alerts, optimisation suggestions"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/costs/efficiency. Check: HTTP 200; empty recommendations with \"insufficient data\" message; no error"
+      },
+      {
+        "id": 4,
+        "description": "Click to view efficiency recommendations panel. Check: Panel shows actionable recommendations with estimated savings; colour-coded severity"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger INSUFFICIENT_DATA condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-llm-credentials",
+    "description": "[DEEP] LLM Credentials \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "POST /api/v1/credentials/llmwith LLM API key and provider_type. Check: HTTP 200; key validated against provider (if possible); stored encrypted; masked value returned"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/credentials. Check: HTTP 200; masked credentials (e.g. \"sk-...7x3f\") \u2014 NEVER plaintext (D-33a security requirement)"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/credentials/erpnextwith url, api_key, api_secret. Check: HTTP 200; ERPNext URL validated (format check); credentials stored encrypted; ERP sync becomes available"
+      },
+      {
+        "id": 5,
+        "description": "Click Delete to remove /api/v1/credentials/erpnext. Check: HTTP 200; credentials cleared; subsequent GET shows no ERPNext credentials; ERP sync status shows \"not configured\""
+      },
+      {
+        "id": 6,
+        "description": "Click to trigger PLAINTEXT_STORAGE condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 7,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-initiatives-list",
+    "description": "[DEEP] Initiatives List \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/initiatives?status=active. Check: HTTP 200; filtered list showing only active initiatives; each has id, title, status, priority, from_dept_id"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/departments/{dept_id}/initiatives. Check: HTTP 200; initiatives filtered by department; only those assigned to or originating from dept_id"
+      },
+      {
+        "id": 4,
+        "description": "Click to view initiative list with status badges. Check: Table/cards show title, status badge (colour-coded), priority, department name, target_date"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger FILTER_BROKEN condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-agent-pause-resume",
+    "description": "[DEEP] Agent Pause/Resume \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to patch /api/v1/agents/{agent_id}/pause. Check: HTTP 200; agent.status becomes \"paused_ceo\"; updated_at refreshed"
+      },
+      {
+        "id": 3,
+        "description": "Click to patch /api/v1/agents/{agent_id}/resume. Check: HTTP 200; agent.status becomes \"active\"; updated_at refreshed"
+      },
+      {
+        "id": 4,
+        "description": "Click to patch /api/v1/agents/{agent_id}/pause. Check: HTTP 404 (agent not found within caller's org scope)"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger IDEMPOTENCY_FAIL condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-flow-d-running-an-auto-research-query",
+    "description": "[DEEP] Flow D \u2014 Running an auto-research query \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post to/api/v1/autoresearchwith aquerystring. Check: arun_idandstatus: \"pending\"."
+      },
+      {
+        "id": 3,
+        "description": "Click to research runs asynchronously. Check: poll GET/api/v1/autoresearch/{run_id}untilstatuschanges frompendingtocompletedorfailed."
+      },
+      {
+        "id": 4,
+        "description": "Click to whenstatus: \"completed\", theresultsfield contains structured research findings."
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-crm-interaction-logging",
+    "description": "[DEEP] CRM Interaction Logging \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "POST /api/v1/crm/contacts/{contact_id}/interactionswith interaction_type and date. Check: HTTP 201; response {\"status\": \"created\"}"
+      },
+      {
+        "id": 3,
+        "description": "Click to post /api/v1/crm/contacts/{invalid_id}/interactions. Check: HTTP 404 with descriptive error"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/crm/contacts/{other_org_contact}/interactions. Check: HTTP 404 (tenant isolation \u2014 contact not visible to this org)"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger WRONG_STATUS_CODE condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-ip-register",
+    "description": "[DEEP] IP Register \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/ip-register/items. Check: HTTP 200; list of IP items with name, category, status, protection_level, created_at"
+      },
+      {
+        "id": 3,
+        "description": "Click to post /api/v1/ip-register/items/{item_id}/score. Check: HTTP 200; 7-dimension scoring result returned (LLM-generated); score persisted on item"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/ip-register/items/{item_id}/swot. Check: HTTP 200; SWOT analysis generated and returned; persisted for future retrieval"
+      },
+      {
+        "id": 5,
+        "description": "Click to get /api/v1/ip-register/recommendations. Check: HTTP 200; list of protection recommendations based on current IP portfolio"
+      },
+      {
+        "id": 6,
+        "description": "Click to trigger TENANT_LEAK condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 7,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-flow-f-triggering-a-manual-erp-sync",
+    "description": "[BEHAVIORAL] Flow F \u2014 Triggering a manual ERP sync \u2014 cross-feature E2E business logic",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to log in as a user with a valid JWT."
+      },
+      {
+        "id": 3,
+        "description": "Click to post to/api/v1/erp-sync/trigger\u2014 starts an immediate sync outside the 15-minute schedule."
+      },
+      {
+        "id": 4,
+        "description": "Click to get/api/v1/erp-sync/statusto view sync state (last synced timestamp, entry counts, any errors)."
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-sec-data-isolation",
+    "description": "[DEEP] Data isolation \u2014 verify users cannot see each other's data",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Click login and type user A credentials into the email and password fields for comc. Submit the login form."
+      },
+      {
+        "id": 2,
+        "description": "Click the create button. Fill in a test entity (e.g. a record, entry, or item). Submit the form. Note the {{entity_id}}."
+      },
+      {
+        "id": 3,
+        "description": "Check that the entity appears in user A's list view."
+      },
+      {
+        "id": 4,
+        "description": "Click the logout button. Then click login again and type user B credentials into the email and password fields. Submit the login form."
+      },
+      {
+        "id": 5,
+        "description": "Click on the same list view page. Check that user A's {{entity_id}} is NOT visible."
+      },
+      {
+        "id": 6,
+        "description": "Click on the browser console. Type a fetch() GET call to /api/v1/entity/{{entity_id}} with user B's token and press Enter to submit."
+      },
+      {
+        "id": 7,
+        "description": "Check the response shows 403 or 404, NOT user A's data."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-revenue-leads",
+    "description": "[DEEP] Revenue Leads \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/lead-dossier/generatewith company name. Check: HTTP 200; LeadDossierResponse with company info, enriched data, raw_context (truncated per T-11-05-04)"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/revenue-intel/. Check: HTTP 200; RevenueIntelResponse with pipeline summary, lead count, key metrics"
+      },
+      {
+        "id": 4,
+        "description": "Click to trigger LLM_TIMEOUT condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-sec-permission-boundary",
+    "description": "[DEEP] Permission boundary \u2014 verify non-admin cannot access admin pages",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Click login and type non-admin credentials into the email and password fields for comc. Submit the login form."
+      },
+      {
+        "id": 2,
+        "description": "Type an admin-only URL (e.g. /admin/users) into the browser address bar and press Enter."
+      },
+      {
+        "id": 3,
+        "description": "Check the page shows a redirect to login or a 403 forbidden message, NOT admin data."
+      },
+      {
+        "id": 4,
+        "description": "Click on the browser console. Type a fetch() call to an admin-only API endpoint with the non-admin token and press Enter to submit."
+      },
+      {
+        "id": 5,
+        "description": "Check the API response shows 401 or 403, NOT 200 with admin data."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-billing-lifecycle",
+    "description": "[DEEP] Billing lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new billing. Check: 201/200 returned with new billing ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created billing. Check: Response contains the billing with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click to access billing endpoints without valid auth token. Check: 401 or 403 returned (not 500 or data leak)"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger AUTH_FAIL condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-erpnext-lifecycle",
+    "description": "[DEEP] Erpnext lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new erpnext. Check: 201/200 returned with new erpnext ID"
+      },
+      {
+        "id": 3,
+        "description": "Click Delete to remove the erpnext. Check: 200/204 returned, GET now returns 404 or empty"
+      },
+      {
+        "id": 4,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-agent-list",
+    "description": "[DEEP] Agent List \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/agents. Check: HTTP 200; JSON array with each agent containing id, org_id, name, role, status, department_id, paperclip_agent_id"
+      },
+      {
+        "id": 3,
+        "description": "Check that DOM table/card rows. Check: Each agent row shows name, department, role, status badge (colour-coded: green=active, yellow=idle, red=paused_ceo)"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/agents. Check: HTTP 401 with error detail; no data leakage in response body"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger AUTH_FAIL condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-department-health",
+    "description": "[DEEP] Department Health \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/departments. Check: HTTP 200; array of departments with id, name, is_active; only caller's org departments"
+      },
+      {
+        "id": 3,
+        "description": "Click to view department detail panel in portal. Check: Panel shows last heartbeat timestamp, agent count, isolation mode status"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/departments/{dept_id}. Check: HTTP 200; department detail with empty agents array; no error"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger TENANT_LEAK condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-calendar",
+    "description": "[general] Calendar \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate and log in if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/command-centre/calendar. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors)."
+      },
+      {
+        "id": 3,
+        "description": "Navigate away from /command-centre/calendar to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-erp-sync-configuration",
+    "description": "[BEHAVIORAL] ERP Sync Configuration \u2014 cross-feature E2E business logic",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/erp-sync/status. Check: HTTP 200; ERPSyncStatusResponse with per-doctype status (last_sync_at, stale flag based on 30min TTL, record_count)"
+      },
+      {
+        "id": 3,
+        "description": "Click to post /api/v1/erp-sync/trigger. Check: HTTP 202 Accepted; async sync task started (captured in app.state.pending_sync_tasks); self-cleaning on completion"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/erp-sync/status. Check: Graceful response indicating ERP not configured; no crash"
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-companies-lifecycle",
+    "description": "[DEEP] Companies lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new companies. Check: 201/200 returned with new companies ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created companies. Check: Response contains the companies with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click Edit and update the companies with modified fields. Check: 200 returned, changes visible on re-fetch"
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-department-templates",
+    "description": "[DEEP] Department Templates \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/departments/{dept_id}/apply-templatewith industry template name. Check: HTTP 200; template applied; department config updated with template defaults (agents, roles, heartbeat intervals)"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/departments/{dept_id}/isolation-mode. Check: HTTP 200; isolation mode setting returned (enabled/disabled with scope details)"
+      },
+      {
+        "id": 4,
+        "description": "Click to patch /api/v1/departments/{dept_id}/isolation-modewith new mode value. Check: HTTP 200; isolation mode updated; subsequent GET reflects change"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger INVALID_TEMPLATE condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-accountability-partners",
+    "description": "[DEEP] Accountability Partners \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/accountability/linkswith partner_email and scope. Check: HTTP 201; link created with unique token; token returned in response"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/accountability/digest/{link_token}. Check: HTTP 200; digest data for partner view (no auth required); contains initiative progress summary"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/accountability/replieswith link_token and message. Check: HTTP 201; reply stored; visible to org owner"
+      },
+      {
+        "id": 5,
+        "description": "Click Delete to remove /api/v1/accountability/links/{link_token}. Check: HTTP 200 or 204; link revoked; subsequent digest GET returns 404"
+      },
+      {
+        "id": 6,
+        "description": "Click to trigger TOKEN_COLLISION condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 7,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-companies-budget-org",
+    "description": "[BEHAVIORAL] Companies \u2192 Budget \u2192 Org \u2014 cross-feature E2E business logic",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new companies. Check: 201/200 returned with new companies ID (capture: {{companies_id}})"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created companies. Check: Response contains the companies with matching data (capture: {{companies_id}})"
+      },
+      {
+        "id": 4,
+        "description": "Click Edit and update the companies with modified fields. Check: 200 returned, changes visible on re-fetch (capture: {{companies_id}})"
+      },
+      {
+        "id": 5,
+        "description": "Click Create and fill in a budget linked to the companies. Check: budget created with reference to parent (capture: {{companies_id}}, {{budget_id}})"
+      },
+      {
+        "id": 6,
+        "description": "Check that budget appears under the companies. Check: GET parent's budget list includes the new item (capture: {{companies_id}})"
+      },
+      {
+        "id": 7,
+        "description": "Click Create and fill in a org linked to the companies. Check: org created with reference to parent (capture: {{companies_id}}, {{org_id}})"
+      },
+      {
+        "id": 8,
+        "description": "Check that org appears under the companies. Check: GET parent's org list includes the new item (capture: {{companies_id}})"
+      },
+      {
+        "id": 9,
+        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-brief-settings",
+    "description": "[BEHAVIORAL] Brief Settings \u2014 cross-feature E2E business logic",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/briefs/settings. Check: HTTP 200; default configuration returned (all sections enabled, standard ordering, delivery at 8:00 AM IST)"
+      },
+      {
+        "id": 3,
+        "description": "Click to put /api/v1/briefs/settingswith custom section order and disabled sections. Check: HTTP 200; settings upserted (create if new, update if existing); subsequent GET reflects exact changes"
+      },
+      {
+        "id": 4,
+        "description": "Toggle sections on/off and reorder via drag-drop. Check: UI reflects changes immediately; save button persists to API; next brief generation uses new config"
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-goals-kpis",
+    "description": "[DEEP] Goals/KPIs \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "POST /api/v1/goalswith title, okr_type, target_value, dept_id. Check: HTTP 201; goal created; proposed_by set server-side from JWT (T-04-02-01); id returned"
+      },
+      {
+        "id": 3,
+        "description": "Click to patch /api/v1/goals/{goal_id}/progresswith current value. Check: HTTP 200; progress recorded; progress-history updated; percentage computed correctly"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/goals/{goal_id}/lock. Check: HTTP 200; goal locked (no further progress updates accepted until unlocked)"
+      },
+      {
+        "id": 5,
+        "description": "Click to get /api/v1/goals/{goal_id}/progress-history. Check: HTTP 200; chronological list of progress entries with timestamps and values"
+      },
+      {
+        "id": 6,
+        "description": "Click to trigger CLIENT_OVERRIDE condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 7,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-approvals-list",
+    "description": "[DEEP] Approvals List \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/approvals. Check: HTTP 200; list sorted by priority_score descending; each item has id, type, summary, priority_score, status=\"pending\""
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/approvals/{id}. Check: HTTP 200; full detail with impact fields, requesting agent, cost estimate, decision context"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/approvals. Check: HTTP 200; empty list []; portal shows \"No pending approvals\" empty state"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger SORT_ERROR condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-structured-briefs",
+    "description": "[DEEP] Structured Briefs \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/briefs/settings. Check: HTTP 200; brief section configuration with enabled sections, ordering, delivery preferences"
+      },
+      {
+        "id": 3,
+        "description": "Click to put /api/v1/briefs/settingswith section config (enable/disable sections, reorder). Check: HTTP 200; settings upserted; subsequent GET reflects changes; next morning brief uses new config"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/briefs/send. Check: HTTP 200; morning brief assembled per settings and dispatched via configured channels (Telegram/portal feed)"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger DEFAULT_MISSING condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-dashboard-no-errors",
+    "description": "[DEEP] Dashboard No Errors \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to navigate to/command-centreand wait for full page load. Check: Page renders completely; zero console errors; no React error boundaries triggered; all API calls return 2xx"
+      },
+      {
+        "id": 3,
+        "description": "Check that all XHR/fetch requests initiated on page load. Check: All API calls complete within 5s; no 4xx/5xx responses; no CORS errors; no mixed content warnings"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /healthon ComC backend (port 8004). Check: HTTP 200;{\"status\": \"healthy\"}\u2014 never \"ok\" (Phronex invariant)"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger CONSOLE_ERRORS condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-initiative-dependencies",
+    "description": "[DEEP] Initiative Dependencies \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/initiatives/{initiative_id}/blockers. Check: HTTP 200; list of blocking initiatives/issues preventing progress; real-time detection (D-127)"
+      },
+      {
+        "id": 3,
+        "description": "Click to post /api/v1/initiatives/{initiative_id}/escalate. Check: HTTP 200; escalation recorded; notification sent to relevant stakeholders"
+      },
+      {
+        "id": 4,
+        "description": "Click to post /api/v1/initiatives/{initiative_id}/intervene. Check: HTTP 200; CEO intervention recorded; may override blocker or reassign"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger FALSE_POSITIVES condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-intelligence-lifecycle",
+    "description": "[DEEP] Intelligence lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new intelligence. Check: 201/200 returned with new intelligence ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created intelligence. Check: Response contains the intelligence with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click Edit and update the intelligence with modified fields. Check: 200 returned, changes visible on re-fetch"
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-flow-a-creating-and-tracking-a-strategic-initiativ",
+    "description": "[DEEP] Flow A \u2014 Creating and tracking a strategic initiative \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to log in via phronex-auth to obtain a JWT token."
+      },
+      {
+        "id": 3,
+        "description": "Click to post to/api/v1/initiativeswithtitle,goal, and optionaldue_date. Check: Returnsinitiative_id."
+      },
+      {
+        "id": 4,
+        "description": "Click to add task breakdown: POST to/api/v1/initiatives/{id}/taskswithtitle,dept_id, anddue_dateper task."
+      },
+      {
+        "id": 5,
+        "description": "Click Edit and update initiative status: PATCH/api/v1/initiatives/{id}withstatus: \"active\"."
+      },
+      {
+        "id": 6,
+        "description": "Click to (optional) Invite an accountability partner: POST/api/v1/accountability/links. Check: alink_token. Share this token URL with the partner."
+      },
+      {
+        "id": 7,
+        "description": "Click to as tasks complete, PATCH their status tocompleted."
+      },
+      {
+        "id": 8,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-accountability-lifecycle",
+    "description": "[DEEP] Accountability lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new accountability. Check: 201/200 returned with new accountability ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created accountability. Check: Response contains the accountability with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click Edit and update the accountability with modified fields. Check: 200 returned, changes visible on re-fetch"
+      },
+      {
+        "id": 5,
+        "description": "Click Delete to remove the accountability. Check: 200/204 returned, GET now returns 404 or empty"
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-flow-e-accountability-partner-reviewing-a-digest",
+    "description": "[BEHAVIORAL] Flow E \u2014 Accountability partner reviewing a digest \u2014 cross-feature E2E business logic",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to partner receives a token URL (no login required)."
+      },
+      {
+        "id": 3,
+        "description": "Click to partner calls GET/api/v1/accountability/digest/{token}\u2014 returns initiative tasks, progress status, and recent replies. (capture: {{initiative}})"
+      },
+      {
+        "id": 4,
+        "description": "Partner submits feedback: POST/api/v1/accountability/replieswith thelink_tokenandmessagetext."
+      },
+      {
+        "id": 5,
+        "description": "Click to reply is stored and visible in the monitored user's digest on next retrieval."
+      },
+      {
+        "id": 6,
+        "description": "Click to to revoke the partnership: DELETE/api/v1/accountability/links/{token}(requires the monitored user's JWT). Check: After revocation, the token URL returns a 404. (capture: {{404}})"
+      },
+      {
+        "id": 7,
+        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-navigation-all-pillars",
+    "description": "[DEEP] Navigation All Pillars \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click the link to each pillar: Pulse, Revenue, People, Operations, Strategy, Intelligence, Config. Check: Each pillar page loads without error; navigation is responsive; active state shown on current pillar tab"
+      },
+      {
+        "id": 3,
+        "description": "Check that sub-navigation within each pillar. Check: Sub-tabs/sections within each pillar are navigable; deep links work (e.g. /command-centre/revenue/pipeline)"
+      },
+      {
+        "id": 4,
+        "description": "Click to navigate to/command-centre. Check: Access denied; redirect to portal home or 403 message; no partial ComC content visible"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger DEAD_NAV condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-flow-b-reviewing-the-morning-brief",
+    "description": "[DEEP] Flow B \u2014 Reviewing the morning brief \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to no action required. Check: the brief is generated automatically at 8:00 AM IST."
+      },
+      {
+        "id": 3,
+        "description": "Click to if Telegram is configured, the brief arrives in the Telegram chat."
+      },
+      {
+        "id": 4,
+        "description": "Click to to retrieve it via API: GET/api/v1/briefs\u2014 returns the most recent briefs, newest first."
+      },
+      {
+        "id": 5,
+        "description": "Click to each brief object includescontent(full text),sections(structured JSON), andgenerated_attimestamp."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-admin-panel",
+    "description": "[DEEP] Admin Panel \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to access ComC admin endpoints (org management, system errors). Check: Admin routes return data; non-superadmin users get 403"
+      },
+      {
+        "id": 3,
+        "description": "Click to view system error log via admin panel. Check: Error list shows recent errors with timestamps, categories, stack traces (truncated), resolution status"
+      },
+      {
+        "id": 4,
+        "description": "Click to view org list and org-specific configuration. Check: List of all orgs with status, creation date, subscription tier; can view individual org detail"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger AUTH_BYPASS condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-comm-settings-lifecycle",
+    "description": "[DEEP] Comm Settings lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new comm settings. Check: 201/200 returned with new comm settings ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created comm settings. Check: Response contains the comm settings with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click Edit and update the comm settings with modified fields. Check: 200 returned, changes visible on re-fetch"
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-settings-hub",
+    "description": "[DEEP] Settings Hub \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to navigate to/command-centre/settings. Check: Settings hub page loads with sections: ERP Sync, Credentials, Brief Settings, Notification Preferences"
+      },
+      {
+        "id": 3,
+        "description": "Click the link to ERP sync settings at/command-centre/settings/erp-sync. Check: Page shows sync status per doctype, last sync time, stale indicators, and manual trigger button"
+      },
+      {
+        "id": 4,
+        "description": "Click to modify a setting and save. Check: Save button triggers API call; success toast shown; page state reflects saved value; no full page reload needed"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger MISSING_SECTION condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-explainability",
+    "description": "[DEEP] Explainability \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to view decision detail in portal (from decisions log). Check: Decision card shows \"what\" (action taken), \"why\" (reasoning), \"outcome\", cost_usd, agent name, timestamp"
+      },
+      {
+        "id": 3,
+        "description": "Click to view ethos evaluation trail for a specific agent action. Check: Trail shows which rules were evaluated, pass/fail result per rule, overall verdict with explanation"
+      },
+      {
+        "id": 4,
+        "description": "Click to view approval item detail with explainability context. Check: Shows requesting agent's reasoning, estimated impact, risk assessment, relevant ethos rules that apply"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger MISSING_WHY condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-vendor-subscription-crud",
+    "description": "[BEHAVIORAL] Vendor Subscription CRUD \u2014 cross-feature E2E business logic",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/vendor-subscriptionswith name, category, monthly_cost, billing_cycle, renewal_date, payment_method. Check: HTTP 201; subscription created with generated ID; visible in subsequent GET"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/vendor-subscriptions/expiring?days=30. Check: HTTP 200; list includes subscriptions with renewal_date within 30 days; excludes those beyond"
+      },
+      {
+        "id": 4,
+        "description": "Click Delete to remove /api/v1/vendor-subscriptions/{sub_id}. Check: HTTP 204; subscription soft-deleted (not returned in active list but not physically removed) (capture: {{sub_id}})"
+      },
+      {
+        "id": 5,
+        "description": "Click Delete to remove /api/v1/vendor-subscriptions/{other_org_sub_id}. Check: HTTP 404 (not found within caller's org scope) (capture: {{other_org_sub_id}})"
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-erp-sync-lifecycle",
+    "description": "[DEEP] Erp Sync lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new erp sync. Check: 201/200 returned with new erp sync ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created erp sync. Check: Response contains the erp sync with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click Edit and update the erp sync with modified fields. Check: 200 returned, changes visible on re-fetch"
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-crm-contact-list",
+    "description": "[DEEP] CRM Contact List \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/crm/contacts. Check: HTTP 200; list of contact dicts with name, email, company, last_interaction fields"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/crm/contacts. Check: HTTP 200; empty list []; no error"
+      },
+      {
+        "id": 4,
+        "description": "Click to view contact list table. Check: Table rows show contact name, company, last interaction date; clickable to detail view"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger TENANT_LEAK condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-decisions-log",
+    "description": "[DEEP] Decisions Log \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/decisions/. Check: HTTP 200; paginated decision list with id, agent_id, decision_type, authority_bucket, what, why, cost_usd, created_at"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/decisions/summary. Check: HTTP 200; stats breakdown by authority_bucket and department; total decision count"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/decisions/?format=csv. Check: HTTP 200 with Content-Type text/csv; CSV contains header row matching _CSV_FIELDS; data rows match JSON query"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger TENANT_LEAK condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-notifications-lifecycle",
+    "description": "[DEEP] Notifications lifecycle \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click Create and fill in a new notifications. Check: 201/200 returned with new notifications ID"
+      },
+      {
+        "id": 3,
+        "description": "Click to retrieve the created notifications. Check: Response contains the notifications with matching data"
+      },
+      {
+        "id": 4,
+        "description": "Click Edit and update the notifications with modified fields. Check: 200 returned, changes visible on re-fetch"
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-skill-review",
+    "description": "[DEEP] Skill Review \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/skills/review/all. Check: HTTP 200; summary dict with skills_reviewed count, skills_needing_revision count, overall assessment"
+      },
+      {
+        "id": 3,
+        "description": "Click to get /api/v1/skills/review/history. Check: HTTP 200; list of review log summaries (no full report_json in list view)"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/skills/review/{log_id}. Check: HTTP 200; full review log including report_json with detailed findings"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger LLM_TIMEOUT condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-market-intelligence-feed",
+    "description": "[DEEP] Market Intelligence Feed \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/intelligence. Check: HTTP 200; list of intelligence items with summary, source_url, source_name, relevance_score, dept_id, created_at"
+      },
+      {
+        "id": 3,
+        "description": "Click to post /api/v1/intelligencewith summary, source_url, relevance_score. Check: HTTP 201; intelligence item created; appears in subsequent GET feed"
+      },
+      {
+        "id": 4,
+        "description": "PATCH /api/v1/intelligence/{id}/actionwith action type (dismiss, flag, follow-up). Check: HTTP 200; action recorded on item; item state updated accordingly"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger TENANT_LEAK condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-notifications",
+    "description": "[DEEP] Notifications \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to get /api/v1/notifications. Check: HTTP 200; paginated list of notifications with id, channel, message, event_type, read status, created_at"
+      },
+      {
+        "id": 3,
+        "description": "Click to patch /api/v1/notifications/{id}/read. Check: HTTP 200; notification marked as read; subsequent GET shows read=true"
+      },
+      {
+        "id": 4,
+        "description": "POST /api/v1/notifications/ingestwith org_id, channel, message, event_type. Check: HTTP 201; notification created and visible via GET feed for that org"
+      },
+      {
+        "id": 5,
+        "description": "Click to trigger PAGINATION_BROKEN condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 6,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-growth-experiments",
+    "description": "[DEEP] Growth Experiments \u2014 feature business logic + edge cases",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to post /api/v1/growth-experiments/with hypothesis, metric, control/variant descriptions. Check: HTTP 201; experiment created with id, status=running; significance initially null"
+      },
+      {
+        "id": 3,
+        "description": "Click to patch /api/v1/growth-experiments/{exp_id}/datawith updated metric values. Check: HTTP 200; data updated; significance recalculated automatically; new p-value returned"
+      },
+      {
+        "id": 4,
+        "description": "Click to get /api/v1/growth-experiments/{exp_id}. Check: HTTP 200; experiment detail with current significance level, data summary, recommended action"
+      },
+      {
+        "id": 5,
+        "description": "Click to patch /api/v1/growth-experiments/{exp_id}/winnerwith winner variant. Check: HTTP 200; winner recorded; experiment status changed to completed"
+      },
+      {
+        "id": 6,
+        "description": "Click to trigger VALIDATION condition. Check the UI shows an appropriate error message, not a blank page or exception."
+      },
+      {
+        "id": 7,
+        "description": "Click on the dashboard link, return to the original page, check data persists."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-flow-c-logging-a-contact-interaction-crm",
+    "description": "[BEHAVIORAL] Flow C \u2014 Logging a contact interaction (CRM) \u2014 cross-feature E2E business logic",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Click to ensure the contact exists: GET/api/v1/crm/contactsfiltered by user. Check: If missing, create it first."
+      },
+      {
+        "id": 3,
+        "description": "POST to/api/v1/crm/contacts/{contact_id}/interactionswithinteraction_type(e.g. Check: \"call\", \"email\", \"meeting\") anddate. (capture: {{contact_id}})"
+      },
+      {
+        "id": 4,
+        "description": "Click to the interaction is stored and available for future digest views."
+      },
+      {
+        "id": 5,
+        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
   }
 ]

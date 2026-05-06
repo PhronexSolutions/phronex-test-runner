@@ -395,7 +395,7 @@ if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --docs-dir "${_DOCS_DIR}" \
   --code-root "${PHRONEX_CODE_ROOT:-${HOME}/code}" \
   --output "${_GEN_OUTPUT}" \
-  --max-journeys 150 \
+  --max-journeys 250 \
   --min-depth DEEP \
   --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
   ${_NO_LLM_FLAG} 2>&1; then

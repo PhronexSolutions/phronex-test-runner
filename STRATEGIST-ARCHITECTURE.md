@@ -274,6 +274,15 @@ phronex_common.testing.strategist/
 ├── validation_auditor.py   # USER-SPEC vs run-results drift
 ├── ux_observer.py          # FRICTION / ONBOARDING_GAP / PERF signals
 └── feedback_consolidator.py # Closes loop to CODING-PATTERNS, DocChain skills, CLAUDE.md
+
+phronex_common.testing/
+└── spec_curator.py         # Living spec promotion + rationalization (post-run)
+                            #   PROMOTE  — STABLE generated journeys → static spec
+                            #   COLLAPSE — overlapping journeys merged (Jaccard + LLM borderline)
+                            #   EXTEND   — sub-feature journeys (≤4 steps) appended as parent steps
+                            #   RETIRE   — BROKEN ≥5 runs, no open defect → *-retired.json
+                            # Runs after _consolidate_learning() in runner.py.
+                            # LLM call volume approaches zero as static spec matures.
 ```
 
 ### 6.2 Pre-run assessment — the 4 questions
@@ -544,6 +553,7 @@ Order chosen for **highest ROI per implementation week**, deferring the componen
 | **P11** | 8 | `UXObserver` + `qa_ux_signals` | Accumulates over time; only meaningful after several runs. |
 | **P12** | 9 | `FeedbackConsolidator` end-to-end (CODING-PATTERNS, FEEDBACK.md, PROPOSED-INVARIANTS.md, TEST-ORACLES append) | Closes the outer loop; needs all prior pieces operational. |
 | **P13** | 10 | Portal Audit tab `TESTING_QUALITY` category surfaces `qa_cycle_assessment` | Visible feedback to Vivek; builds trust in the system. |
+| **P5.5** | 3–4 | `spec_curator.py` — living spec promotion + rationalization | Ships alongside P5. Closes the spec feedback loop: proven journeys graduate to static spec, duplicates collapse, sub-features extend parents, BROKEN journeys retire. LLM usage in curator naturally approaches zero as spec matures. |
 
 Total: **~10 weeks** to full closed-loop. P1+P2 alone (week 1) eliminate ~50% of current waste.
 
