@@ -665,7 +665,9 @@ try:
 except Exception:
     pass
 
-# Historical avg from qa_journeys (last 5 completed runs for this product)
+# Historical avg per journey from qa_runs (last 5 non-aborted runs for this product).
+# runner_duration_sec / journeys_run gives real seconds-per-journey.
+# Falls back to 120s if no data or DB unreachable.
 avg_sec = 120.0  # conservative fallback: 2 min per journey
 db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
 if db_url and product:
@@ -675,16 +677,20 @@ if db_url and product:
         conn = psycopg2.connect(clean)
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT gaps_found, created_at FROM qa_journeys "
-                "WHERE product_slug = %s AND suite_scope NOT LIKE '%%:aborted' "
-                "ORDER BY created_at DESC LIMIT 5",
+                "SELECT runner_duration_sec, journeys_run FROM qa_runs "
+                "WHERE product_slug = %s "
+                "  AND suite_scope NOT LIKE '%%:aborted' "
+                "  AND runner_duration_sec IS NOT NULL "
+                "  AND journeys_run > 0 "
+                "ORDER BY started_at DESC LIMIT 5",
                 (product,),
             )
             rows = cur.fetchall()
         conn.close()
-        # Use gap detector journey count as proxy; fall back to 120s default
         if rows:
-            avg_sec = 120.0  # keep fallback; real duration not stored yet
+            per_journey = [dur / count for dur, count in rows if count > 0]
+            if per_journey:
+                avg_sec = sum(per_journey) / len(per_journey)
     except Exception:
         pass
 
@@ -740,6 +746,7 @@ unset ANTHROPIC_API_KEY
 echo ""
 echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter, max_runtime=${STRATEGIST_ABORT_MAX_RUNTIME_SEC}s)..."
 CC_EXIT=0
+_RUNNER_START_SEC=${SECONDS}
 "${PYTHON}" -m phronex_common.testing.strategist.run_arbiter \
   --product "${PRODUCT}" \
   --results-dir "${RESULTS_DIR}" \
@@ -751,9 +758,11 @@ CC_EXIT=0
     --maxTurns 50 \
     --statePort "${CCTR_STATE_PORT}" \
   || CC_EXIT=$?
+export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
 if [[ ${CC_EXIT} -ne 0 ]]; then
   echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
 fi
+echo "[1/3] cc-test-runner wall-clock: ${JH_RUNNER_DURATION_SEC}s"
 
 # Step 1b (PQIP §12): Handoff Queue — poll for human-in-the-loop steps.
 # If any journey steps were queued for operator action during cc-test-runner,
