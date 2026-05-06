@@ -190,29 +190,6 @@
     "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
-    "id": "comc-trunk-superadmin",
-    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
-    "isSharedRoot": true,
-    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
-    "depth": 0,
-    "steps": [
-      {
-        "id": 1,
-        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to https://app.phronex.com/auth/login \u2014 append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal to load \u2014 verify no 500 error and the sidebar is visible."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to https://app.phronex.com/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
-      },
-      {
-        "id": 3,
-        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
-      }
-    ],
-    "_retired_at": "2026-05-06T19:58:54.844295+00:00",
-    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
-  },
-  {
     "id": "comc-people-dept-templates",
     "description": "Leaf: Navigate into a department detail, look for Templates tab, verify /departments/[id]/templates loads.",
     "dependsOn": "comc-trunk-superadmin",
