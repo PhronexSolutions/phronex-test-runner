@@ -594,3 +594,56 @@ RETURNING email, rate_limit_exempt;
 - `auto` mode: Public sites where SOME visitors are logged-in portal users (phronex.com). Gets tier for logged-in users, falls back to anonymous for guests. Always pair with `data-portal-auth-frame`.
 - `anonymous` mode: Sites with ZERO logged-in Phronex users expected (external customer sites, public demos). Skips all portal auth — fastest load.
 
+---
+
+### ComC restart collision window — 502 during deployment is transient, not a product defect
+
+**Discovered:** 2026-05-06, ComC Run 20/21.
+**Pattern:** When ComC is restarted (e.g. after applying an Alembic migration via `systemctl restart command-centre`), browser journeys that execute during the ~8-second restart window receive HTTP 502 from the EC2 → DevServer reverse tunnel. The tunnel stays up; ComC is simply not listening yet. The portal proxy returns 502 on every request during this window — `console.log` in the journey shows `ERR_CONNECTION_REFUSED` at `http://localhost:8002/...` or 502 on all `/api/admin/command-centre/...` calls.
+
+**Correct classification:** Infrastructure maintenance artifact — NOT a product defect. Do not file a defect.
+
+**Detection:** Cross-reference `systemctl show command-centre --property=ActiveEnterTimestamp` against journey start timestamp. If restart time overlaps with journey execution, this is the cause.
+
+**Prevention:** Always apply migrations and restart ComC BEFORE starting a JourneyHawk run. Never restart ComC during an active run. Confirm ComC is healthy before kicking off the trunk journey:
+```bash
+curl -sf http://localhost:8004/health && echo "ComC healthy"
+```
+
+---
+
+### FAIL_ORACLE text-variance flapping — same journey passes/fails across runs due to LLM phrasing drift
+
+**Discovered:** 2026-05-06, ComC Run 20 FAIL_ORACLE verdicts.
+**Pattern:** The oracle validation auditor matches tester step output text against the `Expected` column in `TEST-ORACLES.html` using LLM semantic comparison. When the tester's actual step description is semantically equivalent but phrased differently across runs (e.g. "metric cards showing agent count" vs "panel displays the active agent count statistic"), the LLM comparison may return MATCH in run N and NO_MATCH in run N+1 — causing the same journey to flip between PASS_ORACLE and FAIL_ORACLE without any product change.
+
+**Signature:** A journey shows FAIL_ORACLE in the DB but the step outcomes in CTRF/debug.log show all steps completing successfully with no browser errors.
+
+**Correct classification:** FP caused by oracle text variance — NOT a product defect. Do not file a defect; update the oracle text or increase LLM match threshold.
+
+**How to distinguish from real failures:**
+1. Check CTRF `message` — if all steps say `[Status: pending]` with no `[Error:]`, this is the CTRF pending-flush bug (see "CTRF format bug" section), not a text variance issue.
+2. Check `debug.log` — if the tester described completing steps successfully but the oracle auditor returned FAIL, this is text variance.
+
+**Mitigation:** Write oracle `Expected` values at the semantic level (not exact tester phrasing). Broader oracle expectations reduce variance-driven flapping.
+
+---
+
+### Playwright date input — use `page.evaluate()` to set value in ISO format, not `browser_fill`
+
+**Discovered:** 2026-05-06, ComC Run 20 vendor-subscription journey (defect #374 closed as FP).
+**Pattern:** Playwright `browser_fill` on `<input type="date">` fields sends the display-format string which the browser may reject or accept differently depending on locale. On some builds, the field receives the string literally but the browser's internal value remains empty, causing form submission to fail silently. This was misidentified as a real defect (#374) before the pattern was recognized.
+
+**Correct approach:** Use `browser_evaluate` (i.e. `page.evaluate()`) to set the date value directly in ISO format and dispatch a change event:
+```javascript
+document.querySelector('input[type="date"]').value = '2026-12-31';
+document.querySelector('input[type="date"]').dispatchEvent(new Event('change', { bubbles: true }));
+```
+
+**Spec rule:** Any journey step that fills a date input should use the evaluate approach. Add a note: "Use page.evaluate() to set the date input value to '2026-12-31' in ISO format and dispatch a change event — do not use browser_fill for date fields."
+
+**#374 classification:** CLOSED as false positive — vendor subscription renewal_date 422 was caused by Playwright locale-dependent date format, not a real schema mismatch.
+
+---
+
+
