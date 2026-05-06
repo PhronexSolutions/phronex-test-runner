@@ -361,6 +361,7 @@ if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --product "${PRODUCT}" \
   --existing-spec "${TEMP_SPEC}" \
   --docs-dir "${_DOCS_DIR}" \
+  --code-root "${PHRONEX_CODE_ROOT:-${HOME}/code}" \
   --output "${_GEN_OUTPUT}" \
   --max-journeys 150 \
   --min-depth DEEP 2>&1; then
