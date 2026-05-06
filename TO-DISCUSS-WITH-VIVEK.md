@@ -6,20 +6,17 @@
 
 ---
 
-## D-01: ComC has no QA cleanup endpoint — test data accumulates
+## D-01: ComC has no QA cleanup endpoint — RESOLVED (2026-05-06)
 
-**Context:** ComC has no `POST /qa/cleanup` SDK route equivalent to CC/JP. Test data created during journey runs (initiatives, CRM contacts, meetings, vendor subscriptions, etc.) persists in the DevServer ComC database between runs.
+**Status:** RESOLVED — `POST /api/admin/test-cleanup/{resource}` implemented in ComC.
 
-**Impact:** Journey steps that say "verify no duplicate exists" or "verify count is 0" will fail on run 2+ because run 1 left data behind.
+**Solution:** Option 1 implemented. Endpoint mirrors CC's pattern exactly:
+- Auth: `X-SDK-Key` (reuses existing `qa_sink_sdk_key`)
+- Production hostname guard: `comc.phronex.com`
+- 4 resources: `initiatives`, `contacts` (cascades to interactions), `meetings`, `vendor-subscriptions`
+- Safety filters: `name/title LIKE 'JH-%'` + 24h window (where `created_at` available)
 
-**Options:**
-1. **Add a QA cleanup endpoint to ComC** — mirroring CC's cleanup SDK route. Gated by `PHRONEX_QA_ALLOWED_HOSTS` env var. Cleanest solution; consistent with other products. ~1h work.
-2. **Use timestamp-namespaced test data** — journey steps create "JH-Test-{ISO-date}-Initiative" etc. so each run uses unique names. Avoids cleanup need but complicates verification steps. Already partially done in spec.
-3. **Wipe test data via DB directly from run-journeyhawk.sh** — add a `psql` cleanup step at start of run that deletes rows with JH-Test prefix. Fragile; bypasses application logic.
-
-**Recommendation:** Option 1. Document as a phase in the next ComC milestone.
-
-**Decision needed by:** Before ComC Run 2.
+**No decision needed.**
 
 ---
 
@@ -125,4 +122,4 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-*Last updated: 2026-05-06 (D-02 + D-04 resolved; D-07 added during Run 15 and resolved same session)*
+*Last updated: 2026-05-06 (D-01 + D-02 + D-04 resolved; D-07 added during Run 15 and resolved same session)*
