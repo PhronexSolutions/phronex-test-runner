@@ -354,17 +354,21 @@ fi
 # Merges with existing spec (existing take precedence). Fail-open: if generation
 # fails, original spec used.
 echo ""
-echo "[0b-gen/3] Journey generation (coverage gap fill)..."
+echo "[0b-gen/3] Journey generation (coverage gap fill + spec cache)..."
 _GEN_OUTPUT=$(mktemp /tmp/jh-generated-XXXXXX.json)
 _DOCS_DIR="${PHRONEX_CODE_ROOT:-${HOME}/code}/${_PRODUCT_REPO}/.docs"
+# --existing-spec: the credential-substituted temp copy (for correct journey loading)
+# --base-spec:     the stable original spec path (for cache/provenance location)
 if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --product "${PRODUCT}" \
   --existing-spec "${TEMP_SPEC}" \
+  --base-spec "${SPEC_FILE}" \
   --docs-dir "${_DOCS_DIR}" \
   --code-root "${PHRONEX_CODE_ROOT:-${HOME}/code}" \
   --output "${_GEN_OUTPUT}" \
   --max-journeys 150 \
-  --min-depth DEEP 2>&1; then
+  --min-depth DEEP \
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" 2>&1; then
   if [ -s "${_GEN_OUTPUT}" ]; then
     _ORIG_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "?")
     _NEW_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${_GEN_OUTPUT}'))))" 2>/dev/null || echo "?")
