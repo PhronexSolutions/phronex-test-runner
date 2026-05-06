@@ -636,14 +636,18 @@ echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE}
 # Reads journey count from spec + historical avg from qa_journeys.
 # If forecast > max_runtime: prints warning and waits 60s for operator to Ctrl-C.
 # If JOURNEYHAWK_SKIP_FORECAST=1: skips interactive wait (for CI / non-TTY runs).
-export STRATEGIST_ABORT_MAX_RUNTIME_SEC="${STRATEGIST_ABORT_MAX_RUNTIME_SEC:-5400}"
+# STRATEGIST_ABORT_MAX_RUNTIME_SEC is set dynamically from the forecast below.
+# Operator may override by setting the env var before invoking this script.
+export _OPERATOR_CAP="${STRATEGIST_ABORT_MAX_RUNTIME_SEC:-}"
 echo ""
 echo "[0.9/3] Pre-run time forecast..."
-"${PYTHON}" - <<FORECAST_EOF || true
+_FORECAST_CAP_FILE="$(mktemp /tmp/jh-forecast-cap.XXXXXX)"
+"${PYTHON}" - "${_FORECAST_CAP_FILE}" <<FORECAST_EOF || true
 import json, os, sys, time
 
+cap_file = sys.argv[1] if len(sys.argv) > 1 else ""
 spec_path = os.environ.get("MUTATED_SPEC", "") or os.environ.get("SPEC_FILE", "")
-max_runtime = float(os.environ.get("STRATEGIST_ABORT_MAX_RUNTIME_SEC", "5400"))
+operator_cap = os.environ.get("_OPERATOR_CAP", "")  # non-empty = operator override
 product = os.environ.get("JOURNEYHAWK_PRODUCT", "")
 skip_forecast = os.environ.get("JOURNEYHAWK_SKIP_FORECAST", "") == "1"
 
@@ -685,43 +689,40 @@ if db_url and product:
         pass
 
 if journey_count == 0:
-    print(f"  Journey count: unknown (spec parse failed) — proceeding with max_runtime={max_runtime:.0f}s cap")
+    fallback = float(operator_cap) if operator_cap else 10800.0
+    print(f"  Journey count: unknown (spec parse failed) — using cap={fallback:.0f}s")
+    if cap_file:
+        open(cap_file, "w").write(str(int(fallback)))
     sys.exit(0)
 
 estimated_sec = journey_count * avg_sec
+# Dynamic cap: forecast + 30% buffer, unless operator overrode it
+if operator_cap:
+    max_runtime = float(operator_cap)
+    cap_source = "operator override"
+else:
+    max_runtime = estimated_sec * 1.3
+    cap_source = "forecast × 1.3"
+
+# Write computed cap back to shell
+if cap_file:
+    open(cap_file, "w").write(str(int(max_runtime)))
+
 estimated_min = estimated_sec / 60
 max_min = max_runtime / 60
 
 print(f"  Journeys in spec : {journey_count}")
 print(f"  Avg per journey  : ~{avg_sec:.0f}s (historical)")
 print(f"  Estimated total  : ~{estimated_min:.0f} min  ({estimated_sec:.0f}s)")
-print(f"  Runtime cap      : {max_min:.0f} min  ({max_runtime:.0f}s)")
-
-if estimated_sec > max_runtime:
-    shortfall = journey_count - int(max_runtime / avg_sec)
-    print(f"")
-    print(f"  ⚠️  FORECAST EXCEEDS CAP: ~{estimated_min:.0f} min estimated vs {max_min:.0f} min cap.")
-    print(f"     ~{shortfall} journey(s) at the END OF THE SPEC will likely be aborted.")
-    print(f"     Options:")
-    print(f"       1. Ctrl-C now, then set STRATEGIST_ABORT_MAX_RUNTIME_SEC={int(estimated_sec + 600)} and re-run")
-    print(f"       2. Ctrl-C now and use a filtered spec with fewer journeys")
-    print(f"       3. Press Enter or wait 60s to proceed with current cap (tail journeys will abort)")
-    if not skip_forecast:
-        import select
-        print(f"  Waiting 60s for operator decision... (set JOURNEYHAWK_SKIP_FORECAST=1 to skip)", flush=True)
-        rlist, _, _ = select.select([sys.stdin], [], [], 60)
-        if rlist:
-            line = sys.stdin.readline().strip()
-            if line.lower() in ("q", "quit", "exit", "n", "no"):
-                print("  Operator aborted before run.", file=sys.stderr)
-                sys.exit(99)
-        print("  Proceeding with current cap.")
-    else:
-        print("  JOURNEYHAWK_SKIP_FORECAST=1 set — proceeding without interactive wait.")
-else:
-    print(f"  ✓ Estimated runtime within cap. Proceeding.")
+print(f"  Runtime cap      : {max_min:.0f} min  ({max_runtime:.0f}s)  [{cap_source}]")
+print(f"  ✓ Cap set to forecast + 30%% buffer — all journeys expected to complete.")
 FORECAST_EOF
 _FORECAST_EXIT=$?
+# Read the cap computed by the forecast (or operator override) back into the shell
+if [[ -s "${_FORECAST_CAP_FILE}" ]]; then
+  export STRATEGIST_ABORT_MAX_RUNTIME_SEC="$(cat "${_FORECAST_CAP_FILE}")"
+fi
+rm -f "${_FORECAST_CAP_FILE}"
 if [[ ${_FORECAST_EXIT} -eq 99 ]]; then
   echo "[0.9/3] Operator aborted before run. Exiting."
   exit 1
