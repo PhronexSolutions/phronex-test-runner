@@ -377,10 +377,16 @@ _GEN_OUTPUT=$(mktemp /tmp/jh-generated-XXXXXX.json)
 _DOCS_DIR="${PHRONEX_CODE_ROOT:-${HOME}/code}/${_PRODUCT_REPO}/.docs"
 # --existing-spec: the credential-substituted temp copy (for correct journey loading)
 # --base-spec:     the stable original spec path (for cache/provenance location)
+# Default: LLM enrichment ON — produces BEHAVIORAL-depth journeys (template variables,
+# persistence blocks, cross-feature chains). Fail-open: if rate limits hit mid-generation,
+# the generator keeps whatever heuristic output was produced (never produces 0 journeys).
+# Set JOURNEYHAWK_NO_LLM=1 to force heuristic-only mode (no LLM calls, ~136 DEEP journeys).
 _NO_LLM_FLAG=""
 if [ "${JOURNEYHAWK_NO_LLM:-0}" = "1" ]; then
   _NO_LLM_FLAG="--no-llm"
-  echo "[0b-gen/3] JOURNEYHAWK_NO_LLM=1 — heuristic-only generation (no LLM calls)"
+  echo "[0b-gen/3] JOURNEYHAWK_NO_LLM=1 — heuristic mode (oracle-driven + inferred flows, no LLM calls)"
+else
+  echo "[0b-gen/3] LLM enrichment enabled (BEHAVIORAL-depth target; set JOURNEYHAWK_NO_LLM=1 to skip)"
 fi
 if "${PYTHON}" -m phronex_common.testing.journey_generator \
   --product "${PRODUCT}" \
