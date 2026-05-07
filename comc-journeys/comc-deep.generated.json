@@ -982,19 +982,19 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/briefs/settings. Using page.evaluate(): send GET request to http://localhost:3002/command-centre/api/v1/briefs/settings. Verify HTTP 200 and response contains default configuration with all sections enabled and delivery_time at 8:00 AM IST. Store the current section order as {{default_sections}}."
+        "description": "Navigate to http://localhost:3002/command-centre/briefs/settings. Using page.evaluate(): send GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings. Verify HTTP 200 and response contains default configuration with all sections enabled and delivery_time at 8:00 AM IST. Store the current section order as {{default_sections}}."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send PUT request to http://localhost:3002/command-centre/api/v1/briefs/settings with body {\"sections\": [\"news\", \"opportunities\"], \"disabled_sections\": [\"analysis\"], \"delivery_time\": \"9:30 AM IST\", \"section_order\": [\"opportunities\", \"news\"]}. Verify HTTP 200 response indicating upsert success. Store the custom config state as {{custom_config}}."
+        "description": "Using page.evaluate(): send PUT request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings with body {\"sections\": [\"news\", \"opportunities\"], \"disabled_sections\": [\"analysis\"], \"delivery_time\": \"9:30 AM IST\", \"section_order\": [\"opportunities\", \"news\"]}. Verify HTTP 200 response indicating upsert success. Store the custom config state as {{custom_config}}."
       },
       {
         "id": 4,
-        "description": "Navigate away to http://localhost:3002/command-centre/dashboard, then return to http://localhost:3002/command-centre/briefs/settings. Using page.evaluate(): send GET request to http://localhost:3002/command-centre/api/v1/briefs/settings. Verify HTTP 200 and response reflects the custom configuration from step 3: section_order is [\"opportunities\", \"news\"], analysis is disabled, delivery_time is 9:30 AM IST. Confirm persistence across navigation."
+        "description": "Navigate away to http://localhost:3002/command-centre/dashboard, then return to http://localhost:3002/command-centre/briefs/settings. Using page.evaluate(): send GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings. Verify HTTP 200 and response reflects the custom configuration from step 3: section_order is [\"opportunities\", \"news\"], analysis is disabled, delivery_time is 9:30 AM IST. Confirm persistence across navigation."
       },
       {
         "id": 5,
-        "description": "Navigate to http://localhost:3002/command-centre/briefs and click 'Generate Brief' button. Fill in any required fields and submit. Using page.evaluate(): send GET request to http://localhost:3002/command-centre/api/v1/briefs (latest brief). Verify the generated brief honors the custom configuration: sections appear in order [\"opportunities\", \"news\"], analysis section is absent, and the brief structure reflects the 9:30 AM IST delivery setting. Store brief ID as {{generated_brief_id}}."
+        "description": "Navigate to http://localhost:3002/command-centre/briefs and click 'Generate Brief' button. Fill in any required fields and submit. Using page.evaluate(): send GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs (latest brief). Verify the generated brief honors the custom configuration: sections appear in order [\"opportunities\", \"news\"], analysis section is absent, and the brief structure reflects the 9:30 AM IST delivery setting. Store brief ID as {{generated_brief_id}}."
       },
       {
         "id": 6,
@@ -1014,7 +1014,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/config/erp. Using page.evaluate(): send GET request to http://localhost:3002/command-centre/api/v1/erp-sync/status. Verify HTTP 200 response. Extract the status object including per-doctype status (e.g., customers, orders, invoices), last_sync_at timestamp, stale flag, and record_count. Store this as {{initial_status}}."
+        "description": "Navigate to http://localhost:3002/command-centre/config/erp. Using page.evaluate(): send GET request to http://localhost:3002/api/admin/command-centre/api/v1/erp-sync/status. Verify HTTP 200 response. Extract the status object including per-doctype status (e.g., customers, orders, invoices), last_sync_at timestamp, stale flag, and record_count. Store this as {{initial_status}}."
       },
       {
         "id": 3,
@@ -1022,15 +1022,15 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send POST request to http://localhost:3002/command-centre/api/v1/erp-sync/trigger with body {}. Verify HTTP 202 Accepted response, indicating an async sync task has been enqueued. Store the returned task ID as {{sync_task_id}}."
+        "description": "Using page.evaluate(): send POST request to http://localhost:3002/api/admin/command-centre/api/v1/erp-sync/trigger with body {}. Verify HTTP 202 Accepted response, indicating an async sync task has been enqueued. Store the returned task ID as {{sync_task_id}}."
       },
       {
         "id": 5,
-        "description": "Wait 2 seconds, then using page.evaluate(): send GET request to http://localhost:3002/command-centre/api/v1/erp-sync/status again. Verify HTTP 200 response. Check that the response includes information about {{sync_task_id}} being in progress or the status shows updated last_sync_at timestamp. Confirm the sync task was captured and is not hanging (not SYNC_HANGS failure)."
+        "description": "Wait 2 seconds, then using page.evaluate(): send GET request to http://localhost:3002/api/admin/command-centre/api/v1/erp-sync/status again. Verify HTTP 200 response. Check that the response includes information about {{sync_task_id}} being in progress or the status shows updated last_sync_at timestamp. Confirm the sync task was captured and is not hanging (not SYNC_HANGS failure)."
       },
       {
         "id": 6,
-        "description": "Navigate away and back to http://localhost:3002/command-centre/config/erp. Using page.evaluate(): send GET request to http://localhost:3002/command-centre/api/v1/erp-sync/status once more. Verify HTTP 200 and response is still graceful (no crash, no misleading errors). Confirm that even if ERP is not configured, the endpoint returns a valid status object rather than crashing or leaking sensitive errors."
+        "description": "Navigate away and back to http://localhost:3002/command-centre/config/erp. Using page.evaluate(): send GET request to http://localhost:3002/api/admin/command-centre/api/v1/erp-sync/status once more. Verify HTTP 200 and response is still graceful (no crash, no misleading errors). Confirm that even if ERP is not configured, the endpoint returns a valid status object rather than crashing or leaking sensitive errors."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1046,11 +1046,11 @@
       },
       {
         "id": 2,
-        "description": "Create or switch to an empty test organization context. Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/organizations with headers {\"Authorization\": \"Bearer <current_session_token>\"} and body {\"name\": \"Empty Org Test {{timestamp}}\", \"description\": \"Test org with no agents or briefs\"}. Verify HTTP 201 and extract the new org_id as {{empty_org_id}}."
+        "description": "Create or switch to an empty test organization context. Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/organizations with headers {\"Authorization\": \"Bearer <current_session_token>\"} and body {\"name\": \"Empty Org Test {{timestamp}}\", \"description\": \"Test org with no agents or briefs\"}. Verify HTTP 201 and extract the new org_id as {{empty_org_id}}."
       },
       {
         "id": 3,
-        "description": "Switch the session context to {{empty_org_id}}. Using page.evaluate(): send a PUT request to http://localhost:3002/command-centre/api/v1/me/org with body {\"org_id\": \"{{empty_org_id}}\"} and current Authorization header. Verify HTTP 200."
+        "description": "Switch the session context to {{empty_org_id}}. Using page.evaluate(): send a PUT request to http://localhost:3002/api/admin/command-centre/api/v1/me/org with body {\"org_id\": \"{{empty_org_id}}\"} and current Authorization header. Verify HTTP 200."
       },
       {
         "id": 4,
@@ -1094,7 +1094,7 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/agents with headers {\"Authorization\": \"Bearer <token from session>\"} to fetch the raw agent list API response. Verify HTTP status is 200. Extract the JSON response and verify it is an array. Verify each object in the array contains ALL required fields: id, org_id, name, role, status, department_id, paperclip_agent_id. Record the total count as {{api_agent_count}} and the first agent's id as {{first_agent_api_id}}."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents with headers {\"Authorization\": \"Bearer <token from session>\"} to fetch the raw agent list API response. Verify HTTP status is 200. Extract the JSON response and verify it is an array. Verify each object in the array contains ALL required fields: id, org_id, name, role, status, department_id, paperclip_agent_id. Record the total count as {{api_agent_count}} and the first agent's id as {{first_agent_api_id}}."
       },
       {
         "id": 5,
@@ -1110,7 +1110,7 @@
       },
       {
         "id": 8,
-        "description": "Clear the browser's Authorization token (simulate unauthorized access). Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/agents with headers {\"Authorization\": \"Bearer invalid-token-xyz\"} (or no Authorization header). Verify the response HTTP status is 401. Verify the response body contains an error message (e.g. 'Unauthorized', 'Invalid token'). Verify the response does NOT contain any agent data, org_id values, or sensitive information fields. This tests the AUTH_FAIL and DATA_LEAK failure modes."
+        "description": "Clear the browser's Authorization token (simulate unauthorized access). Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents with headers {\"Authorization\": \"Bearer invalid-token-xyz\"} (or no Authorization header). Verify the response HTTP status is 401. Verify the response body contains an error message (e.g. 'Unauthorized', 'Invalid token'). Verify the response does NOT contain any agent data, org_id values, or sensitive information fields. This tests the AUTH_FAIL and DATA_LEAK failure modes."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1134,7 +1134,7 @@
       },
       {
         "id": 4,
-        "description": "On the agent detail page, locate the 'Pause' button or action menu. Click 'Pause'. Using page.evaluate(): send a PATCH request to http://localhost:3002/command-centre/api/v1/agents/{{agent_id}}/pause with headers {\"Authorization\": \"Bearer <token>\"} and empty body {}. Verify HTTP 200 response. In the response JSON, verify agent.status === 'paused_ceo' and agent.updated_at has been refreshed to a timestamp later than before."
+        "description": "On the agent detail page, locate the 'Pause' button or action menu. Click 'Pause'. Using page.evaluate(): send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/pause with headers {\"Authorization\": \"Bearer <token>\"} and empty body {}. Verify HTTP 200 response. In the response JSON, verify agent.status === 'paused_ceo' and agent.updated_at has been refreshed to a timestamp later than before."
       },
       {
         "id": 5,
@@ -1146,7 +1146,7 @@
       },
       {
         "id": 7,
-        "description": "Locate the 'Resume' button or action menu on the agent detail page. Click 'Resume'. Using page.evaluate(): send a PATCH request to http://localhost:3002/command-centre/api/v1/agents/{{agent_id}}/resume with headers {\"Authorization\": \"Bearer <token>\"} and empty body {}. Verify HTTP 200 response. In the response JSON, verify agent.status === 'active' and agent.updated_at has been refreshed to a timestamp later than the pause's updated_at."
+        "description": "Locate the 'Resume' button or action menu on the agent detail page. Click 'Resume'. Using page.evaluate(): send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/resume with headers {\"Authorization\": \"Bearer <token>\"} and empty body {}. Verify HTTP 200 response. In the response JSON, verify agent.status === 'active' and agent.updated_at has been refreshed to a timestamp later than the pause's updated_at."
       },
       {
         "id": 8,
@@ -1154,7 +1154,7 @@
       },
       {
         "id": 9,
-        "description": "TENANT ISOLATION TEST: Using page.evaluate(), attempt to send a PATCH request to http://localhost:3002/command-centre/api/v1/agents/00000000-0000-0000-0000-000000000000/pause (using a fake/non-existent agent_id not belonging to the current tenant). Add headers {\"Authorization\": \"Bearer <token>\"}. Verify HTTP 404 response is returned. The 404 confirms the agent is not found within the caller's org scope (tenant isolation success). Do NOT receive a 200 or 500 error."
+        "description": "TENANT ISOLATION TEST: Using page.evaluate(), attempt to send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/agents/00000000-0000-0000-0000-000000000000/pause (using a fake/non-existent agent_id not belonging to the current tenant). Add headers {\"Authorization\": \"Bearer <token>\"}. Verify HTTP 404 response is returned. The 404 confirms the agent is not found within the caller's org scope (tenant isolation success). Do NOT receive a 200 or 500 error."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1174,7 +1174,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/briefs with headers {{session_headers}}. Verify HTTP status is 200. Read the response and confirm it is a JSON array. Record the count of briefs returned as {{brief_count}}. If {{brief_count}} is 0 but the UI shows briefs, this is EMPTY_WHEN_DATA_EXISTS failure."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs with headers {{session_headers}}. Verify HTTP status is 200. Read the response and confirm it is a JSON array. Record the count of briefs returned as {{brief_count}}. If {{brief_count}} is 0 but the UI shows briefs, this is EMPTY_WHEN_DATA_EXISTS failure."
       },
       {
         "id": 4,
@@ -1190,7 +1190,7 @@
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): send another GET request to http://localhost:3002/command-centre/api/v1/briefs. Verify HTTP 200 and that the returned array has the same order and content as step 4. If the order has changed or briefs disappeared, this is a data integrity failure."
+        "description": "Using page.evaluate(): send another GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs. Verify HTTP 200 and that the returned array has the same order and content as step 4. If the order has changed or briefs disappeared, this is a data integrity failure."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1210,11 +1210,11 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/briefs/morning with headers {{session_headers}}. Check the HTTP status code. If the status is 503, verify the response body contains the error detail 'Paperclip client not initialised'. If the status is anything other than 503 or 200, record this as WRONG_STATUS failure. If the response causes an exception or crash, record as CRASH failure. Store the status as {{first_morning_status}}."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/morning with headers {{session_headers}}. Check the HTTP status code. If the status is 503, verify the response body contains the error detail 'Paperclip client not initialised'. If the status is anything other than 503 or 200, record this as WRONG_STATUS failure. If the response causes an exception or crash, record as CRASH failure. Store the status as {{first_morning_status}}."
       },
       {
         "id": 4,
-        "description": "If {{first_morning_status}} is 503 (expected initial state), wait 5 seconds to allow Paperclip client to initialize in the background. Then send another GET request to http://localhost:3002/command-centre/api/v1/briefs/morning. Verify the status is now 200. If it remains 503 after waiting, or returns a different error, record as initialization failure."
+        "description": "If {{first_morning_status}} is 503 (expected initial state), wait 5 seconds to allow Paperclip client to initialize in the background. Then send another GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/morning. Verify the status is now 200. If it remains 503 after waiting, or returns a different error, record as initialization failure."
       },
       {
         "id": 5,
@@ -1230,7 +1230,7 @@
       },
       {
         "id": 8,
-        "description": "Navigate away and return to the morning brief page. Verify the brief content is still visible and matches {{section_count}} sections from step 5. This confirms data persistence across navigation. Send one final GET request to http://localhost:3002/command-centre/api/v1/briefs/morning and verify HTTP 200 status, confirming Paperclip client remains initialized."
+        "description": "Navigate away and return to the morning brief page. Verify the brief content is still visible and matches {{section_count}} sections from step 5. This confirms data persistence across navigation. Send one final GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/morning and verify HTTP 200 status, confirming Paperclip client remains initialized."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1262,7 +1262,7 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}} with headers {{Authorization header from session}}. Verify HTTP 200 response. Parse the JSON body. Verify the response contains: id={{dept_id}}, name={{dept_name}}, is_active (boolean), agents array (must be empty array []), no errors or stack traces. If agents array is populated or missing, mark as FAILURE: INCORRECT. If response status is 5xx or times out, mark as FAILURE: CRASH."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/departments/{{dept_id}} with headers {{Authorization header from session}}. Verify HTTP 200 response. Parse the JSON body. Verify the response contains: id={{dept_id}}, name={{dept_name}}, is_active (boolean), agents array (must be empty array []), no errors or stack traces. If agents array is populated or missing, mark as FAILURE: INCORRECT. If response status is 5xx or times out, mark as FAILURE: CRASH."
       },
       {
         "id": 7,
@@ -1317,7 +1317,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/notifications/ingest with headers {\"Content-Type\": \"application/json\"} and body {{\"org_id\": \"{{current_org_id}}\", \"channel\": \"in-app\", \"message\": \"Test notification from auto-test\", \"event_type\": \"system_alert\"}}. Verify HTTP 201 response. Extract and store the created notification ID as {{ingested_notif_id}} and its timestamp as {{ingested_at}}."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/notifications/ingest with headers {\"Content-Type\": \"application/json\"} and body {{\"org_id\": \"{{current_org_id}}\", \"channel\": \"in-app\", \"message\": \"Test notification from auto-test\", \"event_type\": \"system_alert\"}}. Verify HTTP 201 response. Extract and store the created notification ID as {{ingested_notif_id}} and its timestamp as {{ingested_at}}."
       },
       {
         "id": 4,
@@ -1325,7 +1325,7 @@
       },
       {
         "id": 5,
-        "description": "Using page.evaluate(): attempt a POST to http://localhost:3002/command-centre/api/v1/notifications/ingest with body {{\"org_id\": \"wrong-org-uuid-12345\", \"channel\": \"in-app\", \"message\": \"Injected notification\", \"event_type\": \"breach\"}}. Expect HTTP 403 Forbidden or 401 Unauthorized (auth_bypass failure). Store the status code as {{wrong_org_status}}. Verify {{wrong_org_status}} is NOT 201."
+        "description": "Using page.evaluate(): attempt a POST to http://localhost:3002/api/admin/command-centre/api/v1/notifications/ingest with body {{\"org_id\": \"wrong-org-uuid-12345\", \"channel\": \"in-app\", \"message\": \"Injected notification\", \"event_type\": \"breach\"}}. Expect HTTP 403 Forbidden or 401 Unauthorized (auth_bypass failure). Store the status code as {{wrong_org_status}}. Verify {{wrong_org_status}} is NOT 201."
       },
       {
         "id": 6,
@@ -1333,7 +1333,7 @@
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/notifications with the browser's current auth. Filter or iterate the JSON response to confirm {{ingested_notif_id}} is present AND no notifications from other orgs are included. Verify org_id in the response context (if available) matches {{current_org_id}}."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/notifications with the browser's current auth. Filter or iterate the JSON response to confirm {{ingested_notif_id}} is present AND no notifications from other orgs are included. Verify org_id in the response context (if available) matches {{current_org_id}}."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1353,7 +1353,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/revenue-intel/pipeline with the Authorization header from the current session context. Verify HTTP status is 200. Read the JSON response and confirm it contains: (a) a 'stages' array with at least 2 stages, (b) each stage object has 'stage' (string), 'count' (number > 0), and 'value' (number > 0) fields, (c) 'total_count' field at root level (sum of all stage counts), (d) 'total_value' field at root level (sum of all stage values). Store {{pipeline_data}} from the response for comparison in step 5."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/revenue-intel/pipeline with the Authorization header from the current session context. Verify HTTP status is 200. Read the JSON response and confirm it contains: (a) a 'stages' array with at least 2 stages, (b) each stage object has 'stage' (string), 'count' (number > 0), and 'value' (number > 0) fields, (c) 'total_count' field at root level (sum of all stage counts), (d) 'total_value' field at root level (sum of all stage values). Store {{pipeline_data}} from the response for comparison in step 5."
       },
       {
         "id": 4,
@@ -1369,7 +1369,7 @@
       },
       {
         "id": 7,
-        "description": "Simulate ERP unavailability: Using page.evaluate(), send a GET request to http://localhost:3002/command-centre/api/v1/revenue-intel/pipeline/health (or similar diagnostic endpoint, if available). If the response indicates ERP_UNREACHABLE or a 503 status from the main pipeline endpoint: (a) return to http://localhost:3002/command-centre/revenue-pipeline, (b) verify the page does NOT crash or show a blank white screen, (c) verify a user-facing message appears such as 'ERPNext not configured' or 'Data unavailable \u2014 contact administrator', (d) confirm the funnel is either hidden gracefully or displays an empty state with a helpful message. Verify HTTP 503 is returned with a clear error message in the response body, NOT a cryptic stack trace or misleading partial data."
+        "description": "Simulate ERP unavailability: Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/revenue-intel/pipeline/health (or similar diagnostic endpoint, if available). If the response indicates ERP_UNREACHABLE or a 503 status from the main pipeline endpoint: (a) return to http://localhost:3002/command-centre/revenue-pipeline, (b) verify the page does NOT crash or show a blank white screen, (c) verify a user-facing message appears such as 'ERPNext not configured' or 'Data unavailable \u2014 contact administrator', (d) confirm the funnel is either hidden gracefully or displays an empty state with a helpful message. Verify HTTP 503 is returned with a clear error message in the response body, NOT a cryptic stack trace or misleading partial data."
       },
       {
         "id": 8,
@@ -1441,7 +1441,7 @@
       },
       {
         "id": 5,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/crm/contacts with no body. Verify HTTP status 200. Parse the response JSON and verify it is an array. If the array is non-empty, verify each contact object contains: name (string), email (string), company (string), last_interaction (ISO 8601 date or null). Store the response as {{api_response_full}}."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts with no body. Verify HTTP status 200. Parse the response JSON and verify it is an array. If the array is non-empty, verify each contact object contains: name (string), email (string), company (string), last_interaction (ISO 8601 date or null). Store the response as {{api_response_full}}."
       },
       {
         "id": 6,
@@ -1509,7 +1509,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/crm/contacts/{{invalid_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"email\", \"date\": \"2026-04-30T10:00:00Z\", \"notes\": \"Test interaction against invalid contact\"}. Verify the response has HTTP status 404. Verify the response body contains an error message that includes the words 'contact' and 'not found' or 'does not exist' (case-insensitive). Store the error message as {{error_msg_404}}."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{{invalid_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"email\", \"date\": \"2026-04-30T10:00:00Z\", \"notes\": \"Test interaction against invalid contact\"}. Verify the response has HTTP status 404. Verify the response body contains an error message that includes the words 'contact' and 'not found' or 'does not exist' (case-insensitive). Store the error message as {{error_msg_404}}."
       },
       {
         "id": 4,
@@ -1517,7 +1517,7 @@
       },
       {
         "id": 5,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/crm/contacts/{{valid_contact_id}}/interactions to confirm that no spurious interaction was created on the valid contact. Verify HTTP 200. Count the number of interactions on {{valid_contact_id}} and store as {{interaction_count_before}}. This confirms isolation: the failed POST did not affect other contacts."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{{valid_contact_id}}/interactions to confirm that no spurious interaction was created on the valid contact. Verify HTTP 200. Count the number of interactions on {{valid_contact_id}} and store as {{interaction_count_before}}. This confirms isolation: the failed POST did not affect other contacts."
       },
       {
         "id": 6,
@@ -1541,15 +1541,15 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/crm/contacts with headers {\"Authorization\": \"Bearer <token from session>\"} to retrieve all contacts visible to the current session. Extract a contact_id from the response and store as {{visible_contact_id}}. Verify this contact belongs to {{current_org_id}} by checking the 'organization_id' field in the response."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts with headers {\"Authorization\": \"Bearer <token from session>\"} to retrieve all contacts visible to the current session. Extract a contact_id from the response and store as {{visible_contact_id}}. Verify this contact belongs to {{current_org_id}} by checking the 'organization_id' field in the response."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/crm/contacts?organization_id=other_org_example with headers {\"Authorization\": \"Bearer <token from session>\"}. Do NOT use a real other org ID; instead, use a synthetic one like 'org-other-12345'. This simulates a contact from another organization. Verify the response is either an empty list or contains no contacts. If contacts are returned, this is a tenant isolation failure."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts?organization_id=other_org_example with headers {\"Authorization\": \"Bearer <token from session>\"}. Do NOT use a real other org ID; instead, use a synthetic one like 'org-other-12345'. This simulates a contact from another organization. Verify the response is either an empty list or contains no contacts. If contacts are returned, this is a tenant isolation failure."
       },
       {
         "id": 5,
-        "description": "Construct a cross-tenant contact_id by using a known pattern from a different organization (e.g., if your contact IDs are UUIDs, use a synthetic one that would theoretically belong to another org's contact sequence). Store this as {{other_org_contact}}. Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/crm/contacts/{{other_org_contact}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"meeting\", \"date\": \"2026-04-30T15:00:00Z\", \"notes\": \"Cross-tenant test\"}. Verify the response has HTTP status 404."
+        "description": "Construct a cross-tenant contact_id by using a known pattern from a different organization (e.g., if your contact IDs are UUIDs, use a synthetic one that would theoretically belong to another org's contact sequence). Store this as {{other_org_contact}}. Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{{other_org_contact}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"meeting\", \"date\": \"2026-04-30T15:00:00Z\", \"notes\": \"Cross-tenant test\"}. Verify the response has HTTP status 404."
       },
       {
         "id": 6,
@@ -1581,7 +1581,7 @@
       },
       {
         "id": 4,
-        "description": "Wait 3 seconds for backend processing. Then using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/team-audit/results with Authorization header. Verify HTTP 200. Parse the response as JSON and verify it contains a non-empty array of TeamAuditResultResponse objects. Each object MUST contain at least: id, findings (non-empty array or string), recommendations (non-empty array or string), timestamp. Store the first result's id as {{first_result_id}}. If response is empty when audit_run_id was returned, this is EMPTY_WHEN_DATA_EXISTS failure."
+        "description": "Wait 3 seconds for backend processing. Then using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/team-audit/results with Authorization header. Verify HTTP 200. Parse the response as JSON and verify it contains a non-empty array of TeamAuditResultResponse objects. Each object MUST contain at least: id, findings (non-empty array or string), recommendations (non-empty array or string), timestamp. Store the first result's id as {{first_result_id}}. If response is empty when audit_run_id was returned, this is EMPTY_WHEN_DATA_EXISTS failure."
       },
       {
         "id": 5,
@@ -1589,7 +1589,7 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/team-audit/org-chart with Authorization header. Verify HTTP 200. Parse response as JSON. Verify response contains a 'departments' field (array). For each department object, verify it has: id, name, agents (array of agent objects). Verify no department is missing the 'agents' field (failure mode: UNGROUPED). Verify each agent object contains at least: id, name, email. Store the department count as {{dept_count}}. If any field is missing, log MISSING_FIELD failure."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/team-audit/org-chart with Authorization header. Verify HTTP 200. Parse response as JSON. Verify response contains a 'departments' field (array). For each department object, verify it has: id, name, agents (array of agent objects). Verify no department is missing the 'agents' field (failure mode: UNGROUPED). Verify each agent object contains at least: id, name, email. Store the department count as {{dept_count}}. If any field is missing, log MISSING_FIELD failure."
       },
       {
         "id": 7,
@@ -1617,7 +1617,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/skills/review/all with headers {\"Content-Type\": \"application/json\"}. Verify HTTP status 200. Extract and store the response body, specifically: {{skills_reviewed_count}} (integer), {{skills_needing_revision_count}} (integer), and {{overall_assessment}} (string enum: 'pass'/'review'/'fail'). Confirm the response is a valid JSON object (not null, not empty string, not truncated). If LLM_TIMEOUT or AUTH_FAIL occurs, record the error code and HTTP status."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/skills/review/all with headers {\"Content-Type\": \"application/json\"}. Verify HTTP status 200. Extract and store the response body, specifically: {{skills_reviewed_count}} (integer), {{skills_needing_revision_count}} (integer), and {{overall_assessment}} (string enum: 'pass'/'review'/'fail'). Confirm the response is a valid JSON object (not null, not empty string, not truncated). If LLM_TIMEOUT or AUTH_FAIL occurs, record the error code and HTTP status."
       },
       {
         "id": 4,
@@ -1625,7 +1625,7 @@
       },
       {
         "id": 5,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/skills/review/history with headers {\"Content-Type\": \"application/json\"}. Verify HTTP status 200. Extract the response array. Confirm it is a JSON array (even if empty). For each item in the array, verify: (a) 'log_id' field exists and is a non-empty string, (b) 'review_timestamp' exists and is a valid ISO8601 datetime, (c) 'skills_reviewed' and 'skills_needing_revision' are integers, (d) NO 'report_json' field is present in any list item (data leakage check). Store the first {{log_id}} from the response if the array is non-empty. If EMPTY_HISTORY (array is empty after step 3 review), note this as expected for first run."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/skills/review/history with headers {\"Content-Type\": \"application/json\"}. Verify HTTP status 200. Extract the response array. Confirm it is a JSON array (even if empty). For each item in the array, verify: (a) 'log_id' field exists and is a non-empty string, (b) 'review_timestamp' exists and is a valid ISO8601 datetime, (c) 'skills_reviewed' and 'skills_needing_revision' are integers, (d) NO 'report_json' field is present in any list item (data leakage check). Store the first {{log_id}} from the response if the array is non-empty. If EMPTY_HISTORY (array is empty after step 3 review), note this as expected for first run."
       },
       {
         "id": 6,
@@ -1633,7 +1633,7 @@
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): if {{log_id}} was obtained in step 5, send a GET request to http://localhost:3002/command-centre/api/v1/skills/review/{{log_id}} with headers {\"Content-Type\": \"application/json\"}. Verify HTTP status 200. Extract the full response and confirm: (a) 'report_json' field is present and is a non-empty object (not null, not empty string, not truncated), (b) 'report_json' contains at least one key indicating detailed findings (e.g., 'findings', 'recommendations', 'skill_assessments', or similar), (c) the object is valid JSON and parseable. If ON_VALID_ID or TRUNCATED_REPORT failure occurs, record the error and verify HTTP status is not 200. If {{log_id}} was not obtained (EMPTY_HISTORY case), skip this step and record as skipped due to no history."
+        "description": "Using page.evaluate(): if {{log_id}} was obtained in step 5, send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/skills/review/{{log_id}} with headers {\"Content-Type\": \"application/json\"}. Verify HTTP status 200. Extract the full response and confirm: (a) 'report_json' field is present and is a non-empty object (not null, not empty string, not truncated), (b) 'report_json' contains at least one key indicating detailed findings (e.g., 'findings', 'recommendations', 'skill_assessments', or similar), (c) the object is valid JSON and parseable. If ON_VALID_ID or TRUNCATED_REPORT failure occurs, record the error and verify HTTP status is not 200. If {{log_id}} was not obtained (EMPTY_HISTORY case), skip this step and record as skipped due to no history."
       },
       {
         "id": 8,
@@ -1657,7 +1657,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/accountability/links with headers {\"Content-Type\": \"application/json\"} and body {\"partner_email\": \"qateach{{random_id}}.accountability@test.phronex.com\", \"scope\": \"quarterly_review\"}. Verify HTTP status is 201. Extract and store the 'link_token' from the response body. Record the timestamp and token value. Verify the token is a non-empty string (at least 32 characters)."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/links with headers {\"Content-Type\": \"application/json\"} and body {\"partner_email\": \"qateach{{random_id}}.accountability@test.phronex.com\", \"scope\": \"quarterly_review\"}. Verify HTTP status is 201. Extract and store the 'link_token' from the response body. Record the timestamp and token value. Verify the token is a non-empty string (at least 32 characters)."
       },
       {
         "id": 4,
@@ -1669,15 +1669,15 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/accountability/digest/{{link_token}} (using the token from step 3). Verify HTTP 200. Verify the response contains 'initiative' or 'progress' fields indicating partner view data exists. Verify no authentication headers are required for this GET (confirm request succeeds without Bearer token)."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}} (using the token from step 3). Verify HTTP 200. Verify the response contains 'initiative' or 'progress' fields indicating partner view data exists. Verify no authentication headers are required for this GET (confirm request succeeds without Bearer token)."
       },
       {
         "id": 7,
-        "description": "Navigate away from the dashboard to http://localhost:3002/command-centre/briefs. Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/dashboard. Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/accountability/digest/{{link_token}}. Verify HTTP 200 and the digest data is identical to step 6. This confirms link persistence across session navigation."
+        "description": "Navigate away from the dashboard to http://localhost:3002/command-centre/briefs. Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/dashboard. Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}}. Verify HTTP 200 and the digest data is identical to step 6. This confirms link persistence across session navigation."
       },
       {
         "id": 8,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/accountability/digest/malformed_or_expired_token_here. Verify the response is HTTP 404 or 410 with error message. This establishes the 404 baseline for the revocation test in the next journey."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/malformed_or_expired_token_here. Verify the response is HTTP 404 or 410 with error message. This establishes the 404 baseline for the revocation test in the next journey."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1697,35 +1697,35 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/accountability/links with headers {\"Content-Type\": \"application/json\"} and body {\"partner_email\": \"qareply{{random_id}}.accountability@test.phronex.com\", \"scope\": \"quarterly_review\"}. Verify HTTP 201. Extract and store {{link_token}} and {{partner_email}} from the response."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/links with headers {\"Content-Type\": \"application/json\"} and body {\"partner_email\": \"qareply{{random_id}}.accountability@test.phronex.com\", \"scope\": \"quarterly_review\"}. Verify HTTP 201. Extract and store {{link_token}} and {{partner_email}} from the response."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/accountability/replies with headers {\"Content-Type\": \"application/json\"} and body {\"link_token\": \"{{link_token}}\", \"message\": \"Progress is on track. Q1 targets met.\"}. Verify HTTP 201. Extract the 'reply_id' from the response. Verify no crash or 5xx error."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/replies with headers {\"Content-Type\": \"application/json\"} and body {\"link_token\": \"{{link_token}}\", \"message\": \"Progress is on track. Q1 targets met.\"}. Verify HTTP 201. Extract the 'reply_id' from the response. Verify no crash or 5xx error."
       },
       {
         "id": 5,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/accountability/replies with body {\"link_token\": \"invalid_token_string_xyz\", \"message\": \"Test message\"}. Expected: HTTP 400, 401, or 404 (NOT 201). Verify the response does NOT create a reply and does NOT return a reply_id. This tests INVALID_TOKEN_ACCEPTED failure mode."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/replies with body {\"link_token\": \"invalid_token_string_xyz\", \"message\": \"Test message\"}. Expected: HTTP 400, 401, or 404 (NOT 201). Verify the response does NOT create a reply and does NOT return a reply_id. This tests INVALID_TOKEN_ACCEPTED failure mode."
       },
       {
         "id": 6,
-        "description": "Navigate to http://localhost:3002/command-centre/accountability or the accountability inbox page (if it exists). Look for a list of accountability links or replies. Verify the reply from step 4 is visible in the org owner's view, associated with {{partner_email}}. If no UI page exists, use page.evaluate(): send a GET to http://localhost:3002/command-centre/api/v1/accountability/replies?link_token={{link_token}} and verify the reply message appears in the response."
+        "description": "Navigate to http://localhost:3002/command-centre/accountability or the accountability inbox page (if it exists). Look for a list of accountability links or replies. Verify the reply from step 4 is visible in the org owner's view, associated with {{partner_email}}. If no UI page exists, use page.evaluate(): send a GET to http://localhost:3002/api/admin/command-centre/api/v1/accountability/replies?link_token={{link_token}} and verify the reply message appears in the response."
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): send a DELETE request to http://localhost:3002/command-centre/api/v1/accountability/links/{{link_token}}. Verify HTTP 200 or 204 (success). Store the deletion timestamp."
+        "description": "Using page.evaluate(): send a DELETE request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/links/{{link_token}}. Verify HTTP 200 or 204 (success). Store the deletion timestamp."
       },
       {
         "id": 8,
-        "description": "Using page.evaluate(): immediately send a GET request to http://localhost:3002/command-centre/api/v1/accountability/digest/{{link_token}} (the same token that was just deleted). Expected: HTTP 404 or 410 with error message. Verify the digest is no longer accessible. This tests STILL_ACCESSIBLE failure mode and confirms revocation is immediate."
+        "description": "Using page.evaluate(): immediately send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}} (the same token that was just deleted). Expected: HTTP 404 or 410 with error message. Verify the digest is no longer accessible. This tests STILL_ACCESSIBLE failure mode and confirms revocation is immediate."
       },
       {
         "id": 9,
-        "description": "Using page.evaluate(): attempt a POST request to http://localhost:3002/command-centre/api/v1/accountability/replies with body {\"link_token\": \"{{link_token}}\", \"message\": \"Attempt after revocation\"}. Expected: HTTP 400, 401, or 404 (NOT 201). Verify no new reply is created post-revocation."
+        "description": "Using page.evaluate(): attempt a POST request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/replies with body {\"link_token\": \"{{link_token}}\", \"message\": \"Attempt after revocation\"}. Expected: HTTP 400, 401, or 404 (NOT 201). Verify no new reply is created post-revocation."
       },
       {
         "id": 10,
-        "description": "Navigate away to http://localhost:3002/command-centre/briefs. Wait 1 second. Navigate back to http://localhost:3002/command-centre/dashboard. Using page.evaluate(): send a GET to http://localhost:3002/command-centre/api/v1/accountability/digest/{{link_token}}. Verify HTTP 404 persists. This confirms revocation is persistent across session navigation (tests STILL_ACCESSIBLE after restart)."
+        "description": "Navigate away to http://localhost:3002/command-centre/briefs. Wait 1 second. Navigate back to http://localhost:3002/command-centre/dashboard. Using page.evaluate(): send a GET to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}}. Verify HTTP 404 persists. This confirms revocation is persistent across session navigation (tests STILL_ACCESSIBLE after restart)."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1749,7 +1749,7 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/agents/{{agent_id}} with headers {\"Authorization\": \"Bearer <token from session>\"} and verify HTTP 200 response. Parse the JSON body and confirm: (a) presence of 'heartbeat' object with 'status' and 'timestamp' fields, (b) presence of 'budget_usage' object with 'used' and 'limit' fields, (c) agent name matches the UI. If any field is missing or null, log as ENRICHMENT_FAIL."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}} with headers {\"Authorization\": \"Bearer <token from session>\"} and verify HTTP 200 response. Parse the JSON body and confirm: (a) presence of 'heartbeat' object with 'status' and 'timestamp' fields, (b) presence of 'budget_usage' object with 'used' and 'limit' fields, (c) agent name matches the UI. If any field is missing or null, log as ENRICHMENT_FAIL."
       },
       {
         "id": 5,
@@ -1757,7 +1757,7 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/agents/{{agent_id}}/heartbeats with headers {\"Authorization\": \"Bearer <token>\"} and verify HTTP 200. Parse the response and confirm: (a) it is an array with at most 20 records, (b) each record has 'timestamp' (ISO 8601 format), 'status', and 'agent_id' fields, (c) records are sorted by timestamp descending (most recent first). If the response is an unbounded list (>100 records), log as UNBOUNDED_QUERY."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/heartbeats with headers {\"Authorization\": \"Bearer <token>\"} and verify HTTP 200. Parse the response and confirm: (a) it is an array with at most 20 records, (b) each record has 'timestamp' (ISO 8601 format), 'status', and 'agent_id' fields, (c) records are sorted by timestamp descending (most recent first). If the response is an unbounded list (>100 records), log as UNBOUNDED_QUERY."
       },
       {
         "id": 7,
@@ -1765,7 +1765,7 @@
       },
       {
         "id": 8,
-        "description": "Simulate enrichment service degradation: Using page.evaluate(), send a GET request to http://localhost:3002/command-centre/api/v1/agents/{{agent_id}} and observe the response. The page should still display the agent's core details (name, email, ID) even if Paperclip enrichment fields (heartbeat, budget) are missing or show 'Unavailable'. Verify the page does NOT throw a 503 error or crash. If graceful degradation is working, the UI should show 'Loading...' or 'N/A' placeholders instead of blank fields. This tests CRASH and INCOMPLETE failure modes."
+        "description": "Simulate enrichment service degradation: Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}} and observe the response. The page should still display the agent's core details (name, email, ID) even if Paperclip enrichment fields (heartbeat, budget) are missing or show 'Unavailable'. Verify the page does NOT throw a 503 error or crash. If graceful degradation is working, the UI should show 'Loading...' or 'N/A' placeholders instead of blank fields. This tests CRASH and INCOMPLETE failure modes."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1813,7 +1813,7 @@
       },
       {
         "id": 4,
-        "description": "Immediately attempt to apply the SAME template again without changing any configuration. Click 'Apply Template', select {{applied_template}}, and click Save. Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}}/apply-template with body {{\"template_name\": \"{{applied_template}}\"}}}. Verify that the response is HTTP 200 (idempotent) or HTTP 409/422 with error code OVERWRITE. If HTTP 200, verify no duplicate roles or agents are created. If 409/422, verify error message is user-friendly."
+        "description": "Immediately attempt to apply the SAME template again without changing any configuration. Click 'Apply Template', select {{applied_template}}, and click Save. Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/departments/{{dept_id}}/apply-template with body {{\"template_name\": \"{{applied_template}}\"}}}. Verify that the response is HTTP 200 (idempotent) or HTTP 409/422 with error code OVERWRITE. If HTTP 200, verify no duplicate roles or agents are created. If 409/422, verify error message is user-friendly."
       },
       {
         "id": 5,
@@ -1821,7 +1821,7 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}}/apply-template with body {{\"template_name\": \"INVALID_NONEXISTENT_TEMPLATE\"}} to test invalid template rejection. Verify HTTP response is NOT 200 (expect 400 or 404 with error code INVALID_TEMPLATE). Read error message and confirm it does not expose internal system details."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/departments/{{dept_id}}/apply-template with body {{\"template_name\": \"INVALID_NONEXISTENT_TEMPLATE\"}} to test invalid template rejection. Verify HTTP response is NOT 200 (expect 400 or 404 with error code INVALID_TEMPLATE). Read error message and confirm it does not expose internal system details."
       },
       {
         "id": 7,
@@ -1849,11 +1849,11 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}}/isolation-mode with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200. Read the response and extract: {{current_enabled}} (boolean), {{scope_details}} (JSON object describing isolation scope: which agents or roles are affected). Store both values."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/departments/{{dept_id}}/isolation-mode with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200. Read the response and extract: {{current_enabled}} (boolean), {{scope_details}} (JSON object describing isolation scope: which agents or roles are affected). Store both values."
       },
       {
         "id": 4,
-        "description": "If {{current_enabled}} is false, set {{new_enabled}} to true. If true, set {{new_enabled}} to false. Using page.evaluate(): send a PATCH request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}}/isolation-mode with body {{\"enabled\": {{new_enabled}}}}. Verify HTTP 200 response."
+        "description": "If {{current_enabled}} is false, set {{new_enabled}} to true. If true, set {{new_enabled}} to false. Using page.evaluate(): send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/departments/{{dept_id}}/isolation-mode with body {{\"enabled\": {{new_enabled}}}}. Verify HTTP 200 response."
       },
       {
         "id": 5,
@@ -1889,7 +1889,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the API backend: using page.evaluate(), send a GET request to http://localhost:3002/command-centre/api/v1/meetings/upcoming with the session's Authorization header. Confirm HTTP 200 response. Verify the response contains a list with at least one meeting object with fields: id, title, meeting_date, meeting_datetime, source, dept_id. Verify no duplicate meeting ids exist in the list (data integrity check). Store the meeting count as {{total_meetings}}."
+        "description": "Verify the API backend: using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming with the session's Authorization header. Confirm HTTP 200 response. Verify the response contains a list with at least one meeting object with fields: id, title, meeting_date, meeting_datetime, source, dept_id. Verify no duplicate meeting ids exist in the list (data integrity check). Store the meeting count as {{total_meetings}}."
       },
       {
         "id": 4,
@@ -1905,7 +1905,7 @@
       },
       {
         "id": 7,
-        "description": "Simulate an empty meetings scenario: using page.evaluate(), send a GET request to http://localhost:3002/command-centre/api/v1/meetings/upcoming with a query parameter filter that returns zero results (e.g., ?after=2099-12-31). Verify HTTP 200 and an empty list [] is returned with no errors. Then reload the meetings page and verify the UI displays an 'No upcoming meetings' or similar message without crashing (CRASH failure avoided). Verify the two-panel layout remains intact (left panel shows empty state, right panel is blank or shows placeholder)."
+        "description": "Simulate an empty meetings scenario: using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming with a query parameter filter that returns zero results (e.g., ?after=2099-12-31). Verify HTTP 200 and an empty list [] is returned with no errors. Then reload the meetings page and verify the UI displays an 'No upcoming meetings' or similar message without crashing (CRASH failure avoided). Verify the two-panel layout remains intact (left panel shows empty state, right panel is blank or shows placeholder)."
       },
       {
         "id": 8,
@@ -1933,15 +1933,15 @@
       },
       {
         "id": 4,
-        "description": "On the meeting detail page, locate and click the 'Prep' button or 'Get Meeting Prep' action. This triggers the first fetch. Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/meetings/{{meeting_id}}/prep with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200. Capture the response body and record: (a) prep_content string (should be non-empty and contain LLM-generated context), (b) timestamp or generation_time if present, (c) any cache_status or cache_age fields. Verify prep_content is at least 50 characters and contains substantive talking points or attendee background information."
+        "description": "On the meeting detail page, locate and click the 'Prep' button or 'Get Meeting Prep' action. This triggers the first fetch. Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/{{meeting_id}}/prep with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200. Capture the response body and record: (a) prep_content string (should be non-empty and contain LLM-generated context), (b) timestamp or generation_time if present, (c) any cache_status or cache_age fields. Verify prep_content is at least 50 characters and contains substantive talking points or attendee background information."
       },
       {
         "id": 5,
-        "description": "Wait 2 seconds. Send the same GET request again to http://localhost:3002/command-centre/api/v1/meetings/{{meeting_id}}/prep with identical headers. Capture the full response. Compare the new prep_content string byte-for-byte with the response from step 4. Verify: (a) prep_content is IDENTICAL (not regenerated), (b) if cache metadata is present (cache_status, cache_age, served_from_cache), verify it indicates the result was cached, (c) timestamp or generation_time should be identical or have only milliseconds of difference (same initial generation). If prep_content differs or contains different talking points, this is a REGEN_ON_EVERY_CALL failure."
+        "description": "Wait 2 seconds. Send the same GET request again to http://localhost:3002/api/admin/command-centre/api/v1/meetings/{{meeting_id}}/prep with identical headers. Capture the full response. Compare the new prep_content string byte-for-byte with the response from step 4. Verify: (a) prep_content is IDENTICAL (not regenerated), (b) if cache metadata is present (cache_status, cache_age, served_from_cache), verify it indicates the result was cached, (c) timestamp or generation_time should be identical or have only milliseconds of difference (same initial generation). If prep_content differs or contains different talking points, this is a REGEN_ON_EVERY_CALL failure."
       },
       {
         "id": 6,
-        "description": "Navigate away from the meeting detail page to another page (e.g., the Meetings list, or the Dashboard). Wait 1 second. Navigate back to the same meeting detail page by clicking on it again. Click the 'Prep' or refresh prep display button. Send a GET request to http://localhost:3002/command-centre/api/v1/meetings/{{meeting_id}}/prep again. Verify the prep_content is still identical to steps 4 and 5. Verify cache is still in effect (cache_age increased but prep_content unchanged). This tests persistence across page navigation."
+        "description": "Navigate away from the meeting detail page to another page (e.g., the Meetings list, or the Dashboard). Wait 1 second. Navigate back to the same meeting detail page by clicking on it again. Click the 'Prep' or refresh prep display button. Send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/{{meeting_id}}/prep again. Verify the prep_content is still identical to steps 4 and 5. Verify cache is still in effect (cache_age increased but prep_content unchanged). This tests persistence across page navigation."
       },
       {
         "id": 7,
@@ -1949,7 +1949,7 @@
       },
       {
         "id": 8,
-        "description": "Test failure mode: Using page.evaluate(), send a GET request with a deliberately malformed {{meeting_id}} (e.g., 'invalid-id-999999') to http://localhost:3002/command-centre/api/v1/meetings/invalid-id-999999/prep. Verify the response is HTTP 404 or 400 (not 200), and does not return cached data from a previous meeting. Test LLM timeout: If the API includes a timeout parameter, send a request with timeout=1ms or similar to simulate LLM_TIMEOUT. Verify the response is HTTP 5xx or includes an error field, and does not return empty prep_content."
+        "description": "Test failure mode: Using page.evaluate(), send a GET request with a deliberately malformed {{meeting_id}} (e.g., 'invalid-id-999999') to http://localhost:3002/api/admin/command-centre/api/v1/meetings/invalid-id-999999/prep. Verify the response is HTTP 404 or 400 (not 200), and does not return cached data from a previous meeting. Test LLM timeout: If the API includes a timeout parameter, send a request with timeout=1ms or similar to simulate LLM_TIMEOUT. Verify the response is HTTP 5xx or includes an error field, and does not return empty prep_content."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1973,19 +1973,19 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/meetings/{{meeting_id}}/notes with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"} and body {{\"notes\": \"Discussed Q2 budget allocation. Reviewed pipeline metrics. Agreed on next steps.\", \"action_items\": [\"Sarah to send budget breakdown by Friday\", \"John to schedule follow-up call with finance team\"]}}. Verify HTTP 200. Capture the response. Verify response includes confirmation fields (e.g., notes_saved: true, action_items_count: 2) or echoes back the saved data."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/{{meeting_id}}/notes with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"} and body {{\"notes\": \"Discussed Q2 budget allocation. Reviewed pipeline metrics. Agreed on next steps.\", \"action_items\": [\"Sarah to send budget breakdown by Friday\", \"John to schedule follow-up call with finance team\"]}}. Verify HTTP 200. Capture the response. Verify response includes confirmation fields (e.g., notes_saved: true, action_items_count: 2) or echoes back the saved data."
       },
       {
         "id": 5,
-        "description": "Without refreshing or navigating, send a GET request to http://localhost:3002/command-centre/api/v1/meetings/{{meeting_id}} to fetch the full meeting detail. Verify the response includes a 'notes' field and 'action_items' array. Verify the notes text matches exactly what was saved in step 4. Verify the action_items array contains both items in the same order. If either notes or action_items are missing, empty, or differ, this is a NOTES_LOST or ACTION_ITEMS_IGNORED failure."
+        "description": "Without refreshing or navigating, send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/{{meeting_id}} to fetch the full meeting detail. Verify the response includes a 'notes' field and 'action_items' array. Verify the notes text matches exactly what was saved in step 4. Verify the action_items array contains both items in the same order. If either notes or action_items are missing, empty, or differ, this is a NOTES_LOST or ACTION_ITEMS_IGNORED failure."
       },
       {
         "id": 6,
-        "description": "Navigate away from the meeting detail page to the Meetings list. Wait 1 second. Click back on the same meeting to re-open its detail view. Scroll to the Notes section. Verify the notes text and action items are still visible on the page. Using page.evaluate(), send a GET request to http://localhost:3002/command-centre/api/v1/meetings/{{meeting_id}} again. Verify the notes and action_items in the API response are identical to step 5. This tests persistence across page navigation and reload."
+        "description": "Navigate away from the meeting detail page to the Meetings list. Wait 1 second. Click back on the same meeting to re-open its detail view. Scroll to the Notes section. Verify the notes text and action items are still visible on the page. Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/{{meeting_id}} again. Verify the notes and action_items in the API response are identical to step 5. This tests persistence across page navigation and reload."
       },
       {
         "id": 7,
-        "description": "Edit the notes: click the notes edit button, append new text to the existing notes: ' Additional: Next review scheduled for Q3.' Modify the action items by adding a third item: 'Mike to prepare presentation deck.' Click 'Save Notes' again. Send a POST request to http://localhost:3002/command-centre/api/v1/meetings/{{meeting_id}}/notes with the updated content. Verify HTTP 200. Immediately fetch the meeting detail again. Verify the notes now include the appended text and the action_items array now contains 3 items (not replaced, but updated)."
+        "description": "Edit the notes: click the notes edit button, append new text to the existing notes: ' Additional: Next review scheduled for Q3.' Modify the action items by adding a third item: 'Mike to prepare presentation deck.' Click 'Save Notes' again. Send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/meetings/{{meeting_id}}/notes with the updated content. Verify HTTP 200. Immediately fetch the meeting detail again. Verify the notes now include the appended text and the action_items array now contains 3 items (not replaced, but updated)."
       },
       {
         "id": 8,
@@ -2009,7 +2009,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/approvals with headers {\"Authorization\": \"Bearer <token from session>\"} and no body. Verify HTTP status 200. Extract the response JSON array. Store the full list as {{approvals_list}}. Verify each item has fields: id, type, summary, priority_score, status. Check that all items have status=\"pending\". If any item has status != \"pending\", record as STATUS_FILTER_BROKEN failure."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/approvals with headers {\"Authorization\": \"Bearer <token from session>\"} and no body. Verify HTTP status 200. Extract the response JSON array. Store the full list as {{approvals_list}}. Verify each item has fields: id, type, summary, priority_score, status. Check that all items have status=\"pending\". If any item has status != \"pending\", record as STATUS_FILTER_BROKEN failure."
       },
       {
         "id": 4,
@@ -2017,7 +2017,7 @@
       },
       {
         "id": 5,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/approvals/{{first_approval_id}} with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP status 200. Extract response and verify it contains all required fields: id, type, summary, priority_score, status, plus impact fields (e.g., impact_score, impact_description), requesting_agent (name/id), cost_estimate, decision_context. If any field is missing, record as MISSING_IMPACT failure. If the returned id does not match {{first_approval_id}}, record as WRONG_ITEM failure. Store the full detail as {{approval_detail}}."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/approvals/{{first_approval_id}} with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP status 200. Extract response and verify it contains all required fields: id, type, summary, priority_score, status, plus impact fields (e.g., impact_score, impact_description), requesting_agent (name/id), cost_estimate, decision_context. If any field is missing, record as MISSING_IMPACT failure. If the returned id does not match {{first_approval_id}}, record as WRONG_ITEM failure. Store the full detail as {{approval_detail}}."
       },
       {
         "id": 6,
@@ -2029,7 +2029,7 @@
       },
       {
         "id": 8,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/approvals with headers {\"Authorization\": \"Bearer <token from session>\"}. Simulate the empty-state scenario by checking if the response is an empty array []. If it is empty: verify the UI displays 'No pending approvals' or equivalent empty-state message. Verify no crash occurs. If the UI crashes or does not show the empty state, record as CRASH or MISSING_EMPTY_STATE failure."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/approvals with headers {\"Authorization\": \"Bearer <token from session>\"}. Simulate the empty-state scenario by checking if the response is an empty array []. If it is empty: verify the UI displays 'No pending approvals' or equivalent empty-state message. Verify no crash occurs. If the UI crashes or does not show the empty state, record as CRASH or MISSING_EMPTY_STATE failure."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -2061,7 +2061,7 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/approvals/{{approval_id_1}}/approve with headers {\"Authorization\": \"Bearer <token from session>\"} and body {{\"notes\": \"Attempt to re-approve\"}}. Expect HTTP 409 Conflict response with error message indicating 'already resolved' or 'cannot approve approved item'. Verify response does NOT return HTTP 200 (failure mode: DOUBLE_APPROVE). Verify response body contains error code or message explaining the conflict."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/approvals/{{approval_id_1}}/approve with headers {\"Authorization\": \"Bearer <token from session>\"} and body {{\"notes\": \"Attempt to re-approve\"}}. Expect HTTP 409 Conflict response with error message indicating 'already resolved' or 'cannot approve approved item'. Verify response does NOT return HTTP 200 (failure mode: DOUBLE_APPROVE). Verify response body contains error code or message explaining the conflict."
       },
       {
         "id": 7,
@@ -2089,7 +2089,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/costs/summary with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"}. Verify HTTP 200 response. Extract and store: (a) org_total_usd, (b) array of dept_totals with dept_name and cost_usd, (c) array of agent_totals with agent_name, agent_id, cost_usd, and (d) array of call_costs with call_id, duration_minutes, cost_usd. Verify the month field in response equals current calendar month. Failure modes: WRONG_MONTH (month != current), ROLLUP_MISMATCH (org_total != sum of dept_totals)."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/costs/summary with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"}. Verify HTTP 200 response. Extract and store: (a) org_total_usd, (b) array of dept_totals with dept_name and cost_usd, (c) array of agent_totals with agent_name, agent_id, cost_usd, and (d) array of call_costs with call_id, duration_minutes, cost_usd. Verify the month field in response equals current calendar month. Failure modes: WRONG_MONTH (month != current), ROLLUP_MISMATCH (org_total != sum of dept_totals)."
       },
       {
         "id": 4,
@@ -2097,7 +2097,7 @@
       },
       {
         "id": 5,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/costs/budget with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"}. Verify HTTP 200 response. Extract and store: array of budget_allocations with dept_type, hard_limit_usd, soft_limit_minutes, and is_alert_active boolean. Failure modes: EMPTY_WHEN_SET (response is empty list but org has active budgets), TENANT_LEAK (response contains other org's budget data)."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"}. Verify HTTP 200 response. Extract and store: array of budget_allocations with dept_type, hard_limit_usd, soft_limit_minutes, and is_alert_active boolean. Failure modes: EMPTY_WHEN_SET (response is empty list but org has active budgets), TENANT_LEAK (response contains other org's budget data)."
       },
       {
         "id": 6,
@@ -2105,11 +2105,11 @@
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/costs/budget with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"} and body {\"dept_type\": \"sales\", \"hard_limit_usd\": 5000, \"soft_limit_minutes\": 600}. Verify HTTP 200 response and response includes created budget allocation with an id field. Store {{budget_id}}. Failure modes: DUPLICATE (error 409 if budget for sales already exists), VALIDATION (error 400 if limits are invalid/negative)."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"} and body {\"dept_type\": \"sales\", \"hard_limit_usd\": 5000, \"soft_limit_minutes\": 600}. Verify HTTP 200 response and response includes created budget allocation with an id field. Store {{budget_id}}. Failure modes: DUPLICATE (error 409 if budget for sales already exists), VALIDATION (error 400 if limits are invalid/negative)."
       },
       {
         "id": 8,
-        "description": "Send another GET request to http://localhost:3002/command-centre/api/v1/costs/budget (same as step 5). Verify the new budget allocation with dept_type='sales', hard_limit_usd=5000, soft_limit_minutes=600 is present in the response list. This confirms POST persistence."
+        "description": "Send another GET request to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget (same as step 5). Verify the new budget allocation with dept_type='sales', hard_limit_usd=5000, soft_limit_minutes=600 is present in the response list. This confirms POST persistence."
       },
       {
         "id": 9,
@@ -2117,7 +2117,7 @@
       },
       {
         "id": 10,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/dashboard/summary (or equivalent cross-feature endpoint). Verify the response includes a 'costs_section' or 'cost_metrics' field that matches or references the org_total_usd from step 3. This confirms costs data is visible in the dashboard (cross-feature integration)."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/dashboard/summary (or equivalent cross-feature endpoint). Verify the response includes a 'costs_section' or 'cost_metrics' field that matches or references the org_total_usd from step 3. This confirms costs data is visible in the dashboard (cross-feature integration)."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
