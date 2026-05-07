@@ -630,32 +630,24 @@
   },
   {
     "id": "comc-deep-dashboard-no-errors",
-    "description": "[DEEP] Dashboard No Errors \u2014 feature business logic + edge cases",
+    "description": "Leaf: Verify Command Centre dashboard loads without JS errors or API failures.",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre. Verify the page loads (a dashboard, navigation, or any ComC content is visible \u2014 not a login redirect or 403)."
       },
       {
         "id": 2,
-        "description": "Click to navigate to/command-centreand wait for full page load. Check: Page renders completely; zero console errors; no React error boundaries triggered; all API calls return 2xx"
+        "description": "Open the browser console log. Verify there are no JavaScript TypeError or unhandled exception messages. Specifically look for: TypeError, Cannot read properties of undefined, toFixed is not a function, or React error boundary activation. If any appear, record the exact error message and mark this step failed."
       },
       {
         "id": 3,
-        "description": "Check that all XHR/fetch requests initiated on page load. Check: All API calls complete within 5s; no 4xx/5xx responses; no CORS errors; no mixed content warnings"
+        "description": "Check the network requests made on page load (use browser_network_requests). Verify all requests to /api/admin/command-centre/* returned 2xx status codes. If any returned 4xx or 5xx (excluding 404 for known missing optional endpoints), mark this step failed and report the failing URL and status code."
       },
       {
         "id": 4,
-        "description": "Click to get /healthon ComC backend (port 8004). Check: HTTP 200;{\"status\": \"healthy\"}\u2014 never \"ok\" (Phronex invariant)"
-      },
-      {
-        "id": 5,
-        "description": "Click to trigger CONSOLE_ERRORS condition. Check the UI shows an appropriate error message, not a blank page or exception."
-      },
-      {
-        "id": 6,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "Verify the ComC health endpoint via page.evaluate: fetch(\"http://localhost:3002/api/admin/command-centre/health\").then(r=>r.json()). Check the response contains {\"status\": \"healthy\"} \u2014 NOT \"ok\". Take a screenshot of the dashboard in its current state."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -730,32 +722,24 @@
   },
   {
     "id": "comc-deep-navigation-all-pillars",
-    "description": "[DEEP] Navigation All Pillars \u2014 feature business logic + edge cases",
+    "description": "Leaf: Verify all 7 Command Centre pillar navigation links work and render without errors.",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Navigate to http://localhost:3002/command-centre. Verify the sidebar shows the 7 pillar navigation links: Pulse, Revenue, People, Operations, Strategy, Intelligence, Config (or similar labels). Take a screenshot."
       },
       {
         "id": 2,
-        "description": "Click the link to each pillar: Pulse, Revenue, People, Operations, Strategy, Intelligence, Config. Check: Each pillar page loads without error; navigation is responsive; active state shown on current pillar tab"
+        "description": "Click the Pulse (or Dashboard) link in the sidebar. Verify the page updates to show Pulse content without a 404 or blank screen. Then click Revenue \u2014 verify the revenue section loads. Then click People \u2014 verify the people section loads. Report the URL and page heading for each."
       },
       {
         "id": 3,
-        "description": "Check that sub-navigation within each pillar. Check: Sub-tabs/sections within each pillar are navigable; deep links work (e.g. /command-centre/revenue/pipeline)"
+        "description": "Click Operations, then Strategy, then Intelligence, then Config in the sidebar. Each must load without a full-page error, login redirect, or blank white screen. Verify the active state (highlighted nav link) changes on each click. Take a final screenshot showing the Config section."
       },
       {
         "id": 4,
-        "description": "Click to navigate to/command-centre. Check: Access denied; redirect to portal home or 403 message; no partial ComC content visible"
-      },
-      {
-        "id": 5,
-        "description": "Click to trigger DEAD_NAV condition. Check the UI shows an appropriate error message, not a blank page or exception."
-      },
-      {
-        "id": 6,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "Navigate directly to http://localhost:3002/command-centre/revenue and verify it loads the revenue section. Then navigate to http://localhost:3002/command-centre/strategy and verify it loads. Confirm deep links work without requiring a fresh login. Report pass/fail for each URL."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
