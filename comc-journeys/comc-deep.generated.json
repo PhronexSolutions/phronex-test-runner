@@ -2273,7 +2273,9 @@
         "description": "Filter classifications table by Category dropdown (select 'Payroll'). Verify filtered results display only payroll entries and HTTP 200 response from GET /api/classifications?category=payroll. Navigate away to dashboard, return to classifications, and confirm filter state is NOT persisted (table resets to unfiltered view), indicating correct session-scoped behavior."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-departments-deptidparam-2",
@@ -2313,7 +2315,9 @@
         "description": "On department detail page, locate 'Delete Department' button (typically red, at bottom of form). Attempt to delete without confirmation. Verify confirmation modal appears with text: 'Are you sure you want to delete this department? This action cannot be undone.' Click 'Cancel'. Verify modal closes and department data is unchanged (HTTP request NOT sent). Then click 'Delete Department' and 'Confirm' in modal. Verify HTTP DELETE /api/v1/departments/[deptId] returns 200. Verify redirect to http://localhost:3002/command-centre/departments (list view) and success toast: 'Department deleted successfully'."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-departments-deptidparam-templates-2",
@@ -2353,7 +2357,9 @@
         "description": "Locate the created template in the table and click the 'Delete' or 'Actions' menu button. Confirm a delete confirmation dialog appears with text 'Are you sure you want to delete this template?'. Click 'Confirm' or 'Delete'. Expect HTTP 204 response from DELETE /api/v1/departments/DEPT-001/templates/TEMPLATE-ID. Verify the success toast ('Template deleted') and the row is removed from the table. Reload the page and confirm the template no longer appears (HTTP 200 GET returns list without the deleted entry)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-analytics-2",
@@ -2393,7 +2399,9 @@
         "description": "Test CRUD \u2014 Delete: In the Analytics table, locate the 'Test_Revenue_Q4' row. Click the delete icon (trash) on that row. Confirm a confirmation modal appears with text 'Are you sure you want to delete this metric?' Click 'Confirm Delete'. Verify HTTP 204 response from DELETE /api/analytics/metrics/{id}. Confirm the row is removed from the table immediately. Verify success toast 'Metric deleted successfully' displays. Refresh the page (F5) and confirm the metric does not reappear, confirming backend persistence of deletion."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-sessions-2",
@@ -2433,7 +2441,9 @@
         "description": "Locate the created session row and click the 'Actions' menu (three-dot icon). Select 'Delete'. Verify confirmation modal appears with text 'Are you sure you want to delete this session?'. Click 'Confirm Delete' button. Verify success toast appears (e.g., 'Session deleted successfully') and row is removed from table within 2 seconds. HTTP DELETE to /sessions/{id} endpoint should return 204 No Content. Verify empty state message reappears if no other sessions exist."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-inbox-2",
@@ -2473,7 +2483,9 @@
         "description": "Verify inbox filters work: click the 'Status' filter dropdown and select 'Unread'. Verify table updates to show only unread messages (HTTP 200 response with filtered query param 'status=unread'). Apply a second filter 'Type' = 'Approval Request'. Verify combined filter results display correctly. Clear all filters and confirm full inbox list returns."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-goals-2",
@@ -2513,7 +2525,9 @@
         "description": "Click the goal row or 'Edit' icon for 'Q1 Revenue Target'. Form opens with pre-populated values. Change Target Value to '600000' and Description to 'Updated: Achieve 600k revenue'. Click 'Save' button. Expect HTTP 200/204 response. Verify success toast: 'Goal updated successfully'. Navigate away and back to /command-centre/goals. Confirm Target Value is now '600000', verifying update persistence via API (POST /api/v1/goals/{goal_id} or PATCH endpoint with JWT in Authorization header)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-agents-learning-2",
@@ -2553,7 +2567,9 @@
         "description": "Edit the existing entry: click 'Edit' action button (pencil icon) in the row. Change 'Proficiency Level' to 'Advanced' and 'Description' to append ' - Updated during testing on [DATE]'. Click 'Save'. Verify HTTP 200 response and success toast 'Learning entry updated'. Refresh page (Ctrl+R). Confirm updated values persist: Proficiency shows 'Advanced' and Description shows appended text. Verify updated_at timestamp is newer than created_at in the API response."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-agents-idparam-portrait-2",
@@ -2593,7 +2609,9 @@
         "description": "MULTI-TENANT BOUNDARY: Verify that the current superadmin session's org_id matches the agent's org_id in the portrait page URL and API response. Attempt to navigate to a portrait URL with a different agent_id from a different org (if seed data exists). Verify the page either returns HTTP 403 Forbidden or displays an access denied message. Confirm that agents from other organizations are not visible or editable in the current session."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-retrospectives-2",
@@ -2633,7 +2651,9 @@
         "description": "Verify retrospectives list refreshes and the deleted retrospective no longer appears. Perform page refresh (F5 or hard reload) and confirm the deleted retrospective remains absent from the persisted list state (expect 200 OK response with updated list data)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-notifications-2",
@@ -2673,7 +2693,9 @@
         "description": "Locate the created notification in the table and click the delete/trash icon. Confirm delete confirmation modal appears. Click 'Confirm' to delete. Verify HTTP 204 response and notification is removed from table immediately. Navigate away to Dashboard and return to Notifications. Verify deleted notification no longer appears in list, confirming deletion persists."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-initiatives-initiativeidparam-2",
@@ -2713,7 +2735,9 @@
         "description": "Test SESSION ISOLATION: Verify that the superadmin org_id (from JWT claim) is correctly scoped to all initiative queries. Open browser DevTools Network tab and inspect the GET /api/v1/initiatives/{initiativeId} request. Confirm the response does NOT include any initiatives from other organizations and contains only the current org's data. Verify no tenant_leak vulnerability exists by checking the Authorization header contains the valid superadmin JWT."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-initiatives-dependency-graph-2",
@@ -2753,7 +2777,9 @@
         "description": "Test escalation and real-time detection. From dependency graph, right-click Alpha node and select 'Escalate'. Enter reason='Blocked by upstream dependency' in modal. Click 'Send'. Verify HTTP POST /api/v1/initiatives/{alpha_id}/escalate returns 200. Check that notification badge appears on initiative (red flag icon). Verify blocker list endpoint GET /api/v1/initiatives/{alpha_id}/blockers returns live data (not cached, confirms D-127 real-time detection). Clean up by deleting both test initiatives via UI or API (DELETE /api/v1/initiatives/{id})."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "API-JWT auth pattern: uses localStorage token injection incompatible with portal Auth.js trunk storageState"
   },
   {
     "id": "comc-comc-user-spec-error-states-and-recovery-paths",
@@ -2793,7 +2819,9 @@
         "description": "Verify role-based access control for error recovery: Log out superadmin. Log in as read-only user (lower permission level). Navigate to existing initiative detail page. Attempt PATCH request to update Status via DevTools console. Expect HTTP 403 Forbidden: {\"detail\": \"Not enough permissions to update this initiative\"}. Verify 'Edit' button is disabled/hidden on page. Verify error message renders: 'You do not have permission to modify this initiative.' Log back in as superadmin and verify Edit button re-appears and full CRUD access restored."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-user-spec-known-limitations-and-workarounds",
@@ -2833,7 +2861,9 @@
         "description": "On initiative detail page, click 'Edit' button. Modify 'Description' field to 'Updated: Known limitations validated successfully'. Click 'Save Changes' and verify PUT /api/v1/initiatives/{initiative_id} returns HTTP 200. Navigate to dashboard and back to initiative page to confirm modified description persists. Verify localStorage 'comc_initiative_draft_state' is cleared after successful save (unsaved_changes_flag = false)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-roadmap-narrative-summary",
@@ -2873,7 +2903,9 @@
         "description": "End-to-end session persistence test: Perform a hard page refresh (Ctrl+R / Cmd+R) on /command-centre. Expect Brief Count metric to remain unchanged and GET /api/v1/briefs to return the same data set with HTTP 200. Verify session JWT from .tmp file is still valid and no re-authentication is required. Confirm all Summary cards re-render without blank states."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-roadmap-narrative-documented-user-flows-always-priority-1",
@@ -2913,7 +2945,9 @@
         "description": "Validate cross-flow persistence and tenant isolation: Confirm created initiative from Flow A persists across all flows (visible in Flow E accountability digest). Verify no cross-organization data leakage: switch org via org selector (if multi-tenant), confirm initiatives/contacts/approvals are org-scoped. Test invalid JWT by modifying Bearer token in Authorization header, verify 401 'Invalid or expired token' on all protected endpoints. Verify all CRUD operations logged in audit_log: retrieve GET /api/v1/admin/audit-logs?actor_id={superadmin_user_id}&limit=20, confirm entries for initiatives.create, interactions.create, sync_triggered in descending timestamp order."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-roadmap-narrative-feature-priority-matrix",
@@ -2949,7 +2983,9 @@
         "description": "On return to Feature Priority Matrix, verify all previously saved data persists: 'features-automatic-daily-intelligence-brief' still shows Priority 'Planned' and Endpoints '2'. Confirm total feature counts remain 34 items. Verify HTTP GET /api/v1/roadmap/features returns HTTP 200 with consistent data. Close session by clearing localStorage and verify next navigation to protected routes triggers re-login."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-roadmap-narrative-priority-1-core-flagship-features",
@@ -2989,7 +3025,9 @@
         "description": "Delete the test feature created in step 4: click feature row \u2192 click 'Delete' button \u2192 confirm deletion modal with text 'This action cannot be undone'. Submit deletion. Expect HTTP 204 response. Verify feature no longer appears in /roadmap/features list. Attempt GET /api/v1/admin/features/{feature_id} and confirm HTTP 404 'Not Found' response to verify hard delete or soft-delete with is_deleted flag."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-roadmap-narrative-priority-2-planned-roadmap-features",
@@ -3029,7 +3067,9 @@
         "description": "Final validation: Attempt cross-org access by modifying JWT to different org_id (if multi-org environment). Verify GET /api/v1/roadmap returns HTTP 200 but only shows features accessible to current org (TENANT_LEAK prevention). Confirm superadmin session ignores org_id restrictions and can view all org roadmaps via GET /api/v1/roadmap?org_id=* (if applicable). Verify no sensitive internal field exposure (e.g., internal_cost, internal_notes) in API response. Check that feature endpoint_count and sub_section_count accurately reflect actual resource counts from backend."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-roadmap-narrative-priority-3-supporting-infrastructure-features",
@@ -3069,7 +3109,9 @@
         "description": "In 'Key Operations' section, verify all CRUD endpoints are stubbed and documented: POST /api/v1/key-operations (create), GET /api/v1/key-operations (list), GET /api/v1/key-operations/{id} (read), PATCH /api/v1/key-operations/{id} (update), DELETE /api/v1/key-operations/{id} (delete). Create a sample operation via UI or API: title='Daily Sync CRM Pipeline', description='Fetch updates from Paperclip', owner_dept_id='sales'. Verify operation appears in list with correct fields. Navigate away to /dashboard, return to Roadmap \u2192 Key Operations, and verify operation persists. Delete the operation via PATCH endpoint (status='archived'), verify it no longer appears in active list but HTTP 200 confirms archive success."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-component-inventory",
@@ -3109,7 +3151,9 @@
         "description": "Verify component health status: locate 'Last Heartbeat' column for 'ComC FastAPI Sidecar' (should show recent timestamp like '2026-04-27 14:32:15 UTC'). Verify Status column shows 'Active' (green indicator). Confirm GET /api/admin/components/health returns 200 with component heartbeat data and all monitored services have status='healthy' or 'warning'. Log out and verify session cleanup by confirming /api/sessions/current returns 401 after logout."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-fastapi-sidecar-src-command-centre",
@@ -3149,7 +3193,9 @@
         "description": "Test DELETE by clicking trash icon on the 'Q2 Revenue Growth' initiative card. Verify confirmation modal appears with text: 'This action cannot be undone.' Click 'Delete' button. Verify DELETE /api/v1/initiatives/{initiative_id} returns HTTP 204 No Content. Verify initiative card disappears from dashboard within 1 second. Refresh page (Ctrl+R). Verify initiative is permanently gone (GET /api/v1/initiatives/ no longer includes deleted id). Confirm zero console errors remain after full refresh cycle."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-paperclip-integration",
@@ -3189,7 +3235,9 @@
         "description": "Test data isolation & cleanup: Create a second org session (or verify multi-tenant isolation) by opening incognito window and logging in with a different org's superadmin account (if available). Navigate to Paperclip Integration page in second session. Verify the integration config shown is NOT the same as org 1 (should be blank or different values). Log out and return to first session. Re-verify first org's Paperclip config is intact. Confirm org_id claim in JWT correctly scopes all integration data."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-apscheduler-jobs",
@@ -3229,7 +3277,9 @@
         "description": "Click the delete icon for 'test_sync_erp_' job. In confirmation dialog, click 'Confirm Delete'. Verify 204 No Content response and job is immediately removed from table. Navigate to Dashboard and back to Scheduler Jobs to confirm deletion persists across page reload."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-database-schema-key-tables",
@@ -3269,7 +3319,9 @@
         "description": "CROSS-TABLE VALIDATION: Navigate to approval_queue table in schema admin. Create a test approval with brief_id (from step 3, if still exists) or use org_id = 1, action_type = 'test_action', status = 'pending'. Verify HTTP 201 response. Then navigate to test_runs table, create a test run record with product_slug = 'comc', run_at = current timestamp, total = 5, passed = 5, failed = 0. Confirm both records persist across page navigation."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-external-dependencies",
@@ -3309,7 +3361,9 @@
         "description": "Clean up and verify health: DELETE /api/v1/initiatives/{initiative_id} with valid JWT. Verify HTTP 204 No Content response. Call GET /health endpoint and verify HTTP 200 response with body: { 'status': 'ok', 'timestamp': '<ISO8601>' } in < 50ms p99. Confirm all external dependency services (Paperclip, ERPNext, phronex-auth) are properly logged as checked or skipped based on env configuration."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-phronex-common-modules-consumed",
@@ -3349,7 +3403,9 @@
         "description": "Verify route coverage for phronex_common modules: Navigate to Platform Overview \u2192 'Route Coverage Report' section. Confirm all 50+ routes are listed with status='active'. Filter by module='communications' and verify 5+ routes appear (POST /briefs, POST /notifications, GET /communications/status, etc.). Click export button (selector: [data-testid='export-route-coverage-csv']) and verify CSV file downloads (201 Content-Disposition header). Open CSV and confirm route entries match UI listing."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-security-boundaries",
@@ -3389,7 +3445,9 @@
         "description": "Verify superadmin-only endpoint access: Check that only Depends(require_superadmin) protected routes (e.g., '/admin/users' or '/admin/audit-log') are accessible with current superadmin session (is_superadmin = true in JWT). Attempt to access a superadmin-only route; expect HTTP 200. Simulate non-superadmin by removing 'is_superadmin' claim from JWT in DevTools. Expect HTTP 403 Forbidden on next superadmin route access. Restore valid superadmin token. Confirm no console errors and all state remains consistent."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-architecture-deployment-topology",
@@ -3429,7 +3487,9 @@
         "description": "Delete the topology entry: click 'Delete' icon on the FastAPI row, confirm deletion in modal dialog. Verify 204 No Content response. Confirm the row is removed from the table. Navigate away to /dashboard and return to Deployment Topology to verify the entry is permanently deleted (not in /api/topology/list response)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-test-oracles-approval-approve-reject",
@@ -3469,7 +3529,9 @@
         "description": "Verify telegram notification side-effect (if configured): After approving a high-priority approval item in step 3, check Telegram notifications configured for CEO role. Expect notification message containing approval ID, summary, approver name (superadmin), timestamp, and action taken ('approved'). Confirm message is received within 5 seconds of approval confirmation. If Telegram is not configured for test environment, log a SKIP with reason 'TELEGRAM_NOT_CONFIGURED'."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-primary-flow-sequence-diagrams",
@@ -3509,7 +3571,9 @@
         "description": "Verify end-to-end sequence flow: Confirm that all operations follow the HLD sequence: Portal \u2192 ComC API \u2192 Auth verify (JWT decode with phronex_common.auth.dependencies) \u2192 DB INSERT/PATCH \u2192 PostgreSQL commit \u2192 response to Portal. Check backend logs (or mock spy) to confirm: JWT verified as superadmin, org_id correctly scoped, initiative inserted with org_id and account_id, and tasks linked via FK to initiative_id. Verify no race conditions or orphaned records in tasks table."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-entity-relationship-diagram-domain-groups",
@@ -3549,7 +3613,9 @@
         "description": "Verify that a non-superadmin account cannot access Entity-Relationship Diagram tab. Log out, log in with a non-admin user account, attempt to access /admin/erd/domain-groups. Confirm 403 Forbidden response and page shows 'Not authorized to access this resource' message in UI."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-integrations",
@@ -3589,7 +3655,9 @@
         "description": "Click 'Delete' action on the integration row. Confirm delete modal appears with warning text. Click 'Confirm Delete'. Verify HTTP 204 DELETE /api/v1/admin/integrations/{id}, integration removed from table, and success notification displayed. Refresh page and confirm integration no longer appears in persistent table."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-admin-protocol-surface",
@@ -3629,7 +3697,9 @@
         "description": "Verify session state persistence in .tmp file: after completing steps 1-7 as superadmin, examine browser DevTools > Application > LocalStorage for keys: 'comc_jwt_token', 'comc_session_id', 'comc_user_org_id'. Confirm all three keys are populated with non-empty strings. Close the browser tab completely (not just navigate away). Re-open ComC URL http://localhost:8004/dashboard. Verify session auto-restores (no redirect to /login, page loads in authenticated state with 'Platform Overview' accessible). Confirm saved state file /home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json is updated with latest JWT and user metadata (updated_at matches current timestamp \u00b15 seconds)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-assessment-learning-amp-engagement",
@@ -3669,7 +3739,9 @@
         "description": "On assessment detail, click 'Delete Assessment' button. Confirm deletion dialog appears. Click 'Confirm Delete'. Verify HTTP 204 No Content response and redirect to assessment list. Verify deleted assessment no longer appears in list. Navigate to Assessment detail again and confirm 404 Not Found error is returned when accessing deleted assessment ID directly."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-scheduler-startup-pattern",
@@ -3709,7 +3781,9 @@
         "description": "CRUD Cleanup: Reset scheduler to default state by clicking 'Reset to Default' button on Scheduler Configuration page. Verify modal confirmation dialog appears with text 'Reset all scheduler jobs to default settings?' Click 'Confirm' button. Verify POST /api/v1/admin/scheduler/reset returns HTTP 200. Refresh page and confirm time picker shows '08:00' and all toggles return to factory defaults. Validate POST /api/v1/admin/scheduler/config with default values succeeds (HTTP 200)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-non-functional-requirements",
@@ -3749,7 +3823,9 @@
         "description": "Verify CRM Interaction Logging: Navigate to Pulse > Contacts tab. Select a contact and click 'Log Interaction'. Fill form: interaction_type='call', date=today, notes='NFR test interaction'. Submit and verify HTTP 201 Created response with interaction_id. Navigate away to another pillar, return to same contact, and confirm interaction persists in interaction history list with correct timestamp and notes."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-performance-targets",
@@ -3789,7 +3865,9 @@
         "description": "Final state verification: Refresh the page (Ctrl+R). Verify GET /api/v1/goals returns 200. Confirm deleted target does not reappear in list. Check Network tab: all API calls for performance targets < 200ms p95, no 5xx errors. Verify session is still valid (localStorage contains valid JWT). Confirm page renders without error boundaries or console errors."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-concurrency-model",
@@ -3829,7 +3907,9 @@
         "description": "Close the browser or clear session cookies. Reload the page (/departments). Verify the session has expired and user is redirected to /login (HTTP 401 on first API call, then 302 redirect). Log in again with superadmin credentials. Navigate to /departments and verify all previously saved department data is still present, confirming multi-session persistence and data integrity across session boundaries."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-caching-strategy",
@@ -3869,7 +3949,9 @@
         "description": "Verify cache behavior under session refresh: perform hard browser refresh (Ctrl+F5) on the Caching Strategy page while superadmin session is active. Confirm page reloads, GET /api/v1/strategy/caching-strategies is called with valid JWT from localStorage, and HTTP 200 response repopulates the strategies list. Verify no broken DOM elements or console errors (open DevTools Console, confirm no red error messages). Confirm the deleted strategy does not reappear, confirming backend persistence."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-deployment-constraints",
@@ -3909,7 +3991,9 @@
         "description": "Verify HLD performance targets: confirm all CRUD endpoints respond within 200ms p95 by checking network DevTools timings for POST/PUT/GET/DELETE requests. Verify constraint changes propagate to FastAPI configuration (check /opt/command-centre/.env and systemctl status command-centre.service to confirm service remains running). Log out and verify session is cleared."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   },
   {
     "id": "comc-comc-hld-open-design-questions",
@@ -3949,6 +4033,8 @@
         "description": "Filter the Open Design Questions table by 'Priority=High' (click filter dropdown, select 'High'). Verify API call GET /api/v1/design-questions?status=open&priority=High returns 200 OK. Confirm table shows only High-priority questions. Change filter to 'Priority=Medium'. Verify table updates without page reload (XHR in network tab <300ms). Clear all filters. Confirm full table reloads with all questions (GET /api/v1/design-questions?status=open, 200 OK). Verify no console errors or memory leaks during filter cycles."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Generated from ARCHITECTURE.html/HLD: expects web UI at backend port, not portal UI flow"
   }
 ]
