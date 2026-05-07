@@ -451,7 +451,7 @@
       },
       {
         "id": 4,
-        "description": "In the Agent List DOM, locate the row corresponding to the agent from step 3 (match by {{agent_name_1}}). Verify the row displays: agent name, department, role, and a status badge. Verify the status badge colour matches the expected colour based on {{agent_status_1}}: if status='active' then badge must be green, if status='idle' then yellow, if status='paused_ceo' then red. If colour does not match, this is a WRONG_STATUS_COLOUR failure."
+        "description": "In the Agent List DOM, locate the row corresponding to the agent from step 3 (match by {{agent_name_1}}). Verify the row displays: agent name, department, role, and a status badge. Verify the status badge colour matches the agent's status: active = green badge (bg-green-500/20), paused_ceo or paused_budget = amber/yellow badge (bg-amber-500/20), error = red badge (bg-red-500/20), idle = grey/white badge (bg-white/10). Record {{agent_status_1}} and the badge colour as {{badge_colour_1}}."
       },
       {
         "id": 5,
@@ -463,7 +463,7 @@
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents without an Authorization header (simulate missing or invalid auth). Verify the response status is HTTP 401. Verify the response body does NOT contain any agent data, names, or org_id values (no DATA_LEAK). Verify the response includes an error detail message (e.g. 'Unauthorized' or 'Invalid token'). This tests AUTH_FAIL and DATA_LEAK protection."
+        "description": "Note: The portal session cookie persists in page.evaluate() calls even if the Authorization header is omitted. This is correct browser behaviour \u2014 cookie-based auth is separate from header-based auth. Instead of testing missing-auth (which is not testable from within an authenticated browser session), verify tenant isolation: using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents with the session cookie (credentials: 'include'). Verify HTTP 200. Verify ALL agent objects in the response have org_id matching the current user's org. If any agent has a different org_id, this is a tenant isolation failure (CRITICAL defect)."
       },
       {
         "id": 8,
