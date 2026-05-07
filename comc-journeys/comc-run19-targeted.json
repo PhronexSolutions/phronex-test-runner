@@ -1,0 +1,251 @@
+[
+  {
+    "id": "comc-trunk-superadmin",
+    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
+    "isSharedRoot": true,
+    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+      },
+      {
+        "id": 3,
+        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-pulse-agent-list",
+    "description": "Leaf: Verify AI agents list page shows agent cards with name, role, model, and status fields.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/agents. Verify the page loads without error."
+      },
+      {
+        "id": 2,
+        "description": "Examine the agents page: if agents are listed, verify each agent card/row displays at minimum: agent name, role/function, model (e.g. 'claude-sonnet-4-20250514'), and status (active/paused/error). Verify none of these fields show 'undefined' or are blank. If the page shows an empty state, verify it explains what agents are and how they get registered."
+      },
+      {
+        "id": 3,
+        "description": "Count the total number of agents shown. Verify the page count or list length matches what the page header claims (if it shows 'X agents' in a heading). Take a screenshot showing the agents list or empty state."
+      }
+    ]
+  },
+  {
+    "id": "comc-revenue-leads",
+    "description": "Leaf: Verify lead dossier page loads at /sales/leads with lead information.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/sales/leads. Verify the page loads without error."
+      },
+      {
+        "id": 2,
+        "description": "Verify the leads page shows either a list/table of lead dossiers (each with company name, contact, score/status) or an empty state explaining what generates leads. If leads exist, verify at least one lead shows all expected fields populated (no 'undefined' values). Take a screenshot of the leads page."
+      }
+    ]
+  },
+  {
+    "id": "comc-strategy-ethos",
+    "description": "Leaf: Verify ethos rules page loads at /ethos with rules displayed (title/description) or purpose explanation.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/ethos. Verify the page loads without error."
+      },
+      {
+        "id": 2,
+        "description": "Verify the ethos page shows organisational governance rules. Each rule should display a title and description/rationale. If rules exist, verify at least one rule has both fields populated (not 'undefined'). If no rules exist, verify an empty state explains the purpose of ethos rules (governance principles that guide AI agent behaviour). Take a screenshot."
+      }
+    ]
+  },
+  {
+    "id": "comc-biz-dept-template-apply-persistence",
+    "description": "[BEHAVIORAL] Department Outreach Templates: verify CRUD for outreach templates at /departments/[deptId]/templates \u2014 create a new template with variable placeholders, save it, verify persistence after navigation, then edit the body and confirm the version badge increments.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/departments. Wait for the departments list to load. Click on the first department in the list to open its detail page. Record the department ID from the URL (e.g. /departments/uuid-here). Store as {{dept_id}}."
+      },
+      {
+        "id": 3,
+        "description": "On the department detail page, locate the 'Templates' tab in the SubTabBar (Health / Agents / KPIs / Activity / Initiatives / Manager / Templates / Settings). Click 'Templates'. The page should navigate to /command-centre/departments/{{dept_id}}/templates and show the 'Outreach Templates' heading with a 'New Template' button."
+      },
+      {
+        "id": 4,
+        "description": "Click the 'New Template' button. A form should appear with 'Template Name' and 'Body' fields plus variable helper buttons ({{company_name}}, {{contact_name}}, etc.). Fill 'Template Name' with 'QA-Test-Template'. Click the '{{company_name}}' variable helper to insert it into the body. Add additional body text: 'Hello {{contact_name}}, this is a test template for {{company_name}}'. Submit the form by clicking 'Create Template'. Verify a success state \u2014 the new template should appear in the list on the left."
+      },
+      {
+        "id": 5,
+        "description": "Verify the created template 'QA-Test-Template' appears in the template list with a version badge (v1). Click the template to select it. Verify the editor on the right loads with the template body text and shows a 'Save' button. Take a screenshot of the template editor."
+      },
+      {
+        "id": 6,
+        "description": "Navigate away from the templates page by going back to the department detail (click browser back or navigate to /command-centre/departments/{{dept_id}}). Then click the 'Templates' tab again. Verify 'QA-Test-Template' is still listed \u2014 confirming persistence across navigation. This is the persistence check."
+      }
+    ]
+  },
+  {
+    "id": "comc-biz-notifications-lifecycle",
+    "description": "[BEHAVIORAL] Verify notification lifecycle: fetch paginated feed, mark individual notifications as read with idempotency, verify state persistence across page reload, and confirm org isolation. Tests pagination integrity, read-state persistence, and tenant boundary enforcement.",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/notifications. Wait for the page to load. Inspect the network tab to confirm a GET request was sent to /api/v1/notifications (or similar). Record the total count of notifications displayed and note whether pagination controls (prev/next/page numbers) are visible. Store the first notification's ID as {{first_notif_id}} and its read status (should be false or empty) as {{initial_read_status}}."
+      },
+      {
+        "id": 3,
+        "description": "Click on the first notification in the list (or click a 'Mark as Read' button/icon next to it). Wait for a visual change (e.g. the notification row changes color, a badge disappears, or a checkmark appears). Verify no error toast appears. Store the notification ID that was marked as {{marked_notif_id}}."
+      },
+      {
+        "id": 4,
+        "description": "Refresh the page (Ctrl+R or F5). Wait for the notifications feed to reload. Locate {{marked_notif_id}} in the list and verify its read status is now true (e.g. row is grayed out, 'Read' label appears, or checkbox is checked). If the notification disappears entirely (filtered out), verify a filter toggle exists and is set to 'Show unread only' \u2014 toggle it and verify the notification reappears as read."
+      },
+      {
+        "id": 5,
+        "description": "Click the 'Mark as Read' button/icon again on {{marked_notif_id}} (or perform the same action twice). Wait for any response. Verify no error occurs and the notification remains marked as read. This tests idempotency \u2014 the second 'mark read' call should be safe and not cause a 409 conflict or rollback."
+      },
+      {
+        "id": 6,
+        "description": "If pagination exists: scroll to the bottom of the current page and click 'Next' or 'Page 2'. Verify the notification list changes and new notifications appear. Click back to the previous page and verify {{marked_notif_id}} is still present and still marked as read. This confirms pagination state is independent of read-state persistence."
+      },
+      {
+        "id": 7,
+        "description": "Navigate away from notifications (click 'Dashboard' or another top-level nav item). Then navigate back to http://localhost:3002/command-centre/notifications. Wait for the feed to reload. Verify {{marked_notif_id}} is still marked as read. This is the final persistence check: the read state survives a full page navigation cycle."
+      },
+      {
+        "id": 8,
+        "description": "Using page.evaluate(): fetch the raw notifications API. Send a GET request to http://localhost:3002/command-centre/api/v1/notifications with the browser's existing auth headers. Verify HTTP 200. In the JSON response, locate the notification with ID {{marked_notif_id}} and confirm its 'read' field is true. Verify the response includes paginated metadata (e.g. 'page', 'per_page', 'total', or '_links'). Verify no notifications from other orgs appear in the response (tenant isolation check)."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-agent-pause-resume-state-machine",
+    "description": "[BEHAVIORAL] Agent pause/resume lifecycle: verify state machine correctness (active\u2192paused_ceo\u2192active), idempotency on pause, tenant isolation on missing agent, and persistence across page reloads.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard to establish page context. Wait for dashboard to fully load. Store the URL for later reference."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/command-centre/agents (or equivalent agents list page). Wait for agents table/list to load. Locate an active agent in the list and click its row or 'View' button to open the agent detail page. Record the {{agent_id}} from the URL or page data attribute. Verify the agent's current status displays as 'active' in the UI."
+      },
+      {
+        "id": 4,
+        "description": "On the agent detail page, locate the 'Pause' button or action menu. Click 'Pause'. Using page.evaluate(): send a PATCH request to http://localhost:3002/command-centre/api/v1/agents/{{agent_id}}/pause with headers {\"Authorization\": \"Bearer <token>\"} and empty body {}. Verify HTTP 200 response. In the response JSON, verify agent.status === 'paused_ceo' and agent.updated_at has been refreshed to a timestamp later than before."
+      },
+      {
+        "id": 5,
+        "description": "Without navigating away from the agent detail page, verify the UI immediately reflects the new status 'paused_ceo' (or displays 'Paused'). If the UI does not auto-update, click the 'Refresh' button or reload the page and verify status is now 'paused_ceo'."
+      },
+      {
+        "id": 6,
+        "description": "IDEMPOTENCY TEST: Click 'Pause' again (or using page.evaluate() send another PATCH to pause endpoint with the same {{agent_id}}). Verify HTTP 200 response is returned and agent.status remains 'paused_ceo'. The second pause should not change the state or error. Record the updated_at timestamp from this second response and verify it is >= the first pause's updated_at (idempotent)."
+      },
+      {
+        "id": 7,
+        "description": "Locate the 'Resume' button or action menu on the agent detail page. Click 'Resume'. Using page.evaluate(): send a PATCH request to http://localhost:3002/command-centre/api/v1/agents/{{agent_id}}/resume with headers {\"Authorization\": \"Bearer <token>\"} and empty body {}. Verify HTTP 200 response. In the response JSON, verify agent.status === 'active' and agent.updated_at has been refreshed to a timestamp later than the pause's updated_at."
+      },
+      {
+        "id": 8,
+        "description": "Verify the UI immediately reflects status 'active' on the agent detail page. Reload the agent detail page (navigate away and return) and verify status persists as 'active' and {{agent_id}} data is unchanged. This tests persistence across page reloads."
+      },
+      {
+        "id": 9,
+        "description": "TENANT ISOLATION TEST: Using page.evaluate(), attempt to send a PATCH request to http://localhost:3002/command-centre/api/v1/agents/00000000-0000-0000-0000-000000000000/pause (using a fake/non-existent agent_id not belonging to the current tenant). Add headers {\"Authorization\": \"Bearer <token>\"}. Verify HTTP 404 response is returned. The 404 confirms the agent is not found within the caller's org scope (tenant isolation success). Do NOT receive a 200 or 500 error."
+      },
+      {
+        "id": 10,
+        "description": "Cross-feature check: Navigate to http://localhost:3002/command-centre/audit-log or activity feed (if available) and search for the {{agent_id}}. Verify audit entries exist for the 'pause' and 'resume' actions performed in steps 4 and 7, with correct timestamps. This verifies that state changes are logged correctly across the system."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-revenue-pipeline",
+    "description": "Leaf: Verify sales pipeline funnel page loads without error at /sales/pipeline.",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/sales/pipeline. Verify the page loads without 500 error."
+      },
+      {
+        "id": 2,
+        "description": "Examine the pipeline page: verify it shows either a funnel visualization (stages like Lead, Qualified, Proposal, Negotiation, Closed) or a Kanban-style board, or a tabular pipeline view. If pipeline data exists, verify stage names are shown and deal counts per stage are numeric (not NaN). If empty, verify the empty state explains how deals enter the pipeline."
+      },
+      {
+        "id": 3,
+        "description": "If pipeline items exist: click one deal/opportunity card to verify its detail loads. If no items exist: verify the page layout is not broken (no overlapping elements, no JS error banners). Take a screenshot of the pipeline view."
+      }
+    ]
+  },
+  {
+    "id": "comc-biz-crm-interaction-logging-happy-path",
+    "description": "[BEHAVIORAL] CRM Interaction Logging: Verify that a superadmin can create a new interaction record for a contact, validate HTTP 201 response with correct status, persist the interaction data across browser navigation, and cross-verify the interaction appears in the contact's interaction history.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/crm/contacts to load the CRM contacts list. Wait for the page to fully load and display a list of contacts. Record the contact_id of the first contact in the list as {{contact_id}}."
+      },
+      {
+        "id": 3,
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/crm/contacts/{{contact_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"phone_call\", \"date\": \"2026-04-30T14:30:00Z\", \"notes\": \"Discussion on Q2 strategy\"}. Verify the response has HTTP status 201. Extract the interaction_id from the response body and store as {{interaction_id}}. Verify the response contains {\"status\": \"created\"}."
+      },
+      {
+        "id": 4,
+        "description": "Navigate away from the CRM section by clicking on the Dashboard link in the navigation menu. Wait 2 seconds. Then navigate back to http://localhost:3002/command-centre/crm/contacts/{{contact_id}} to view the contact detail page. Verify the page loads and displays the contact's information."
+      },
+      {
+        "id": 5,
+        "description": "On the contact detail page, scroll down to the Interactions section. Verify that the interaction created in step 3 is present in the list, displaying: interaction_type='phone_call', date='2026-04-30', notes containing 'Discussion on Q2 strategy'. This confirms data persistence across navigation."
+      },
+      {
+        "id": 6,
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/crm/contacts/{{contact_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200. Verify the response contains an array with at least one object matching {{interaction_id}}. Cross-verify: the interaction_type, date, and notes match the data from step 3."
+      },
+      {
+        "id": 7,
+        "description": "Click on the interaction record in the Interactions section to open its detail view. Verify the page displays all fields: interaction_type, date, notes, created_timestamp, and created_by (should match the superadmin's user ID from the session). This confirms the interaction was correctly attributed and stored."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  }
+]
