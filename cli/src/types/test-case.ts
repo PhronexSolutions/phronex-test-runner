@@ -1,10 +1,11 @@
 import z from "zod";
 
 const stepSchema = z.object({
-    id: z.number(),
+    id: z.number().optional(),
     description: z.string().describe("The description of the step, and how to complete it"),
     status: z.enum(["pending", "passed", "failed"]).default("pending").optional(),
     error: z.string().optional().describe("The error message if the step failed"),
+    action: z.string().optional(),
 });
 
 /**
@@ -18,6 +19,8 @@ export const testCaseSchema = z.object({
         .regex(/^[a-zA-Z0-9-]+$/, "Name must be alphanumeric and can contain hyphens"),
     description: z.string().describe("A high-level description of what the test verifies"),
     steps: z.array(stepSchema),
+    // Phronex depth classification — internal field, accepted and ignored at runtime
+    depth: z.number().optional(),
     // Tree executor fields — all optional, backward compatible
     isSharedRoot: z.boolean().optional().default(false),
     role: z.enum(["root", "branch", "verify", "teardown", "observation"]).optional().default("verify"),

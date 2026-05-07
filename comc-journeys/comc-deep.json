@@ -8,19 +8,17 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to http://localhost:3002/auth/login — append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal to load — verify no 500 error and the sidebar is visible."
+        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to http://localhost:3002/auth/login \u2014 append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal to load \u2014 verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console — if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
       },
       {
         "id": 3,
-        "description": "IMPORTANT — Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical — without it, dependent journeys will fail."
+        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
       }
-    ],
-    "_retired_at": "2026-05-06T19:58:54.844295+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    ]
   },
   {
     "id": "comc-pulse-agent-list",
@@ -64,7 +62,7 @@
   },
   {
     "id": "comc-revenue-vendor-sub-crud",
-    "description": "Leaf: Full CRUD lifecycle for vendor subscriptions — create, verify in list, edit cost, then deactivate.",
+    "description": "Leaf: Full CRUD lifecycle for vendor subscriptions \u2014 create, verify in list, edit cost, then deactivate.",
     "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
     "steps": [
@@ -74,7 +72,7 @@
       },
       {
         "id": 2,
-        "description": "Click the 'Add Subscription' or 'Create' button. In the form: (1) Name = 'JH-QA-VendorTest', (2) Category = select the first available dropdown option, (3) Monthly Cost = '99.99', (4) Billing Cycle = 'monthly', (5) Renewal Date = use browser_evaluate to set the date input value directly: document.querySelector('input[type=date][name*=renewal], input[type=date][placeholder*=renewal], input[type=date]:last-of-type').value = '2026-06-30' — this ISO format bypasses date-picker UI issues. If no date input found, enter '2026-06-30' via fill() on the input. (6) Payment Method = 'Credit Card'. Submit. Verify entry appears in list without a 422 error."
+        "description": "Click the 'Add Subscription' or 'Create' button. In the form: (1) Name = 'JH-QA-VendorTest', (2) Category = select the first available dropdown option, (3) Monthly Cost = '99.99', (4) Billing Cycle = 'monthly', (5) Renewal Date = use browser_evaluate to set the date input value directly: document.querySelector('input[type=date][name*=renewal], input[type=date][placeholder*=renewal], input[type=date]:last-of-type').value = '2026-06-30' \u2014 this ISO format bypasses date-picker UI issues. If no date input found, enter '2026-06-30' via fill() on the input. (6) Payment Method = 'Credit Card'. Submit. Verify entry appears in list without a 422 error."
       },
       {
         "id": 3,
@@ -166,7 +164,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the accountability page renders its intended content — this could be accountability chains, responsibility matrices, or ownership mappings. Whether populated or empty, the page must show a proper layout (not broken components or raw error text). Take a screenshot showing the page state."
+        "description": "Verify the accountability page renders its intended content \u2014 this could be accountability chains, responsibility matrices, or ownership mappings. Whether populated or empty, the page must show a proper layout (not broken components or raw error text). Take a screenshot showing the page state."
       }
     ]
   },
@@ -298,7 +296,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the platform overview page shows KPI/SLA metrics — these could be uptime percentages, response time p95/p99, error rates, or product health scores. Verify ALL displayed numeric values are valid numbers (not 'NaN', 'undefined', 'null', or blank). If metrics are shown as cards, verify each card has a label and a formatted value."
+        "description": "Verify the platform overview page shows KPI/SLA metrics \u2014 these could be uptime percentages, response time p95/p99, error rates, or product health scores. Verify ALL displayed numeric values are valid numbers (not 'NaN', 'undefined', 'null', or blank). If metrics are shown as cards, verify each card has a label and a formatted value."
       },
       {
         "id": 3,
@@ -350,7 +348,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect — the QA superadmin account should have access."
+        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect \u2014 the QA superadmin account should have access."
       },
       {
         "id": 3,
@@ -360,7 +358,7 @@
   },
   {
     "id": "comc-companies",
-    "description": "[general] Companies — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Companies \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -388,7 +386,7 @@
   },
   {
     "id": "comc-deep-dashboard-metrics",
-    "description": "[DEEP] Dashboard Metrics — feature business logic + edge cases",
+    "description": "[DEEP] Dashboard Metrics \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -420,7 +418,7 @@
   },
   {
     "id": "comc-sales-freelancing",
-    "description": "[general] Sales Freelancing — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Sales Freelancing \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -440,7 +438,7 @@
   },
   {
     "id": "comc-deep-proposals-lifecycle",
-    "description": "[DEEP] Proposals lifecycle — feature business logic + edge cases",
+    "description": "[DEEP] Proposals lifecycle \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -464,7 +462,7 @@
   },
   {
     "id": "comc-sec-session-handling",
-    "description": "[DEEP] Session handling — verify expired tokens redirect gracefully",
+    "description": "[DEEP] Session handling \u2014 verify expired tokens redirect gracefully",
     "depth": 1,
     "steps": [
       {
@@ -492,7 +490,7 @@
   },
   {
     "id": "comc-deep-platform-overview",
-    "description": "[DEEP] Platform Overview — feature business logic + edge cases",
+    "description": "[DEEP] Platform Overview \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -524,7 +522,7 @@
   },
   {
     "id": "comc-sec-data-isolation",
-    "description": "[DEEP] Data isolation — verify users cannot see each other's data",
+    "description": "[DEEP] Data isolation \u2014 verify users cannot see each other's data",
     "depth": 1,
     "steps": [
       {
@@ -560,7 +558,7 @@
   },
   {
     "id": "comc-sec-permission-boundary",
-    "description": "[DEEP] Permission boundary — verify non-admin cannot access admin pages",
+    "description": "[DEEP] Permission boundary \u2014 verify non-admin cannot access admin pages",
     "depth": 1,
     "steps": [
       {
@@ -588,7 +586,7 @@
   },
   {
     "id": "comc-deep-billing-lifecycle",
-    "description": "[DEEP] Billing lifecycle — feature business logic + edge cases",
+    "description": "[DEEP] Billing lifecycle \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -620,7 +618,7 @@
   },
   {
     "id": "comc-deep-erpnext-lifecycle",
-    "description": "[DEEP] Erpnext lifecycle — feature business logic + edge cases",
+    "description": "[DEEP] Erpnext lifecycle \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -644,7 +642,7 @@
   },
   {
     "id": "comc-calendar",
-    "description": "[general] Calendar — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Calendar \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -664,7 +662,7 @@
   },
   {
     "id": "comc-biz-companies-budget-org",
-    "description": "[BEHAVIORAL] Companies → Budget → Org — cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Companies \u2192 Budget \u2192 Org \u2014 cross-feature E2E business logic",
     "depth": 1,
     "steps": [
       {
@@ -708,7 +706,7 @@
   },
   {
     "id": "comc-deep-dashboard-no-errors",
-    "description": "[DEEP] Dashboard No Errors — feature business logic + edge cases",
+    "description": "[DEEP] Dashboard No Errors \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -725,7 +723,7 @@
       },
       {
         "id": 4,
-        "description": "Click to get /healthon ComC backend (port 8004). Check: HTTP 200;{\"status\": \"healthy\"}— never \"ok\" (Phronex invariant)"
+        "description": "Click to get /healthon ComC backend (port 8004). Check: HTTP 200;{\"status\": \"healthy\"}\u2014 never \"ok\" (Phronex invariant)"
       },
       {
         "id": 5,
@@ -740,7 +738,7 @@
   },
   {
     "id": "comc-deep-accountability-lifecycle",
-    "description": "[DEEP] Accountability lifecycle — feature business logic + edge cases",
+    "description": "[DEEP] Accountability lifecycle \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -772,7 +770,7 @@
   },
   {
     "id": "comc-biz-flow-e-accountability-partner-reviewing-a-digest",
-    "description": "[BEHAVIORAL] Flow E — Accountability partner reviewing a digest — cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Flow E \u2014 Accountability partner reviewing a digest \u2014 cross-feature E2E business logic",
     "depth": 1,
     "steps": [
       {
@@ -785,7 +783,7 @@
       },
       {
         "id": 3,
-        "description": "Click to partner calls GET/api/v1/accountability/digest/{token}— returns initiative tasks, progress status, and recent replies. (capture: {{initiative}})"
+        "description": "Click to partner calls GET/api/v1/accountability/digest/{token}\u2014 returns initiative tasks, progress status, and recent replies. (capture: {{initiative}})"
       },
       {
         "id": 4,
@@ -808,7 +806,7 @@
   },
   {
     "id": "comc-deep-navigation-all-pillars",
-    "description": "[DEEP] Navigation All Pillars — feature business logic + edge cases",
+    "description": "[DEEP] Navigation All Pillars \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -840,7 +838,7 @@
   },
   {
     "id": "comc-deep-flow-b-reviewing-the-morning-brief",
-    "description": "[DEEP] Flow B — Reviewing the morning brief — feature business logic + edge cases",
+    "description": "[DEEP] Flow B \u2014 Reviewing the morning brief \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -857,7 +855,7 @@
       },
       {
         "id": 4,
-        "description": "Click to to retrieve it via API: GET/api/v1/briefs— returns the most recent briefs, newest first."
+        "description": "Click to to retrieve it via API: GET/api/v1/briefs\u2014 returns the most recent briefs, newest first."
       },
       {
         "id": 5,
@@ -872,7 +870,7 @@
   },
   {
     "id": "comc-deep-admin-panel",
-    "description": "[DEEP] Admin Panel — feature business logic + edge cases",
+    "description": "[DEEP] Admin Panel \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -904,7 +902,7 @@
   },
   {
     "id": "comc-deep-settings-hub",
-    "description": "[DEEP] Settings Hub — feature business logic + edge cases",
+    "description": "[DEEP] Settings Hub \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -936,7 +934,7 @@
   },
   {
     "id": "comc-deep-explainability",
-    "description": "[DEEP] Explainability — feature business logic + edge cases",
+    "description": "[DEEP] Explainability \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -968,7 +966,7 @@
   },
   {
     "id": "comc-biz-flow-c-logging-a-contact-interaction-crm",
-    "description": "[BEHAVIORAL] Flow C — Logging a contact interaction (CRM) — cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Flow C \u2014 Logging a contact interaction (CRM) \u2014 cross-feature E2E business logic",
     "depth": 1,
     "steps": [
       {

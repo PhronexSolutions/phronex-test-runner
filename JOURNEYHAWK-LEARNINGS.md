@@ -647,3 +647,27 @@ document.querySelector('input[type="date"]').dispatchEvent(new Event('change', {
 ---
 
 
+
+---
+
+### Trunk retirement causes cascading auth failure across all leaf journeys (RCA — 2026-05-07, ComC Runs 16–17)
+
+**Symptom:** ~30% of leaf journeys fail with "Unable to load saved superadmin session" or "session has expired", despite the session file being valid (confirmed via `curl /api/auth/session`). The Playwright tester falls back to `vivek@phronex.com / password123` (wrong credentials) and fails.
+
+**Root cause (3-layer chain):**
+1. `spec_curator` (or manual RETIRE operation) set `_retired_at` on `comc-trunk-superadmin` in `comc-deep.json`.
+2. `run-journeyhawk.sh` pre-filter strips all `_retired_at` journeys from `_SPEC_ACTIVE` **before** credential substitution. Trunk gone from that point forward.
+3. Without the trunk in the spec, `cc-test-runner`'s `capturedStates` map is never populated for `comc-trunk-superadmin`. Leaf journeys receive `parentStatePath=null`, start in fresh unauthenticated browser contexts, and fall back to hardcoded wrong credentials.
+
+**Why intermittent (not 100%):** Some leaf journeys succeeded because their step 1 text said "load session file OR log in" and the LLM tester successfully loaded the pre-existing `.tmp/comc-trunk-superadmin-state.json` via direct Playwright `storageState()` call from the step description. Others failed because the LLM tester chose the login-fallback path.
+
+**Fixes applied:**
+- `comc-deep.json`: removed `_retired_at` and `_retire_reason` from `comc-trunk-superadmin` entry.
+- `run-journeyhawk.sh` pre-filter: `isSharedRoot` trunks exempted — `or j.get('isSharedRoot')` guard added to active-journeys filter.
+- `journey_generator.py` cache HIT path: static spec journeys prepended to cached journeys before output (prevents trunk loss on subsequent cache HITs).
+- `SKILL.md`: TRUNK RETIREMENT INVARIANT added to spec curator section.
+
+**Prevention:** At session start for any product, verify trunks (`isSharedRoot: true`) have no `_retired_at`. The skill now mandates this check. The `run-journeyhawk.sh` guard is a fallback, not a substitute for keeping trunks unretired.
+
+**Cross-product status (2026-05-07):** CC, JP, Portal trunks all clean (`_retired_at: None`). ComC fixed in this session.
+

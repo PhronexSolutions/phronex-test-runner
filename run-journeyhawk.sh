@@ -159,11 +159,13 @@ _JP_STANDARD_PASS="${QA_JP_STANDARD_PASSWORD:-${_PORTAL_PASS}}"
 _JP_PRO_EMAIL="${QA_JP_PRO_EMAIL:-qa-jp-pro@phronex.com}"
 _JP_PRO_PASS="${QA_JP_PRO_PASSWORD:-${_PORTAL_PASS}}"
 # Pre-filter: strip journeys with _retired_at before credential substitution.
-# Retired journeys in the static spec would otherwise pass through and run.
+# Exception: isSharedRoot trunk journeys are NEVER retired — they establish
+# the browser session that all leaf journeys depend on. Retiring a trunk
+# causes all leaves to start unauthenticated and fail with wrong credentials.
 "${PYTHON}" -c "
 import json, sys
 spec = json.load(open('${SPEC_FILE}'))
-active = [j for j in spec if not j.get('_retired_at')]
+active = [j for j in spec if not j.get('_retired_at') or j.get('isSharedRoot')]
 json.dump(active, sys.stdout, ensure_ascii=False)
 " > "${_SPEC_ACTIVE}" 2>/dev/null || cp "${SPEC_FILE}" "${_SPEC_ACTIVE}"
 echo "[pre] Active journeys after filtering retired: $("${PYTHON}" -c "import json; print(len(json.load(open('${_SPEC_ACTIVE}'))))" 2>/dev/null || echo '?')"
@@ -594,6 +596,8 @@ if "${PYTHON}" -m phronex_common.testing.run_filter \
   --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" 2>&1; then
   if [ -s "${RUN_FILTER_OUTPUT}" ]; then
     POST_FILTER_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${RUN_FILTER_OUTPUT}'))))" 2>/dev/null || echo "${PRE_FILTER_COUNT}")
+    # Debug: preserve run filter output for post-mortem inspection (overwritten each run)
+    cp "${RUN_FILTER_OUTPUT}" /tmp/jh-run-filter-last.json 2>/dev/null || true
     cp "${RUN_FILTER_OUTPUT}" "${TEMP_SPEC}"
     export JH_RUN_FILTER_INCLUDED="${POST_FILTER_COUNT}"
     export JH_RUN_FILTER_SKIPPED=$(( PRE_FILTER_COUNT - POST_FILTER_COUNT ))
@@ -615,7 +619,7 @@ _STAGE_AFTER_RUNFILTER=$("${PYTHON}" -c "import json; print(len(json.load(open('
 # cached result (PORTAL_EC2_DOWN env var) without reconnecting per journey.
 # When EC2 is down: trunk login journey gets SKIP verdict, not FAIL — preventing
 # 50+ cascade failures from appearing as legitimate product defects.
-_PORTAL_HOST=$(echo "${PORTAL_URL}" | sed 's|https\?://||' | cut -d/ -f1)
+_PORTAL_HOST=$(echo "${PORTAL_URL}" | sed 's|https\?://||' | cut -d/ -f1 | cut -d: -f1)
 if [[ "${_PORTAL_HOST}" == "localhost" || "${_PORTAL_HOST}" == "127.0.0.1" ]]; then
   export PORTAL_EC2_DOWN="false"
   echo "[1a-pre] Portal EC2 probe: local portal (${_PORTAL_HOST}) — skipping remote check"
