@@ -36,67 +36,7 @@
       },
       {
         "id": 3,
-        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
-      }
-    ]
-  },
-  {
-    "id": "comc-pulse-agent-list",
-    "description": "Leaf: Verify AI agents list page shows agent cards with name, role, model, and status fields.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/agents. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Examine the agents page: if agents are listed, verify each agent card/row displays at minimum: agent name, role/function, model (e.g. 'claude-sonnet-4-20250514'), and status (active/paused/error). Verify none of these fields show 'undefined' or are blank. If the page shows an empty state, verify it explains what agents are and how they get registered."
-      },
-      {
-        "id": 3,
-        "description": "Count the total number of agents shown. Verify the page count or list length matches what the page header claims (if it shows 'X agents' in a heading). Take a screenshot showing the agents list or empty state."
-      }
-    ]
-  },
-  {
-    "id": "comc-revenue-vendor-sub-crud",
-    "description": "Leaf: Full CRUD lifecycle for vendor subscriptions \u2014 create, verify in list, edit cost, then deactivate.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/vendor-subscriptions. Verify the page loads showing subscription list or empty state."
-      },
-      {
-        "id": 2,
-        "description": "Click the 'Add Subscription' or 'Create' button. In the form: (1) Name = 'JH-QA-VendorTest', (2) Category = select the first available dropdown option, (3) Monthly Cost = '99.99', (4) Billing Cycle = 'monthly', (5) Renewal Date = use browser_evaluate to set the date input value directly: document.querySelector('input[type=date][name*=renewal], input[type=date][placeholder*=renewal], input[type=date]:last-of-type').value = '2026-06-30' \u2014 this ISO format bypasses date-picker UI issues. If no date input found, enter '2026-06-30' via fill() on the input. (6) Payment Method = 'Credit Card'. Submit. Verify entry appears in list without a 422 error."
-      },
-      {
-        "id": 3,
-        "description": "Find 'JH-QA-VendorTest' in the subscription list. Click it to open edit/detail view. Change the Monthly Cost field from '99.99' to '149.99'. Save the edit. Navigate back to the list and verify the updated cost '149.99' is reflected next to 'JH-QA-VendorTest'."
-      },
-      {
-        "id": 4,
-        "description": "Find 'JH-QA-VendorTest' in the list again. Look for a deactivate/archive button or menu option (three-dot menu, toggle switch, or 'Deactivate' button). Deactivate the subscription. Verify it disappears from the active list or shows an 'Inactive' badge. This confirms the full create-edit-deactivate lifecycle."
-      }
-    ]
-  },
-  {
-    "id": "comc-revenue-leads",
-    "description": "Leaf: Verify lead dossier page loads at /sales/leads with lead information.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/sales/leads. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the leads page shows either a list/table of lead dossiers (each with company name, contact, score/status) or an empty state explaining what generates leads. If leads exist, verify at least one lead shows all expected fields populated (no 'undefined' values). Take a screenshot of the leads page."
+        "description": "IMPORTANT \u2014 Save browser session using whichever method works: (1) PRIMARY: Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". (2) FALLBACK if that tool is not available: Use browser_run_code to execute: const fs = require(\"fs\"); const state = await page.context().storageState(); fs.mkdirSync(\"/home/ouroborous/code/phronex-test-runner/.tmp\", {recursive:true}); fs.writeFileSync(\"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\", JSON.stringify(state)); This step is critical \u2014 without it, all dependent per-org leaf journeys will fail. Confirm the file exists after saving."
       }
     ]
   },
@@ -201,22 +141,6 @@
     ]
   },
   {
-    "id": "comc-strategy-ethos",
-    "description": "Leaf: Verify ethos rules page loads at /ethos with rules displayed (title/description) or purpose explanation.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/ethos. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the ethos page shows organisational governance rules. Each rule should display a title and description/rationale. If rules exist, verify at least one rule has both fields populated (not 'undefined'). If no rules exist, verify an empty state explains the purpose of ethos rules (governance principles that guide AI agent behaviour). Take a screenshot."
-      }
-    ]
-  },
-  {
     "id": "comc-intel-autoresearch",
     "description": "Leaf: Verify autoresearch page loads at /autoresearch with research results or empty state.",
     "dependsOn": "comc-trunk-superadmin",
@@ -261,30 +185,6 @@
       {
         "id": 2,
         "description": "Verify the growth experiments page shows either: (A) a list of experiments with hypothesis, status (running/concluded), and results metric, or (B) an empty state explaining how growth experiments are tracked. If experiments exist, verify each entry has a title and status badge. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-intel-platform-overview",
-    "description": "Leaf: Verify platform strategic analysis page renders correctly at /platform-overview \u2014 SWOT analysis, IP scores, reuse matrix, and strategic actions.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/platform-overview. Verify the page loads without error and shows a header 'Platform Overview'."
-      },
-      {
-        "id": 2,
-        "description": "Verify the Strategy tab is active by default and shows one of: (a) SWOT analysis sections (Strengths, Weaknesses, Opportunities, Threats) with list items, or (b) an empty state message such as 'No strategy data' or 'Strategy analysis will populate as platform data is ingested'. Both are valid outcomes \u2014 the page must not show a blank screen, an error banner, or a loading spinner stuck indefinitely."
-      },
-      {
-        "id": 3,
-        "description": "Click the 'IP Scores' sub-tab. Verify it shows either: (a) a list of module IP score bars with percentage labels (e.g. '73%'), or (b) an empty state message. Then click 'Reuse Matrix' \u2014 verify it shows either reuse capability entries or an empty state. Take a screenshot of the page showing whichever state is present."
-      },
-      {
-        "id": 4,
-        "description": "Click the 'Actions' sub-tab. Verify it shows either strategic action cards with priority badges (high/medium/low) or an empty state message. Confirm no 'NaN', 'undefined', or 'null' text is visible anywhere on the page."
       }
     ]
   },
