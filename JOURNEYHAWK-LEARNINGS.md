@@ -671,3 +671,47 @@ document.querySelector('input[type="date"]').dispatchEvent(new Event('change', {
 
 **Cross-product status (2026-05-07):** CC, JP, Portal trunks all clean (`_retired_at: None`). ComC fixed in this session.
 
+
+---
+
+### Portal Proxy URL Anti-Pattern — spec `page.evaluate()` calls must use `/api/admin/command-centre/api/v1/` (not `/command-centre/api/v1/`)
+
+**Discovered:** 2026-05-08, ComC Run 21 — 7 journeys failed with 404 on API calls.
+
+**Pattern:** Journey spec steps that use `page.evaluate()` to call the ComC backend from the portal browser context must use the proxy-routed URL:
+```
+http://localhost:3002/api/admin/command-centre/api/v1/{route}
+```
+NOT the direct path:
+```
+http://localhost:3002/command-centre/api/v1/{route}   ← WRONG — always 404
+```
+
+**Root cause:** The portal is a Next.js app running on port 3002. API calls to ComC backend go through Next.js `rewrites` that map `/api/admin/command-centre/api/v1/*` → `http://localhost:8004/api/v1/*`. There is no handler at `/command-centre/api/v1/*` — the Next.js router returns 404 because that path is only used for UI navigation (the `/command-centre/` prefix is a Next.js route, not an API prefix).
+
+**Fix applied (2026-05-08, commit 637595b):** Bulk replacement across `comc-run19-targeted.generated.json` and `comc-deep.generated.json` — 76 step descriptions and 75 step descriptions fixed respectively.
+
+**Prevention rule (MANDATORY for all future ComC journey spec steps):**
+- UI navigation: `http://localhost:3002/command-centre/{feature}` ✅ (Next.js route)
+- API calls via `page.evaluate()`: `http://localhost:3002/api/admin/command-centre/api/v1/{route}` ✅ (proxied)
+- Never: `http://localhost:3002/command-centre/api/v1/{route}` ❌ (404 always)
+
+**Scope:** 76 step descriptions fixed across erp-sync, brief-settings, crm, notifications, agent-pause-resume, dept-template, dashboard-metrics, agent-list, meetings, approvals, costs, revenue-pipeline, accountability-partners, isolation-mode, skill-review journeys. Static `comc-deep.json` (45 journeys) had 0 occurrences — it predates this anti-pattern.
+
+---
+
+### Brief settings `sections_config` returns `[]` for unconfigured org — spec must not assert pre-seeded defaults
+
+**Discovered:** 2026-05-08, ComC Run 21, `comc-biz-brief-settings-config-upsert`.
+
+**Pattern:** `GET /api/v1/briefs/settings` returns `{"sections_config": []}` when no settings row exists for the org. The route:
+```python
+if not row:
+    return {"brief_type": brief_type, "sections_config": []}
+```
+An empty array is the correct API contract for an unconfigured org. The generated spec was asserting that "default sections ('News', 'Updates', 'Insights') are displayed" — which is never true without a prior PUT.
+
+**Fix:** Spec steps 2–4 updated to accept either `[]` or pre-seeded sections as valid initial state, and to PUT sections if starting from empty.
+
+**Rule:** Never write journey specs that assume brief settings or similar config-on-demand resources are pre-populated. Always: GET → check state → PUT if needed → verify PUT result.
+
