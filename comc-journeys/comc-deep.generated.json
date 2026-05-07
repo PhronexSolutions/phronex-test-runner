@@ -1474,7 +1474,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/crm/contacts/{{contact_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"phone_call\", \"date\": \"2026-04-30T14:30:00Z\", \"notes\": \"Discussion on Q2 strategy\"}. Verify the response has HTTP status 201. Extract the interaction_id from the response body and store as {{interaction_id}}. Verify the response contains {\"status\": \"created\"}."
+        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{{contact_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"phone_call\", \"date\": \"2026-04-30T14:30:00Z\", \"notes\": \"Discussion on Q2 strategy\"}. Verify the response has HTTP status 201. Extract the interaction_id from the response body and store as {{interaction_id}}. Verify the response contains {\"status\": \"created\"}."
       },
       {
         "id": 4,
@@ -1486,7 +1486,7 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/crm/contacts/{{contact_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200. Verify the response contains an array with at least one object matching {{interaction_id}}. Cross-verify: the interaction_type, date, and notes match the data from step 3."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{{contact_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200. Verify the response contains an array with at least one object matching {{interaction_id}}. Cross-verify: the interaction_type, date, and notes match the data from step 3."
       },
       {
         "id": 7,
