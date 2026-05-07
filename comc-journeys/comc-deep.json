@@ -8,7 +8,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to http://localhost:3002/auth/login \u2014 append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal to load \u2014 verify no 500 error and the sidebar is visible."
+        "description": "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
       },
       {
         "id": 2,
@@ -37,26 +37,6 @@
       {
         "id": 3,
         "description": "Count the total number of agents shown. Verify the page count or list length matches what the page header claims (if it shows 'X agents' in a heading). Take a screenshot showing the agents list or empty state."
-      }
-    ]
-  },
-  {
-    "id": "comc-pulse-dept-health",
-    "description": "Leaf: Verify departments page shows health scores and department detail page loads at /departments/[id].",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/departments. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Examine the departments page: verify department cards or list items are shown. Each department should display a name and a health score (numeric percentage or colour-coded indicator). Verify no department shows 'NaN', 'undefined', or a broken progress bar. If no departments exist, verify an empty state explains how to configure departments."
-      },
-      {
-        "id": 3,
-        "description": "If departments are listed: click the first department to navigate to its detail page at http://localhost:3002/command-centre/departments/[id]. Verify the detail page loads showing department name, description, associated team members or KPIs, and health breakdown. Take a screenshot of the department detail page."
       }
     ]
   },

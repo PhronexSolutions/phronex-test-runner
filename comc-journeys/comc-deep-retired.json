@@ -19,7 +19,7 @@
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844236+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-pulse-agent-pause-resume",
@@ -33,15 +33,15 @@
       },
       {
         "id": 2,
-        "description": "If agents are listed: click the first agent in the list to navigate to its detail page. The URL should become https://app.phronex.com/command-centre/agents/[id]/portrait (or /agents/[id]). Verify the detail page loads and shows the agent's full profile — name, role, model, description, and heartbeat/activity history."
+        "description": "If agents are listed: click the first agent in the list to navigate to its detail page. The URL should become https://app.phronex.com/command-centre/agents/[id]/portrait (or /agents/[id]). Verify the detail page loads and shows the agent's full profile \u2014 name, role, model, description, and heartbeat/activity history."
       },
       {
         "id": 3,
-        "description": "On the agent detail page, look for a 'Pause' or 'Resume' button (toggle control). Verify the button is present and indicates the current agent state. Do NOT click it (to avoid disrupting real agent operations) — just verify its presence and that it's not disabled/greyed out without explanation. If no agents exist, document this as 'no agents configured — pause/resume untestable' (not a defect). Take a screenshot."
+        "description": "On the agent detail page, look for a 'Pause' or 'Resume' button (toggle control). Verify the button is present and indicates the current agent state. Do NOT click it (to avoid disrupting real agent operations) \u2014 just verify its presence and that it's not disabled/greyed out without explanation. If no agents exist, document this as 'no agents configured \u2014 pause/resume untestable' (not a defect). Take a screenshot."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844260+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-people-agents-detail",
@@ -59,11 +59,11 @@
       },
       {
         "id": 3,
-        "description": "On the agent detail page, verify no field shows 'undefined', 'null', or 'NaN'. Check that the heartbeat history section either shows timestamped entries or an empty state like 'No recent activity'. If no agents exist at all, document 'no agents configured — detail page untestable'. Take a screenshot."
+        "description": "On the agent detail page, verify no field shows 'undefined', 'null', or 'NaN'. Check that the heartbeat history section either shows timestamped entries or an empty state like 'No recent activity'. If no agents exist at all, document 'no agents configured \u2014 detail page untestable'. Take a screenshot."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844267+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-strategy-initiatives-create",
@@ -85,7 +85,7 @@
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844271+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-pulse-notifications",
@@ -103,7 +103,7 @@
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844274+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-ops-meetings-prep",
@@ -121,11 +121,11 @@
       },
       {
         "id": 3,
-        "description": "If no meetings exist: document 'no meetings available — prep generation untestable'. If the 'Generate Prep' button exists, verify it is clickable (not disabled) but do NOT click it (it may trigger an LLM call). Take a screenshot showing the meeting detail with the prep button visible."
+        "description": "If no meetings exist: document 'no meetings available \u2014 prep generation untestable'. If the 'Generate Prep' button exists, verify it is clickable (not disabled) but do NOT click it (it may trigger an LLM call). Take a screenshot showing the meeting detail with the prep button visible."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844283+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-e2e-dashboard-no-errors",
@@ -143,11 +143,11 @@
       },
       {
         "id": 3,
-        "description": "Check browser console using browser_console_messages. PASS CRITERIA: zero 5xx server errors. PASS CRITERIA: /api/admin/command-centre/api/v1/briefs/latest returning 404 is EXPECTED and ACCEPTABLE — this org has no briefs yet, so this 404 is a data-absent response, not a missing route. PASS CRITERIA: /billing/pending errors are not relevant to ComC testing. FAIL CRITERIA: any 5xx error on any URL. FAIL CRITERIA: any unhandled JavaScript TypeError or ReferenceError (except 'caches is not defined' on about:blank which is expected). Mark this step PASSED if the only console errors are the acceptable 404 from briefs/latest. Take a screenshot of the console output."
+        "description": "Check browser console using browser_console_messages. PASS CRITERIA: zero 5xx server errors. PASS CRITERIA: /api/admin/command-centre/api/v1/briefs/latest returning 404 is EXPECTED and ACCEPTABLE \u2014 this org has no briefs yet, so this 404 is a data-absent response, not a missing route. PASS CRITERIA: /billing/pending errors are not relevant to ComC testing. FAIL CRITERIA: any 5xx error on any URL. FAIL CRITERIA: any unhandled JavaScript TypeError or ReferenceError (except 'caches is not defined' on about:blank which is expected). Mark this step PASSED if the only console errors are the acceptable 404 from briefs/latest. Take a screenshot of the console output."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844286+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-intel-briefs-structured",
@@ -161,15 +161,15 @@
       },
       {
         "id": 2,
-        "description": "If briefs exist: click the most recent brief (topmost in the list) to open its full content. Verify the brief body contains structured section headers — look specifically for headings like 'Executive Summary', 'Action Items', 'Key Metrics', 'Risks', or 'Recommendations'. The brief should NOT be a single paragraph of unstructured text."
+        "description": "If briefs exist: click the most recent brief (topmost in the list) to open its full content. Verify the brief body contains structured section headers \u2014 look specifically for headings like 'Executive Summary', 'Action Items', 'Key Metrics', 'Risks', or 'Recommendations'. The brief should NOT be a single paragraph of unstructured text."
       },
       {
         "id": 3,
-        "description": "Under the 'Action Items' section (if present), verify items are rendered as a list (bulleted or numbered), not inline text. If no briefs exist, document 'no briefs generated yet — structured content test skipped'. Take a screenshot of the brief detail showing section headers."
+        "description": "Under the 'Action Items' section (if present), verify items are rendered as a list (bulleted or numbered), not inline text. If no briefs exist, document 'no briefs generated yet \u2014 structured content test skipped'. Take a screenshot of the brief detail showing section headers."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844289+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-strategy-ip-register",
@@ -187,7 +187,7 @@
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844292+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-people-dept-templates",
@@ -205,11 +205,11 @@
       },
       {
         "id": 3,
-        "description": "On the department templates page: verify it shows either a list of department-specific templates (brief templates, report templates, workflow templates) or an empty state. If no departments exist, try navigating directly to https://app.phronex.com/command-centre/departments and document 'no departments configured — templates untestable'. Take a screenshot."
+        "description": "On the department templates page: verify it shows either a list of department-specific templates (brief templates, report templates, workflow templates) or an empty state. If no departments exist, try navigating directly to https://app.phronex.com/command-centre/departments and document 'no departments configured \u2014 templates untestable'. Take a screenshot."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844298+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-config-erp-sync",
@@ -231,7 +231,7 @@
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844300+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-config-brief-settings",
@@ -245,11 +245,11 @@
       },
       {
         "id": 2,
-        "description": "Verify the brief settings page shows configuration options for daily brief generation — this could include: which sections to include in briefs, brief delivery time, recipient list, or data sources to pull from. Verify the page has form controls (toggles, dropdowns, or checkboxes) that represent configurable brief sections. Take a screenshot."
+        "description": "Verify the brief settings page shows configuration options for daily brief generation \u2014 this could include: which sections to include in briefs, brief delivery time, recipient list, or data sources to pull from. Verify the page has form controls (toggles, dropdowns, or checkboxes) that represent configurable brief sections. Take a screenshot."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844303+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-strategy-goals",
@@ -267,11 +267,11 @@
       },
       {
         "id": 3,
-        "description": "If goals have alignment data (linked to initiatives or departments): verify the alignment links are clickable and navigate to the correct target. If no alignment data exists, this is acceptable — just verify the field shows 'Unaligned' or similar placeholder. Take a screenshot."
+        "description": "If goals have alignment data (linked to initiatives or departments): verify the alignment links are clickable and navigate to the correct target. If no alignment data exists, this is acceptable \u2014 just verify the field shows 'Unaligned' or similar placeholder. Take a screenshot."
       }
     ],
     "_retired_at": "2026-05-06T19:58:54.844306+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-e2e-settings-hub",
@@ -293,7 +293,7 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267047+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-e2e-explainability",
@@ -315,7 +315,7 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267079+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-strategy-initiatives-list",
@@ -329,7 +329,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the initiatives page shows: (A) stat cards at the top with counts (Active, Blocked, Completed — or similar status breakdowns), all showing numeric values (not NaN/undefined), and (B) a table or list of initiatives below. Look for filter pills or tabs labeled 'Active', 'Blocked', 'Completed' (or 'All', 'In Progress', 'Done'). Click each filter to verify it changes the displayed list without error."
+        "description": "Verify the initiatives page shows: (A) stat cards at the top with counts (Active, Blocked, Completed \u2014 or similar status breakdowns), all showing numeric values (not NaN/undefined), and (B) a table or list of initiatives below. Look for filter pills or tabs labeled 'Active', 'Blocked', 'Completed' (or 'All', 'In Progress', 'Done'). Click each filter to verify it changes the displayed list without error."
       },
       {
         "id": 3,
@@ -337,7 +337,7 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267088+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-ops-approvals-list",
@@ -359,11 +359,11 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267094+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-revenue-crm-interaction",
-    "description": "Leaf: Log an interaction on a CRM contact — fill type and date, submit, verify it appears in timeline.",
+    "description": "Leaf: Log an interaction on a CRM contact \u2014 fill type and date, submit, verify it appears in timeline.",
     "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
     "steps": [
@@ -377,11 +377,11 @@
       },
       {
         "id": 3,
-        "description": "After submission, verify the interaction appears in the contact's activity timeline or interaction history section. It should show the type 'call', today's date, and the notes text. If no contacts exist in CRM, document 'no CRM contacts configured — interaction logging untestable' (not a defect). Take a screenshot."
+        "description": "After submission, verify the interaction appears in the contact's activity timeline or interaction history section. It should show the type 'call', today's date, and the notes text. If no contacts exist in CRM, document 'no CRM contacts configured \u2014 interaction logging untestable' (not a defect). Take a screenshot."
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267100+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-intel-market-feed",
@@ -403,7 +403,7 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267105+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-revenue-crm-list",
@@ -421,11 +421,11 @@
       },
       {
         "id": 3,
-        "description": "If contacts are listed: verify the table supports basic interaction — look for sort headers, search/filter input, or pagination. Click a column header to verify sorting works (or verify the search input accepts text). Take a screenshot showing the CRM contacts view."
+        "description": "If contacts are listed: verify the table supports basic interaction \u2014 look for sort headers, search/filter input, or pagination. Click a column header to verify sorting works (or verify the search input accepts text). Take a screenshot showing the CRM contacts view."
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267110+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-ops-approvals-approve",
@@ -439,15 +439,15 @@
       },
       {
         "id": 2,
-        "description": "If pending approval items exist: click the first pending item to open its detail view. Verify the detail shows the full context of what is being approved (description, requester, date submitted, impact summary). Verify that both 'Approve' and 'Reject' buttons are visible and enabled (not greyed out). Do NOT click either button — just verify their presence."
+        "description": "If pending approval items exist: click the first pending item to open its detail view. Verify the detail shows the full context of what is being approved (description, requester, date submitted, impact summary). Verify that both 'Approve' and 'Reject' buttons are visible and enabled (not greyed out). Do NOT click either button \u2014 just verify their presence."
       },
       {
         "id": 3,
-        "description": "If no pending items exist: verify the empty state message is clear (e.g., 'No pending approvals' or 'All approvals have been processed'). Document 'no pending approvals available — approve/reject button test skipped'. This is not a defect. Take a screenshot of whatever state is shown."
+        "description": "If no pending items exist: verify the empty state message is clear (e.g., 'No pending approvals' or 'All approvals have been processed'). Document 'no pending approvals available \u2014 approve/reject button test skipped'. This is not a defect. Take a screenshot of whatever state is shown."
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267115+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-ops-meetings-list",
@@ -469,7 +469,7 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267120+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-pulse-brief-list",
@@ -483,7 +483,7 @@
       },
       {
         "id": 2,
-        "description": "Examine the briefs page: if briefs exist, verify the list shows each brief with a date/timestamp and title or summary preview. Click the first (most recent) brief to open its detail view. Verify the detail contains structured sections — look for headings like 'Executive Summary', 'Action Items', 'Key Metrics', or similar section markers. The content should NOT be a single unformatted text blob."
+        "description": "Examine the briefs page: if briefs exist, verify the list shows each brief with a date/timestamp and title or summary preview. Click the first (most recent) brief to open its detail view. Verify the detail contains structured sections \u2014 look for headings like 'Executive Summary', 'Action Items', 'Key Metrics', or similar section markers. The content should NOT be a single unformatted text blob."
       },
       {
         "id": 3,
@@ -491,7 +491,7 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267125+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-strategy-initiatives-dependency",
@@ -513,7 +513,7 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267130+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-e2e-nav-all-pillars",
@@ -535,11 +535,11 @@
       }
     ],
     "_retired_at": "2026-05-07T08:23:37.267135+00:00",
-    "_retire_reason": "BROKEN for ≥5 runs, no open defect"
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   },
   {
     "id": "comc-deep-agent-detail",
-    "description": "[DEEP] Agent Detail — feature business logic + edge cases",
+    "description": "[DEEP] Agent Detail \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -569,11 +569,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-approval-approve-reject",
-    "description": "[DEEP] Approval Approve/Reject — feature business logic + edge cases",
+    "description": "[DEEP] Approval Approve/Reject \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -603,11 +603,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-brief-list",
-    "description": "[DEEP] Brief List — feature business logic + edge cases",
+    "description": "[DEEP] Brief List \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -637,11 +637,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-team-audit",
-    "description": "[DEEP] Team Audit — feature business logic + edge cases",
+    "description": "[DEEP] Team Audit \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -671,11 +671,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-costs-overview",
-    "description": "[DEEP] Costs Overview — feature business logic + edge cases",
+    "description": "[DEEP] Costs Overview \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -705,11 +705,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-ci-intelligence-analysis",
-    "description": "[DEEP] CI Intelligence Analysis — feature business logic + edge cases",
+    "description": "[DEEP] CI Intelligence Analysis \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -739,11 +739,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-meetings-list",
-    "description": "[DEEP] Meetings List — feature business logic + edge cases",
+    "description": "[DEEP] Meetings List \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -773,11 +773,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-ethos-engine",
-    "description": "[DEEP] Ethos Engine — feature business logic + edge cases",
+    "description": "[DEEP] Ethos Engine \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -811,11 +811,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-auto-research",
-    "description": "[DEEP] Auto-Research — feature business logic + edge cases",
+    "description": "[DEEP] Auto-Research \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -845,11 +845,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-revenue-pipeline",
-    "description": "[DEEP] Revenue Pipeline — feature business logic + edge cases",
+    "description": "[DEEP] Revenue Pipeline \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -879,11 +879,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-initiatives-create",
-    "description": "[DEEP] Initiatives Create — feature business logic + edge cases",
+    "description": "[DEEP] Initiatives Create \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -913,11 +913,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-meeting-prep",
-    "description": "[DEEP] Meeting Prep — feature business logic + edge cases",
+    "description": "[DEEP] Meeting Prep \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -947,11 +947,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-cost-efficiency",
-    "description": "[DEEP] Cost Efficiency — feature business logic + edge cases",
+    "description": "[DEEP] Cost Efficiency \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -981,11 +981,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-llm-credentials",
-    "description": "[DEEP] LLM Credentials — feature business logic + edge cases",
+    "description": "[DEEP] LLM Credentials \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -998,7 +998,7 @@
       },
       {
         "id": 3,
-        "description": "Click to get /api/v1/credentials. Check: HTTP 200; masked credentials (e.g. \"sk-...7x3f\") — NEVER plaintext (D-33a security requirement)"
+        "description": "Click to get /api/v1/credentials. Check: HTTP 200; masked credentials (e.g. \"sk-...7x3f\") \u2014 NEVER plaintext (D-33a security requirement)"
       },
       {
         "id": 4,
@@ -1019,11 +1019,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-initiatives-list",
-    "description": "[DEEP] Initiatives List — feature business logic + edge cases",
+    "description": "[DEEP] Initiatives List \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1053,11 +1053,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-agent-pause-resume",
-    "description": "[DEEP] Agent Pause/Resume — feature business logic + edge cases",
+    "description": "[DEEP] Agent Pause/Resume \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1087,11 +1087,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-flow-d-running-an-auto-research-query",
-    "description": "[DEEP] Flow D — Running an auto-research query — feature business logic + edge cases",
+    "description": "[DEEP] Flow D \u2014 Running an auto-research query \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1117,11 +1117,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-crm-interaction-logging",
-    "description": "[DEEP] CRM Interaction Logging — feature business logic + edge cases",
+    "description": "[DEEP] CRM Interaction Logging \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1138,7 +1138,7 @@
       },
       {
         "id": 4,
-        "description": "Click to post /api/v1/crm/contacts/{other_org_contact}/interactions. Check: HTTP 404 (tenant isolation — contact not visible to this org)"
+        "description": "Click to post /api/v1/crm/contacts/{other_org_contact}/interactions. Check: HTTP 404 (tenant isolation \u2014 contact not visible to this org)"
       },
       {
         "id": 5,
@@ -1151,11 +1151,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-ip-register",
-    "description": "[DEEP] IP Register — feature business logic + edge cases",
+    "description": "[DEEP] IP Register \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1189,11 +1189,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-biz-flow-f-triggering-a-manual-erp-sync",
-    "description": "[BEHAVIORAL] Flow F — Triggering a manual ERP sync — cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Flow F \u2014 Triggering a manual ERP sync \u2014 cross-feature E2E business logic",
     "depth": 1,
     "steps": [
       {
@@ -1206,7 +1206,7 @@
       },
       {
         "id": 3,
-        "description": "Click to post to/api/v1/erp-sync/trigger— starts an immediate sync outside the 15-minute schedule."
+        "description": "Click to post to/api/v1/erp-sync/trigger\u2014 starts an immediate sync outside the 15-minute schedule."
       },
       {
         "id": 4,
@@ -1219,11 +1219,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-revenue-leads",
-    "description": "[DEEP] Revenue Leads — feature business logic + edge cases",
+    "description": "[DEEP] Revenue Leads \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1249,11 +1249,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-agent-list",
-    "description": "[DEEP] Agent List — feature business logic + edge cases",
+    "description": "[DEEP] Agent List \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1283,11 +1283,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-department-health",
-    "description": "[DEEP] Department Health — feature business logic + edge cases",
+    "description": "[DEEP] Department Health \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1317,11 +1317,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-biz-erp-sync-configuration",
-    "description": "[BEHAVIORAL] ERP Sync Configuration — cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] ERP Sync Configuration \u2014 cross-feature E2E business logic",
     "depth": 1,
     "steps": [
       {
@@ -1347,11 +1347,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-department-templates",
-    "description": "[DEEP] Department Templates — feature business logic + edge cases",
+    "description": "[DEEP] Department Templates \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1381,11 +1381,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-accountability-partners",
-    "description": "[DEEP] Accountability Partners — feature business logic + edge cases",
+    "description": "[DEEP] Accountability Partners \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1419,11 +1419,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-biz-brief-settings",
-    "description": "[BEHAVIORAL] Brief Settings — cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Brief Settings \u2014 cross-feature E2E business logic",
     "depth": 1,
     "steps": [
       {
@@ -1449,11 +1449,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-goals-kpis",
-    "description": "[DEEP] Goals/KPIs — feature business logic + edge cases",
+    "description": "[DEEP] Goals/KPIs \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1487,11 +1487,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-approvals-list",
-    "description": "[DEEP] Approvals List — feature business logic + edge cases",
+    "description": "[DEEP] Approvals List \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1521,11 +1521,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-structured-briefs",
-    "description": "[DEEP] Structured Briefs — feature business logic + edge cases",
+    "description": "[DEEP] Structured Briefs \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1555,11 +1555,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-initiative-dependencies",
-    "description": "[DEEP] Initiative Dependencies — feature business logic + edge cases",
+    "description": "[DEEP] Initiative Dependencies \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1589,11 +1589,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-flow-a-creating-and-tracking-a-strategic-initiativ",
-    "description": "[DEEP] Flow A — Creating and tracking a strategic initiative — feature business logic + edge cases",
+    "description": "[DEEP] Flow A \u2014 Creating and tracking a strategic initiative \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1631,11 +1631,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-biz-vendor-subscription-crud",
-    "description": "[BEHAVIORAL] Vendor Subscription CRUD — cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Vendor Subscription CRUD \u2014 cross-feature E2E business logic",
     "depth": 1,
     "steps": [
       {
@@ -1665,11 +1665,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-crm-contact-list",
-    "description": "[DEEP] CRM Contact List — feature business logic + edge cases",
+    "description": "[DEEP] CRM Contact List \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1699,11 +1699,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-decisions-log",
-    "description": "[DEEP] Decisions Log — feature business logic + edge cases",
+    "description": "[DEEP] Decisions Log \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1733,11 +1733,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-skill-review",
-    "description": "[DEEP] Skill Review — feature business logic + edge cases",
+    "description": "[DEEP] Skill Review \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1767,11 +1767,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-market-intelligence-feed",
-    "description": "[DEEP] Market Intelligence Feed — feature business logic + edge cases",
+    "description": "[DEEP] Market Intelligence Feed \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1801,11 +1801,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-notifications",
-    "description": "[DEEP] Notifications — feature business logic + edge cases",
+    "description": "[DEEP] Notifications \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1835,11 +1835,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
   },
   {
     "id": "comc-deep-growth-experiments",
-    "description": "[DEEP] Growth Experiments — feature business logic + edge cases",
+    "description": "[DEEP] Growth Experiments \u2014 feature business logic + edge cases",
     "depth": 1,
     "steps": [
       {
@@ -1873,6 +1873,28 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_retired_at": "2026-05-07T11:29:50.434685+00:00",
-    "_retire_reason": "D-09 backend API call pattern — replaced by portal navigation journeys"
+    "_retire_reason": "D-09 backend API call pattern \u2014 replaced by portal navigation journeys"
+  },
+  {
+    "id": "comc-pulse-dept-health",
+    "description": "Leaf: Verify departments page shows health scores and department detail page loads at /departments/[id].",
+    "dependsOn": "comc-trunk-superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/departments. Verify the page loads without error."
+      },
+      {
+        "id": 2,
+        "description": "Examine the departments page: verify department cards or list items are shown. Each department should display a name and a health score (numeric percentage or colour-coded indicator). Verify no department shows 'NaN', 'undefined', or a broken progress bar. If no departments exist, verify an empty state explains how to configure departments."
+      },
+      {
+        "id": 3,
+        "description": "If departments are listed: click the first department to navigate to its detail page at http://localhost:3002/command-centre/departments/[id]. Verify the detail page loads showing department name, description, associated team members or KPIs, and health breakdown. Take a screenshot of the department detail page."
+      }
+    ],
+    "_retired_at": "2026-05-07T16:30:39.052652+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   }
 ]

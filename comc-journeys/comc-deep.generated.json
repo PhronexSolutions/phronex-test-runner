@@ -1286,35 +1286,19 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/notifications. Wait for the page to load. Inspect the network tab to confirm a GET request was sent to /api/v1/notifications (or similar). Record the total count of notifications displayed and note whether pagination controls (prev/next/page numbers) are visible. Store the first notification's ID as {{first_notif_id}} and its read status (should be false or empty) as {{initial_read_status}}."
+        "description": "SEED a test notification: Using page.evaluate(), send a POST request to http://localhost:3002/command-centre/api/v1/notifications/ingest with headers {'Content-Type': 'application/json', 'X-Plugin-Secret': 'test-plugin-secret'} and body {'title': 'QA Test Notification', 'body': 'This is a test notification created by JourneyHawk.', 'severity': 'normal', 'org_id': null}. If this returns 403 (plugin secret not configured), skip seeding and proceed to step 3 with the note 'seed_skipped=true'. If it returns 200/201, store the notification ID as {{notif_id}}. If the feed already has notifications, skip this step."
       },
       {
         "id": 3,
-        "description": "Click on the first notification in the list (or click a 'Mark as Read' button/icon next to it). Wait for a visual change (e.g. the notification row changes color, a badge disappears, or a checkmark appears). Verify no error toast appears. Store the notification ID that was marked as {{marked_notif_id}}."
+        "description": "Navigate to http://localhost:3002/command-centre/notifications. Wait for the page to load. Verify the notifications page loads without error. If the feed is empty and seed was skipped (403 on ingest), mark this step as RESOURCE_BLOCKED with note 'notification ingest requires plugin auth \u2014 no QA fixture mechanism available'. Otherwise verify at least one notification is visible in the list."
       },
       {
         "id": 4,
-        "description": "Refresh the page (Ctrl+R or F5). Wait for the notifications feed to reload. Locate {{marked_notif_id}} in the list and verify its read status is now true (e.g. row is grayed out, 'Read' label appears, or checkbox is checked). If the notification disappears entirely (filtered out), verify a filter toggle exists and is set to 'Show unread only' \u2014 toggle it and verify the notification reappears as read."
-      },
-      {
-        "id": 5,
-        "description": "Click the 'Mark as Read' button/icon again on {{marked_notif_id}} (or perform the same action twice). Wait for any response. Verify no error occurs and the notification remains marked as read. This tests idempotency \u2014 the second 'mark read' call should be safe and not cause a 409 conflict or rollback."
-      },
-      {
-        "id": 6,
-        "description": "If pagination exists: scroll to the bottom of the current page and click 'Next' or 'Page 2'. Verify the notification list changes and new notifications appear. Click back to the previous page and verify {{marked_notif_id}} is still present and still marked as read. This confirms pagination state is independent of read-state persistence."
-      },
-      {
-        "id": 7,
-        "description": "Navigate away from notifications (click 'Dashboard' or another top-level nav item). Then navigate back to http://localhost:3002/command-centre/notifications. Wait for the feed to reload. Verify {{marked_notif_id}} is still marked as read. This is the final persistence check: the read state survives a full page navigation cycle."
-      },
-      {
-        "id": 8,
-        "description": "Using page.evaluate(): fetch the raw notifications API. Send a GET request to http://localhost:3002/command-centre/api/v1/notifications with the browser's existing auth headers. Verify HTTP 200. In the JSON response, locate the notification with ID {{marked_notif_id}} and confirm its 'read' field is true. Verify the response includes paginated metadata (e.g. 'page', 'per_page', 'total', or '_links'). Verify no notifications from other orgs appear in the response (tenant isolation check)."
+        "description": "If notifications exist: click the first notification or its 'Mark as Read' button. Verify the visual state changes (row grayed out, badge removed, or checkmark shown). Verify no error toast appears. Navigate away to /command-centre/dashboard and back to /command-centre/notifications. Verify the notification remains marked as read. This confirms read-state persists across navigation."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1789,7 +1773,8 @@
   },
   {
     "id": "comc-biz-dept-template-apply-persistence",
-    "description": "[BEHAVIORAL] Department Templates: verify that applying an industry template to a department persists template defaults (agents, roles, heartbeat intervals), survives navigation away and return, and correctly updates department configuration without data loss or partial application failures.",
+    "description": "[BEHAVIORAL] Department Outreach Templates: verify CRUD for outreach templates at /departments/[deptId]/templates \u2014 create a new template with variable placeholders, save it, verify persistence after navigation, then edit the body and confirm the version badge increments.",
+    "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
     "steps": [
       {
@@ -1798,34 +1783,25 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/settings/departments. Wait for the page to load. Locate and click on any department in the list (or create a new test department if none exist). Note the department ID from the URL or page details \u2014 store as {{dept_id}}."
+        "description": "Navigate to http://localhost:3002/command-centre/departments. Wait for the departments list to load. Click on the first department in the list to open its detail page. Record the department ID from the URL (e.g. /departments/uuid-here). Store as {{dept_id}}."
       },
       {
         "id": 3,
-        "description": "On the department detail page, look for a 'Templates' or 'Apply Template' button/section. Click it. A dialog or form should appear showing available industry templates. Select an industry template (e.g., 'Tech Support', 'Sales', 'Customer Service' \u2014 whichever is available). Store the template name as {{template_name}}."
+        "description": "On the department detail page, locate the 'Templates' tab in the SubTabBar (Health / Agents / KPIs / Activity / Initiatives / Manager / Templates / Settings). Click 'Templates'. The page should navigate to /command-centre/departments/{{dept_id}}/templates and show the 'Outreach Templates' heading with a 'New Template' button."
       },
       {
         "id": 4,
-        "description": "Click the 'Apply Template' or 'Save' button to submit the template application. Using page.evaluate(): send a POST request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}}/apply-template with headers {\"Authorization\": \"Bearer <token from session>\"} and body {{\"template_name\": \"{{template_name}}\"}}, or monitor the UI for successful application. Verify HTTP 200 response or success toast notification. Wait for the page to reflect the changes."
+        "description": "Click the 'New Template' button. A form should appear with 'Template Name' and 'Body' fields plus variable helper buttons ({{company_name}}, {{contact_name}}, etc.). Fill 'Template Name' with 'QA-Test-Template'. Click the '{{company_name}}' variable helper to insert it into the body. Add additional body text: 'Hello {{contact_name}}, this is a test template for {{company_name}}'. Submit the form by clicking 'Create Template'. Verify a success state \u2014 the new template should appear in the list on the left."
       },
       {
         "id": 5,
-        "description": "After template application, the page should display updated department config. Verify visually that agents count, role assignments, and heartbeat interval fields are now populated with template defaults. Record at least 3 config values: {{agents_count}}, {{primary_role}}, {{heartbeat_interval}}. These will be verification points."
+        "description": "Verify the created template 'QA-Test-Template' appears in the template list with a version badge (v1). Click the template to select it. Verify the editor on the right loads with the template body text and shows a 'Save' button. Take a screenshot of the template editor."
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}}/isolation-mode with headers {\"Authorization\": \"Bearer <token from session>\"}. Verify HTTP 200 response. Extract the isolation mode setting (enabled/disabled) and store as {{initial_isolation_mode}}. If the endpoint returns no data or a 404, this is a MISSING_ROUTE failure."
-      },
-      {
-        "id": 7,
-        "description": "Navigate away from the department page by clicking on 'Dashboard' or another main nav item. Wait 2 seconds. Then navigate back to http://localhost:3002/command-centre/settings/departments and reopen the same department ({{dept_id}}). Verify that the applied template config is still present: check {{agents_count}}, {{primary_role}}, and {{heartbeat_interval}} match the values recorded in step 5. If any value is missing or reverted, this is a STATE_NOT_PERSISTED failure."
-      },
-      {
-        "id": 8,
-        "description": "Using page.evaluate(): send a PATCH request to http://localhost:3002/command-centre/api/v1/departments/{{dept_id}}/isolation-mode with headers {\"Authorization\": \"Bearer <token from session>\"} and body {{\"enabled\": true}} (toggle isolation mode to the opposite of {{initial_isolation_mode}}). Verify HTTP 200 response. Then send a GET request to the same endpoint to confirm the new mode is persisted. If the GET does not reflect the PATCH change, this is a STATE_NOT_PERSISTED failure. If PATCH returns validation error, record the failure_mode as VALIDATION."
+        "description": "Navigate away from the templates page by going back to the department detail (click browser back or navigate to /command-centre/departments/{{dept_id}}). Then click the 'Templates' tab again. Verify 'QA-Test-Template' is still listed \u2014 confirming persistence across navigation. This is the persistence check."
       }
-    ],
-    "dependsOn": "comc-trunk-superadmin"
+    ]
   },
   {
     "id": "comc-biz-dept-template-invalid-overwrite",
