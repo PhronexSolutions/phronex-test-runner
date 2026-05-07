@@ -84,7 +84,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/departments. Wait for the departments list to load. Click on the first department in the list to open its detail page. Record the department ID from the URL (e.g. /departments/uuid-here). Store as {{dept_id}}."
+        "description": "Navigate to http://localhost:3002/command-centre/departments. Wait for the departments list to load. Click on the first department in the list. Note the department ID from the URL \u2014 store as {{dept_id}}."
       },
       {
         "id": 3,
