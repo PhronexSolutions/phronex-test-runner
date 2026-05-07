@@ -2802,7 +2802,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file missing or session JWT expired (401 response from GET /api/v1/agents), navigate to https://192.168.1.250:3002/login, enter superadmin credentials, and verify successful redirect to /command-centre dashboard with HTTP 200."
+        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file missing or session JWT expired (401 response from GET /api/v1/agents), navigate to https://localhost:3002/login, enter superadmin credentials, and verify successful redirect to /command-centre dashboard with HTTP 200."
       },
       {
         "id": 2,
@@ -3078,7 +3078,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session is expired (401 response from GET /api/sessions/current), navigate to http://192.168.1.250:8004/login, enter superadmin credentials, and verify redirect to dashboard with 200 status code. Store session token for subsequent API calls."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session is expired (401 response from GET /api/sessions/current), navigate to http://localhost:8004/login, enter superadmin credentials, and verify redirect to dashboard with 200 status code. Store session token for subsequent API calls."
       },
       {
         "id": 2,
@@ -3118,11 +3118,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file exists and JWT is valid, inject into localStorage under key 'phronex_auth_token'. If missing or expired (createdAt > 24h), navigate to http://192.168.1.250:3002/login, enter superadmin credentials (email: admin@phronex.internal, password from .env), and capture the new JWT session state to the temp file."
+        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file exists and JWT is valid, inject into localStorage under key 'phronex_auth_token'. If missing or expired (createdAt > 24h), navigate to http://localhost:3002/login, enter superadmin credentials (email: admin@phronex.internal, password from .env), and capture the new JWT session state to the temp file."
       },
       {
         "id": 2,
-        "description": "Navigate to http://192.168.1.250:8004/command-centre/dashboard. Verify page loads within 3 seconds. Confirm presence of: Dashboard heading, 4 metric cards (Agent Count, Active Briefs, Pending Approvals, Department Health Summary), and Decisions Log section. Verify all metric cards render with numeric values (not blank/zero when agents exist in org). Check browser console for zero JavaScript errors and no React error boundary fallback UI."
+        "description": "Navigate to http://localhost:8004/command-centre/dashboard. Verify page loads within 3 seconds. Confirm presence of: Dashboard heading, 4 metric cards (Agent Count, Active Briefs, Pending Approvals, Department Health Summary), and Decisions Log section. Verify all metric cards render with numeric values (not blank/zero when agents exist in org). Check browser console for zero JavaScript errors and no React error boundary fallback UI."
       },
       {
         "id": 3,
@@ -3158,7 +3158,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load or establish superadmin session: Check for cached JWT in '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file exists and JWT is valid (check exp claim), inject into browser localStorage under key 'auth_token'. If expired or missing, navigate to http://192.168.1.250:8004/login, enter superadmin credentials (email: admin@phronex.internal, password from env COMC_SUPERADMIN_PASSWORD), and verify redirect to /command-centre dashboard with HTTP 200."
+        "description": "Load or establish superadmin session: Check for cached JWT in '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file exists and JWT is valid (check exp claim), inject into browser localStorage under key 'auth_token'. If expired or missing, navigate to http://localhost:8004/login, enter superadmin credentials (email: admin@phronex.internal, password from env COMC_SUPERADMIN_PASSWORD), and verify redirect to /command-centre dashboard with HTTP 200."
       },
       {
         "id": 2,
@@ -3198,7 +3198,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (401 Unauthorized), navigate to http://192.168.1.250:8004/login, enter superadmin credentials, and verify 'Dashboard' page loads with 'Welcome, Superadmin' header."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (401 Unauthorized), navigate to http://localhost:8004/login, enter superadmin credentials, and verify 'Dashboard' page loads with 'Welcome, Superadmin' header."
       },
       {
         "id": 2,
@@ -3318,11 +3318,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify JWT token is valid and role=superadmin claim is present. If session expired (401 Unauthorized), navigate to http://192.168.1.250:8004/login, enter superadmin credentials (user: phronex_admin@phronex.internal, pass: [test-vault]), click 'Sign In', and wait for redirect to /command-centre with 200 OK."
+        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify JWT token is valid and role=superadmin claim is present. If session expired (401 Unauthorized), navigate to http://localhost:8004/login, enter superadmin credentials (user: phronex_admin@phronex.internal, pass: [test-vault]), click 'Sign In', and wait for redirect to /command-centre with 200 OK."
       },
       {
         "id": 2,
-        "description": "Navigate to http://192.168.1.250:8004/platform-overview. Verify GET /platform-overview returns HTTP 200 with JSON response containing keys: 'strategy_analysis', 'capabilities', 'platform_ip', 'route_coverage', 'documents', 'projects'. Confirm page renders without console errors (F12 \u2192 Console tab shows zero JavaScript errors). Verify React component tree contains 'PlatformOverviewPage' and 'CapabilitiesGrid' elements."
+        "description": "Navigate to http://localhost:8004/platform-overview. Verify GET /platform-overview returns HTTP 200 with JSON response containing keys: 'strategy_analysis', 'capabilities', 'platform_ip', 'route_coverage', 'documents', 'projects'. Confirm page renders without console errors (F12 \u2192 Console tab shows zero JavaScript errors). Verify React component tree contains 'PlatformOverviewPage' and 'CapabilitiesGrid' elements."
       },
       {
         "id": 3,
@@ -3330,11 +3330,11 @@
       },
       {
         "id": 4,
-        "description": "Test VALIDATION: Navigate to 'Admin \u2192 Webhook Configuration' (http://192.168.1.250:8004/admin/webhooks). Attempt to create a new webhook with invalid URL field (enter 'not-a-url' in Webhook URL input). Click 'Save'. Verify inline validation error appears: 'Invalid URL format \u2014 must be https://'. Confirm POST request is NOT sent (network tab shows no 201/202). Correct URL to 'https://webhook.phronex.internal/test', click 'Save', and verify 201 Created response with webhook_id in response body."
+        "description": "Test VALIDATION: Navigate to 'Admin \u2192 Webhook Configuration' (http://localhost:8004/admin/webhooks). Attempt to create a new webhook with invalid URL field (enter 'not-a-url' in Webhook URL input). Click 'Save'. Verify inline validation error appears: 'Invalid URL format \u2014 must be https://'. Confirm POST request is NOT sent (network tab shows no 201/202). Correct URL to 'https://webhook.phronex.internal/test', click 'Save', and verify 201 Created response with webhook_id in response body."
       },
       {
         "id": 5,
-        "description": "Test PERSISTENCE: With webhook successfully created (step 4), navigate away from Admin section to Dashboard (click 'Dashboard' in left sidebar). Wait for GET /command-centre/dashboard to return 200. Verify dashboard renders with zero errors. Navigate back to 'Admin \u2192 Webhook Configuration' (http://192.168.1.250:8004/admin/webhooks). Confirm the previously created webhook persists in the table with correct URL, status='active', and creation timestamp. Verify GET /api/webhooks returns 200 with webhook_id matching the created record."
+        "description": "Test PERSISTENCE: With webhook successfully created (step 4), navigate away from Admin section to Dashboard (click 'Dashboard' in left sidebar). Wait for GET /command-centre/dashboard to return 200. Verify dashboard renders with zero errors. Navigate back to 'Admin \u2192 Webhook Configuration' (http://localhost:8004/admin/webhooks). Confirm the previously created webhook persists in the table with correct URL, status='active', and creation timestamp. Verify GET /api/webhooks returns 200 with webhook_id matching the created record."
       },
       {
         "id": 6,
@@ -3438,7 +3438,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load or establish superadmin session: Check for valid JWT in '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If missing or expired (>1 hour old), navigate to http://192.168.1.250:8004/login, enter superadmin credentials (is_superadmin=true in phronex-auth), and verify redirect to /command-centre dashboard with 'Approvals Queue' pillar visible in left sidebar."
+        "description": "Load or establish superadmin session: Check for valid JWT in '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If missing or expired (>1 hour old), navigate to http://localhost:8004/login, enter superadmin credentials (is_superadmin=true in phronex-auth), and verify redirect to /command-centre dashboard with 'Approvals Queue' pillar visible in left sidebar."
       },
       {
         "id": 2,
@@ -3558,7 +3558,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session token expired (HTTP 401), clear cookies and navigate to https://192.168.1.250:8004/login, enter superadmin credentials, and verify redirect to /dashboard with authenticated state."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session token expired (HTTP 401), clear cookies and navigate to https://localhost:8004/login, enter superadmin credentials, and verify redirect to /dashboard with authenticated state."
       },
       {
         "id": 2,
@@ -3598,7 +3598,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load or restore superadmin session: attempt to load JWT and session state from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file missing or JWT expired (verify via /api/v1/auth/verify returning 401), navigate to http://192.168.1.250:8004/login, enter superadmin credentials (email: admin@phronex.internal, password from env SUPERADMIN_PASSWORD), and verify redirect to /admin/platform-overview with HTTP 200 and 'Platform Overview' header visible in left sidebar."
+        "description": "Load or restore superadmin session: attempt to load JWT and session state from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If file missing or JWT expired (verify via /api/v1/auth/verify returning 401), navigate to http://localhost:8004/login, enter superadmin credentials (email: admin@phronex.internal, password from env SUPERADMIN_PASSWORD), and verify redirect to /admin/platform-overview with HTTP 200 and 'Platform Overview' header visible in left sidebar."
       },
       {
         "id": 2,
@@ -3622,11 +3622,11 @@
       },
       {
         "id": 7,
-        "description": "Test permission boundary: log out by clicking 'Logout' in top-right menu (or delete JWT from localStorage). Refresh page to land on /login. Log in as authenticated non-superadmin user (email: user@org.phronex.internal, valid phronex-auth account with ComC access grant but is_superadmin=false). Navigate to http://192.168.1.250:8004/admin/platform-overview. Verify HTTP GET /api/v1/admin/platform-overview returns 403 Forbidden with JSON detail: 'Superadmin role required to access admin endpoints'. Confirm user sees error message 'Access Denied: Admin privileges required' on page, and 'Admin' pillar tab is not visible in left sidebar."
+        "description": "Test permission boundary: log out by clicking 'Logout' in top-right menu (or delete JWT from localStorage). Refresh page to land on /login. Log in as authenticated non-superadmin user (email: user@org.phronex.internal, valid phronex-auth account with ComC access grant but is_superadmin=false). Navigate to http://localhost:8004/admin/platform-overview. Verify HTTP GET /api/v1/admin/platform-overview returns 403 Forbidden with JSON detail: 'Superadmin role required to access admin endpoints'. Confirm user sees error message 'Access Denied: Admin privileges required' on page, and 'Admin' pillar tab is not visible in left sidebar."
       },
       {
         "id": 8,
-        "description": "Verify session state persistence in .tmp file: after completing steps 1-7 as superadmin, examine browser DevTools > Application > LocalStorage for keys: 'comc_jwt_token', 'comc_session_id', 'comc_user_org_id'. Confirm all three keys are populated with non-empty strings. Close the browser tab completely (not just navigate away). Re-open ComC URL http://192.168.1.250:8004/dashboard. Verify session auto-restores (no redirect to /login, page loads in authenticated state with 'Platform Overview' accessible). Confirm saved state file /home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json is updated with latest JWT and user metadata (updated_at matches current timestamp \u00b15 seconds)."
+        "description": "Verify session state persistence in .tmp file: after completing steps 1-7 as superadmin, examine browser DevTools > Application > LocalStorage for keys: 'comc_jwt_token', 'comc_session_id', 'comc_user_org_id'. Confirm all three keys are populated with non-empty strings. Close the browser tab completely (not just navigate away). Re-open ComC URL http://localhost:8004/dashboard. Verify session auto-restores (no redirect to /login, page loads in authenticated state with 'Platform Overview' accessible). Confirm saved state file /home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json is updated with latest JWT and user metadata (updated_at matches current timestamp \u00b15 seconds)."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -3638,7 +3638,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify JWT token is valid and bearer token is set in Authorization header. If session expired (401 Unauthorized), navigate to http://192.168.1.250:8004/login, enter superadmin credentials, and wait for redirect to /dashboard with new JWT token stored in session."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify JWT token is valid and bearer token is set in Authorization header. If session expired (401 Unauthorized), navigate to http://localhost:8004/login, enter superadmin credentials, and wait for redirect to /dashboard with new JWT token stored in session."
       },
       {
         "id": 2,
@@ -3838,7 +3838,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session file missing or JWT expired (verify via GET /api/v1/admin/health returning 401), navigate to ComC login at http://192.168.1.250:8004, enter superadmin credentials, and confirm HTTP 200 response with JWT stored in localStorage under 'auth_token'."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session file missing or JWT expired (verify via GET /api/v1/admin/health returning 401), navigate to ComC login at http://localhost:8004, enter superadmin credentials, and confirm HTTP 200 response with JWT stored in localStorage under 'auth_token'."
       },
       {
         "id": 2,
@@ -3878,11 +3878,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (401 Unauthorized), navigate to ComC login page (http://192.168.1.250:8004/login), enter superadmin credentials, and verify redirect to dashboard with session cookie present in browser storage."
+        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (401 Unauthorized), navigate to ComC login page (http://localhost:8004/login), enter superadmin credentials, and verify redirect to dashboard with session cookie present in browser storage."
       },
       {
         "id": 2,
-        "description": "Navigate to 'Deployment Constraints' admin panel by clicking menu item or direct URL (http://192.168.1.250:8004/admin/deployment-constraints). Verify page loads within 50ms (health endpoint response). Confirm table displays existing constraints with columns: 'Constraint Name', 'Type', 'Value', 'Status', 'Actions'."
+        "description": "Navigate to 'Deployment Constraints' admin panel by clicking menu item or direct URL (http://localhost:8004/admin/deployment-constraints). Verify page loads within 50ms (health endpoint response). Confirm table displays existing constraints with columns: 'Constraint Name', 'Type', 'Value', 'Status', 'Actions'."
       },
       {
         "id": 3,
@@ -3898,7 +3898,7 @@
       },
       {
         "id": 6,
-        "description": "Test persistence: navigate away from Deployment Constraints page to Dashboard (http://192.168.1.250:8004/dashboard) by clicking 'Dashboard' in sidebar. Wait 2 seconds. Return to Deployment Constraints page. Verify all previously created/edited constraints are displayed with current values intact (constraint 'max_concurrent_deployments' shows Value='10'). Confirm no data loss after navigation."
+        "description": "Test persistence: navigate away from Deployment Constraints page to Dashboard (http://localhost:8004/dashboard) by clicking 'Dashboard' in sidebar. Wait 2 seconds. Return to Deployment Constraints page. Verify all previously created/edited constraints are displayed with current values intact (constraint 'max_concurrent_deployments' shows Value='10'). Confirm no data loss after navigation."
       },
       {
         "id": 7,
