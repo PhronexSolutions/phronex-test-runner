@@ -133,7 +133,8 @@ PORTAL_URL="${PORTAL_URL:-https://app.phronex.com}"
 echo "[env] Portal URL: ${PORTAL_URL}"
 TEMP_SPEC=$(mktemp /tmp/jh-spec-XXXXXX.json)
 FILTERED_SPEC=$(mktemp /tmp/jh-spec-filtered-XXXXXX.json)
-trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}"' EXIT
+_SPEC_ACTIVE=$(mktemp /tmp/jh-spec-active-XXXXXX.json)
+trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}" "${_SPEC_ACTIVE}"' EXIT
 # Chain: URL substitution + credential injection.
 # Credential injection — sentinels in spec text are replaced at runtime so the
 # LLM agent receives literal values, never placeholder strings.
@@ -157,6 +158,15 @@ _JP_STANDARD_EMAIL="${QA_JP_STANDARD_EMAIL:-qa-jp-standard@phronex.com}"
 _JP_STANDARD_PASS="${QA_JP_STANDARD_PASSWORD:-${_PORTAL_PASS}}"
 _JP_PRO_EMAIL="${QA_JP_PRO_EMAIL:-qa-jp-pro@phronex.com}"
 _JP_PRO_PASS="${QA_JP_PRO_PASSWORD:-${_PORTAL_PASS}}"
+# Pre-filter: strip journeys with _retired_at before credential substitution.
+# Retired journeys in the static spec would otherwise pass through and run.
+"${PYTHON}" -c "
+import json, sys
+spec = json.load(open('${SPEC_FILE}'))
+active = [j for j in spec if not j.get('_retired_at')]
+json.dump(active, sys.stdout, ensure_ascii=False)
+" > "${_SPEC_ACTIVE}" 2>/dev/null || cp "${SPEC_FILE}" "${_SPEC_ACTIVE}"
+echo "[pre] Active journeys after filtering retired: $("${PYTHON}" -c "import json; print(len(json.load(open('${_SPEC_ACTIVE}'))))" 2>/dev/null || echo '?')"
 sed \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
@@ -171,7 +181,7 @@ sed \
   -e "s|QA_JP_STANDARD_PASSWORD|${_JP_STANDARD_PASS}|g" \
   -e "s|QA_JP_PRO_EMAIL|${_JP_PRO_EMAIL}|g" \
   -e "s|QA_JP_PRO_PASSWORD|${_JP_PRO_PASS}|g" \
-  "${SPEC_FILE}" > "${TEMP_SPEC}"
+  "${_SPEC_ACTIVE}" > "${TEMP_SPEC}"
 if [[ -n "${_PORTAL_PASS}" ]]; then
   echo "[env] Portal credentials: ${_PORTAL_EMAIL} (password injected)"
 else
@@ -491,14 +501,31 @@ from phronex_common.testing.depth_scorer import score_journey, DepthLevel
 specs = json.loads(open('${TEMP_SPEC}').read())
 allow_smoke = os.environ.get('JH_ALLOW_SMOKE', '0') == '1'
 
+# D-10 fix: static-spec journeys always run regardless of SMOKE classification.
+# Human-authored journeys should never be silently dropped by the depth gate.
+# Retired journeys (_retired_at set) are excluded from the static_ids set so they
+# do not receive the "always run" exemption and are dropped by the depth gate.
+try:
+    static_ids = {j.get('id', '') for j in json.load(open('${SPEC_FILE}'))
+                  if not j.get('_retired_at')}
+except Exception:
+    static_ids = set()
+
 smoke = []
 surface = []
 kept = []
 
 for j in specs:
     depth = score_journey(j)
+    jid = j.get('id', '')
     if depth == DepthLevel.SMOKE:
-        smoke.append(j)
+        if jid in static_ids:
+            # Static-spec journey: always run even if SMOKE (D-10)
+            # Strip 'depth' — internal classification field, not in cc-test-runner Zod schema
+            j.pop('depth', None)
+            kept.append(j)
+        else:
+            smoke.append(j)
     elif depth == DepthLevel.SURFACE:
         surface.append(j)
         kept.append(j)
@@ -582,6 +609,23 @@ else
 fi
 rm -f "${RUN_FILTER_OUTPUT}"
 _STAGE_AFTER_RUNFILTER=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_DEPTH}")
+
+# Step 1a-pre: Portal EC2 reachability probe (D-13)
+# Runs once before fixture_guard so detect_portal_ec2_reachable can use the
+# cached result (PORTAL_EC2_DOWN env var) without reconnecting per journey.
+# When EC2 is down: trunk login journey gets SKIP verdict, not FAIL — preventing
+# 50+ cascade failures from appearing as legitimate product defects.
+_PORTAL_HOST=$(echo "${PORTAL_URL}" | sed 's|https\?://||' | cut -d/ -f1)
+if [[ "${_PORTAL_HOST}" == "localhost" || "${_PORTAL_HOST}" == "127.0.0.1" ]]; then
+  export PORTAL_EC2_DOWN="false"
+  echo "[1a-pre] Portal EC2 probe: local portal (${_PORTAL_HOST}) — skipping remote check"
+elif nc -z -w 5 "${_PORTAL_HOST}" 443 2>/dev/null; then
+  export PORTAL_EC2_DOWN="false"
+  echo "[1a-pre] Portal EC2 probe: ${_PORTAL_HOST}:443 reachable"
+else
+  export PORTAL_EC2_DOWN="true"
+  echo "[1a-pre] WARN: Portal EC2 probe: ${_PORTAL_HOST}:443 unreachable — trunk journeys will be SKIP not FAIL"
+fi
 
 # Step 1a: Strategist Block A — fixture_guard pre-filter
 # STRATEGIST_MODE controls behaviour (DISABLED|READ_ONLY|ACTIVE; default ACTIVE).
