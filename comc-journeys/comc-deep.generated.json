@@ -1290,7 +1290,7 @@
       },
       {
         "id": 2,
-        "description": "SEED a test notification: Using page.evaluate(), send a POST request to http://localhost:3002/command-centre/api/v1/notifications/ingest with headers {'Content-Type': 'application/json', 'X-Plugin-Secret': 'test-plugin-secret'} and body {'title': 'QA Test Notification', 'body': 'This is a test notification created by JourneyHawk.', 'severity': 'normal', 'org_id': null}. If this returns 403 (plugin secret not configured), skip seeding and proceed to step 3 with the note 'seed_skipped=true'. If it returns 200/201, store the notification ID as {{notif_id}}. If the feed already has notifications, skip this step."
+        "description": "SEED test notifications: Using page.evaluate(), send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/notifications/seed-qa with headers {'Content-Type': 'application/json'} and credentials: 'include'. This DevServer-only endpoint (guarded: 403 on comc.phronex.com) creates 3 synthetic notifications for the authenticated org and returns {seeded: 3, ids: [...]}. Store the returned ids as {{seeded_ids}}. If the call returns non-201, mark this step RESOURCE_BLOCKED with the response body. If the feed already has >= 3 notifications, skip seeding and note 'seed_skipped=already_populated'."
       },
       {
         "id": 3,
