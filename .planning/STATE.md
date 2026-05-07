@@ -1,9 +1,10 @@
 ---
-project: phronex-test-runner
-type: internal-tooling
-created: 2026-05-01
-status: ready
-external_milestone: phronex-common v18.0 — Test Strategist Layer (Foundations)
+gsd_state_version: 1.0
+milestone: v18.0
+milestone_name: milestone
+status: verifying
+last_updated: "2026-05-05T10:02:35.944Z"
+last_activity: 2026-05-03 - Portal tree spec (21 nodes), v18.0 bug fixes, smoke consolidation
 ---
 
 # State — phronex-test-runner
@@ -18,6 +19,7 @@ external_milestone: phronex-common v18.0 — Test Strategist Layer (Foundations)
 ## Stopped At
 
 All Run 6 action items (Items 1/2/3) are committed and verified against git:
+
 - Item 1 (tree executor): TypeScript + jp-deep.json 26-node tree — `ab78457`
 - Item 2 (v18.0 bugs): CTRF step-tracking + session bleed fixes — `56444f4`
 - Item 3 (rate limit exemption): phronex-auth `8340b7e` + portal toggle wired
@@ -27,9 +29,12 @@ Portal tree spec also shipped: `portal-tree.json` 21-node tree — `56444f4`.
 ## Next Action
 
 **Run the portal or JP tree spec** to verify the 8-10 min timing target (vs ~25 min flat):
+
 ```bash
 ./run-journeyhawk.sh jp jp-journeys/jp-deep.json
+
 # or for portal:
+
 ./run-journeyhawk.sh portal portal-journeys/portal-tree.json
 ```
 

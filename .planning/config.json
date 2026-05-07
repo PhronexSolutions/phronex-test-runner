@@ -1,5 +1,5 @@
 {
-  "model_profile": "balanced",
+  "model_profile": "budget",
   "commit_docs": true,
   "parallelization": false,
   "search_gitignored": false,
@@ -37,5 +37,11 @@
   "agent_skills": {},
   "features": {},
   "mode": "yolo",
-  "granularity": "coarse"
+  "granularity": "coarse",
+  "model_overrides": {
+    "plan": "claude-sonnet-4-6",
+    "execute": "claude-sonnet-4-6",
+    "verify": "claude-sonnet-4-6",
+    "research": "claude-sonnet-4-6"
+  }
 }

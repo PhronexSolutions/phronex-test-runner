@@ -122,4 +122,82 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-*Last updated: 2026-05-06 (D-01 + D-02 + D-04 resolved; D-07 added during Run 15 and resolved same session)*
+*Last updated: 2026-05-07 (D-01 + D-02 + D-04 resolved; D-07 added during Run 15 and resolved same session; D-08 through D-13 added during autonomous Run 7 session)*
+
+---
+
+## D-13: Trunk login fails when EC2 is down — leaf journeys still pass via saved session
+
+**What happened in run7:** The trunk (`comc-trunk-superadmin`) failed at the login step because `AUTH_API_URL=https://auth.phronex.com` — the portal validates credentials against EC2 phronex-auth, which is currently unreachable. However, all 10+ leaf journeys PASSED by loading the saved session from run6's state file (`comc-trunk-superadmin-state.json`, valid 715 hours).
+
+**This is working as designed.** The saved state file acts as a credential cache. The trunk's single failure does not cascade to leaf journeys because each leaf has "Load saved session OR log in" as its first step.
+
+**However:** The trunk failure IS recorded as a BROKEN verdict in `qa_journey_verdicts`, which will eventually affect the `qa_confidence_scores` for `comc-trunk-superadmin`. After 5+ BROKEN runs, the curator might attempt to retire the trunk (though the `isSharedRoot` guard in `spec_curator.py` now prevents that).
+
+**Architectural question:** Should the trunk's verdict account for EC2 availability? If `auth.phronex.com` is unreachable, the trunk login failure is a test infrastructure issue, not a product bug. Options:
+- A) Add EC2 reachability check at trunk start — if unreachable, mark as SKIP rather than FAIL
+- B) Add a local phronex-auth fallback URL (e.g., `AUTH_API_URL_LOCAL=http://localhost:8002`) for DevServer-only runs
+- C) Accept the current behaviour — EC2 outages are rare, trunk false-fails are self-healing when EC2 recovers
+
+**Current state:** EC2 is down. Run7 trunk failed. Leaf journeys all passing via saved state. No action needed for run7 to complete successfully.
+
+---
+
+## D-08: Canonical URL for spec files — `localhost:3002` vs `app.phronex.com`
+
+**Context:** EC2 portal went down (502) during autonomous run. Switched `PORTAL_URL=http://localhost:3002` in `.qa.env` and manually patched 230 step descriptions in `comc-deep.json` + `comc-deep.generated.json` from `https://app.phronex.com` → `http://localhost:3002`.
+
+**The `run-journeyhawk.sh` sed substitution** only goes one direction: replaces `localhost:3002` → `$PORTAL_URL` at runtime. So if specs have `app.phronex.com` baked in and `PORTAL_URL=http://localhost:3002`, the substitution misses them.
+
+**Current state:** Specs have `localhost:3002` as canonical. This works for DevServer QA. When EC2 recovers, setting `PORTAL_URL=https://app.phronex.com` in `.qa.env` will cause run-journeyhawk.sh to replace `localhost:3002` → `https://app.phronex.com` in the temp merged spec at runtime. Should work without touching the spec files again.
+
+**Decision needed:** Confirm that `localhost:3002` is the right canonical for spec files long-term. If yes, no action needed — current state is correct.
+
+---
+
+## D-09: Generated journeys calling backend API directly — false positives
+
+**What happened:** ~33 generated journeys (`comc-deep-*`, `comc-biz-*`, `comc-hld-*`, `comc-architecture-*`, `comc-sec-*`) fail with 401/404 because they try to call `http://localhost:8004/api/v1/...` directly using portal Auth.js cookies. Auth.js JWE cookies are not valid Bearer JWTs for the ComC API.
+
+**Root cause:** The journey generator is given ARCHITECTURE.html and HLD docs as inputs, and generates journeys that test backend API contracts. These are integration tests, not browser E2E tests — they require a phronex-auth Bearer JWT, not a portal session.
+
+**Recommendation:** Modify the journey generator prompt to explicitly prohibit generating steps that call backend URLs (`localhost:8004`) directly. All steps must navigate the portal UI at the portal URL. Backend behaviour is verified indirectly through the portal's proxy calls.
+
+**Decision needed:** Approval to modify journey generator prompt constraints. This will reduce generated journey count by ~30-40 but eliminate the false-positive class entirely.
+
+---
+
+## D-10: Depth gate dropping static-spec journeys due to deepener bug
+
+**What happened:** 19 of 45 static-spec journeys are classified SMOKE and dropped before running. The deepener fails with: `AnthropicProvider.chat() missing 1 required positional argument: 'messages'`. These journeys stay SMOKE → depth gate drops them.
+
+**Affected:** `comc-config-*`, `comc-rbac-*`, `comc-people-*`, `comc-ops-costs-*` — core admin/config flows. They have never been tested in 6 runs.
+
+**Recommendation:** Depth gate should skip SMOKE-drop for static-spec journeys (those in `comc-deep.json` original file, not `.generated.json`). Also fix the `AnthropicProvider.chat()` signature bug.
+
+**Decision needed:** Approval to modify depth gate to always run static-spec journeys regardless of SMOKE classification.
+
+---
+
+## D-11: Heartbeat SQL bug — `entity_memory = :data::jsonb` asyncpg incompatibility
+
+**Symptom:** Persistent ERROR in ComC logs every ~30 seconds:
+```
+asyncpg.exceptions.PostgresSyntaxError: syntax error at or near ":"
+SQL: UPDATE departments SET entity_memory = :data::jsonb WHERE id = $1
+```
+asyncpg uses positional params (`$1`), not named params (`:name`). The `:data` in `:data::jsonb` is being parsed as a named param.
+
+**Impact:** `update_recent_events` fails for every department heartbeat. Cascades into `InFailedSQLTransactionError` on the subsequent `agent_heartbeats` INSERT (transaction is in aborted state after the SQL error).
+
+**Fix needed:** In `heartbeat_service.py`, replace `:data::jsonb` with a proper SQLAlchemy text expression or use `cast(text_binding, jsonb)`. Not fixed during this session — outside the immediate scope.
+
+---
+
+## D-12: `cc_vendor_subscriptions` table was missing — fixed via new migration
+
+**What happened:** Migration `38de564e35af` (add org_contacts tables) dropped `cc_vendor_subscriptions` in its `upgrade()` function without recreating it. The table had been created by an earlier migration (`996dc8aa8410`) but was accidentally dropped.
+
+**Fixed:** New migration `5048125bf9ba` restores the table. Applied to DevServer DB 2026-05-07. ComC restarted — vendor subscription POST now works.
+
+**Action needed:** When this migration is deployed to production (when ComC goes to EC2), it will apply automatically via `alembic upgrade head`. No special action required. Just noting for awareness.
