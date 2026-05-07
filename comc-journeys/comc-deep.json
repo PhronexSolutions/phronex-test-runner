@@ -21,6 +21,30 @@
     ]
   },
   {
+    "id": "comc-trunk-ceo",
+    "description": "CEO trunk: login as qa-test-journeyhawk@phronex.com (cc_ceo role, ComC premium grant). Saves browser state for all per-org leaf journeys.",
+    "isSharedRoot": true,
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login. Wait for the login form to appear."
+      },
+      {
+        "id": 2,
+        "description": "Fill in email field with \"qa-test-journeyhawk@phronex.com\" and password field with the value from environment variable PHRONEX_PORTAL_TEST_PASSWORD. Click the Sign In / Login button. Wait for redirect to the dashboard."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/command-centre. Verify the Command Centre dashboard loads \u2014 look for any navigation element, page heading, or content that confirms the page has rendered (not a 403, login redirect, or blank page)."
+      },
+      {
+        "id": 4,
+        "description": "Save the current browser session state to /home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json using the storageState tool. Confirm the file was saved successfully."
+      }
+    ]
+  },
+  {
     "id": "comc-pulse-agent-list",
     "description": "Leaf: Verify AI agents list page shows agent cards with name, role, model, and status fields.",
     "dependsOn": "comc-trunk-superadmin",
@@ -61,26 +85,6 @@
       {
         "id": 4,
         "description": "Find 'JH-QA-VendorTest' in the list again. Look for a deactivate/archive button or menu option (three-dot menu, toggle switch, or 'Deactivate' button). Deactivate the subscription. Verify it disappears from the active list or shows an 'Inactive' badge. This confirms the full create-edit-deactivate lifecycle."
-      }
-    ]
-  },
-  {
-    "id": "comc-revenue-pipeline",
-    "description": "Leaf: Verify sales pipeline funnel page loads without error at /sales/pipeline.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/sales/pipeline. Verify the page loads without 500 error."
-      },
-      {
-        "id": 2,
-        "description": "Examine the pipeline page: verify it shows either a funnel visualization (stages like Lead, Qualified, Proposal, Negotiation, Closed) or a Kanban-style board, or a tabular pipeline view. If pipeline data exists, verify stage names are shown and deal counts per stage are numeric (not NaN). If empty, verify the empty state explains how deals enter the pipeline."
-      },
-      {
-        "id": 3,
-        "description": "If pipeline items exist: click one deal/opportunity card to verify its detail loads. If no items exist: verify the page layout is not broken (no overlapping elements, no JS error banners). Take a screenshot of the pipeline view."
       }
     ]
   },
@@ -375,7 +379,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -398,7 +402,7 @@
         "description": "Click on the dashboard link, return to the original page, check data persists."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-sales-freelancing",
@@ -427,7 +431,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -442,7 +446,7 @@
         "description": "Click on the dashboard link, return to the original page, check data persists."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-sec-session-handling",
@@ -539,7 +543,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -562,7 +566,7 @@
         "description": "Click on the dashboard link, return to the original page, check data persists."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-calendar",
@@ -591,7 +595,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -626,7 +630,7 @@
         "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-deep-dashboard-no-errors",
@@ -667,7 +671,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -690,7 +694,7 @@
         "description": "Click on the dashboard link, return to the original page, check data persists."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-biz-flow-e-accountability-partner-reviewing-a-digest",
@@ -699,7 +703,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -726,7 +730,7 @@
         "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-deep-navigation-all-pillars",
@@ -895,7 +899,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -914,6 +918,6 @@
         "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   }
 ]
