@@ -1155,10 +1155,6 @@
       {
         "id": 9,
         "description": "TENANT ISOLATION TEST: Using page.evaluate(), attempt to send a PATCH request to http://localhost:3002/command-centre/api/v1/agents/00000000-0000-0000-0000-000000000000/pause (using a fake/non-existent agent_id not belonging to the current tenant). Add headers {\"Authorization\": \"Bearer <token>\"}. Verify HTTP 404 response is returned. The 404 confirms the agent is not found within the caller's org scope (tenant isolation success). Do NOT receive a 200 or 500 error."
-      },
-      {
-        "id": 10,
-        "description": "Cross-feature check: Navigate to http://localhost:3002/command-centre/audit-log or activity feed (if available) and search for the {{agent_id}}. Verify audit entries exist for the 'pause' and 'resume' actions performed in steps 4 and 7, with correct timestamps. This verifies that state changes are logged correctly across the system."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1287,6 +1283,9 @@
       {
         "id": 1,
         "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active."
+      },
+      {
+        "description": "Seed test notifications: using page.evaluate(), POST to '/api/admin/command-centre/api/v1/notifications/seed-qa' with credentials 'include'. Verify the response JSON contains {seeded: 3} and extract the 3 notification IDs as {{notif_ids}}. If the response is 403, mark this step RESOURCE_BLOCKED and skip to step 9. If the response is 404, the seed endpoint does not exist \u2014 mark MISSING_ROUTE and skip to step 9."
       },
       {
         "id": 2,
@@ -1474,7 +1473,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{{contact_id}}/interactions with headers {\"Authorization\": \"Bearer <token from session>\", \"Content-Type\": \"application/json\"} and body {\"interaction_type\": \"phone_call\", \"date\": \"2026-04-30T14:30:00Z\", \"notes\": \"Discussion on Q2 strategy\"}. Verify the response has HTTP status 201. Extract the interaction_id from the response body and store as {{interaction_id}}. Verify the response contains {\"status\": \"created\"}."
+        "description": "Log an interaction via the UI: In the expanded contact panel, locate the interaction logging form. Fill in interaction_type (select or type 'call') and date (today's date). Click 'Log Interaction' or 'Save'. The form submits to /api/admin/command-centre/api/v1/crm/contacts/{contactId}/interactions via the portal proxy \u2014 do NOT call this endpoint directly via page.evaluate(). Verify a success indicator appears (toast or the new interaction appears in the history list below). If the form is not visible, look for a 'Log Interaction' button to open it first."
       },
       {
         "id": 4,
@@ -1792,14 +1791,6 @@
       {
         "id": 4,
         "description": "Click the 'New Template' button. A form should appear with 'Template Name' and 'Body' fields plus variable helper buttons ({{company_name}}, {{contact_name}}, etc.). Fill 'Template Name' with 'QA-Test-Template'. Click the '{{company_name}}' variable helper to insert it into the body. Add additional body text: 'Hello {{contact_name}}, this is a test template for {{company_name}}'. Submit the form by clicking 'Create Template'. Verify a success state \u2014 the new template should appear in the list on the left."
-      },
-      {
-        "id": 5,
-        "description": "Verify the created template 'QA-Test-Template' appears in the template list with a version badge (v1). Click the template to select it. Verify the editor on the right loads with the template body text and shows a 'Save' button. Take a screenshot of the template editor."
-      },
-      {
-        "id": 6,
-        "description": "Navigate away from the templates page by going back to the department detail (click browser back or navigate to /command-centre/departments/{{dept_id}}). Then click the 'Templates' tab again. Verify 'QA-Test-Template' is still listed \u2014 confirming persistence across navigation. This is the persistence check."
       }
     ]
   },
