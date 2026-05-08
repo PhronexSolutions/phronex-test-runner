@@ -7,11 +7,17 @@
 # reusable by all products). This script is a thin launcher only.
 #
 # Usage:
-#   ./run-journeyhawk.sh <product-slug> <spec-file> [results-dir]
+#   ./run-journeyhawk.sh <product-slug> <spec-file> [results-dir] [--skip-passed]
+#
+# Flags (may appear anywhere before the positional args):
+#   --skip-passed  Skip journeys whose most recent verdict is PASS/PASS_ORACLE.
+#                  Trunks (isSharedRoot) and depended-on journeys always run.
+#                  Saves LLM budget by not re-running already-proven journeys.
 #
 # Examples (full run with intelligence pipeline):
 #   ./run-journeyhawk.sh jp jp-journeys/jp-deep.json
 #   ./run-journeyhawk.sh portal portal-journeys/portal-tree.json
+#   ./run-journeyhawk.sh comc comc-journeys/comc-deep.generated.json --skip-passed
 #
 # Smoke run (single trunk, bypassing intelligence pipeline — direct cc-test-runner):
 #   ./cli/cc-test-runner -t jp-journeys/jp-deep.json -o results-smoke-jp --runJourney jp-trunk-main
@@ -31,11 +37,19 @@ unset ANTHROPIC_API_KEY
 # ---------- Phase 88 — gate mode for PR merge blocking ----------
 GATE_MODE=0
 
+# ---------- skip-passed flag — skip journeys that passed in prior runs ----------
+SKIP_PASSED=0
+
 # ---------- Phase 82 STRAT-16 — per-run mode override ----------
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --gate-mode)
       GATE_MODE=1
+      shift
+      continue
+      ;;
+    --skip-passed)
+      SKIP_PASSED=1
       shift
       continue
       ;;
@@ -586,15 +600,24 @@ _STAGE_AFTER_DEPTH=$("${PYTHON}" -c "import json; print(len(json.load(open('${TE
 # continue with the original TEMP_SPEC unchanged (fail-open).
 # Exports JH_RUN_FILTER_INCLUDED / JH_RUN_FILTER_SKIPPED for runner.py to
 # persist in qa_runs (portal Strategist tab reads these).
+# --skip-passed: when the flag is active, adds --skip-passed to the filter CLI
+# which skips journeys whose most recent per-journey verdict is PASS/PASS_ORACLE.
+# Trunks (isSharedRoot) and dependsOn targets are always included regardless.
 echo ""
 echo "[0e/3] Strategist run filter (Phase 90)..."
 RUN_FILTER_OUTPUT=$(mktemp /tmp/jh-run-filter-XXXXXX.json)
 PRE_FILTER_COUNT=$("${PYTHON}" -c "import json,sys; d=json.load(open('${TEMP_SPEC}')); print(len(d) if isinstance(d,list) else 1)" 2>/dev/null || echo "0")
+_SKIP_PASSED_FLAG=""
+if [[ "${SKIP_PASSED}" == "1" ]]; then
+  _SKIP_PASSED_FLAG="--skip-passed"
+  echo "[0e/3] --skip-passed active: journeys with PASS/PASS_ORACLE in prior runs will be excluded"
+fi
 if "${PYTHON}" -m phronex_common.testing.run_filter \
   --product "${PRODUCT}" \
   --spec "${TEMP_SPEC}" \
   --output "${RUN_FILTER_OUTPUT}" \
-  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" 2>&1; then
+  --db-url "${PHRONEX_QA_DATABASE_URL_SYNC:-}" \
+  ${_SKIP_PASSED_FLAG} 2>&1; then
   if [ -s "${RUN_FILTER_OUTPUT}" ]; then
     POST_FILTER_COUNT=$("${PYTHON}" -c "import json; print(len(json.load(open('${RUN_FILTER_OUTPUT}'))))" 2>/dev/null || echo "${PRE_FILTER_COUNT}")
     # Debug: preserve run filter output for post-mortem inspection (overwritten each run)
