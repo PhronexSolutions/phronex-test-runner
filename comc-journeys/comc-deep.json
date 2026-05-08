@@ -48,7 +48,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login. Fill the email field with 'qa-test-comc-manager@phronex.com' and the password field with the value from environment variable PHRONEX_QA_MANAGER_PASSWORD. Submit the form. Wait for redirect. PASS if the browser lands on /command-centre/dashboard (or any authenticated ComC page). FAIL if redirected back to /auth/login (wrong credentials) or if a 500 error appears."
+        "description": "MANAGER TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-comc-manager@phronex.com' and password 'v492kb-JXn5Sso1TEKApd2wi9LE'. Submit and wait for the portal sidebar to appear or redirect to /command-centre/dashboard. Mark failed if redirected back to /auth/login (wrong credentials) or if a 500 error appears."
       },
       {
         "id": 2,
