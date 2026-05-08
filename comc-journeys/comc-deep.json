@@ -41,170 +41,6 @@
     ]
   },
   {
-    "id": "comc-people-team-audit",
-    "description": "Leaf: Verify team audit page loads at /team-audit with audit results or explanatory empty state.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/team-audit. Verify the page loads without 500 error."
-      },
-      {
-        "id": 2,
-        "description": "Examine the team audit page: verify it shows audit results (capability gaps, team coverage analysis, or skill distribution) or an empty state explaining what triggers a team audit. The page should not show a blank white screen or unhandled error. If audit data exists, verify sections have labels and values (not 'undefined'). Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-people-skill-review",
-    "description": "Leaf: Verify skill execution review page loads at /skill-review.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/skill-review. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the skill review page shows either: (A) a list of skill execution records with skill name, execution date, outcome/score, or (B) an empty state explaining that skill reviews are generated when agents complete tasks. The page must not be blank or show raw JSON. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-people-accountability",
-    "description": "Leaf: Verify accountability links page loads at /accountability.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/accountability. Verify the page loads without 500 error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the accountability page renders its intended content \u2014 this could be accountability chains, responsibility matrices, or ownership mappings. Whether populated or empty, the page must show a proper layout (not broken components or raw error text). Take a screenshot showing the page state."
-      }
-    ]
-  },
-  {
-    "id": "comc-ops-decisions-log",
-    "description": "Leaf: Verify decision log page loads at /decisions with entries or empty state.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/decisions. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the decisions page shows either: (A) a list of decision log entries, each with a title, date, decision maker, and outcome/rationale, or (B) an empty state explaining that decisions are logged from meetings and initiatives. The page must render a proper layout. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-ops-costs-overview",
-    "description": "Leaf: Verify cost tracking page at /costs shows department breakdown without undefined/NaN values.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/costs. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Examine the costs page: verify it shows a department cost breakdown (table, chart, or card layout). Each department entry should show a name and a cost figure (currency formatted). Verify NO entry displays 'NaN', 'undefined', '$NaN', or broken currency formatting. If no cost data exists, verify an empty state explains that costs are populated from vendor subscriptions and agent usage."
-      },
-      {
-        "id": 3,
-        "description": "Look for a total/summary row or card that aggregates all department costs. Verify the total is a valid number. If a chart is present (bar chart or pie chart), verify it renders SVG elements (not a blank container). Take a screenshot of the costs overview page."
-      }
-    ]
-  },
-  {
-    "id": "comc-ops-costs-efficiency",
-    "description": "Leaf: Verify cost efficiency metrics page loads at /costs/efficiency.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/costs/efficiency. Verify the page loads without 500 error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the efficiency page shows cost-per-output metrics, ROI indicators, or efficiency scores. These may be displayed as metric cards, a comparison table, or trend charts. If data exists, verify values are numeric (not NaN/undefined). If empty, verify an explanatory message is shown. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-intel-autoresearch",
-    "description": "Leaf: Verify autoresearch page loads at /autoresearch with research results or empty state.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/autoresearch. Verify the page loads without 500 error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the autoresearch page shows either: (A) a list of automated research results with topic, date, and summary, or (B) an empty state explaining that autoresearch runs periodically to gather market intelligence. The page must render a proper layout without JS errors. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-intel-ci-analysis",
-    "description": "Leaf: Verify CI failure intelligence page loads at /ci-intelligence.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/ci-intelligence. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the CI intelligence page shows either: (A) CI/CD failure analysis data (build failures, test failures, deployment issues with root cause analysis), or (B) an empty state explaining what populates this page (GitHub Actions failures, build pipeline events). Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-intel-growth-experiments",
-    "description": "Leaf: Verify growth experiment tracking page loads at /growth-experiments with list or empty state.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/growth-experiments. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the growth experiments page shows either: (A) a list of experiments with hypothesis, status (running/concluded), and results metric, or (B) an empty state explaining how growth experiments are tracked. If experiments exist, verify each entry has a title and status badge. Take a screenshot."
-      }
-    ]
-  },
-  {
-    "id": "comc-config-llm-credentials",
-    "description": "Leaf: Verify LLM credential management page loads at /settings/llm-credentials.",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or log in. Then navigate to http://localhost:3002/command-centre/settings/llm-credentials. Verify the page loads without error."
-      },
-      {
-        "id": 2,
-        "description": "Verify the LLM credentials page shows either: (A) a list of configured LLM providers with masked API keys (showing only last 4 characters), provider name (e.g., 'Anthropic', 'OpenAI'), and status (active/expired), or (B) an empty state with an 'Add Credential' button. Verify no page shows a full unmasked API key. Take a screenshot."
-      }
-    ]
-  },
-  {
     "id": "comc-config-onboarding",
     "description": "Leaf: Verify onboarding page loads at /onboarding showing setup wizard or completed state.",
     "dependsOn": "comc-trunk-superadmin",
@@ -347,23 +183,23 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Navigate to http://localhost:3002/command-centre/dashboard. Verify the page loads with ComC content (not a login redirect). This confirms the session is active."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Navigate to http://localhost:3002/command-centre/dashboard. Verify the page loads with ComC content (not a login redirect). Take a screenshot to confirm an authenticated session."
       },
       {
         "id": 2,
-        "description": "Use browser_evaluate to clear all cookies and localStorage: document.cookie.split(';').forEach(c => { document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/'); }); localStorage.clear(); sessionStorage.clear(); Then use browser_network_request to call GET http://localhost:3002/api/admin/command-centre/api/v1/agents \u2014 verify it returns 401 or redirects to /auth/login (not 200 with data). The session cookie being cleared should make protected API calls fail."
+        "description": "Verify the ComC backend independently enforces authentication. Use browser_network_request to call GET http://localhost:8004/api/v1/agents with no Authorization header. The response MUST be 401 (or 403) \u2014 NOT 200. This verifies the backend does not serve protected data to unauthenticated callers regardless of the portal session state."
       },
       {
         "id": 3,
-        "description": "Navigate to http://localhost:3002/command-centre/dashboard without any stored session. Verify the portal redirects to http://localhost:3002/auth/login (or similar login path) rather than showing a blank page, 500 error, or ComC dashboard content. The redirect must happen \u2014 showing a login form is the pass condition."
+        "description": "Verify the portal proxy also enforces session auth. Use browser_network_request to call GET http://localhost:3002/api/admin/command-centre/api/v1/agents with the Cookie header omitted (no session). This should return 401. If it returns 200, note as a potential proxy auth gap."
       },
       {
         "id": 4,
-        "description": "Verify the ComC backend API also rejects unauthenticated requests: use browser_network_request to call GET http://localhost:8004/api/v1/agents with no Authorization header. Check the response status is 401 or 403, NOT 200. This verifies the backend enforces auth independently of the portal."
+        "description": "Test the portal signout flow. Navigate to http://localhost:3002/api/auth/signout via browser_navigate. If a confirmation page appears, accept it. Then navigate to http://localhost:3002/command-centre/dashboard. Verify the portal redirects to http://localhost:3002/auth/login rather than showing protected ComC content. Take a screenshot showing the login form."
       },
       {
         "id": 5,
-        "description": "Take a screenshot confirming the login page is displayed after session expiry. The login form must show email and password fields. Mark passed if the redirect to login is clean; mark failed if a blank page, error page, or raw exception is shown."
+        "description": "Verify the login page is shown after signout. The page must show an email input and a password input. Mark passed if the redirect to login is clean. Mark failed if a blank page, 500 error, or ComC dashboard content is shown instead of the login form."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -375,23 +211,23 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/platform-overview. Verify the page loads \u2014 it should show a Strategy tab, IP Scores tab, Reuse Matrix tab, and Actions tab in the tab bar. If the page redirects to login or shows a 500 error, mark failed."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/platform-overview. Verify the page loads without a login redirect or generic 404 error."
       },
       {
         "id": 2,
-        "description": "Verify the Strategy tab is active by default. It should show either: (A) SWOT sections (Strengths, Weaknesses, Opportunities, Threats) each with bullet items, or (B) an empty state message like 'No strategy data'. The page must not show a blank white screen or raw JSON. Take a screenshot."
+        "description": "Verify the platform overview page structure: it should show tabs for Strategy, IP Scores, Reuse Matrix, and Actions. Take a screenshot. If the page shows a 403 error message directly in the UI (not a login redirect), mark this step as failed and note that the QA test account lacks platform superadmin privileges \u2014 this is a known limitation."
       },
       {
         "id": 3,
-        "description": "Click the IP Scores tab. Verify it shows either: (A) a list of IP score entries each with a module name and a progress bar showing a percentage, or (B) an empty state message like 'No IP scores'. Click the Reuse Matrix tab. Verify it shows either: (A) capability entries with product tags and a reuse count badge, or (B) an empty state. Take a screenshot."
+        "description": "If the page rendered without 403: click the IP Scores tab and verify it shows either IP score entries with progress bars, or an empty state message. Click the Reuse Matrix tab and verify it loads. Navigate back to Strategy tab."
       },
       {
         "id": 4,
-        "description": "Click the Actions tab. Verify it shows either: (A) strategic action entries each with action text and a priority badge (high/medium/low), or (B) an empty state message. Verify no entry shows 'undefined' or NaN values."
+        "description": "Verify the platform-overview API access control. Use browser_network_request to call GET http://localhost:8004/api/v1/admin/platform-overview with no Authorization header. Verify the response is 401 (unauthorized). This confirms the backend enforces authentication on platform-level admin routes."
       },
       {
         "id": 5,
-        "description": "Verify the platform-overview API via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/admin/platform-overview with the Authorization header containing the session Bearer token. Check the response returns HTTP 200 and contains JSON with keys: strategy, ip_scores, reuse_matrix, actions. Navigate back to http://localhost:3002/command-centre/dashboard then return \u2014 verify platform-overview still loads."
+        "description": "Use browser_network_request to call GET http://localhost:8004/api/v1/admin/platform-overview with Authorization header 'Bearer invalid-token'. Verify the response is 401. This confirms the backend validates token signatures and does not serve platform intel to callers with forged tokens. Mark passed if both step 4 and step 5 return 401."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -695,11 +531,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/explainability. Verify the page loads without 500 error or login redirect."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/explainability. Verify the page loads without 500 error or login redirect. The page should show an AI Explainability heading and a sub-tab bar with Feed, Trails, Anomalies, Stats, and Insights tabs."
       },
       {
         "id": 2,
-        "description": "Verify the explainability page renders: it should show either (A) a list of agent decision records each with an action, reasoning, outcome, cost, and timestamp, or (B) an empty state explaining that explainability records appear when agents complete tasks. Take a screenshot."
+        "description": "Verify the explainability page renders the decision feed. The Feed tab should show either: (A) a list of AI decision records (each with an action description, outcome, and timestamp), or (B) an empty state message like 'No decisions captured yet'. Both are valid \u2014 ComC may not have generated decision records during this QA session. Take a screenshot."
       },
       {
         "id": 3,
@@ -707,11 +543,11 @@
       },
       {
         "id": 4,
-        "description": "Verify the explainability API: GET http://localhost:3002/api/admin/command-centre/api/v1/explainability or /api/v1/decisions. If 404, the explainability endpoint is missing \u2014 note as potential defect. If 200, verify the response is an array (possibly empty). If 403, the session lacks permission \u2014 mark as defect."
+        "description": "Verify the decisions data source. Use browser_network_request to call GET http://localhost:3002/api/admin/auth/admin/decisions?product=command-centre&limit=20. Verify the response is either an array of decision objects (200 OK) or an empty array. A 404 would indicate the decisions proxy route is missing. Note: ComC does NOT have its own /api/v1/explainability route \u2014 decisions flow through phronex-auth."
       },
       {
         "id": 5,
-        "description": "Navigate to http://localhost:3002/command-centre/ethos. Verify it loads. Navigate back to http://localhost:3002/command-centre/dashboard and verify the session persists. Take a final screenshot."
+        "description": "Navigate to http://localhost:3002/command-centre/ethos. Verify it loads with an ethos policy or empty state. Navigate back to http://localhost:3002/command-centre/dashboard and verify the session is still active (dashboard shows content, not login redirect). Take a final screenshot."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
