@@ -163,3 +163,14 @@ portal-journeys/retest-results/
 
 # Playwright session state files
 .tmp/
+
+# JourneyHawk run artifacts and secrets — NEVER commit
+current-storage-state.json
+*.storage-state.json
+.qa.env
+*-snapshot.md
+console-errors.txt
+comc-journeys/results/
+comc-journeys/results-*/
+*-retired.json
+results/
