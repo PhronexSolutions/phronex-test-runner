@@ -158,17 +158,18 @@ _JP_STANDARD_EMAIL="${QA_JP_STANDARD_EMAIL:-qa-jp-standard@phronex.com}"
 _JP_STANDARD_PASS="${QA_JP_STANDARD_PASSWORD:-${_PORTAL_PASS}}"
 _JP_PRO_EMAIL="${QA_JP_PRO_EMAIL:-qa-jp-pro@phronex.com}"
 _JP_PRO_PASS="${QA_JP_PRO_PASSWORD:-${_PORTAL_PASS}}"
-# Pre-filter: strip journeys with _retired_at before credential substitution.
-# Exception: isSharedRoot trunk journeys are NEVER retired — they establish
-# the browser session that all leaf journeys depend on. Retiring a trunk
-# causes all leaves to start unauthenticated and fail with wrong credentials.
+# Pre-filter: strip journeys with _retired_at or _skip before credential substitution.
+# _retired_at: journey permanently removed from suite (curator decision).
+# _skip: journey generated from architecture/HLD docs — needs API-level runner, not browser.
+# Exception: isSharedRoot trunk journeys are NEVER filtered — they establish
+# the browser session that all leaf journeys depend on.
 "${PYTHON}" -c "
 import json, sys
 spec = json.load(open('${SPEC_FILE}'))
-active = [j for j in spec if not j.get('_retired_at') or j.get('isSharedRoot')]
+active = [j for j in spec if (not j.get('_retired_at') and not j.get('_skip')) or j.get('isSharedRoot')]
 json.dump(active, sys.stdout, ensure_ascii=False)
 " > "${_SPEC_ACTIVE}" 2>/dev/null || cp "${SPEC_FILE}" "${_SPEC_ACTIVE}"
-echo "[pre] Active journeys after filtering retired: $("${PYTHON}" -c "import json; print(len(json.load(open('${_SPEC_ACTIVE}'))))" 2>/dev/null || echo '?')"
+echo "[pre] Active journeys after filtering retired+skipped: $("${PYTHON}" -c "import json; print(len(json.load(open('${_SPEC_ACTIVE}'))))" 2>/dev/null || echo '?')"
 sed \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \

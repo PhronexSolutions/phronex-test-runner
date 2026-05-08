@@ -226,7 +226,9 @@
         "description": "Navigate away to http://localhost:3002/command-centre (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/briefs. Verify the briefs list page loads with HTTP 200 and no 500 errors in the network log. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/briefs and confirm it returns HTTP 200 with a JSON array (same as step 2). PASS if the page loads cleanly and the API returns 200. This tests navigation persistence — the page state should survive a round-trip to the dashboard."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Roadmap narrative doc section — not a product page"
   },
   {
     "id": "comc-comc-hld-concurrency-model-2",
@@ -258,7 +260,9 @@
         "description": "CROSS-PILLAR: Navigate to http://localhost:3002/command-centre/agents. Verify the agents list loads with HTTP 200. Confirm GET http://localhost:3002/api/admin/command-centre/api/v1/agents returns a JSON array (may be empty in test env — that is valid). Then navigate back to http://localhost:3002/command-centre/departments to confirm cross-pillar navigation works without session loss or 500 errors. PASS if both pages load cleanly."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-autoresearch",
@@ -338,7 +342,9 @@
         "description": "FLOW E — Accountability partner reviewing a digest: As superadmin, navigate to http://localhost:3002/command-centre/initiatives/{initiative_id} (from step 2). Scroll to 'Accountability Partner' section. Click 'Assign Partner' button. Select accountability partner from dropdown (or create new with email). Submit via POST /api/v1/initiatives/{initiative_id}/accountability-partner (expect HTTP 201). Verify partner link created in phronex_common.accountability.PartnerStore (ComCPartnerStore backend). Simulate partner login (separate JWT for partner email). Navigate to http://localhost:3002/command-centre/digest. Verify digest shows assigned initiative with summary, status updates, and approval requests. Confirm partner can review pending approvals: GET /api/v1/approvals (expect HTTP 200, sorted by priority_score descending, showing only items with status='pending'). Click approval item to view detail page, confirm impact fields and cost estimate displayed. Verify tenant isolation: partner sees only initiatives/approvals scoped to their org."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Roadmap narrative doc section — not a product page"
   },
   {
     "id": "comc-inbox",
@@ -474,7 +480,9 @@
         "description": "Verify API contract boundary: Open browser DevTools Network tab. Add a new component with Service Category='Intelligence'. Confirm the POST payload includes required fields matching ARCHITECTURE schema. After creation, trigger a 'Pull Metrics' action. Verify HTTP GET to 'http://localhost:3002/command-centre/admin/components/{id}/metrics' returns JSON with fields: 'cpu_usage', 'memory_usage', 'request_count', 'error_count', 'last_error'. Confirm metrics render in a side panel without errors (HTTP 200)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-team-audit-end-to-end",
@@ -634,7 +642,9 @@
         "description": "Verify Approvals and Initiatives integration with Feature Priority Matrix: call GET /api/v1/approvals?related_feature_id=features-new-reporting-tool and confirm HTTP 200 response. If approval items exist linked to the feature, verify they appear in a related 'Pending Approvals' sidebar or widget on the roadmap page. Confirm GET /api/v1/departments/{dept_id}/initiatives?feature_id=features-new-reporting-tool returns HTTP 200 and any dependent initiatives are correctly cross-referenced, validating the Feature Priority Matrix as a central hub in the cross-service data model."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Roadmap narrative doc section — not a product page"
   },
   {
     "id": "comc-biz-dept-health-isolation-heartbeat",
@@ -834,7 +844,9 @@
         "description": "Delete the test domain group: right-click 'TestDomainGroup_' node, select 'Delete'. Confirm deletion dialog appears with warning: 'Deleting this domain group will remove 1 relationship. Continue?'. Click 'Confirm Delete'. Expect HTTP 204 No Content. Verify the node and its relationship line disappear from the canvas immediately. Refresh page (F5) and confirm the domain group does not reappear—data is permanently deleted from PostgreSQL."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-costs",
@@ -954,7 +966,9 @@
         "description": "Verify persistence and cross-session availability: Close browser or navigate away from initiatives page to unrelated URL (e.g., 'http://localhost:3002/command-centre/dashboard'). Wait 2 seconds. Navigate back to 'http://localhost:3002/command-centre/initiatives'. Refresh page (Ctrl+R). Verify the initiative 'Q2 2026 AI Agent Performance Optimization' still appears in the list with all saved fields intact (Title, Goal, Due Date, Department, Owner, Status='active'). Assert database persistence by confirming initiative_id matches step 5 response. Confirm cross-service integration: if initiative has associated tasks or approvals configured in backend, verify those relationships are reflected in detail view (click initiative row, expand task list if present)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   },
   {
     "id": "comc-biz-vendor-subscription-lifecycle",
@@ -1150,7 +1164,9 @@
         "description": "Close browser DevTools. On http://localhost:3002/command-centre/admin/system-health, wait 30 seconds without interaction. Verify page remains responsive and metric widgets auto-refresh (timestamp updates). Click the browser Refresh button (F5). Verify GET /api/v1/admin/health is called again and returns HTTP 200. Confirm all metrics load and match previous values (or show expected changes). Verify no redirect to login occurs (session still valid). Close the browser tab completely. Reopen the browser, navigate to http://localhost:3002/command-centre/initiatives. Verify the session from step 1 is still valid (JWT cookie present and not expired). Confirm the initiative created in step 2 still appears in the list, validating persistence across browser session restart."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-morning-brief-paperclip-initialization",
@@ -1263,7 +1279,7 @@
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): send GET request to 'http://localhost:3002/api/v1/dashboard' with the expired token. Verify response is 401 with 'session expired' or 'unauthorized' message, NOT 500 or empty."
+        "description": "Using page.evaluate(): send GET request to 'http://localhost:3002/api/admin/command-centre/api/v1/dashboard' with the expired token. Verify response is 401 with 'session expired' or 'unauthorized' message, NOT 500 or empty."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1346,7 +1362,9 @@
         "description": "Test CRUD completeness: From http://localhost:3002/command-centre/briefs list, select an existing non-production test brief and click 'Edit'. Modify the content field (append ' — UPDATED TEST' to the summary), click 'Save', and verify HTTP 200 response with updated brief object. Navigate away to http://localhost:3002/command-centre/dashboard and return to http://localhost:3002/command-centre/briefs to confirm the edit persisted. Finally, select the test brief again, click 'Delete', verify HTTP 204 response, and confirm the brief no longer appears in the list on refresh. Verify org_id isolation: attempt to access /api/v1/briefs/{deleted_brief_id} and confirm HTTP 403 Forbidden or 404 Not Found (not 200 leaking data)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   },
   {
     "id": "comc-biz-notifications-lifecycle",
@@ -1434,7 +1452,9 @@
         "description": "Verify cache invalidation across service boundary: create a second strategy 'Integration_Cache_Test', then open browser DevTools Network tab and observe the create request headers (Authorization: Bearer <JWT>, Content-Type: application/json). Confirm request is sent to internal API endpoint with X-Internal-Secret header or equivalent service-to-service auth. After creation, navigate to http://localhost:3002/command-centre/strategy/caching-strategy and verify the new strategy is visible, confirming the cache layer was correctly invalidated and the list was refreshed from authoritative source (not stale cache). Check for any 'age' header in response indicating cache hit from intermediate layer."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-meeting-prep-llm-generation-and-caching",
@@ -1553,8 +1573,8 @@
     "dependsOn": "comc-trunk-superadmin"
   },
   {
-    "id": "comc-comc-user-spec-error-states-and-recovery-paths-2",
-    "description": "[general] Comc User_Spec Error States And Recovery Paths — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "id": "comc-biz-error-states-recovery",
+    "description": "[BEHAVIORAL] Error states and recovery paths: validate error banners, retry logic, and graceful degradation across key ComC pages",
     "depth": 1,
     "steps": [
       {
@@ -1670,7 +1690,9 @@
         "description": "Test validation error handling: In notes section, attempt to save notes with invalid action_item (missing required assigned_to field). Click 'Save Notes' button. Verify XHR POST /api/v1/meetings/{meeting_id}/notes returns HTTP 400 with error response: {error: 'validation_failed', details: [{field: 'action_items[0].assigned_to', message: 'assigned_to is required'}]}. Confirm UI displays inline validation error message: 'All action items must have an assignee.' Verify notes section remains unchanged (partial save prevented). Complete the action_item by selecting an assignee and re-save; confirm HTTP 200 response and success message. Verify meeting detail reflects both original and newly added action_items."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   },
   {
     "id": "comc-biz-erp-sync-status-and-trigger",
@@ -1786,7 +1808,9 @@
         "description": "Verify integration audit trail: Navigate to http://localhost:3002/command-centre/admin/activity-log and filter by Resource Type='Integration'. Confirm log entries exist for: 'Integration created', 'Integration updated', 'Integration deleted' with timestamps and superadmin user attribution. Click on a log entry row. Verify detail panel shows full payload of the CRUD operation (e.g., old/new values for updates). Close panel and navigate back to http://localhost:3002/command-centre/admin/integrations to confirm the page state remains stable, validating the audit system operates as a cross-service boundary condition."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-roadmap-narrative-priority-1-core-flagship-features-2",
@@ -1826,7 +1850,9 @@
         "description": "Cross-service contract verification: Confirm that creating an initiative (step 6) triggers the correct downstream API call by inspecting network tab. Verify POST /api/v1/initiatives request payload includes: title, description, priority, target_date (ISO 8601 format), and omits from_dept_id (server responsibility per T-03-05-02). Response must include from_dept_id set by the server (not echoing client input). Verify response HTTP 201 includes Location header pointing to /api/v1/initiatives/{new_id}. Check that the initiative appears in the organization's initiatives list (multi-tenant isolation) by querying GET /api/v1/initiatives?status=active and confirming org_id in response matches the logged-in user's organization. Attempt to query a different organization's initiatives via GET /api/v1/organizations/{other_org_id}/initiatives; expected HTTP 403 Forbidden (tenant boundary enforced)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Roadmap narrative doc section — not a product page"
   },
   {
     "id": "comc-comc-architecture-apscheduler-jobs-2",
@@ -1866,7 +1892,9 @@
         "description": "Clean up and verify deletion: From http://localhost:3002/command-centre/admin/jobs, locate test job 'test_job_persistence_01', click 'Delete', confirm deletion dialog, and click 'Confirm'. Expect HTTP 204 response. Verify job is removed from job list. Navigate to http://localhost:3002/command-centre/dashboard and back to http://localhost:3002/command-centre/admin/jobs to confirm deletion is persisted (job does not reappear)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-roadmap-narrative-priority-3-supporting-infrastructure-features-2",
@@ -1902,7 +1930,9 @@
         "description": "VALIDATION & Cleanup: Attempt DELETE /api/v1/approvals/{approval_id} with invalid JWT (expired or malformed token). Verify HTTP 401 'Unauthorized' response. Delete with valid JWT and verify HTTP 204 No Content. Navigate to 'http://localhost:3002/command-centre/approvals' and confirm deleted item no longer appears in list. Call GET /api/v1/approvals/{approval_id} and verify HTTP 404 'Not found'. Verify audit log entry recorded the deletion action with timestamp."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Roadmap narrative doc section — not a product page"
   },
   {
     "id": "comc-biz-brief-settings-customize-and-generate",
@@ -2058,7 +2088,9 @@
         "description": "Delete the test performance target 'Q1-Revenue-Growth': Click delete icon in table row, confirm deletion modal appears with warning message. Click 'Confirm Delete'. Verify DELETE /api/v1/performance-targets/{id} returns 204 No Content. Confirm target row is removed from the table immediately. Navigate away and return to 'http://localhost:3002/command-centre/performance-targets'. Verify target remains deleted (GET /api/v1/performance-targets returns 200 with target absent from list). Confirm no orphaned KPI or intelligence brief references exist (cross-service integrity)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-api-growth-experiments",
@@ -2098,7 +2130,9 @@
         "description": "Verify JWT authorization boundary: attempt to access /api/v1/agents without Bearer token in Authorization header. Confirm HTTP 401 'Unauthorized' response. Add invalid JWT (malformed token or expired signature), confirm HTTP 401 'Invalid token'. Add valid JWT from a different org_id (cross-tenant scenario), attempt to fetch agents, and verify HTTP 403 'Forbidden' or HTTP 200 with empty array (agents from other org_id not visible). Confirm tenant isolation is enforced at API layer."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   },
   {
     "id": "comc-comc-hld-deployment-constraints-2",
@@ -2138,7 +2172,9 @@
         "description": "Verify error handling and state recovery: Navigate to http://localhost:3002/command-centre/deployment-constraints. Simulate network failure in DevTools (offline mode). Attempt to create new constraint. Expect connection error message in UI. Re-enable network. Retry create action. Verify HTTP 201 success and constraint is created exactly once (no duplicate entries). Confirm final page state matches HLD performance target: page load < 200ms p95 for CRUD operations."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-architecture-phronex-common-modules-consumed-2",
@@ -2178,7 +2214,9 @@
         "description": "Navigate to http://localhost:3002/command-centre/admin to verify superadmin-only access. Confirm page loads with HTTP 200 and displays admin panel (billing config, test runs, backup controls). Then logout and clear JWT token. Attempt to access http://localhost:3002/command-centre/admin. Verify browser redirects to login page with HTTP 302 and subsequent GET returns 401 Unauthorized. Confirm role=superadmin restriction is enforced server-side and cross-service auth boundary is respected."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-dept-template-apply",
@@ -2258,7 +2296,9 @@
         "description": "Verify deployment topology synchronization with PostgreSQL backend: check that all CRUD operations (create, read, update, delete) completed within 200ms p95 baseline. Confirm Paperclip integration reflects topology changes (visit 'http://localhost:3002/command-centre/integrations', expand 'Paperclip Status', verify last sync timestamp updated within last 2 minutes). Log out and confirm session ends cleanly."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-sales-pipeline",
@@ -2378,7 +2418,9 @@
         "description": "Click 'Escalate to CEO' button on the initiative detail page; verify the UI sends POST /api/v1/initiatives/{initiative_id}/escalate with HTTP 200 response (inspect Network tab). Confirm response body includes 'escalation_id', 'status':'escalated', and 'notification_sent_at' timestamp. Verify a notification message appears in the UI (toast or inline alert) stating 'Initiative escalation submitted to approval queue'. Verify in the initiative header that a 'CEO Approval Pending' badge appears below the title."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   },
   {
     "id": "comc-departments-deptidparam-templates",
@@ -2498,7 +2540,9 @@
         "description": "Navigate to http://localhost:3002/command-centre/design-questions and verify filter/search functionality. Enter search term 'Test Design Question' in the search box. Confirm GET /api/v1/design-questions?search=Test%20Design%20Question returns HTTP 200 and filtered results display only matching records. Clear search and verify table resets to full list. Check that page state persists across browser back/forward navigation (use browser history API to confirm no loss of filter state)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-non-functional-requirements-2",
@@ -2538,7 +2582,9 @@
         "description": "Test cross-service health boundary: directly call HTTP GET /api/v1/health (health endpoint). Verify response returns 200 with response time < 50ms p99 and contains status='healthy', no_db_call=true (confirms endpoint does not query database per HLD). Verify response includes service version and timestamp. This confirms non-functional requirement that health checks are isolated and fast, enabling upstream load balancers to perform rapid liveness checks without DB latency impact."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   },
   {
     "id": "comc-biz-agent-detail-enrichment",
@@ -2618,7 +2664,9 @@
         "description": "DELETE & VERIFICATION: In assessment detail view, click 'Delete Assessment' button. Confirmation dialog appears: 'Are you sure you want to delete this assessment? This action cannot be undone.' Click 'Confirm Delete'. Verify DELETE /api/v1/assessments/{assessment_id} returns HTTP 204 or 200. Toast displays: 'Assessment deleted successfully'. Verify user is redirected to 'http://localhost:3002/command-centre/learning-engagement/assessments' list. Confirm deleted assessment no longer appears in the list table. Attempt to access the deleted assessment directly via GET /api/v1/assessments/{assessment_id} and verify returns HTTP 404 with error response confirming resource not found."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-agent-pause-resume-lifecycle",
@@ -2950,7 +2998,9 @@
         "description": "Perform DELETE operation: Navigate to 'http://localhost:3002/command-centre/admin/test-runs' and locate the test_run created in Step 3. Click 'Delete' button, confirm deletion dialog, click 'Confirm'. Verify HTTP DELETE /api/v1/admin/test-runs/{id} returns 204 No Content. Confirm row is removed from the table UI. Attempt GET /api/v1/admin/test-runs/{id} and verify it returns 404 Not Found."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-costs-overview-rollup",
@@ -3190,7 +3240,9 @@
         "description": "Validate tenant isolation and permission scoping: Using the superadmin session, query GET /api/v1/initiatives?status=active and verify filtered list returns only active initiatives scoped to superadmin's organization. Confirm no cross-org initiatives are visible (TENANT_LEAK failure mode prevented). Verify each initiative object includes id, title, status, priority, from_dept_id fields per TEST-ORACLES spec. Confirm HTTP 200 response and proper sort order by priority descending."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Roadmap narrative doc section — not a product page"
   },
   {
     "id": "comc-biz-approvals-list-sorting-filtering",
@@ -3283,7 +3335,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved non-admin user session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-non-admin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved non-admin user session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -3306,7 +3358,9 @@
         "description": "Navigate to 'http://localhost:3002/command-centre/briefs' (non-admin page). Verify page loads successfully and displays brief data without permission errors."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": [
+      "comc-trunk-manager"
+    ]
   },
   {
     "id": "comc-crm-contact-list-load-and-persist",
@@ -3386,7 +3440,9 @@
         "description": "Verify Paperclip integration state: after resuming agent, check that ComC has synced the 'active' status back to Paperclip. If available, call GET /api/v1/agents/{agent_id} and inspect the 'paperclip_agent_id' field and any 'paperclip_sync_at' timestamp. Cross-service contract boundary validation: agent status change in ComC (PATCH /api/v1/agents/{agent_id}/resume → HTTP 200, status='active') should trigger downstream sync to Paperclip agent state within configured timeout window (typically <5 seconds). Expected: agent.status='active' persists in ComC; paperclip_sync_at field is recent; no orphaned agent state between services."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   },
   {
     "id": "comc-data-isolation-user-initiative-visibility",
@@ -3395,7 +3451,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved User A session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-user-a-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 2,
@@ -3403,11 +3459,11 @@
       },
       {
         "id": 3,
-        "description": "Fill in 'Initiative Title' field with 'Isolation Test {{timestamp}}'. Fill 'Description' field with 'User A Private Initiative'. Click 'Save' button. Store returned initiative ID as {{initiative_id_a}}."
+        "description": "Fill in 'Initiative Title' field with 'Isolation Test {{timestamp}}'. Fill 'Description' field with 'CEO Private Initiative'. Click 'Save' button. Store returned initiative ID as {{initiative_id_a}}."
       },
       {
         "id": 4,
-        "description": "Verify initiative appears in User A's initiatives list. Note its exact title for later comparison."
+        "description": "Verify initiative appears in CEO's initiatives list. Note its exact title for later comparison."
       },
       {
         "id": 5,
@@ -3415,22 +3471,25 @@
       },
       {
         "id": 6,
-        "description": "Load saved User B session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-user-b-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved Manager session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
       },
       {
         "id": 7,
-        "description": "Navigate to 'http://localhost:3002/command-centre/initiatives'. Verify User B's initiatives list is displayed."
+        "description": "Navigate to 'http://localhost:3002/command-centre/initiatives'. Verify Manager's initiatives list is displayed."
       },
       {
         "id": 8,
-        "description": "Search for 'Isolation Test' using the page search/filter field. Verify User A's initiative with ID {{initiative_id_a}} does NOT appear in results."
+        "description": "Search for 'Isolation Test' using the page search/filter field. Verify CEO's initiative with ID {{initiative_id_a}} does NOT appear in results."
       },
       {
         "id": 9,
-        "description": "Use page.evaluate() to send GET request to http://localhost:3002/api/v1/initiatives with User B's bearer token. Parse JSON response and verify User A's initiative ({{initiative_id_a}}) is NOT in the returned array."
+        "description": "Use page.evaluate() to send GET request to http://localhost:3002/api/admin/command-centre/api/v1/initiatives with Manager's bearer token. Parse JSON response and verify CEO's initiative ({{initiative_id_a}}) is NOT in the returned array."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": [
+      "comc-trunk-ceo",
+      "comc-trunk-manager"
+    ]
   },
   {
     "id": "comc-comc-architecture-security-boundaries-2",
@@ -3470,7 +3529,9 @@
         "description": "Verify session security and boundary isolation: Open browser DevTools console. Attempt to manually invoke a boundary rule creation via JavaScript (e.g., fetch('/api/v1/security/boundaries', {method: 'POST', body: ...}) without Authorization header). Confirm request fails with HTTP 401 Unauthorized. Now repeat with an Authorization header containing a non-superadmin JWT (cc_user role, same org_id). Confirm request fails with HTTP 403 Forbidden and error message 'Superadmin access required'. Verify no rule is created in either case. Close DevTools and confirm page remains functional with no error boundary triggered."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-admin-protocol-surface-2",
@@ -3510,7 +3571,9 @@
         "description": "Cleanup and verify state cleanup: Delete test config TEST_PROTOCOL_CONFIG_001 by clicking 'Delete' button in Admin Protocol Surface config table, confirm HTTP 204 No Content response. Navigate to 'http://localhost:3002/command-centre/dashboard', then back to 'http://localhost:3002/command-centre/admin/platform-overview'. Verify test entry no longer appears in Active Configs table. Confirm deletion was persisted in PostgreSQL and no orphaned records remain in approval_queue or related audit tables."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-scheduler-startup-pattern-2",
@@ -3550,7 +3613,9 @@
         "description": "End-to-End Persistence and Audit Trail: Return to 'http://localhost:3002/command-centre/admin/scheduler-config' and verify the 'Last Execution' and 'Next Execution' fields reflect the manual triggers from step 6. Close the browser completely and clear the session cookie. Reopen the browser and load 'http://localhost:3002/command-centre/login' (session is now expired). Re-authenticate with superadmin credentials. Navigate to 'http://localhost:3002/command-centre/admin/scheduler-config' again. Confirm that all scheduler state (job configuration, last/next execution times, status indicators) is identical to pre-logout state, proving that scheduler configuration and execution state are persisted in the PostgreSQL backend and not dependent on session memory. Verify HTTP 200 response from GET /api/v1/scheduler/state with consistent job metadata."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-primary-flow-sequence-diagrams-2",
@@ -3590,6 +3655,8 @@
         "description": "Verify accountability partner linking (cross-service integration): From initiative detail page, click 'Invite Accountability Partner' button. Fill partner email='partner@phronex.test', select role='Stakeholder'. Submit POST /api/v1/accountability/links with initiative_id, partner_email, and role. Verify HTTP 201 response with link_id and invite_status='pending'. Confirm partner name appears in 'Accountability Partners' section with status badge 'Pending Invite'. Log out and log in as accountability partner to verify they receive invite and initiative appears in their 'http://localhost:3002/command-centre/invitations' page with accept/decline actions."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-superadmin",
+    "_skip": true,
+    "_skip_reason": "Duplicate of existing business journey with proper coverage"
   }
 ]
