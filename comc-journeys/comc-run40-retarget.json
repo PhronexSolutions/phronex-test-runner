@@ -1,0 +1,75 @@
+[
+  {
+    "id": "comc-trunk-manager",
+    "description": "Trunk: establish authenticated session for cc_manager role QA account (qa-test-comc-manager@phronex.com). Required by journeys that test manager-level RBAC boundaries.",
+    "depth": 0,
+    "isSharedRoot": true,
+    "steps": [
+      {
+        "id": 1,
+        "description": "MANAGER TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-comc-manager@phronex.com' and password 'v492kb-JXn5Sso1TEKApd2wi9LE'. Submit and wait for the portal sidebar to appear or redirect to /command-centre/dashboard. Mark failed if redirected back to /auth/login (wrong credentials) or if a 500 error appears."
+      },
+      {
+        "id": 2,
+        "description": "Verify this session has manager-level access, not CEO-only access. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming \u2014 expect 200 with a JSON array (meetings endpoint uses require_manager, so cc_manager can access it). Then use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents \u2014 expect 403 with detail 'CEO role required' (agents endpoint uses require_ceo, which cc_manager does NOT satisfy). PASS if meetings/upcoming=200 AND agents=403. FAIL if agents returns 200 (account has CEO-level access, not manager-level) or if meetings/upcoming returns 403 (cc_manager role was not correctly granted)."
+      },
+      {
+        "id": 3,
+        "description": "CRITICAL \u2014 Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed \u2014 use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies \u2014 an empty state file will cause all dependent manager-role leaf journeys to fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-trunk-superadmin",
+    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
+    "isSharedRoot": true,
+    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+      },
+      {
+        "id": 3,
+        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-comc-roadmap-narrative-summary-2",
+    "description": "[general] Comc Roadmap_Narrative Summary \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Navigate to http://localhost:3002/command-centre/briefs. Verify the page loads with HTTP 200 and shows a 'Brief History' heading or similar brief list UI. If session expired (redirected to login), re-authenticate as superadmin and navigate back. FAIL if page returns 500 or shows an error state."
+      },
+      {
+        "id": 2,
+        "description": "On the briefs page, verify the API call succeeds: open browser Network tab, confirm GET http://localhost:3002/api/admin/command-centre/api/v1/briefs returns HTTP 200 with a JSON array. The array may be empty (no briefs generated yet) \u2014 an empty array is a PASS. FAIL only if the response is 500, 404, or non-JSON."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/command-centre/briefs/settings. Verify the page loads with HTTP 200. Confirm the settings page shows brief configuration options (section toggles, delivery time, or similar). Verify GET http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings returns HTTP 200 with a JSON object containing configuration keys. FAIL if 404 or 500."
+      },
+      {
+        "id": 4,
+        "description": "On the briefs settings page, toggle any available section switch (e.g., enable or disable a brief section). Submit the change. Verify the PUT request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings returns HTTP 200. Reload the page (F5) and confirm the toggled setting persisted. FAIL if the setting reverts after reload."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to http://localhost:3002/command-centre/intelligence-briefs. Verify this page loads with HTTP 200 and shows an intelligence briefs view (may show empty state if no intelligence briefs exist \u2014 that is valid). Confirm the URL is distinct from /command-centre/briefs (different feature surface). FAIL only on 500 or redirect to login."
+      },
+      {
+        "id": 6,
+        "description": "Navigate away to http://localhost:3002/command-centre (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/briefs. Verify the briefs list page loads with HTTP 200 and no 500 errors in the network log. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/briefs and confirm it returns HTTP 200 with a JSON array (same as step 2). PASS if the page loads cleanly and the API returns 200. This tests navigation persistence \u2014 the page state should survive a round-trip to the dashboard."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  }
+]
