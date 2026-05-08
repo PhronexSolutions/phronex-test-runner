@@ -1,0 +1,211 @@
+[
+  {
+    "id": "comc-trunk-superadmin",
+    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
+    "isSharedRoot": true,
+    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+      },
+      {
+        "id": 3,
+        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-trunk-ceo",
+    "description": "CEO trunk: login as qa-test-journeyhawk@phronex.com (cc_ceo role, ComC premium grant). Saves browser state for all per-org leaf journeys.",
+    "isSharedRoot": true,
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "CEO TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre. Verify the Command Centre section loads without a 500 error. The page should show any Command Centre content \u2014 a dashboard, navigation links, or department views. If the page redirects to login or shows 403/404, mark failed."
+      },
+      {
+        "id": 3,
+        "description": "IMPORTANT \u2014 Save browser session using whichever method works: (1) PRIMARY: Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". (2) FALLBACK if that tool is not available: Use browser_run_code to execute: const fs = require(\"fs\"); const state = await page.context().storageState(); fs.mkdirSync(\"/home/ouroborous/code/phronex-test-runner/.tmp\", {recursive:true}); fs.writeFileSync(\"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\", JSON.stringify(state)); This step is critical \u2014 without it, all dependent per-org leaf journeys will fail. Confirm the file exists after saving."
+      }
+    ]
+  },
+  {
+    "id": "comc-sec-session-handling",
+    "description": "[DEEP] Session handling \u2014 verify clearing auth cookies redirects to login gracefully",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Navigate to http://localhost:3002/command-centre/dashboard. Verify the page loads with ComC content (not a login redirect). Take a screenshot to confirm an authenticated session."
+      },
+      {
+        "id": 2,
+        "description": "Verify the ComC backend independently enforces authentication. Use browser_network_request to call GET http://localhost:8004/api/v1/agents with no Authorization header. The response MUST be 401 (or 403) \u2014 NOT 200. This verifies the backend does not serve protected data to unauthenticated callers regardless of the portal session state."
+      },
+      {
+        "id": 3,
+        "description": "Verify the portal proxy also enforces session auth. Use browser_network_request to call GET http://localhost:3002/api/admin/command-centre/api/v1/agents with the Cookie header omitted (no session). This should return 401. If it returns 200, note as a potential proxy auth gap."
+      },
+      {
+        "id": 4,
+        "description": "Test the portal signout flow. Navigate to http://localhost:3002/api/auth/signout via browser_navigate. If a confirmation page appears, accept it. Then navigate to http://localhost:3002/command-centre/dashboard. Verify the portal redirects to http://localhost:3002/auth/login rather than showing protected ComC content. Take a screenshot showing the login form."
+      },
+      {
+        "id": 5,
+        "description": "Verify the login page is shown after signout. The page must show an email input and a password input. Mark passed if the redirect to login is clean. Mark failed if a blank page, 500 error, or ComC dashboard content is shown instead of the login form."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-platform-overview",
+    "description": "[DEEP] Platform Overview \u2014 verify page loads and API returns correct structure for superadmin",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/platform-overview. Verify the page loads without a login redirect or generic 404 error."
+      },
+      {
+        "id": 2,
+        "description": "Verify the platform overview page structure: it should show tabs for Strategy, IP Scores, Reuse Matrix, and Actions. Take a screenshot. If the page shows a 403 error message directly in the UI (not a login redirect), mark this step as failed and note that the QA test account lacks platform superadmin privileges \u2014 this is a known limitation."
+      },
+      {
+        "id": 3,
+        "description": "If the page rendered without 403: click the IP Scores tab and verify it shows either IP score entries with progress bars, or an empty state message. Click the Reuse Matrix tab and verify it loads. Navigate back to Strategy tab."
+      },
+      {
+        "id": 4,
+        "description": "Verify the platform-overview API access control. Use browser_network_request to call GET http://localhost:8004/api/v1/admin/platform-overview with no Authorization header. Verify the response is 401 (unauthorized). This confirms the backend enforces authentication on platform-level admin routes."
+      },
+      {
+        "id": 5,
+        "description": "Use browser_network_request to call GET http://localhost:8004/api/v1/admin/platform-overview with Authorization header 'Bearer invalid-token'. Verify the response is 401. This confirms the backend validates token signatures and does not serve platform intel to callers with forged tokens. Mark passed if both step 4 and step 5 return 401."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-deep-accountability-lifecycle",
+    "description": "[DEEP] Accountability links \u2014 create, list, and verify the accountability portal page",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/accountability. Verify the page loads without 500 error or login redirect."
+      },
+      {
+        "id": 2,
+        "description": "Verify the accountability page renders correctly: either (A) a list of accountability links showing partner names, initiative descriptions, and link status, or (B) an empty state explaining that accountability links connect you with a partner for initiative tracking. No blank screen or raw error."
+      },
+      {
+        "id": 3,
+        "description": "Verify the accountability API via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links. The response must be an array (possibly empty). If 404, the accountability endpoint is missing \u2014 mark as defect. If 403, the CEO session is being rejected \u2014 mark as defect."
+      },
+      {
+        "id": 4,
+        "description": "Test creating an accountability link via API: use browser_network_request to POST http://localhost:3002/api/admin/command-centre/api/v1/accountability/links with body {\"partner_email\": \"partner@example.com\", \"initiative_description\": \"Test initiative from JourneyHawk\"}. Verify the response status is 201 or 200 and contains a link_token field. If 422 (validation error), record the error detail."
+      },
+      {
+        "id": 5,
+        "description": "If the accountability link was created successfully, verify GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links now includes the new entry. Navigate back to http://localhost:3002/command-centre/dashboard and return to /accountability \u2014 verify the page still loads and shows the link. Take a screenshot."
+      }
+    ],
+    "dependsOn": "comc-trunk-ceo"
+  },
+  {
+    "id": "comc-biz-flow-e-accountability-partner-reviewing-a-digest",
+    "description": "[BEHAVIORAL] Flow E \u2014 Accountability digest API \u2014 verify digest and reply endpoints",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/accountability. Verify the page loads."
+      },
+      {
+        "id": 2,
+        "description": "Get all accountability links via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links. If the array is non-empty, capture the first link_token for use in subsequent steps. If empty, the remaining steps will test the API endpoints with a placeholder token to verify correct error responses."
+      },
+      {
+        "id": 3,
+        "description": "Test the partner digest endpoint (no auth required): use browser_network_request to GET http://localhost:8004/api/v1/accountability/digest/test_token_invalid with no Authorization header. This endpoint is partner-facing and must handle invalid tokens gracefully \u2014 verify the response is 404 (not 500 or 200 with data). If a real link_token was captured in step 2, use that instead and verify 200 with initiative data."
+      },
+      {
+        "id": 4,
+        "description": "Test the replies endpoint: use browser_network_request to POST http://localhost:8004/api/v1/accountability/replies with body {\"link_token\": \"invalid_token\", \"message\": \"test\"} and no Authorization header. Verify the response is 404 (invalid token) or 422 (validation error), NOT 500 or 200 with data. The endpoint must reject invalid tokens without crashing."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to http://localhost:3002/command-centre/sessions (shows ComC sessions). Verify the page loads without error. Then navigate back to /accountability \u2014 confirm the page still displays correctly. Take a screenshot of the accountability page."
+      }
+    ],
+    "dependsOn": "comc-trunk-ceo"
+  },
+  {
+    "id": "comc-deep-explainability",
+    "description": "[DEEP] AI Explainability \u2014 verify decisions, approvals, and explainability pages load",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/explainability. Verify the page loads without 500 error or login redirect. The page should show an AI Explainability heading and a sub-tab bar with Feed, Trails, Anomalies, Stats, and Insights tabs."
+      },
+      {
+        "id": 2,
+        "description": "Verify the explainability page renders the decision feed. The Feed tab should show either: (A) a list of AI decision records (each with an action description, outcome, and timestamp), or (B) an empty state message like 'No decisions captured yet'. Both are valid \u2014 ComC may not have generated decision records during this QA session. Take a screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/command-centre/decisions. Verify the decisions log page loads. Check for either decision entries with title/date/outcome or an empty state. Navigate to http://localhost:3002/command-centre/approvals. Verify the approvals page loads \u2014 it may show pending approvals or an empty queue."
+      },
+      {
+        "id": 4,
+        "description": "Verify the decisions data source. Use browser_network_request to call GET http://localhost:3002/api/admin/auth/admin/decisions?product=command-centre&limit=20. Verify the response is either an array of decision objects (200 OK) or an empty array. A 404 would indicate the decisions proxy route is missing. Note: ComC does NOT have its own /api/v1/explainability route \u2014 decisions flow through phronex-auth."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to http://localhost:3002/command-centre/ethos. Verify it loads with an ethos policy or empty state. Navigate back to http://localhost:3002/command-centre/dashboard and verify the session is still active (dashboard shows content, not login redirect). Take a final screenshot."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-flow-c-logging-a-contact-interaction-crm",
+    "description": "[BEHAVIORAL] Flow C \u2014 CRM contacts and interaction logging via portal and API",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/crm. Verify the CRM page loads without 500 error or login redirect."
+      },
+      {
+        "id": 2,
+        "description": "Verify the contacts list via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts. The response must be an array. If non-empty, capture the first contact's id for use in step 4. If empty, the CRM has no contacts yet."
+      },
+      {
+        "id": 3,
+        "description": "If contacts list is empty, test creating a contact: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts with body {\"name\": \"JourneyHawk Test Contact\", \"email\": \"jh-test@example.com\"}. Verify the response is 201 and contains an id. If 422, record the validation error detail \u2014 it may indicate required fields differ."
+      },
+      {
+        "id": 4,
+        "description": "If a contact_id is available (from step 2 or 3), log an interaction: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions with body {\"interaction_type\": \"call\", \"notes\": \"JourneyHawk test call\", \"date\": \"2026-05-08\"}. Verify the response is 201 or 200. Then GET http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions \u2014 verify the new interaction appears in the list."
+      },
+      {
+        "id": 5,
+        "description": "Navigate back to http://localhost:3002/command-centre/crm and verify the CRM page still loads. Navigate to http://localhost:3002/command-centre/companies \u2014 verify it loads. Take a screenshot showing the current CRM or companies page state."
+      }
+    ],
+    "dependsOn": "comc-trunk-ceo"
+  }
+]
