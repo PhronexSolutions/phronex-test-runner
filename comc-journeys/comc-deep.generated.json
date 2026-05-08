@@ -6,15 +6,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+        "description": "TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console — if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
       },
       {
         "id": 3,
-        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
+        "description": "IMPORTANT — Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical — without it, dependent journeys will fail."
       }
     ],
     "isSharedRoot": true,
@@ -27,15 +27,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "CEO TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+        "description": "CEO TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre. Verify the Command Centre section loads without a 500 error. The page should show any Command Centre content \u2014 a dashboard, navigation links, or department views. If the page redirects to login or shows 403/404, mark failed."
+        "description": "Navigate to http://localhost:3002/command-centre. Verify the Command Centre section loads without a 500 error. The page should show any Command Centre content — a dashboard, navigation links, or department views. If the page redirects to login or shows 403/404, mark failed."
       },
       {
         "id": 3,
-        "description": "CRITICAL \u2014 Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed \u2014 use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies \u2014 an empty state file will cause all 3 dependent CEO leaf journeys to fail."
+        "description": "CRITICAL — Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed — use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies — an empty state file will cause all 3 dependent CEO leaf journeys to fail."
       }
     ],
     "isSharedRoot": true,
@@ -68,7 +68,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect \u2014 the QA superadmin account should have access."
+        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect — the QA superadmin account should have access."
       },
       {
         "id": 3,
@@ -79,7 +79,7 @@
   },
   {
     "id": "comc-companies",
-    "description": "[general] Companies \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Companies — Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -107,7 +107,7 @@
   },
   {
     "id": "comc-sales-freelancing",
-    "description": "[general] Sales Freelancing \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Sales Freelancing — Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -127,7 +127,7 @@
   },
   {
     "id": "comc-calendar",
-    "description": "[general] Calendar \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Calendar — Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -140,7 +140,7 @@
       },
       {
         "id": 3,
-        "description": "Navigate away from /command-centre/calendar to the dashboard, then return and verify the data/state persists."
+        "description": "Navigate away from http://localhost:3002/command-centre/calendar to the dashboard, then return and verify the data/state persists."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
