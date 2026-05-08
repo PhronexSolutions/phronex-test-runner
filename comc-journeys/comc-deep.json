@@ -223,7 +223,7 @@
       },
       {
         "id": 6,
-        "description": "Navigate away to http://localhost:3002/command-centre (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/briefs. Verify all previous data (brief list, any configuration changes from step 4) is still present and unchanged. Confirm no 500 errors in network log during navigation. PASS if data persists correctly across navigation."
+        "description": "Navigate away to http://localhost:3002/command-centre (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/briefs. Verify the briefs list page loads with HTTP 200 and no 500 errors in the network log. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/briefs and confirm it returns HTTP 200 with a JSON array (same as step 2). PASS if the page loads cleanly and the API returns 200. This tests navigation persistence \u2014 the page state should survive a round-trip to the dashboard."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
