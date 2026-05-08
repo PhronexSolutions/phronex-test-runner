@@ -270,32 +270,28 @@
   },
   {
     "id": "comc-deep-dashboard-metrics",
-    "description": "[DEEP] Dashboard Metrics \u2014 feature business logic + edge cases",
+    "description": "[DEEP] Dashboard Metrics \u2014 verify CEO session sees org-scoped dashboard with metric cards",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/dashboard. Verify the page loads with ComC dashboard content \u2014 not a login redirect or 403."
       },
       {
         "id": 2,
-        "description": "Click to navigate to/command-centredashboard page. Check: Page loads with metric cards showing agent count, active brief count, pending approvals count, and department health summary"
+        "description": "Verify the dashboard renders metric cards or summary sections. Check for: agent count, pending approvals count, or department health summary. If any stat card shows 'NaN', 'undefined', or an uncaught TypeError in the console, mark failed and report the exact error. Take a screenshot."
       },
       {
         "id": 3,
-        "description": "Check that agent status aggregation widget. Check: Widget shows counts by status (active, idle, paused_ceo) matchingGET /api/v1/agentsresponse totals"
+        "description": "Verify the agents widget/section by checking the API: use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents. The response must be an array. If any agent entry in the response has status='active', verify the dashboard shows an active agent count > 0. If the array is empty, verify the dashboard shows an empty state rather than a broken widget."
       },
       {
         "id": 4,
-        "description": "Click to view dashboard in empty org state. Check: Dashboard renders with empty-state messaging and onboarding CTA; no JS errors in console"
+        "description": "Open the browser console via browser_console_messages. Verify there are no JavaScript TypeError or React error boundary messages on the dashboard. Specifically look for 'Cannot read properties of undefined', 'toFixed is not a function', or 'Objects are not valid as a React child'. Report any such errors."
       },
       {
         "id": 5,
-        "description": "Click to trigger BLANK_STATE condition. Check the UI shows an appropriate error message, not a blank page or exception."
-      },
-      {
-        "id": 6,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "Navigate to http://localhost:3002/command-centre/departments and then back to http://localhost:3002/command-centre/dashboard. Verify the dashboard still loads correctly \u2014 no stale state, no blank sections. Take a final screenshot."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
@@ -322,24 +318,24 @@
   },
   {
     "id": "comc-deep-proposals-lifecycle",
-    "description": "[DEEP] Proposals lifecycle \u2014 feature business logic + edge cases",
+    "description": "[DEEP] Sales proposals \u2014 verify leads/proposals flow works via CEO session",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/sales/leads. Verify the page loads without 500 error or login redirect."
       },
       {
         "id": 2,
-        "description": "Click Create and fill in a new proposals. Check: 201/200 returned with new proposals ID"
+        "description": "Verify the leads page renders correctly: either (A) a list of lead entries with name, status, and value, or (B) an empty state explaining how leads are added. The page must not show a blank white screen or raw JSON error. Take a screenshot."
       },
       {
         "id": 3,
-        "description": "Click to retrieve the created proposals. Check: Response contains the proposals with matching data"
+        "description": "Verify the leads API via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/leads. The response must be an array (possibly empty) or an object with a data/items key. If 404, the leads endpoint is missing \u2014 mark as potential defect. If 403, the CEO session is being rejected \u2014 mark as defect."
       },
       {
         "id": 4,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "Navigate to http://localhost:3002/command-centre/lead-dossier. Verify the page loads without error \u2014 it should show lead dossiers or an empty state. Navigate back to http://localhost:3002/command-centre/sales/leads and verify the sales page still shows its content."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
@@ -430,32 +426,24 @@
   },
   {
     "id": "comc-deep-billing-lifecycle",
-    "description": "[DEEP] Billing lifecycle \u2014 feature business logic + edge cases",
+    "description": "[DEEP] Billing \u2014 verify subscription status API and unauthenticated rejection",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/settings. Verify the settings page loads without error."
       },
       {
         "id": 2,
-        "description": "Click Create and fill in a new billing. Check: 201/200 returned with new billing ID"
+        "description": "Verify the billing status API via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/billing/status. The response must return HTTP 200 with a JSON body containing subscription status fields (tier, status, or similar). If 404, the billing status endpoint is missing \u2014 mark as defect."
       },
       {
         "id": 3,
-        "description": "Click to retrieve the created billing. Check: Response contains the billing with matching data"
+        "description": "Verify the billing endpoint enforces authentication: use browser_network_request to call GET http://localhost:8004/api/v1/billing/status with no Authorization header. The response must be 401 or 403, NOT 200 with subscription data. This verifies billing data is not publicly accessible."
       },
       {
         "id": 4,
-        "description": "Click to access billing endpoints without valid auth token. Check: 401 or 403 returned (not 500 or data leak)"
-      },
-      {
-        "id": 5,
-        "description": "Click to trigger AUTH_FAIL condition. Check the UI shows an appropriate error message, not a blank page or exception."
-      },
-      {
-        "id": 6,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "Navigate back to http://localhost:3002/command-centre/dashboard and verify the dashboard still loads. This confirms the CEO session was not invalidated by the billing status check."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
@@ -482,44 +470,28 @@
   },
   {
     "id": "comc-biz-companies-budget-org",
-    "description": "[BEHAVIORAL] Companies \u2192 Budget \u2192 Org \u2014 cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Companies \u2192 CRM \u2192 Revenue \u2014 cross-feature navigation and data verification",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/companies. Verify the page loads showing companies list or empty state."
       },
       {
         "id": 2,
-        "description": "Click Create and fill in a new companies. Check: 201/200 returned with new companies ID (capture: {{companies_id}})"
+        "description": "Verify the companies API: GET http://localhost:3002/api/admin/command-centre/api/v1/companies. The response must be an array. If non-empty, verify each entry has at minimum: id, name, and a status or type field. Take a screenshot of the companies page."
       },
       {
         "id": 3,
-        "description": "Click to retrieve the created companies. Check: Response contains the companies with matching data (capture: {{companies_id}})"
+        "description": "Navigate to http://localhost:3002/command-centre/crm. Verify the CRM page loads. Verify the contacts API: GET http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts. The response must be an array. Take a screenshot."
       },
       {
         "id": 4,
-        "description": "Click Edit and update the companies with modified fields. Check: 200 returned, changes visible on re-fetch (capture: {{companies_id}})"
+        "description": "Navigate to http://localhost:3002/command-centre/revenue-intel. Verify the revenue intelligence page loads without error. Check for either revenue data or an appropriate empty state."
       },
       {
         "id": 5,
-        "description": "Click Create and fill in a budget linked to the companies. Check: budget created with reference to parent (capture: {{companies_id}}, {{budget_id}})"
-      },
-      {
-        "id": 6,
-        "description": "Check that budget appears under the companies. Check: GET parent's budget list includes the new item (capture: {{companies_id}})"
-      },
-      {
-        "id": 7,
-        "description": "Click Create and fill in a org linked to the companies. Check: org created with reference to parent (capture: {{companies_id}}, {{org_id}})"
-      },
-      {
-        "id": 8,
-        "description": "Check that org appears under the companies. Check: GET parent's org list includes the new item (capture: {{companies_id}})"
-      },
-      {
-        "id": 9,
-        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+        "description": "Verify cross-feature navigation: go from /command-centre/companies \u2192 /command-centre/crm \u2192 /command-centre/revenue-intel \u2192 /command-centre/dashboard. Each page transition must load without a login redirect or 500 error. Take a final screenshot of the dashboard confirming the CEO session persisted throughout."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
@@ -550,68 +522,56 @@
   },
   {
     "id": "comc-deep-accountability-lifecycle",
-    "description": "[DEEP] Accountability lifecycle \u2014 feature business logic + edge cases",
+    "description": "[DEEP] Accountability links \u2014 create, list, and verify the accountability portal page",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/accountability. Verify the page loads without 500 error or login redirect."
       },
       {
         "id": 2,
-        "description": "Click Create and fill in a new accountability. Check: 201/200 returned with new accountability ID"
+        "description": "Verify the accountability page renders correctly: either (A) a list of accountability links showing partner names, initiative descriptions, and link status, or (B) an empty state explaining that accountability links connect you with a partner for initiative tracking. No blank screen or raw error."
       },
       {
         "id": 3,
-        "description": "Click to retrieve the created accountability. Check: Response contains the accountability with matching data"
+        "description": "Verify the accountability API via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links. The response must be an array (possibly empty). If 404, the accountability endpoint is missing \u2014 mark as defect. If 403, the CEO session is being rejected \u2014 mark as defect."
       },
       {
         "id": 4,
-        "description": "Click Edit and update the accountability with modified fields. Check: 200 returned, changes visible on re-fetch"
+        "description": "Test creating an accountability link via API: use browser_network_request to POST http://localhost:3002/api/admin/command-centre/api/v1/accountability/links with body {\"partner_email\": \"partner@example.com\", \"initiative_description\": \"Test initiative from JourneyHawk\"}. Verify the response status is 201 or 200 and contains a link_token field. If 422 (validation error), record the error detail."
       },
       {
         "id": 5,
-        "description": "Click Delete to remove the accountability. Check: 200/204 returned, GET now returns 404 or empty"
-      },
-      {
-        "id": 6,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "If the accountability link was created successfully, verify GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links now includes the new entry. Navigate back to http://localhost:3002/command-centre/dashboard and return to /accountability \u2014 verify the page still loads and shows the link. Take a screenshot."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-biz-flow-e-accountability-partner-reviewing-a-digest",
-    "description": "[BEHAVIORAL] Flow E \u2014 Accountability partner reviewing a digest \u2014 cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Flow E \u2014 Accountability digest API \u2014 verify digest and reply endpoints",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/accountability. Verify the page loads."
       },
       {
         "id": 2,
-        "description": "Click to partner receives a token URL (no login required)."
+        "description": "Get all accountability links via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links. If the array is non-empty, capture the first link_token for use in subsequent steps. If empty, the remaining steps will test the API endpoints with a placeholder token to verify correct error responses."
       },
       {
         "id": 3,
-        "description": "Click to partner calls GET/api/v1/accountability/digest/{token}\u2014 returns initiative tasks, progress status, and recent replies. (capture: {{initiative}})"
+        "description": "Test the digest endpoint: if a real link_token exists from step 2, call GET http://localhost:8004/api/v1/accountability/digest/{link_token} (no auth required \u2014 partner access). Verify the response is either 200 with initiative data or 404 if the token is expired/invalid. If no real token exists, call with token 'test_token_invalid' and verify it returns 404 (not 500)."
       },
       {
         "id": 4,
-        "description": "Partner submits feedback: POST/api/v1/accountability/replieswith thelink_tokenandmessagetext."
+        "description": "Test the replies endpoint security: call POST http://localhost:8004/api/v1/accountability/replies with body {\"link_token\": \"invalid_token\", \"message\": \"test\"} and no auth. Verify the response is 404 (invalid token) or 422 (validation error), NOT 500 or 200. The endpoint must handle invalid tokens gracefully."
       },
       {
         "id": 5,
-        "description": "Click to reply is stored and visible in the monitored user's digest on next retrieval."
-      },
-      {
-        "id": 6,
-        "description": "Click to to revoke the partnership: DELETE/api/v1/accountability/links/{token}(requires the monitored user's JWT). Check: After revocation, the token URL returns a 404. (capture: {{404}})"
-      },
-      {
-        "id": 7,
-        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+        "description": "Navigate to http://localhost:3002/command-centre/sessions (shows ComC sessions). Verify the page loads without error. Then navigate back to /accountability \u2014 confirm the page still displays correctly. Take a screenshot of the accountability page."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
@@ -766,28 +726,28 @@
   },
   {
     "id": "comc-biz-flow-c-logging-a-contact-interaction-crm",
-    "description": "[BEHAVIORAL] Flow C \u2014 Logging a contact interaction (CRM) \u2014 cross-feature E2E business logic",
+    "description": "[BEHAVIORAL] Flow C \u2014 CRM contacts and interaction logging via portal and API",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/crm. Verify the CRM page loads without 500 error or login redirect."
       },
       {
         "id": 2,
-        "description": "Click to ensure the contact exists: GET/api/v1/crm/contactsfiltered by user. Check: If missing, create it first."
+        "description": "Verify the contacts list via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts. The response must be an array. If non-empty, capture the first contact's id for use in step 4. If empty, the CRM has no contacts yet."
       },
       {
         "id": 3,
-        "description": "POST to/api/v1/crm/contacts/{contact_id}/interactionswithinteraction_type(e.g. Check: \"call\", \"email\", \"meeting\") anddate. (capture: {{contact_id}})"
+        "description": "If contacts list is empty, test creating a contact: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts with body {\"name\": \"JourneyHawk Test Contact\", \"email\": \"jh-test@example.com\"}. Verify the response is 201 and contains an id. If 422, record the validation error detail \u2014 it may indicate required fields differ."
       },
       {
         "id": 4,
-        "description": "Click to the interaction is stored and available for future digest views."
+        "description": "If a contact_id is available (from step 2 or 3), log an interaction: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions with body {\"interaction_type\": \"call\", \"notes\": \"JourneyHawk test call\", \"date\": \"2026-05-08\"}. Verify the response is 201 or 200. Then GET http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions \u2014 verify the new interaction appears in the list."
       },
       {
         "id": 5,
-        "description": "Click on the dashboard link, wait 2 seconds, then click back and check all data from previous steps is still present."
+        "description": "Navigate back to http://localhost:3002/command-centre/crm and verify the CRM page still loads. Navigate to http://localhost:3002/command-centre/companies \u2014 verify it loads. Take a screenshot showing the current CRM or companies page state."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
