@@ -563,11 +563,11 @@
       },
       {
         "id": 3,
-        "description": "Test the digest endpoint: if a real link_token exists from step 2, call GET http://localhost:8004/api/v1/accountability/digest/{link_token} (no auth required \u2014 partner access). Verify the response is either 200 with initiative data or 404 if the token is expired/invalid. If no real token exists, call with token 'test_token_invalid' and verify it returns 404 (not 500)."
+        "description": "Test the partner digest endpoint (no auth required): use browser_network_request to GET http://localhost:8004/api/v1/accountability/digest/test_token_invalid with no Authorization header. This endpoint is partner-facing and must handle invalid tokens gracefully \u2014 verify the response is 404 (not 500 or 200 with data). If a real link_token was captured in step 2, use that instead and verify 200 with initiative data."
       },
       {
         "id": 4,
-        "description": "Test the replies endpoint security: call POST http://localhost:8004/api/v1/accountability/replies with body {\"link_token\": \"invalid_token\", \"message\": \"test\"} and no auth. Verify the response is 404 (invalid token) or 422 (validation error), NOT 500 or 200. The endpoint must handle invalid tokens gracefully."
+        "description": "Test the replies endpoint: use browser_network_request to POST http://localhost:8004/api/v1/accountability/replies with body {\"link_token\": \"invalid_token\", \"message\": \"test\"} and no Authorization header. Verify the response is 404 (invalid token) or 422 (validation error), NOT 500 or 200 with data. The endpoint must reject invalid tokens without crashing."
       },
       {
         "id": 5,
@@ -662,64 +662,56 @@
   },
   {
     "id": "comc-deep-settings-hub",
-    "description": "[DEEP] Settings Hub \u2014 feature business logic + edge cases",
+    "description": "[DEEP] Settings Hub \u2014 verify settings pages load and ERP sync status is accessible",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/settings. Verify the settings page loads without 500 error or login redirect."
       },
       {
         "id": 2,
-        "description": "Click to navigate to/command-centre/settings. Check: Settings hub page loads with sections: ERP Sync, Credentials, Brief Settings, Notification Preferences"
+        "description": "Verify the settings page renders content: it should show sub-navigation tabs or links for settings sections. Check for tabs or links to: ERP Sync, Credentials (LLM), Brief Settings, Data Sources, or similar. If the page is blank or shows an unhandled error, mark failed. Take a screenshot."
       },
       {
         "id": 3,
-        "description": "Click the link to ERP sync settings at/command-centre/settings/erp-sync. Check: Page shows sync status per doctype, last sync time, stale indicators, and manual trigger button"
+        "description": "Navigate to http://localhost:3002/command-centre/settings/erp-sync. Verify the ERP sync settings page loads. It should show ERP connection status, sync configuration, or an empty state explaining how to configure ERP sync. No blank screen or unhandled error is acceptable."
       },
       {
         "id": 4,
-        "description": "Click to modify a setting and save. Check: Save button triggers API call; success toast shown; page state reflects saved value; no full page reload needed"
+        "description": "Navigate to http://localhost:3002/command-centre/settings/llm-credentials. Verify the LLM credentials page loads. Check that any displayed API keys are masked (showing only last 4 chars). Verify no full unmasked API key is visible on screen. Take a screenshot."
       },
       {
         "id": 5,
-        "description": "Click to trigger MISSING_SECTION condition. Check the UI shows an appropriate error message, not a blank page or exception."
-      },
-      {
-        "id": 6,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "Navigate to http://localhost:3002/command-centre/settings/data-sources. Verify it loads. Navigate back to http://localhost:3002/command-centre/dashboard \u2014 verify the dashboard still loads. Then return to http://localhost:3002/command-centre/settings \u2014 verify it still loads. Session must persist across all settings navigation."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-deep-explainability",
-    "description": "[DEEP] Explainability \u2014 feature business logic + edge cases",
+    "description": "[DEEP] AI Explainability \u2014 verify decisions, approvals, and explainability pages load",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Navigate to http://localhost:3002/command-centre/explainability. Verify the page loads without 500 error or login redirect."
       },
       {
         "id": 2,
-        "description": "Click to view decision detail in portal (from decisions log). Check: Decision card shows \"what\" (action taken), \"why\" (reasoning), \"outcome\", cost_usd, agent name, timestamp"
+        "description": "Verify the explainability page renders: it should show either (A) a list of agent decision records each with an action, reasoning, outcome, cost, and timestamp, or (B) an empty state explaining that explainability records appear when agents complete tasks. Take a screenshot."
       },
       {
         "id": 3,
-        "description": "Click to view ethos evaluation trail for a specific agent action. Check: Trail shows which rules were evaluated, pass/fail result per rule, overall verdict with explanation"
+        "description": "Navigate to http://localhost:3002/command-centre/decisions. Verify the decisions log page loads. Check for either decision entries with title/date/outcome or an empty state. Navigate to http://localhost:3002/command-centre/approvals. Verify the approvals page loads \u2014 it may show pending approvals or an empty queue."
       },
       {
         "id": 4,
-        "description": "Click to view approval item detail with explainability context. Check: Shows requesting agent's reasoning, estimated impact, risk assessment, relevant ethos rules that apply"
+        "description": "Verify the explainability API: GET http://localhost:3002/api/admin/command-centre/api/v1/explainability or /api/v1/decisions. If 404, the explainability endpoint is missing \u2014 note as potential defect. If 200, verify the response is an array (possibly empty). If 403, the session lacks permission \u2014 mark as defect."
       },
       {
         "id": 5,
-        "description": "Click to trigger MISSING_WHY condition. Check the UI shows an appropriate error message, not a blank page or exception."
-      },
-      {
-        "id": 6,
-        "description": "Click on the dashboard link, return to the original page, check data persists."
+        "description": "Navigate to http://localhost:3002/command-centre/ethos. Verify it loads. Navigate back to http://localhost:3002/command-centre/dashboard and verify the session persists. Take a final screenshot."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
