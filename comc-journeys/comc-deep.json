@@ -52,7 +52,7 @@
       },
       {
         "id": 2,
-        "description": "Verify this session has manager-level access, not CEO-level. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/departments \u2014 expect 200 with a JSON array (manager can view departments). Then use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents \u2014 expect 403 (agents endpoint requires require_ceo, which cc_manager does not satisfy). PASS if departments=200 AND agents=403. FAIL if agents returns 200 (would mean the account has CEO-level access, not manager-level)."
+        "description": "Verify this session has manager-level access, not CEO-only access. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming \u2014 expect 200 with a JSON array (meetings endpoint uses require_manager, so cc_manager can access it). Then use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents \u2014 expect 403 with detail 'CEO role required' (agents endpoint uses require_ceo, which cc_manager does NOT satisfy). PASS if meetings/upcoming=200 AND agents=403. FAIL if agents returns 200 (account has CEO-level access, not manager-level) or if meetings/upcoming returns 403 (cc_manager role was not correctly granted)."
       },
       {
         "id": 3,
