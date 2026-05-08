@@ -56,7 +56,7 @@
       },
       {
         "id": 3,
-        "description": "Save the current browser storage state to '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json'. Then read the saved file and count the cookies. FAIL if the cookie count is 0 \u2014 that indicates the session was not captured and dependent leaf journeys cannot run. PASS if at least 1 cookie is present. Record the cookie count in the step result."
+        "description": "CRITICAL \u2014 Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed \u2014 use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies \u2014 an empty state file will cause all dependent manager-role leaf journeys to fail."
       }
     ]
   },
