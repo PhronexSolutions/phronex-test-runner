@@ -1,0 +1,155 @@
+[
+  {
+    "id": "comc-trunk-superadmin",
+    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
+    "isSharedRoot": true,
+    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+      },
+      {
+        "id": 3,
+        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-trunk-manager",
+    "description": "Trunk: establish authenticated session for cc_manager role QA account (qa-test-comc-manager@phronex.com). Required by journeys that test manager-level RBAC boundaries.",
+    "depth": 0,
+    "isSharedRoot": true,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login. Fill the email field with 'qa-test-comc-manager@phronex.com' and the password field with the value from environment variable PHRONEX_QA_MANAGER_PASSWORD. Submit the form. Wait for redirect. PASS if the browser lands on /command-centre/dashboard (or any authenticated ComC page). FAIL if redirected back to /auth/login (wrong credentials) or if a 500 error appears."
+      },
+      {
+        "id": 2,
+        "description": "Verify this session has manager-level access, not CEO-only access. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming \u2014 expect 200 with a JSON array (meetings endpoint uses require_manager, so cc_manager can access it). Then use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents \u2014 expect 403 with detail 'CEO role required' (agents endpoint uses require_ceo, which cc_manager does NOT satisfy). PASS if meetings/upcoming=200 AND agents=403. FAIL if agents returns 200 (account has CEO-level access, not manager-level) or if meetings/upcoming returns 403 (cc_manager role was not correctly granted)."
+      },
+      {
+        "id": 3,
+        "description": "Save the current browser storage state to '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json'. Then read the saved file and count the cookies. FAIL if the cookie count is 0 \u2014 that indicates the session was not captured and dependent leaf journeys cannot run. PASS if at least 1 cookie is present. Record the cookie count in the step result."
+      }
+    ]
+  },
+  {
+    "id": "comc-biz-costs-budget-allocation",
+    "description": "[BEHAVIORAL] Verify budget allocations are correctly retrieved, isolated by tenant, created/updated with validation, and prevent duplicate or invalid entries.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using browser_storage_state. Navigate to http://localhost:3002/command-centre/costs. Verify the page loads without 500 error or blank screen."
+      },
+      {
+        "id": 2,
+        "description": "Verify the Costs overview page shows cost KPI cards \u2014 at minimum one of: 'Budget Utilisation', 'Org Spend', or a department cost breakdown table. The page must render actual content sections (not an empty white box). Take a screenshot."
+      },
+      {
+        "id": 3,
+        "description": "Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/costs/budget. PASS if response is 200 with a JSON array (empty array is valid \u2014 no budget allocations configured yet). FAIL only on 500, 403, or 404. Record the count of budget entries returned."
+      },
+      {
+        "id": 4,
+        "description": "Use browser_network_request to POST http://localhost:3002/api/admin/command-centre/api/v1/costs/budget with body {\"dept_id\": null, \"agent_id\": null, \"period\": \"monthly\", \"hard_limit_usd\": 50000, \"soft_limit_minutes\": 600}. PASS if response is 201 with a budget allocation object that includes an 'id' field. FAIL on 500 or 422. Record the returned id."
+      },
+      {
+        "id": 5,
+        "description": "Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/costs/budget again. Verify the array now contains the entry created in step 4 (look for the matching id). PASS if the entry appears. This tests that POST correctly persists to the DB and GET reflects the new state."
+      },
+      {
+        "id": 6,
+        "description": "Navigate away to http://localhost:3002/command-centre/dashboard then back to http://localhost:3002/command-centre/costs. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/costs/budget. Verify the entry from step 4 is still present (not lost on page refresh). PASS if id from step 4 is in the response. This tests persistence across navigation."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-comc-roadmap-narrative-summary-2",
+    "description": "[general] Comc Roadmap_Narrative Summary \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load or establish superadmin session: Restore from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If expired or file missing, navigate to /command-centre/login, enter valid superadmin credentials (is_superadmin=true in phronex-auth), and verify redirect to /command-centre/dashboard with 'All Organisations' selector visible in top-left navigation."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to /command-centre/briefs and verify 'Automatic Daily Intelligence Brief' summary list loads. Confirm: (a) HTTP 200 response from GET /api/v1/briefs with JSON array sorted descending by created_at; (b) at least one morning brief card displays with fields: id, created_at (timestamp), content summary snippet, and 'generated by: morning_brief job' label; (c) metric header shows 'Active Briefs: N' count matches array length."
+      },
+      {
+        "id": 3,
+        "description": "Create a new summary narrative entry via POST /api/v1/roadmap-summary with JSON body: { 'title': 'Test Summary Q1 2025', 'priority': 'core', 'feature_count': 34, 'endpoint_count': 2, 'content': 'Full DEEP integration test' }. Verify HTTP 201 response with returned id. Assert response includes all sent fields plus auto-generated 'created_at' timestamp and 'org_id' from JWT claim."
+      },
+      {
+        "id": 4,
+        "description": "Validate error handling: Attempt POST /api/v1/roadmap-summary with missing required field 'title' and malformed JSON. Expect HTTP 400 Bad Request with error detail 'Field title is required' or 'Invalid JSON'. Verify error message renders in UI modal below form without page crash."
+      },
+      {
+        "id": 5,
+        "description": "Verify cross-service API contract: From /command-centre/briefs, click 'Generate Morning Brief Now' button (manual trigger for testing). Monitor Network tab for: (a) POST /api/v1/briefs/morning/trigger returns HTTP 202 Accepted; (b) backend internally calls Paperclip CRM via GET /api/deal-pipeline (simulated/mocked in test env) and ERPNext bridge; (c) within 5 seconds, brief appears in list with status='processing', then updates to status='completed' with generated content populated. Assert Telegram notification flag is present in response if configured."
+      },
+      {
+        "id": 6,
+        "description": "Navigate away from /command-centre/briefs to /command-centre/dashboard (home), wait 2 seconds, then navigate back to /command-centre/briefs. Verify the brief created in step 3 and the manually triggered brief from step 5 are both still present with identical ids, timestamps, and content. Confirm localStorage and server-side PostgreSQL persistence are aligned (no data loss on page navigation)."
+      },
+      {
+        "id": 7,
+        "description": "Edit the test summary from step 3: Click 'Edit' on the summary card, change 'priority' from 'core' to 'planned', and submit via PUT /api/v1/roadmap-summary/{id}. Verify HTTP 200 response with updated priority field. Reload the page (F5) and confirm persisted change is visible without any rollback."
+      },
+      {
+        "id": 8,
+        "description": "Delete the test summary: Click 'Delete' on the summary card, confirm deletion dialog, and execute DELETE /api/v1/roadmap-summary/{id}. Verify HTTP 204 No Content response. Assert the summary card is removed from the UI list immediately. Navigate away and back to /command-centre/briefs; confirm the deleted entry does not reappear (permanent deletion verified)."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-comc-hld-concurrency-model-2",
+    "description": "[general] Comc Hld Concurrency Model \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (401 response or login screen displayed), navigate to '/command-centre' and authenticate using valid superadmin credentials. Verify landing on dashboard with 'Organisations' widget visible."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to '/command-centre/departments'. Click 'Create New Department' button. Fill form: Name='Test_Dept_' + timestamp, Description='DEEP concurrency test', select Org from dropdown. Submit and verify 201 HTTP response. Confirm department appears in list with correct org_id reference. Document the created department_id for subsequent steps."
+      },
+      {
+        "id": 3,
+        "description": "Open the created department detail view. Click 'Add Initiative' tab. Populate Initiative form: Title='Init_' + timestamp, Description='Concurrency validation', OKR Weight=50, Target completion date=30 days out. Submit and verify 201 response with initiative_id returned. Validate that initiative.org_id matches department.org_id (cross-service boundary validation). Check that KPI section is now available on the page."
+      },
+      {
+        "id": 4,
+        "description": "VALIDATION: While on initiative detail page, attempt to submit KPI form with invalid input: set Target Value to non-numeric text 'invalid_number'. Click Save. Verify 400 error response with validation message 'Target Value must be numeric' displayed inline. Clear field, enter valid value '1000', resubmit. Verify 201 response and KPI appears in list."
+      },
+      {
+        "id": 5,
+        "description": "PERSISTENCE: Navigate to '/command-centre/intelligence/briefs'. Verify that the newly created initiative appears in the 'Recent Initiatives' widget (indicates successful persistence to intelligence service boundary). Wait 2 seconds for DOM updates. Return to '/command-centre/departments' and open the test department again. Confirm department, initiative, and KPI all persist with correct data. Verify no 404 errors in network log."
+      },
+      {
+        "id": 6,
+        "description": "CONCURRENCY: Open the test department in two browser tabs simultaneously. In Tab 1, edit department Description to 'Updated_Tab1_' + timestamp. Submit and verify 200 response. Switch to Tab 2 without refreshing; attempt to edit same Description field to 'Updated_Tab2_' + timestamp. Verify conflict handling: either optimistic lock error (409) or successful override with last-write-wins. Refresh Tab 2 and verify final state matches backend (check department detail API endpoint for authoritative value)."
+      },
+      {
+        "id": 7,
+        "description": "CROSS-SERVICE: In department detail, click 'Link Agent' button. Select an agent_profile from dropdown. Submit and verify agent_link created (201 response). Confirm that agent.org_id matches department.org_id (org isolation validation). Navigate to '/command-centre/agents' and verify the linked agent shows this department in its 'Assigned Departments' section. This validates bidirectional sync across agent and department domains."
+      },
+      {
+        "id": 8,
+        "description": "Navigate away completely to '/command-centre/dashboard'. Wait 3 seconds. Return to '/command-centre/departments' and re-open the test department. Verify all data persists: department name, all initiatives, all KPIs, all linked agents are present and unchanged. Check browser localStorage for session token and confirm it is still valid. Verify no unexpected 401 or 500 responses in network tab. Mark test as PASSED if all CRUD, validation, persistence, and concurrency assertions succeed."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  }
+]
