@@ -1,7 +1,7 @@
 [
   {
     "id": "comc-sec-session-handling",
-    "description": "[DEEP] Session handling — verify clearing auth cookies redirects to login gracefully",
+    "description": "[DEEP] Session handling \u2014 verify clearing auth cookies redirects to login gracefully",
     "depth": 1,
     "steps": [
       {
@@ -10,11 +10,11 @@
       },
       {
         "id": 2,
-        "description": "Verify the ComC backend independently enforces authentication. Use browser_network_request to call GET http://localhost:8004/api/v1/agents with no Authorization header. The response MUST be 401 (or 403) — NOT 200. This verifies the backend does not serve protected data to unauthenticated callers regardless of the portal session state."
+        "description": "Verify the ComC backend independently enforces authentication. Use browser_network_request to call GET http://localhost:8004/api/v1/agents with no Authorization header. The response MUST be 401 (or 403) \u2014 NOT 200. This verifies the backend does not serve protected data to unauthenticated callers regardless of the portal session state."
       },
       {
         "id": 3,
-        "description": "Verify the portal proxy enforces session auth via redirect. Open a new browser tab (browser_tabs → new). Navigate the new tab to http://localhost:3002/api/admin/command-centre/api/v1/agents. Auth.js responds with a 307 redirect to /auth/login — the browser follows it. Take a snapshot and verify the final URL contains '/auth/login' OR the page shows an email/password form. This confirms the portal correctly gates the proxy route behind Auth.js session auth. Close the new tab after verification. Mark passed if login page is shown; mark failed if the JSON response from the proxy is returned directly (which would mean auth is not enforced)."
+        "description": "Verify the portal proxy enforces session authentication. Use browser_network_request (NOT a browser tab \u2014 browser_network_request does NOT send browser session cookies) to call GET http://localhost:3002/api/admin/command-centre/api/v1/agents with NO Cookie header and NO Authorization header. The portal's Auth.js middleware should detect the missing session and return 307 (redirect to login) or 401. PASS if response status is 307, 401, or 403. FAIL if response is 200 with JSON data \u2014 that would mean the proxy is serving protected ComC data to unauthenticated callers. Note: browser_network_request is correct here because it sends a raw HTTP request without the browser session cookies, simulating an unauthenticated caller."
       },
       {
         "id": 4,
@@ -29,7 +29,7 @@
   },
   {
     "id": "comc-deep-platform-overview",
-    "description": "[DEEP] Platform Overview — verify page loads and API returns correct structure for superadmin",
+    "description": "[DEEP] Platform Overview \u2014 verify page loads and API returns correct structure for superadmin",
     "depth": 1,
     "steps": [
       {
@@ -38,11 +38,11 @@
       },
       {
         "id": 2,
-        "description": "Verify the platform overview page's access control behavior. Take a screenshot of the current page state. PASS CONDITION: the page either (a) shows a 403 Forbidden message (correct — the QA account has a product grant but not platform superadmin access, so a 403 is the correct and expected response), OR (b) renders the page with tabs (Strategy, IP Scores, Reuse Matrix, Actions) visible. FAIL CONDITION: page shows a 500 error, a blank white screen, or a login redirect. A 403 message means the auth system is working correctly — mark it as passed and note '403 expected for non-platform-superadmin QA account'."
+        "description": "Verify the platform overview page's access control behavior. Take a screenshot of the current page state. PASS CONDITION: the page either (a) shows a 403 Forbidden message (correct \u2014 the QA account has a product grant but not platform superadmin access, so a 403 is the correct and expected response), OR (b) renders the page with tabs (Strategy, IP Scores, Reuse Matrix, Actions) visible. FAIL CONDITION: page shows a 500 error, a blank white screen, or a login redirect. A 403 message means the auth system is working correctly \u2014 mark it as passed and note '403 expected for non-platform-superadmin QA account'."
       },
       {
         "id": 3,
-        "description": "CONDITIONAL — only execute if step 2 result was that the page LOADED WITH TABS (not a 403 page). If step 2 showed a 403 error, mark this step as passed and skip. If tabs were visible: click the IP Scores tab and verify it shows either IP score entries with progress bars, or an empty state message. Click the Reuse Matrix tab and verify it loads. Navigate back to Strategy tab. This step verifies tab navigation works when a platform superadmin account is used."
+        "description": "CONDITIONAL \u2014 only execute if step 2 result was that the page LOADED WITH TABS (not a 403 page). If step 2 showed a 403 error, mark this step as passed and skip. If tabs were visible: click the IP Scores tab and verify it shows either IP score entries with progress bars, or an empty state message. Click the Reuse Matrix tab and verify it loads. Navigate back to Strategy tab. This step verifies tab navigation works when a platform superadmin account is used."
       },
       {
         "id": 4,
@@ -57,7 +57,7 @@
   },
   {
     "id": "comc-deep-explainability",
-    "description": "[DEEP] AI Explainability — verify decisions, approvals, and explainability pages load",
+    "description": "[DEEP] AI Explainability \u2014 verify decisions, approvals, and explainability pages load",
     "depth": 1,
     "steps": [
       {
@@ -66,15 +66,15 @@
       },
       {
         "id": 2,
-        "description": "Verify the explainability page renders or fails gracefully. Take a screenshot of the Feed tab content. PASS CONDITION: the page shows either (A) a list of AI decision records, (B) an empty state message like 'No decisions yet', or (C) an error state/message (acceptable — known infrastructure constraint: the decisions backend returns 500 for the command-centre product slug because phronex-auth EC2 is running an older phronex-common that predates command-centre ProductSlug support; this is a phronex-auth deployment gap, not a ComC bug). FAIL CONDITION ONLY: the entire portal crashes or the page shows a login redirect. Document whatever state you observe and mark as passed."
+        "description": "Verify the explainability page renders or fails gracefully. Take a screenshot of the Feed tab content. PASS CONDITION: the page shows either (A) a list of AI decision records, (B) an empty state message like 'No decisions yet', or (C) an error state/message (acceptable \u2014 known infrastructure constraint: the decisions backend returns 500 for the command-centre product slug because phronex-auth EC2 is running an older phronex-common that predates command-centre ProductSlug support; this is a phronex-auth deployment gap, not a ComC bug). FAIL CONDITION ONLY: the entire portal crashes or the page shows a login redirect. Document whatever state you observe and mark as passed."
       },
       {
         "id": 3,
-        "description": "Navigate to http://localhost:3002/command-centre/decisions. Verify the decisions log page loads. Check for either decision entries with title/date/outcome or an empty state. Navigate to http://localhost:3002/command-centre/approvals. Verify the approvals page loads — it may show pending approvals or an empty queue."
+        "description": "Navigate to http://localhost:3002/command-centre/decisions. Verify the decisions log page loads. Check for either decision entries with title/date/outcome or an empty state. Navigate to http://localhost:3002/command-centre/approvals. Verify the approvals page loads \u2014 it may show pending approvals or an empty queue."
       },
       {
         "id": 4,
-        "description": "Verify the phronex-auth decisions proxy route is reachable. Use browser_network_request to call GET http://localhost:3002/api/admin/auth/admin/decisions?product=content-companion&limit=5. Verify the response is 200 OK with a JSON object containing an 'items' array (may be empty). NOTE: Do NOT use product=command-centre — phronex-auth EC2 returns 500 for that slug because it is running an older phronex-common version. Use content-companion as a proxy test to confirm the decisions route infrastructure is working end-to-end. A 404 would indicate the proxy route itself is missing. Mark passed if 200 with items array, mark failed only on 404 (route missing) or network error."
+        "description": "Verify the phronex-auth decisions proxy route is reachable. Use browser_network_request to call GET http://localhost:3002/api/admin/auth/admin/decisions?product=content-companion&limit=5. Verify the response is 200 OK with a JSON object containing an 'items' array (may be empty). NOTE: Do NOT use product=command-centre \u2014 phronex-auth EC2 returns 500 for that slug because it is running an older phronex-common version. Use content-companion as a proxy test to confirm the decisions route infrastructure is working end-to-end. A 404 would indicate the proxy route itself is missing. Mark passed if 200 with items array, mark failed only on 404 (route missing) or network error."
       },
       {
         "id": 5,
@@ -85,7 +85,7 @@
   },
   {
     "id": "comc-deep-accountability-lifecycle",
-    "description": "[DEEP] Accountability links — create, list, and verify the accountability portal page",
+    "description": "[DEEP] Accountability links \u2014 create, list, and verify the accountability portal page",
     "depth": 1,
     "steps": [
       {
@@ -98,7 +98,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the accountability API via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links. The response must be an array (possibly empty). If 404, the accountability endpoint is missing — mark as defect. If 403, the CEO session is being rejected — mark as defect."
+        "description": "Verify the accountability API via browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links. The response must be an array (possibly empty). If 404, the accountability endpoint is missing \u2014 mark as defect. If 403, the CEO session is being rejected \u2014 mark as defect."
       },
       {
         "id": 4,
@@ -106,14 +106,14 @@
       },
       {
         "id": 5,
-        "description": "If the accountability link was created successfully, verify GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links now includes the new entry. Navigate back to http://localhost:3002/command-centre/dashboard and return to /accountability — verify the page still loads and shows the link. Take a screenshot."
+        "description": "If the accountability link was created successfully, verify GET http://localhost:3002/api/admin/command-centre/api/v1/accountability/links now includes the new entry. Navigate back to http://localhost:3002/command-centre/dashboard and return to /accountability \u2014 verify the page still loads and shows the link. Take a screenshot."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-biz-flow-e-accountability-partner-reviewing-a-digest",
-    "description": "[BEHAVIORAL] Flow E — Accountability digest API — verify digest and reply endpoints",
+    "description": "[BEHAVIORAL] Flow E \u2014 Accountability digest API \u2014 verify digest and reply endpoints",
     "depth": 1,
     "steps": [
       {
@@ -126,7 +126,7 @@
       },
       {
         "id": 3,
-        "description": "Test the partner digest endpoint (no auth required): use browser_network_request to GET http://localhost:8004/api/v1/accountability/digest/test_token_invalid with no Authorization header. This endpoint is partner-facing and must handle invalid tokens gracefully — verify the response is 404 (not 500 or 200 with data). If a real link_token was captured in step 2, use that instead and verify 200 with initiative data."
+        "description": "Test the partner digest endpoint (no auth required): use browser_network_request to GET http://localhost:8004/api/v1/accountability/digest/test_token_invalid with no Authorization header. This endpoint is partner-facing and must handle invalid tokens gracefully \u2014 verify the response is 404 (not 500 or 200 with data). If a real link_token was captured in step 2, use that instead and verify 200 with initiative data."
       },
       {
         "id": 4,
@@ -134,14 +134,14 @@
       },
       {
         "id": 5,
-        "description": "Navigate to http://localhost:3002/command-centre/sessions (shows ComC sessions). Verify the page loads without error. Then navigate back to /accountability — confirm the page still displays correctly. Take a screenshot of the accountability page."
+        "description": "Navigate to http://localhost:3002/command-centre/sessions (shows ComC sessions). Verify the page loads without error. Then navigate back to /accountability \u2014 confirm the page still displays correctly. Take a screenshot of the accountability page."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-biz-flow-c-logging-a-contact-interaction-crm",
-    "description": "[BEHAVIORAL] Flow C — CRM contacts and interaction logging via portal and API",
+    "description": "[BEHAVIORAL] Flow C \u2014 CRM contacts and interaction logging via portal and API",
     "depth": 1,
     "steps": [
       {
@@ -154,15 +154,15 @@
       },
       {
         "id": 3,
-        "description": "If contacts list is empty, test creating a contact: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts with body {\"name\": \"JourneyHawk Test Contact\", \"email\": \"jh-test@example.com\"}. Verify the response is 201 and contains an id. If 422, record the validation error detail — it may indicate required fields differ."
+        "description": "If contacts list is empty, test creating a contact: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts with body {\"name\": \"JourneyHawk Test Contact\", \"email\": \"jh-test@example.com\"}. Verify the response is 201 and contains an id. If 422, record the validation error detail \u2014 it may indicate required fields differ."
       },
       {
         "id": 4,
-        "description": "If a contact_id is available (from step 2 or 3), log an interaction: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions with body {\"interaction_type\": \"call\", \"notes\": \"JourneyHawk test call\", \"date\": \"2026-05-08\"}. Verify the response is 201 or 200. Then GET http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions — verify the new interaction appears in the list."
+        "description": "If a contact_id is available (from step 2 or 3), log an interaction: POST http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions with body {\"interaction_type\": \"call\", \"notes\": \"JourneyHawk test call\", \"date\": \"2026-05-08\"}. Verify the response is 201 or 200. Then GET http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/{contact_id}/interactions \u2014 verify the new interaction appears in the list."
       },
       {
         "id": 5,
-        "description": "Navigate back to http://localhost:3002/command-centre/crm and verify the CRM page still loads. Navigate to http://localhost:3002/command-centre/companies — verify it loads. Take a screenshot showing the current CRM or companies page state."
+        "description": "Navigate back to http://localhost:3002/command-centre/crm and verify the CRM page still loads. Navigate to http://localhost:3002/command-centre/companies \u2014 verify it loads. Take a screenshot showing the current CRM or companies page state."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
