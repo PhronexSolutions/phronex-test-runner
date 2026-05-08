@@ -3148,5 +3148,47 @@
     "dependsOn": "comc-trunk-ceo",
     "_retired_at": "2026-05-08T04:51:46.883429+00:00",
     "_retire_reason": "BROKEN for \u22655 runs, no open defect"
+  },
+  {
+    "id": "comc-strategy-ip-register",
+    "description": "[strategy] Strategy Ip Register \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate and log in if session expired. Verify JWT token is present in browser storage and has 'cc_ceo' or 'superadmin' role claim. Confirm Authorization header will be set to 'Bearer <token>' for all subsequent API calls."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/strategy/ip-register. Verify page loads without errors (no blank page, no 'Something went wrong', no console errors). Confirm 'IP Register' heading is visible and the Strategy pillar tab is highlighted in the left sidebar."
+      },
+      {
+        "id": 3,
+        "description": "Verify the IP Register data table renders. Check that either data rows with columns [Name, Category, Status, Protection Level, Created At] appear, OR a proper empty state message is shown ('No IP items registered' or similar). Confirm no orphaned table headers or broken layout."
+      },
+      {
+        "id": 4,
+        "description": "Create a new IP Register item: Click 'Add IP Item' or '+ New' button. Fill form fields: Name='Test Patent Strategy Q4', Category='Patent', Protection Level='Confidential', Status='Active'. Attempt to submit with missing 'Protection Level' dropdown selection. Verify validation error appears inline on the Protection Level field. Then select 'Confidential' and submit. Confirm HTTP 201 POST /api/v1/ip-register/items response with item_id in payload. Verify new row appears in table immediately."
+      },
+      {
+        "id": 5,
+        "description": "Validate cross-service scoring integration: Click the newly created IP item row to open detail view. Locate 'Generate Score' or 'Score This IP' button. Click it. Verify HTTP 200 POST /api/v1/ip-register/items/{item_id}/score is triggered (check Network tab). Confirm LLM-generated 7-dimension scoring result (Novelty, Market Impact, Defensibility, Implementation Timeline, Competitive Advantage, Cost of Protection, Strategic Alignment) is displayed in a modal or panel. Verify score values persist (each dimension 0-100 scale)."
+      },
+      {
+        "id": 6,
+        "description": "Test persistence: Edit the IP item name from 'Test Patent Strategy Q4' to 'Test Patent Strategy Q4 - REVISED'. Click Save. Verify HTTP 200 PATCH /api/v1/ip-register/items/{item_id} response. Navigate away to a different pillar (e.g., http://localhost:3002/command-centre/operations/dashboard). Then navigate back to http://localhost:3002/command-centre/strategy/ip-register. Verify the edited name 'Test Patent Strategy Q4 - REVISED' is still displayed in the table, confirming server-side persistence and hydration."
+      },
+      {
+        "id": 7,
+        "description": "Verify tenant isolation and RBAC boundary: Confirm that all IP items in the list belong only to the current organization (org_id in JWT token). Inspect network request GET /api/v1/ip-register/items and verify response includes only org-scoped records. Attempt to manually construct a URL to view another org's IP item (e.g., http://localhost:3002/command-centre/strategy/ip-register/[other-org-item-id]). Verify access is denied with HTTP 403 or redirect to own org context. Confirm no console errors and no data leakage."
+      },
+      {
+        "id": 8,
+        "description": "Delete the test IP item: Click the item row and locate 'Delete' action button or icon. Click it. Confirm delete confirmation dialog appears ('Are you sure you want to delete this IP item?'). Click 'Confirm Delete'. Verify HTTP 204 DELETE /api/v1/ip-register/items/{item_id} is sent. Confirm item row is removed from table immediately. Refresh the page (F5) and verify item does not reappear, confirming server-side deletion and no rollback."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin",
+    "_retired_at": "2026-05-08T17:57:04.351454+00:00",
+    "_retire_reason": "BROKEN for \u22655 runs, no open defect"
   }
 ]
