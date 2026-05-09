@@ -904,13 +904,15 @@ if journey_count == 0:
 
 estimated_sec = journey_count * avg_sec
 # Overall runtime cap is DISABLED (0 = no cap).
-# Per-journey cap (STRATEGIST_ABORT_PER_JOURNEY_SEC=900) protects against stuck journeys.
+# Silence timeout (STRATEGIST_ABORT_SILENCE_SEC=900) kills stuck processes only.
 if operator_cap:
     max_runtime = float(operator_cap)
     cap_source = "operator override"
 else:
     max_runtime = 0
-    cap_source = "disabled (per-journey 15min cap active)"
+    cap_source = "disabled (silence timeout protects against stuck processes)"
+
+silence_sec = int(os.environ.get("STRATEGIST_ABORT_SILENCE_SEC", "900") or 900)
 
 # Write computed cap back to shell
 if cap_file:
@@ -922,8 +924,8 @@ print(f"  Journeys in spec : {journey_count}")
 print(f"  Avg per journey  : ~{avg_sec:.0f}s (historical)")
 print(f"  Estimated total  : ~{estimated_min:.0f} min  ({estimated_sec:.0f}s)")
 print(f"  Runtime cap      : {cap_source}")
-print(f"  Per-journey cap  : 900s (15 min)")
-print(f"  ✓ No overall cap — all journeys will run to completion.")
+print(f"  Silence timeout  : {silence_sec}s (kills stuck processes only)")
+print(f"  ✓ No runtime caps — genuinely running journeys will complete.")
 FORECAST_EOF
 _FORECAST_EXIT=$?
 # Read the cap computed by the forecast (or operator override) back into the shell
@@ -989,7 +991,7 @@ _RUNNER_START_SEC=${SECONDS}
   "${SCRIPT_DIR}/cli/cc-test-runner" \
     -t "${MUTATED_SPEC}" \
     -o "${RESULTS_DIR}" \
-    --maxTurns 50 \
+    --maxTurns 100 \
     --statePort "${CCTR_STATE_PORT}" \
   || CC_EXIT=$?
 export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
