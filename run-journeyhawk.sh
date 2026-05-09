@@ -164,6 +164,65 @@ else
   echo "[env] WARNING: ${QA_ENV} not found — PHRONEX_QA_DATABASE_URL_SYNC may be unset"
 fi
 
+# ─────────────────────────────────────────────────────────────────────────
+# Phase 94 (Gap 3): Query qa_strategy_state.mode and auto-set skip flags.
+#
+# Routing:
+#   COLD_START → JOURNEYHAWK_SKIP_GENERATION=1 (no LLM-generated journeys yet)
+#   MAINTAIN   → JOURNEYHAWK_SKIP_GENERATION=1 + SKIP_PASSED=1
+#                (only re-run regression anchors)
+#   EXPAND/FOCUS → no auto-set (run normally)
+#
+# Fail-open: if PYTHON, DB, or qa_strategy_state row missing → mode='COLD_START'.
+# Note: system python3 may not have phronex_common importable (venv-only on
+# DevServer); the heredoc's `except Exception` guard prints 'COLD_START' in
+# that case, which is the CORRECT fail-open behaviour (do not "fix" it).
+# User overrides: if JOURNEYHAWK_SKIP_GENERATION or SKIP_PASSED already set in
+# the environment, we honor the user's value (using ${VAR:-default} pattern).
+# ─────────────────────────────────────────────────────────────────────────
+STRATEGY_MODE="COLD_START"
+if [[ -n "${PHRONEX_QA_DATABASE_URL_SYNC:-}" ]] && [[ -n "${JOURNEYHAWK_PRODUCT:-}" ]]; then
+  _MODE_OUT=$(python3 - <<'PYEOF' 2>/dev/null || true
+import os, sys
+try:
+    import psycopg2
+    from phronex_common.testing._qa_db import clean_dsn
+    from phronex_common.testing.runner import _get_product_strategy_mode
+except Exception:
+    print("COLD_START")
+    sys.exit(0)
+try:
+    conn = psycopg2.connect(clean_dsn(os.environ["PHRONEX_QA_DATABASE_URL_SYNC"]))
+except Exception:
+    print("COLD_START")
+    sys.exit(0)
+try:
+    print(_get_product_strategy_mode(conn, os.environ["JOURNEYHAWK_PRODUCT"]))
+finally:
+    try: conn.close()
+    except Exception: pass
+PYEOF
+)
+  if [[ -n "${_MODE_OUT}" ]]; then
+    STRATEGY_MODE="${_MODE_OUT}"
+  fi
+fi
+echo "[mode] strategy_mode=${STRATEGY_MODE}"
+
+# MAINTAIN → auto-enable skip-passed (only if user did not pass --skip-passed).
+if [[ "${STRATEGY_MODE}" == "MAINTAIN" ]] && [[ "${SKIP_PASSED}" -eq 0 ]]; then
+  SKIP_PASSED=1
+  echo "[mode] MAINTAIN: SKIP_PASSED=1 auto-set (regression anchors only)"
+fi
+
+# COLD_START or MAINTAIN → skip LLM journey generation.
+if [[ "${STRATEGY_MODE}" == "COLD_START" ]] || [[ "${STRATEGY_MODE}" == "MAINTAIN" ]]; then
+  JOURNEYHAWK_SKIP_GENERATION="${JOURNEYHAWK_SKIP_GENERATION:-1}"
+  export JOURNEYHAWK_SKIP_GENERATION
+  echo "[mode] ${STRATEGY_MODE}: JOURNEYHAWK_SKIP_GENERATION=${JOURNEYHAWK_SKIP_GENERATION} (auto-set if unset)"
+fi
+export STRATEGY_MODE
+
 # Locate Python with phronex-common installed
 VENV="${SCRIPT_DIR}/../phronex-common/.venv/bin/python"
 if [[ -f "${VENV}" ]]; then
