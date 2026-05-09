@@ -8,15 +8,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+        "description": "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console — if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console \u2014 if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
       },
       {
         "id": 3,
-        "description": "IMPORTANT — Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical — without it, dependent journeys will fail."
+        "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
       }
     ]
   },
@@ -28,15 +28,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "CEO TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+        "description": "CEO TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre. Verify the Command Centre section loads without a 500 error. The page should show any Command Centre content — a dashboard, navigation links, or department views. If the page redirects to login or shows 403/404, mark failed."
+        "description": "Navigate to http://localhost:3002/command-centre. Verify the Command Centre section loads without a 500 error. The page should show any Command Centre content \u2014 a dashboard, navigation links, or department views. If the page redirects to login or shows 403/404, mark failed."
       },
       {
         "id": 3,
-        "description": "CRITICAL — Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed — use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies — an empty state file will cause all 3 dependent CEO leaf journeys to fail."
+        "description": "CRITICAL \u2014 Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed \u2014 use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies \u2014 an empty state file will cause all 3 dependent CEO leaf journeys to fail."
       }
     ]
   },
@@ -48,15 +48,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "MANAGER TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-comc-manager@phronex.com' and password 'v492kb-JXn5Sso1TEKApd2wi9LE'. Submit and wait for the portal sidebar to appear or redirect to http://localhost:3002/command-centre/dashboard. Mark failed if redirected back to http://localhost:3002/auth/login (wrong credentials) or if a 500 error appears."
+        "description": "MANAGER TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-comc-manager@phronex.com' and password 'v492kb-JXn5Sso1TEKApd2wi9LE'. Submit and wait for the portal sidebar to appear or redirect to http://localhost:3002/command-centre/dashboard. Mark failed if redirected back to http://localhost:3002/auth/login (wrong credentials) or if a 500 error appears."
       },
       {
         "id": 2,
-        "description": "Verify this session has manager-level access, not CEO-only access. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming — expect 200 with a JSON array (meetings endpoint uses require_manager, so cc_manager can access it). Then use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents — expect 403 with detail 'CEO role required' (agents endpoint uses require_ceo, which cc_manager does NOT satisfy). PASS if meetings/upcoming=200 AND agents=403. FAIL if agents returns 200 (account has CEO-level access, not manager-level) or if meetings/upcoming returns 403 (cc_manager role was not correctly granted)."
+        "description": "Verify this session has manager-level access, not CEO-only access. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming \u2014 expect 200 with a JSON array (meetings endpoint uses require_manager, so cc_manager can access it). Then use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents \u2014 expect 403 with detail 'CEO role required' (agents endpoint uses require_ceo, which cc_manager does NOT satisfy). PASS if meetings/upcoming=200 AND agents=403. FAIL if agents returns 200 (account has CEO-level access, not manager-level) or if meetings/upcoming returns 403 (cc_manager role was not correctly granted)."
       },
       {
         "id": 3,
-        "description": "CRITICAL — Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed — use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies — an empty state file will cause all dependent manager-role leaf journeys to fail."
+        "description": "CRITICAL \u2014 Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed \u2014 use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies \u2014 an empty state file will cause all dependent manager-role leaf journeys to fail."
       }
     ]
   },
@@ -88,7 +88,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect — the QA superadmin account should have access."
+        "description": "Verify the admin panel shows organisation management sections (e.g., user management, role assignments, org settings) and system health indicators (service status, database connectivity, API health). If the page shows 403, this is a defect \u2014 the QA superadmin account should have access."
       },
       {
         "id": 3,
@@ -98,7 +98,7 @@
   },
   {
     "id": "comc-companies",
-    "description": "[general] Companies — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Companies \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -126,7 +126,7 @@
   },
   {
     "id": "comc-sales-freelancing",
-    "description": "[general] Sales Freelancing — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Sales Freelancing \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -146,7 +146,7 @@
   },
   {
     "id": "comc-calendar",
-    "description": "[general] Calendar — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Calendar \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -175,11 +175,11 @@
       },
       {
         "id": 2,
-        "description": "Verify the Costs overview page shows cost KPI cards — at minimum one of: 'Budget Utilisation', 'Org Spend', or a department cost breakdown table. The page must render actual content sections (not an empty white box). Take a screenshot."
+        "description": "Verify the Costs overview page shows cost KPI cards \u2014 at minimum one of: 'Budget Utilisation', 'Org Spend', or a department cost breakdown table. The page must render actual content sections (not an empty white box). Take a screenshot."
       },
       {
         "id": 3,
-        "description": "Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/costs/budget. PASS if response is 200 with a JSON array (empty array is valid — no budget allocations configured yet). FAIL only on 500, 403, or 404. Record the count of budget entries returned."
+        "description": "Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/costs/budget. PASS if response is 200 with a JSON array (empty array is valid \u2014 no budget allocations configured yet). FAIL only on 500, 403, or 404. Record the count of budget entries returned."
       },
       {
         "id": 4,
@@ -198,7 +198,7 @@
   },
   {
     "id": "comc-comc-roadmap-narrative-summary-2",
-    "description": "[general] Comc Roadmap_Narrative Summary — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Roadmap_Narrative Summary \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -207,7 +207,7 @@
       },
       {
         "id": 2,
-        "description": "On the briefs page, verify the API call succeeds: open browser Network tab, confirm GET http://localhost:3002/api/admin/command-centre/api/v1/briefs returns HTTP 200 with a JSON array. The array may be empty (no briefs generated yet) — an empty array is a PASS. FAIL only if the response is 500, 404, or non-JSON."
+        "description": "On the briefs page, verify the API call succeeds: open browser Network tab, confirm GET http://localhost:3002/api/admin/command-centre/api/v1/briefs returns HTTP 200 with a JSON array. The array may be empty (no briefs generated yet) \u2014 an empty array is a PASS. FAIL only if the response is 500, 404, or non-JSON."
       },
       {
         "id": 3,
@@ -219,20 +219,20 @@
       },
       {
         "id": 5,
-        "description": "Navigate to http://localhost:3002/command-centre/intelligence-briefs. Verify this page loads with HTTP 200 and shows an intelligence briefs view (may show empty state if no intelligence briefs exist — that is valid). Confirm the URL is distinct from http://localhost:3002/command-centre/briefs (different feature surface). FAIL only on 500 or redirect to login."
+        "description": "Navigate to http://localhost:3002/command-centre/intelligence-briefs. Verify this page loads with HTTP 200 and shows an intelligence briefs view (may show empty state if no intelligence briefs exist \u2014 that is valid). Confirm the URL is distinct from http://localhost:3002/command-centre/briefs (different feature surface). FAIL only on 500 or redirect to login."
       },
       {
         "id": 6,
-        "description": "Navigate away to http://localhost:3002/command-centre (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/briefs. Verify the briefs list page loads with HTTP 200 and no 500 errors in the network log. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/briefs and confirm it returns HTTP 200 with a JSON array (same as step 2). PASS if the page loads cleanly and the API returns 200. This tests navigation persistence — the page state should survive a round-trip to the dashboard."
+        "description": "Navigate away to http://localhost:3002/command-centre (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/briefs. Verify the briefs list page loads with HTTP 200 and no 500 errors in the network log. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/briefs and confirm it returns HTTP 200 with a JSON array (same as step 2). PASS if the page loads cleanly and the API returns 200. This tests navigation persistence \u2014 the page state should survive a round-trip to the dashboard."
       }
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Roadmap narrative doc section — not a product page"
+    "_skip_reason": "Roadmap narrative doc section \u2014 not a product page"
   },
   {
     "id": "comc-comc-hld-concurrency-model-2",
-    "description": "[general] Comc Hld Concurrency Model — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Concurrency Model \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -257,16 +257,16 @@
       },
       {
         "id": 6,
-        "description": "CROSS-PILLAR: Navigate to http://localhost:3002/command-centre/agents. Verify the agents list loads with HTTP 200. Confirm GET http://localhost:3002/api/admin/command-centre/api/v1/agents returns a JSON array (may be empty in test env — that is valid). Then navigate back to http://localhost:3002/command-centre/departments to confirm cross-pillar navigation works without session loss or 500 errors. PASS if both pages load cleanly."
+        "description": "CROSS-PILLAR: Navigate to http://localhost:3002/command-centre/agents. Verify the agents list loads with HTTP 200. Confirm GET http://localhost:3002/api/admin/command-centre/api/v1/agents returns a JSON array (may be empty in test env \u2014 that is valid). Then navigate back to http://localhost:3002/command-centre/departments to confirm cross-pillar navigation works without session loss or 500 errors. PASS if both pages load cleanly."
       }
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-autoresearch",
-    "description": "[intelligence] Autoresearch — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[intelligence] Autoresearch \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -315,40 +315,40 @@
       },
       {
         "id": 2,
-        "description": "FLOW A — Creating and tracking a strategic initiative: Navigate to http://localhost:3002/command-centre/initiatives. Click 'Create Initiative' button. Fill form: Title='Q2 Market Expansion Strategy' (validate min 3 chars), Description='Expand into APAC markets', Priority=High, Target Date=2026-06-30, Department=[select 'Sales']. Submit via POST /api/v1/initiatives (expect HTTP 201). Verify response contains initiative_id, from_dept_id='sales' (server-set, not client override), and status='active'. Confirm initiative appears in list at http://localhost:3002/command-centre/initiatives with new entry sorted by priority."
+        "description": "FLOW A \u2014 Creating and tracking a strategic initiative: Navigate to http://localhost:3002/command-centre/initiatives. Click 'Create Initiative' button. Fill form: Title='Q2 Market Expansion Strategy' (validate min 3 chars), Description='Expand into APAC markets', Priority=High, Target Date=2026-06-30, Department=[select 'Sales']. Submit via POST /api/v1/initiatives (expect HTTP 201). Verify response contains initiative_id, from_dept_id='sales' (server-set, not client override), and status='active'. Confirm initiative appears in list at http://localhost:3002/command-centre/initiatives with new entry sorted by priority."
       },
       {
         "id": 3,
-        "description": "VALIDATION — Attempt invalid initiative creation: Navigate to http://localhost:3002/command-centre/initiatives, click 'Create Initiative', enter Title='AB' (2 chars, below minimum). Submit form. Verify error message 'Title must be at least 3 characters' appears inline and POST request returns HTTP 400 with validation_error code. Attempt empty Description field; verify 'Description required' error. Confirm form data persists in input fields after validation failure."
+        "description": "VALIDATION \u2014 Attempt invalid initiative creation: Navigate to http://localhost:3002/command-centre/initiatives, click 'Create Initiative', enter Title='AB' (2 chars, below minimum). Submit form. Verify error message 'Title must be at least 3 characters' appears inline and POST request returns HTTP 400 with validation_error code. Attempt empty Description field; verify 'Description required' error. Confirm form data persists in input fields after validation failure."
       },
       {
         "id": 4,
-        "description": "PERSISTENCE — Verify initiative data survives navigation and retrieval: From step 2, note the initiative_id from the created initiative. Navigate away to http://localhost:3002/command-centre/dashboard, then return to http://localhost:3002/command-centre/initiatives. Search for or filter by title 'Q2 Market Expansion Strategy'. Click the initiative to view detail page (http://localhost:3002/command-centre/initiatives/{initiative_id}). Verify all fields (title, description, priority, target_date, from_dept_id='sales', status='active') match the created values. Call GET /api/v1/initiatives/{initiative_id} (expect HTTP 200) and confirm response data matches UI display, confirming database persistence."
+        "description": "PERSISTENCE \u2014 Verify initiative data survives navigation and retrieval: From step 2, note the initiative_id from the created initiative. Navigate away to http://localhost:3002/command-centre/dashboard, then return to http://localhost:3002/command-centre/initiatives. Search for or filter by title 'Q2 Market Expansion Strategy'. Click the initiative to view detail page (http://localhost:3002/command-centre/initiatives/{initiative_id}). Verify all fields (title, description, priority, target_date, from_dept_id='sales', status='active') match the created values. Call GET /api/v1/initiatives/{initiative_id} (expect HTTP 200) and confirm response data matches UI display, confirming database persistence."
       },
       {
         "id": 5,
-        "description": "FLOW B — Reviewing the morning brief: Navigate to http://localhost:3002/command-centre/brief. Verify page loads with 'Morning Brief' header and timestamp (e.g. 'Generated 08:00 IST today'). Confirm brief contains sections: CRM Pipeline Summary, Financial Highlights, Key KPIs, and Upcoming Meetings. Verify data sourced from Paperclip CRM pipeline and ERPNext financials (cross-service integration). Check for 'Last Refreshed' timestamp and 'Refresh Now' button. Click 'Refresh Now' to trigger APScheduler job (expect UI spinner, then HTTP 200 response with updated brief_data within 5 seconds)."
+        "description": "FLOW B \u2014 Reviewing the morning brief: Navigate to http://localhost:3002/command-centre/brief. Verify page loads with 'Morning Brief' header and timestamp (e.g. 'Generated 08:00 IST today'). Confirm brief contains sections: CRM Pipeline Summary, Financial Highlights, Key KPIs, and Upcoming Meetings. Verify data sourced from Paperclip CRM pipeline and ERPNext financials (cross-service integration). Check for 'Last Refreshed' timestamp and 'Refresh Now' button. Click 'Refresh Now' to trigger APScheduler job (expect UI spinner, then HTTP 200 response with updated brief_data within 5 seconds)."
       },
       {
         "id": 6,
-        "description": "FLOW C — Logging a contact interaction (CRM): Navigate to http://localhost:3002/command-centre/crm/contacts. Click 'Log Interaction' button. Fill form: Contact Name='Acme Corp - John Doe', Interaction Type='Call', Notes='Discussed Q2 pricing proposal', Outcome='Follow-up scheduled', Date=today. Submit via POST /api/v1/crm/contacts (expect HTTP 201 with contact_id, org_id). Verify contact appears in contacts list. Navigate away to http://localhost:3002/command-centre/dashboard, return to http://localhost:3002/command-centre/crm/contacts, search for 'Acme Corp', and confirm interaction is persisted with correct fields. Verify cross-service boundary: GET /api/v1/crm/contacts triggers ComCContactStore primary query, falls back to PaperclipCRMAdapter if needed, returns HTTP 200 with all contacts scoped to current org (no tenant leak)."
+        "description": "FLOW C \u2014 Logging a contact interaction (CRM): Navigate to http://localhost:3002/command-centre/crm/contacts. Click 'Log Interaction' button. Fill form: Contact Name='Acme Corp - John Doe', Interaction Type='Call', Notes='Discussed Q2 pricing proposal', Outcome='Follow-up scheduled', Date=today. Submit via POST /api/v1/crm/contacts (expect HTTP 201 with contact_id, org_id). Verify contact appears in contacts list. Navigate away to http://localhost:3002/command-centre/dashboard, return to http://localhost:3002/command-centre/crm/contacts, search for 'Acme Corp', and confirm interaction is persisted with correct fields. Verify cross-service boundary: GET /api/v1/crm/contacts triggers ComCContactStore primary query, falls back to PaperclipCRMAdapter if needed, returns HTTP 200 with all contacts scoped to current org (no tenant leak)."
       },
       {
         "id": 7,
-        "description": "FLOW D — Running an auto-research query: Navigate to http://localhost:3002/command-centre/autoresearch. Enter query='Market trends in renewable energy 2026'. Select scope='Industry Analysis'. Click 'Run Research' button. Expect loading state with spinner. Verify POST /api/v1/autoresearch with HTTP 202 (accepted, async). Wait for completion webhook or poll GET /api/v1/autoresearch/{job_id} (expect HTTP 200 with status='completed' and results field containing formatted research output). Confirm results display in UI with source citations, key findings, and export option (CSV/PDF). Verify cross-service integration: autoresearch calls phronex_common.llm provider factory and Skill Router plugin, returns structured result."
+        "description": "FLOW D \u2014 Running an auto-research query: Navigate to http://localhost:3002/command-centre/autoresearch. Enter query='Market trends in renewable energy 2026'. Select scope='Industry Analysis'. Click 'Run Research' button. Expect loading state with spinner. Verify POST /api/v1/autoresearch with HTTP 202 (accepted, async). Wait for completion webhook or poll GET /api/v1/autoresearch/{job_id} (expect HTTP 200 with status='completed' and results field containing formatted research output). Confirm results display in UI with source citations, key findings, and export option (CSV/PDF). Verify cross-service integration: autoresearch calls phronex_common.llm provider factory and Skill Router plugin, returns structured result."
       },
       {
         "id": 8,
-        "description": "FLOW E — Accountability partner reviewing a digest: As superadmin, navigate to http://localhost:3002/command-centre/initiatives/{initiative_id} (from step 2). Scroll to 'Accountability Partner' section. Click 'Assign Partner' button. Select accountability partner from dropdown (or create new with email). Submit via POST /api/v1/initiatives/{initiative_id}/accountability-partner (expect HTTP 201). Verify partner link created in phronex_common.accountability.PartnerStore (ComCPartnerStore backend). Simulate partner login (separate JWT for partner email). Navigate to http://localhost:3002/command-centre/digest. Verify digest shows assigned initiative with summary, status updates, and approval requests. Confirm partner can review pending approvals: GET /api/v1/approvals (expect HTTP 200, sorted by priority_score descending, showing only items with status='pending'). Click approval item to view detail page, confirm impact fields and cost estimate displayed. Verify tenant isolation: partner sees only initiatives/approvals scoped to their org."
+        "description": "FLOW E \u2014 Accountability partner reviewing a digest: As superadmin, navigate to http://localhost:3002/command-centre/initiatives/{initiative_id} (from step 2). Scroll to 'Accountability Partner' section. Click 'Assign Partner' button. Select accountability partner from dropdown (or create new with email). Submit via POST /api/v1/initiatives/{initiative_id}/accountability-partner (expect HTTP 201). Verify partner link created in phronex_common.accountability.PartnerStore (ComCPartnerStore backend). Simulate partner login (separate JWT for partner email). Navigate to http://localhost:3002/command-centre/digest. Verify digest shows assigned initiative with summary, status updates, and approval requests. Confirm partner can review pending approvals: GET /api/v1/approvals (expect HTTP 200, sorted by priority_score descending, showing only items with status='pending'). Click approval item to view detail page, confirm impact fields and cost estimate displayed. Verify tenant isolation: partner sees only initiatives/approvals scoped to their org."
       }
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Roadmap narrative doc section — not a product page"
+    "_skip_reason": "Roadmap narrative doc section \u2014 not a product page"
   },
   {
     "id": "comc-inbox",
-    "description": "[general] Inbox — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Inbox \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -365,7 +365,7 @@
       },
       {
         "id": 4,
-        "description": "Verify the inbox page loads with the message list visible. The compose feature is not yet built — do not expect a compose page or compose button. PASS if the inbox list renders correctly with columns (From, Subject, Message Type, Priority, Date Received, Status) or an empty state message."
+        "description": "Verify the inbox page loads with the message list visible. The compose feature is not yet built \u2014 do not expect a compose page or compose button. PASS if the inbox list renders correctly with columns (From, Subject, Message Type, Priority, Date Received, Status) or an empty state message."
       },
       {
         "id": 5,
@@ -405,7 +405,7 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}} (no auth required — public endpoint). Verify HTTP 200 response. The response may return monitored data as a flat object — the shape depends on the scope of the accountability link (e.g., initiative data, progress metrics). An empty object {} is valid if the partner has not yet been assigned specific monitoring targets. PASS if HTTP 200 is returned. Record {{digest_response}} for later verification."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}} (no auth required \u2014 public endpoint). Verify HTTP 200 response. The response may return monitored data as a flat object \u2014 the shape depends on the scope of the accountability link (e.g., initiative data, progress metrics). An empty object {} is valid if the partner has not yet been assigned specific monitoring targets. PASS if HTTP 200 is returned. Record {{digest_response}} for later verification."
       },
       {
         "id": 5,
@@ -417,7 +417,7 @@
       },
       {
         "id": 7,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}} again. Verify HTTP 200. If a reply was posted in step 6, the digest may or may not include replies depending on the digest endpoint's design — the reply endpoint (POST /replies) stores replies separately from the digest view. PASS if HTTP 200 is returned and the response is valid JSON."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/accountability/digest/{{link_token}} again. Verify HTTP 200. If a reply was posted in step 6, the digest may or may not include replies depending on the digest endpoint's design \u2014 the reply endpoint (POST /replies) stores replies separately from the digest view. PASS if HTTP 200 is returned and the response is valid JSON."
       },
       {
         "id": 8,
@@ -433,7 +433,7 @@
       },
       {
         "id": 11,
-        "description": "Cross-feature verification: Using page.evaluate(), query http://localhost:3002/api/admin/command-centre/api/v1/initiatives. Verify HTTP 200 with a JSON array. This confirms the initiatives endpoint is accessible in the same session context. The accountability link and initiatives are separate features — no direct cross-reference is expected. PASS if initiatives endpoint returns HTTP 200."
+        "description": "Cross-feature verification: Using page.evaluate(), query http://localhost:3002/api/admin/command-centre/api/v1/initiatives. Verify HTTP 200 with a JSON array. This confirms the initiatives endpoint is accessible in the same session context. The accountability link and initiatives are separate features \u2014 no direct cross-reference is expected. PASS if initiatives endpoint returns HTTP 200."
       },
       {
         "id": 12,
@@ -444,7 +444,7 @@
   },
   {
     "id": "comc-comc-architecture-component-inventory-2",
-    "description": "[general] Comc Architecture Component Inventory — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Component Inventory \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -482,7 +482,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-team-audit-end-to-end",
@@ -499,7 +499,7 @@
       },
       {
         "id": 3,
-        "description": "If a 'Run Audit' button is present, click it. If a confirmation dialog appears, confirm. Wait up to 30 seconds for completion. If no 'Run Audit' button is visible (audit may not be available for this org), verify the page loads without errors and shows either previous audit results or a placeholder — PASS either way."
+        "description": "If a 'Run Audit' button is present, click it. If a confirmation dialog appears, confirm. Wait up to 30 seconds for completion. If no 'Run Audit' button is visible (audit may not be available for this org), verify the page loads without errors and shows either previous audit results or a placeholder \u2014 PASS either way."
       },
       {
         "id": 4,
@@ -527,7 +527,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Wait for page load. Verify the dashboard loads and at least 3 stat cards are visible with numeric values or loading indicators. Expected card titles include: 'Org Health Score', 'Active Agents', 'Pending Approvals', 'Department Count', 'Active Initiatives', 'Budget Utilization'. Do not fail if exact card titles differ — the key check is that stat cards render with data. Verify no JS console errors."
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Wait for page load. Verify the dashboard loads and at least 3 stat cards are visible with numeric values or loading indicators. Expected card titles include: 'Org Health Score', 'Active Agents', 'Pending Approvals', 'Department Count', 'Active Initiatives', 'Budget Utilization'. Do not fail if exact card titles differ \u2014 the key check is that stat cards render with data. Verify no JS console errors."
       },
       {
         "id": 3,
@@ -567,7 +567,7 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): after clicking Generate, monitor the network for a POST request to http://localhost:3002/api/admin/command-centre/api/v1/lead-dossier/generate. Once the response arrives, verify HTTP status 200 (or 503 if LLM unavailable — both are valid non-crash responses). Parse the response JSON and verify it contains the expected fields: 'company_name', 'industry', 'estimated_size', 'tech_stack' (array), 'pain_points' (array), 'decision_makers' (array), 'talk_track' (string), 'enriched_at' (ISO timestamp). PASS if response is 200 with all fields present, or 503 with error detail. FAIL only on 500 (unhandled crash)."
+        "description": "Using page.evaluate(): after clicking Generate, monitor the network for a POST request to http://localhost:3002/api/admin/command-centre/api/v1/lead-dossier/generate. Once the response arrives, verify HTTP status 200 (or 503 if LLM unavailable \u2014 both are valid non-crash responses). Parse the response JSON and verify it contains the expected fields: 'company_name', 'industry', 'estimated_size', 'tech_stack' (array), 'pain_points' (array), 'decision_makers' (array), 'talk_track' (string), 'enriched_at' (ISO timestamp). PASS if response is 200 with all fields present, or 503 with error detail. FAIL only on 500 (unhandled crash)."
       },
       {
         "id": 5,
@@ -590,7 +590,7 @@
   },
   {
     "id": "comc-comc-roadmap-narrative-feature-priority-matrix-2",
-    "description": "[general] Comc Roadmap_Narrative Feature Priority Matrix — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Roadmap_Narrative Feature Priority Matrix \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -628,7 +628,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Roadmap narrative doc section — not a product page"
+    "_skip_reason": "Roadmap narrative doc section \u2014 not a product page"
   },
   {
     "id": "comc-biz-dept-health-isolation-heartbeat",
@@ -653,7 +653,7 @@
       },
       {
         "id": 5,
-        "description": "In the department detail panel, verify the following fields are visible and populated: (a) Heartbeat Interval — must show 'daily', 'weekly', or 'monthly'. (b) Isolation Mode — must show a valid mode string ('full', 'curated', or 'isolated'). (c) Department name and is_active status badge. PASS if all three fields render. FAIL if the detail panel is blank, shows a JavaScript error, or any of the three fields is missing entirely."
+        "description": "In the department detail panel, verify the following fields are visible and populated: (a) Heartbeat Interval \u2014 must show 'daily', 'weekly', or 'monthly'. (b) Isolation Mode \u2014 must show a valid mode string ('full', 'curated', or 'isolated'). (c) Department name and is_active status badge. PASS if all three fields render. FAIL if the detail panel is blank, shows a JavaScript error, or any of the three fields is missing entirely."
       },
       {
         "id": 6,
@@ -664,7 +664,7 @@
   },
   {
     "id": "comc-goals",
-    "description": "[strategy] Goals — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[strategy] Goals \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -685,7 +685,7 @@
       },
       {
         "id": 5,
-        "description": "Validate form field constraints: Clear the Title field completely and attempt to submit. Expect either: (a) HTML5 form validation prevents submission (required attribute), or (b) server returns HTTP 422 for empty title. PASS if empty title is prevented from being saved by either client-side or server-side validation. Short titles (1-2 characters) are allowed by the backend — do not fail on short titles."
+        "description": "Validate form field constraints: Clear the Title field completely and attempt to submit. Expect either: (a) HTML5 form validation prevents submission (required attribute), or (b) server returns HTTP 422 for empty title. PASS if empty title is prevented from being saved by either client-side or server-side validation. Short titles (1-2 characters) are allowed by the backend \u2014 do not fail on short titles."
       },
       {
         "id": 6,
@@ -696,7 +696,7 @@
   },
   {
     "id": "comc-costs-efficiency",
-    "description": "[operations] Costs Efficiency — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[operations] Costs Efficiency \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -709,7 +709,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the Costs Efficiency data section renders correctly. Check for: (a) a table/card showing per-department efficiency analysis with columns: Department, Total Cost (USD), Efficiency Score (%), Status (Over-budget/On-track); (b) if cost history <7 days, confirm 'insufficient data' message appears instead of recommendations; (c) if sufficient history, verify at least one department row with realistic efficiency metrics (0–100%). Confirm no ROLLUP_MISMATCH: spot-check that sum of visible department costs aligns with org-level total shown in summary widget."
+        "description": "Verify the Costs Efficiency data section renders correctly. Check for: (a) a table/card showing per-department efficiency analysis with columns: Department, Total Cost (USD), Efficiency Score (%), Status (Over-budget/On-track); (b) if cost history <7 days, confirm 'insufficient data' message appears instead of recommendations; (c) if sufficient history, verify at least one department row with realistic efficiency metrics (0\u2013100%). Confirm no ROLLUP_MISMATCH: spot-check that sum of visible department costs aligns with org-level total shown in summary widget."
       },
       {
         "id": 4,
@@ -717,7 +717,7 @@
       },
       {
         "id": 5,
-        "description": "Validation step — verify backend rejects invalid budget values. Use page.evaluate() to POST to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget-allocations with body {\"hard_limit_usd\": -100}. Expect HTTP 422 with validation error containing 'must not be negative'. PASS if 422 returned. FAIL only if 200 returned (negative budget accepted). This confirms the backend field_validator correctly rejects negative monetary values."
+        "description": "Validation step \u2014 verify backend rejects invalid budget values. Use page.evaluate() to POST to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget-allocations with body {\"hard_limit_usd\": -100}. Expect HTTP 422 with validation error containing 'must not be negative'. PASS if 422 returned. FAIL only if 200 returned (negative budget accepted). This confirms the backend field_validator correctly rejects negative monetary values."
       },
       {
         "id": 6,
@@ -728,7 +728,7 @@
   },
   {
     "id": "comc-initiatives-dependency-graph",
-    "description": "[strategy] Initiatives Dependency Graph — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[strategy] Initiatives Dependency Graph \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -748,27 +748,19 @@
         "description": "Create a new initiative via the UI by clicking 'Add Initiative' button. Fill in form: Title='Test Dependency Chain Q4', Description='Validate blocker detection', Priority='High', Target Date='2025-03-31', Department='Engineering'. Click Save. Verify POST /api/v1/initiatives returns HTTP 201, initiative appears in table with status='active', and from_dept_id is set server-side (do NOT verify from_dept_id in request body, per T-03-05-02). Capture initiative_id from response for dependency steps."
       },
       {
-        "id": 5,
-        "description": "Test validation: attempt to create an initiative with Title='' (empty) and click Save. Verify either: (a) HTML5 required validation prevents submission, or (b) server returns HTTP 422 for empty title. PASS if empty title is blocked. Note: the backend allows short titles (1-2 characters) — do not fail on short titles."
-      },
-      {
         "id": 6,
         "description": "Click on the newly created initiative row to open its detail panel/modal. Verify the dependency graph sidebar or section renders. Add a blocker dependency by selecting an existing initiative from the 'Blocking Initiatives' dropdown (select any active initiative). Click 'Add Dependency'. Verify POST /api/v1/initiatives/{initiative_id}/blockers returns HTTP 200 (or 201), and the blocking initiative appears in the dependency list with a visual link/edge in the graph."
       },
       {
         "id": 7,
         "description": "Navigate away from the dependency graph page to http://localhost:3002/command-centre/initiatives (main list). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/initiatives/dependency-graph. Verify the newly created initiative and its dependencies are persisted: the initiative still appears in the table, clicking it shows the same blocker relationship. Confirm GET /api/v1/initiatives/{initiative_id}/blockers returns HTTP 200 with the saved dependency data, proving cross-service state persistence."
-      },
-      {
-        "id": 8,
-        "description": "Delete the blocker dependency by clicking the 'X' or 'Remove' button next to the blocking initiative in the dependency list. Verify DELETE /api/v1/initiatives/{initiative_id}/blockers/{blocker_id} returns HTTP 204 or 200. Confirm the blocking initiative disappears from the list and the graph edge is removed. Clean up by deleting the test initiative via the trash/delete action to restore the test environment."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-comc-hld-entity-relationship-diagram-domain-groups-2",
-    "description": "[general] Comc Hld Entity Relationship Diagram Domain Groups — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Entity Relationship Diagram Domain Groups \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -801,16 +793,16 @@
       },
       {
         "id": 8,
-        "description": "Delete the test domain group: right-click 'TestDomainGroup_' node, select 'Delete'. Confirm deletion dialog appears with warning: 'Deleting this domain group will remove 1 relationship. Continue?'. Click 'Confirm Delete'. Expect HTTP 204 No Content. Verify the node and its relationship line disappear from the canvas immediately. Refresh page (F5) and confirm the domain group does not reappear—data is permanently deleted from PostgreSQL."
+        "description": "Delete the test domain group: right-click 'TestDomainGroup_' node, select 'Delete'. Confirm deletion dialog appears with warning: 'Deleting this domain group will remove 1 relationship. Continue?'. Click 'Confirm Delete'. Expect HTTP 204 No Content. Verify the node and its relationship line disappear from the canvas immediately. Refresh page (F5) and confirm the domain group does not reappear\u2014data is permanently deleted from PostgreSQL."
       }
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-costs",
-    "description": "[operations] Costs — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[operations] Costs \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -819,7 +811,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/costs. Verify page loads without errors (no blank page, no 'Something went wrong' message, no 500/4xx in Network tab). Confirm main heading 'Costs' and sidebar 'Operations' pillar are visible. Assert no console errors (severity ≥ error)."
+        "description": "Navigate to http://localhost:3002/command-centre/costs. Verify page loads without errors (no blank page, no 'Something went wrong' message, no 500/4xx in Network tab). Confirm main heading 'Costs' and sidebar 'Operations' pillar are visible. Assert no console errors (severity \u2265 error)."
       },
       {
         "id": 3,
@@ -835,14 +827,14 @@
       },
       {
         "id": 6,
-        "description": "Verify cost efficiency recommendations and budget API contract. Locate the 'Efficiency Recommendations' card or tab on the Costs page. If present, confirm GET /api/v1/costs/efficiency is called (verify in Network tab, HTTP 200). If sufficient cost history exists (>=7 days), verify response contains per-dept analysis and optimization suggestions. If insufficient data (<7 days), verify 'Insufficient data' message. Then verify budget data is accessible: Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget. Verify HTTP 200 response with a JSON array of budget allocation rows. Each row should have at minimum: dept_id or agent_id, period, and a limit field. PASS if the efficiency section renders correctly AND the budget API returns valid data (array may be empty — that is acceptable)."
+        "description": "Verify cost efficiency recommendations and budget API contract. Locate the 'Efficiency Recommendations' card or tab on the Costs page. If present, confirm GET /api/v1/costs/efficiency is called (verify in Network tab, HTTP 200). If sufficient cost history exists (>=7 days), verify response contains per-dept analysis and optimization suggestions. If insufficient data (<7 days), verify 'Insufficient data' message. Then verify budget data is accessible: Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget. Verify HTTP 200 response with a JSON array of budget allocation rows. Each row should have at minimum: dept_id or agent_id, period, and a limit field. PASS if the efficiency section renders correctly AND the budget API returns valid data (array may be empty \u2014 that is acceptable)."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-analytics",
-    "description": "[general] Analytics — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Analytics \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -859,11 +851,7 @@
       },
       {
         "id": 4,
-        "description": "Verify the analytics dashboard displays Feature Adoption metrics with time period buttons (7d/30d/90d). Click each time period button and verify the data refreshes — adoption scores or chart values should change or remain consistent (not blank). Verify at least 2 feature names are listed with numeric adoption scores. PASS if time period switching works and adoption data renders."
-      },
-      {
-        "id": 5,
-        "description": "Verify the analytics scores are displayed as percentages or numeric values. Confirm each feature listed has an adoption score that is a valid number (0-100 or 0.0-1.0). If any feature shows 'N/A', 'undefined', or blank, record it but PASS if at least 2 features have valid scores. Check the page renders without excessive loading spinners (no spinner visible after 5 seconds)."
+        "description": "Verify the analytics dashboard displays Feature Adoption metrics with time period buttons (7d/30d/90d). Click each time period button and verify the data refreshes \u2014 adoption scores or chart values should change or remain consistent (not blank). Verify at least 2 feature names are listed with numeric adoption scores. PASS if time period switching works and adoption data renders."
       },
       {
         "id": 6,
@@ -871,18 +859,14 @@
       },
       {
         "id": 7,
-        "description": "Verify the analytics data is scoped to the current org by checking Network tab — all API calls should include org context (either in URL path, query params, or JWT claims). No cross-org data should be visible. PASS if all API calls have org scoping."
-      },
-      {
-        "id": 8,
-        "description": "Verify the page renders without any JavaScript console errors. Check for TypeErrors, ReferenceErrors, or failed network requests (4xx/5xx). PASS if console is clean and no failed API requests are visible."
+        "description": "Verify the analytics data is scoped to the current org by checking Network tab \u2014 all API calls should include org context (either in URL path, query params, or JWT claims). No cross-org data should be visible. PASS if all API calls have org scoping."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-comc-user-spec-initiatives-amp-strategic-planning",
-    "description": "[general] Comc User_Spec Initiatives Amp Strategic Planning — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc User_Spec Initiatives Amp Strategic Planning \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -924,7 +908,7 @@
   },
   {
     "id": "comc-biz-vendor-subscription-lifecycle",
-    "description": "[BEHAVIORAL] End-to-end vendor subscription management: create a subscription with cost/billing details → verify it appears in expiring list → navigate to subscriptions page → soft-delete it → confirm it no longer appears in active subscriptions but org-scoped deletion prevents cross-tenant access",
+    "description": "[BEHAVIORAL] End-to-end vendor subscription management: create a subscription with cost/billing details \u2192 verify it appears in expiring list \u2192 navigate to subscriptions page \u2192 soft-delete it \u2192 confirm it no longer appears in active subscriptions but org-scoped deletion prevents cross-tenant access",
     "depth": 2,
     "steps": [
       {
@@ -949,14 +933,14 @@
       },
       {
         "id": 6,
-        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Wait 2 seconds. Return to http://localhost:3002/command-centre/vendor-subscriptions. Verify the deleted subscription from step 5 no longer appears in the list. Attempt GET to http://localhost:3002/api/admin/command-centre/api/v1/vendor-subscriptions/{{sub_id}} — verify HTTP 404 (deactivated). PASS if deletion persisted."
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Wait 2 seconds. Return to http://localhost:3002/command-centre/vendor-subscriptions. Verify the deleted subscription from step 5 no longer appears in the list. Attempt GET to http://localhost:3002/api/admin/command-centre/api/v1/vendor-subscriptions/{{sub_id}} \u2014 verify HTTP 404 (deactivated). PASS if deletion persisted."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-initiatives",
-    "description": "[strategy] Initiatives — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[strategy] Initiatives \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1009,11 +993,11 @@
       },
       {
         "id": 5,
-        "description": "Navigate to http://localhost:3002/command-centre/revenue-pipeline (or the UI page that displays the pipeline funnel). Wait for the page to load. Verify a funnel chart renders on the page. Verify stage names from the chart match the stage names in {{pipeline_stages}}. Verify the total value is displayed at the bottom of the funnel chart. Compare the displayed total against {{total_value}} — they must match."
+        "description": "Navigate to http://localhost:3002/command-centre/revenue-pipeline (or the UI page that displays the pipeline funnel). Wait for the page to load. Verify a funnel chart renders on the page. Verify stage names from the chart match the stage names in {{pipeline_stages}}. Verify the total value is displayed at the bottom of the funnel chart. Compare the displayed total against {{total_value}} \u2014 they must match."
       },
       {
         "id": 6,
-        "description": "Verify the funnel chart or pipeline visualization renders the stage data from step 3. Each stage should show its name, count, and optionally value. If the pipeline has zero deals in all stages, verify an empty-state message is shown ('No pipeline data' or similar) instead of a broken chart. Drill-down into individual stages is not yet implemented — do not click on stages expecting a detail view. PASS if the pipeline visualization matches the API data from step 3."
+        "description": "Verify the funnel chart or pipeline visualization renders the stage data from step 3. Each stage should show its name, count, and optionally value. If the pipeline has zero deals in all stages, verify an empty-state message is shown ('No pipeline data' or similar) instead of a broken chart. Drill-down into individual stages is not yet implemented \u2014 do not click on stages expecting a detail view. PASS if the pipeline visualization matches the API data from step 3."
       },
       {
         "id": 7,
@@ -1021,14 +1005,14 @@
       },
       {
         "id": 8,
-        "description": "Test failure mode (ERP_UNREACHABLE): Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/revenue-intel/pipeline with a simulated network timeout or by checking if the backend returns HTTP 503 with body containing 'ERPNext not configured' or similar. If HTTP 503 is returned, verify the response message is clear and human-readable (not a raw error stack). Alternatively, verify the UI gracefully degrades: either (a) the funnel chart shows an empty stages array with a user-friendly message, or (b) a banner appears saying 'Revenue data unavailable — ERP connection failed'. Verify no crash or misleading placeholder data appears."
+        "description": "Test failure mode (ERP_UNREACHABLE): Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/revenue-intel/pipeline with a simulated network timeout or by checking if the backend returns HTTP 503 with body containing 'ERPNext not configured' or similar. If HTTP 503 is returned, verify the response message is clear and human-readable (not a raw error stack). Alternatively, verify the UI gracefully degrades: either (a) the funnel chart shows an empty stages array with a user-friendly message, or (b) a banner appears saying 'Revenue data unavailable \u2014 ERP connection failed'. Verify no crash or misleading placeholder data appears."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-growth-experiments",
-    "description": "[intelligence] Growth Experiments — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[intelligence] Growth Experiments \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1045,7 +1029,7 @@
       },
       {
         "id": 4,
-        "description": "Locate and click the 'New Experiment' or 'Create Experiment' button. Verify a form or modal appears with fields for: Hypothesis, Metric Name, Control Name, Treatment Name. Fill in: Hypothesis='Test new onboarding flow reduces drop-off by 15%', Metric Name='onboarding_completion_rate', Control Name='current_flow', Treatment Name='new_onboarding_v2'. Also fill in any other required fields visible on the form (e.g., significance_level, sample_size). Submit the form. If POST returns HTTP 201, record the experiment_id and PASS. If POST returns HTTP 422, note the validation error detail from the response body — this indicates a form/API contract mismatch. PASS if form submission was attempted (either 201 success or 422 with identifiable validation error detail)."
+        "description": "Locate and click the 'New Experiment' or 'Create Experiment' button. Verify a form or modal appears with fields for: Hypothesis, Metric Name, Control Name, Treatment Name. Fill in: Hypothesis='Test new onboarding flow reduces drop-off by 15%', Metric Name='onboarding_completion_rate', Control Name='current_flow', Treatment Name='new_onboarding_v2'. Also fill in any other required fields visible on the form (e.g., significance_level, sample_size). Submit the form. If POST returns HTTP 201, record the experiment_id and PASS. If POST returns HTTP 422, note the validation error detail from the response body \u2014 this indicates a form/API contract mismatch. PASS if form submission was attempted (either 201 success or 422 with identifiable validation error detail)."
       },
       {
         "id": 5,
@@ -1053,7 +1037,7 @@
       },
       {
         "id": 6,
-        "description": "Test experiment data update: Using page.evaluate(), send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/growth-experiments/{{experiment_id}}/data with body {\"control_visitors\": 1000, \"control_conversions\": 150, \"treatment_visitors\": 1000, \"treatment_conversions\": 185}. If {{experiment_id}} was obtained from step 5, verify HTTP 200 response containing z_score, p_value, and is_significant fields. If no experiment_id is available (both step 4 and step 5 fallback failed to find any experiment), SKIP this step and PASS — the growth experiments table is empty and there is nothing to update."
+        "description": "Test experiment data update: Using page.evaluate(), send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/growth-experiments/{{experiment_id}}/data with body {\"control_visitors\": 1000, \"control_conversions\": 150, \"treatment_visitors\": 1000, \"treatment_conversions\": 185}. If {{experiment_id}} was obtained from step 5, verify HTTP 200 response containing z_score, p_value, and is_significant fields. If no experiment_id is available (both step 4 and step 5 fallback failed to find any experiment), SKIP this step and PASS \u2014 the growth experiments table is empty and there is nothing to update."
       },
       {
         "id": 8,
@@ -1064,7 +1048,7 @@
   },
   {
     "id": "comc-comc-architecture-fastapi-sidecar-src-command-centre-2",
-    "description": "[general] Comc Architecture Fastapi Sidecar Src Command Centre — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Fastapi Sidecar Src Command Centre \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1102,7 +1086,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-morning-brief-paperclip-initialization",
@@ -1119,7 +1103,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/morning with headers {\"Authorization\": \"Bearer \" + token}. Verify the response is HTTP 200 with a valid brief object (containing fields like sections, generated_at, or similar). If HTTP 503 is returned, note it as 'brief service temporarily unavailable' — PASS if either 200 (brief available) or 503 (graceful degradation with descriptive error message). FAIL only on 500 (unhandled crash) or unexpected error format."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/morning with headers {\"Authorization\": \"Bearer \" + token}. Verify the response is HTTP 200 with a valid brief object (containing fields like sections, generated_at, or similar). If HTTP 503 is returned, note it as 'brief service temporarily unavailable' \u2014 PASS if either 200 (brief available) or 503 (graceful degradation with descriptive error message). FAIL only on 500 (unhandled crash) or unexpected error format."
       },
       {
         "id": 4,
@@ -1131,7 +1115,7 @@
       },
       {
         "id": 6,
-        "description": "For the successful morning brief response (HTTP 200), verify the response body is valid JSON. Check for these top-level fields: 'agent_tasks' (list), 'human_tasks' (list), 'eisenhower_quadrants' (object or list), 'pending_approvals_count' (number), 'dept_health' (object or null), 'financial_summary' (object or null). The response uses flat fields — NOT a nested 'sections' array. PASS if at least agent_tasks and human_tasks fields are present as lists."
+        "description": "For the successful morning brief response (HTTP 200), verify the response body is valid JSON. Check for these top-level fields: 'agent_tasks' (list), 'human_tasks' (list), 'eisenhower_quadrants' (object or list), 'pending_approvals_count' (number), 'dept_health' (object or null), 'financial_summary' (object or null). The response uses flat fields \u2014 NOT a nested 'sections' array. PASS if at least agent_tasks and human_tasks fields are present as lists."
       },
       {
         "id": 7,
@@ -1199,7 +1183,7 @@
       },
       {
         "id": 3,
-        "description": "Open browser DevTools → Application → Cookies. Find the session/auth cookie (e.g., 'session', 'auth_token'). Delete it or set its value to 'expired_{{timestamp}}'."
+        "description": "Open browser DevTools \u2192 Application \u2192 Cookies. Find the session/auth cookie (e.g., 'session', 'auth_token'). Delete it or set its value to 'expired_{{timestamp}}'."
       },
       {
         "id": 4,
@@ -1207,7 +1191,7 @@
       },
       {
         "id": 5,
-        "description": "Verify expired token handling: When the session token expires, verify that the application handles it gracefully — either (a) redirecting to login on the next navigation attempt, or (b) showing a session expired notification with a re-login link. The app may keep the current view functional until the next navigation. PASS if the user is not stranded without a path back to login."
+        "description": "Verify expired token handling: When the session token expires, verify that the application handles it gracefully \u2014 either (a) redirecting to login on the next navigation attempt, or (b) showing a session expired notification with a re-login link. The app may keep the current view functional until the next navigation. PASS if the user is not stranded without a path back to login."
       },
       {
         "id": 6,
@@ -1222,7 +1206,7 @@
   },
   {
     "id": "comc-retrospectives",
-    "description": "[general] Retrospectives — Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Retrospectives \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 1,
     "steps": [
       {
@@ -1251,7 +1235,7 @@
       },
       {
         "id": 7,
-        "description": "Verify the page is org-scoped — no cross-org amendments should be visible. Check Network tab: API calls should include org context in JWT claims or URL params. PASS if org scoping is confirmed."
+        "description": "Verify the page is org-scoped \u2014 no cross-org amendments should be visible. Check Network tab: API calls should include org context in JWT claims or URL params. PASS if org scoping is confirmed."
       },
       {
         "id": 8,
@@ -1262,7 +1246,7 @@
   },
   {
     "id": "comc-comc-architecture-paperclip-integration-2",
-    "description": "[general] Comc Architecture Paperclip Integration — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Paperclip Integration \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1271,19 +1255,19 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/dashboard and verify that the page loads within 3 seconds. Confirm that metric cards render with non-zero values: 'Agent Count' card displays ≥1, 'Active Briefs' card shows ≥1 recent brief, 'Pending Approvals' card is visible, and 'Department Health' widget aggregates Paperclip agent statuses. If any card shows zero despite seeded data, log BLANK_STATE failure."
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard and verify that the page loads within 3 seconds. Confirm that metric cards render with non-zero values: 'Agent Count' card displays \u22651, 'Active Briefs' card shows \u22651 recent brief, 'Pending Approvals' card is visible, and 'Department Health' widget aggregates Paperclip agent statuses. If any card shows zero despite seeded data, log BLANK_STATE failure."
       },
       {
         "id": 3,
-        "description": "Navigate to http://localhost:3002/command-centre/agents and verify GET /api/v1/agents returns HTTP 200 with JSON array containing ≥3 agents across ≥2 departments. Each agent object must contain: id (UUID), org_id (matching current JWT claim), name (string, non-empty), role (string), status (one of: 'active', 'idle', 'error'), department_id (UUID), and paperclip_agent_id (external ID). Verify table/card UI renders each row with colour-coded status badge (green='active', yellow='idle', red='error'). Confirm no agents from other orgs are visible (tenant isolation check)."
+        "description": "Navigate to http://localhost:3002/command-centre/agents and verify GET /api/v1/agents returns HTTP 200 with JSON array containing \u22653 agents across \u22652 departments. Each agent object must contain: id (UUID), org_id (matching current JWT claim), name (string, non-empty), role (string), status (one of: 'active', 'idle', 'error'), department_id (UUID), and paperclip_agent_id (external ID). Verify table/card UI renders each row with colour-coded status badge (green='active', yellow='idle', red='error'). Confirm no agents from other orgs are visible (tenant isolation check)."
       },
       {
         "id": 4,
-        "description": "Navigate to http://localhost:3002/command-centre/briefs and verify GET /api/v1/briefs returns HTTP 200 with brief objects sorted descending by created_at timestamp. Confirm at least one morning brief exists with fields: id, created_at (ISO 8601), content (string summary with ≥50 chars), and source metadata indicating Paperclip CRM pipeline + ERPNext financials. Click on the most recent brief to open detail view and verify the brief content displays pipeline deal count and any flagged overdue invoice alerts from ERPNext bridge call."
+        "description": "Navigate to http://localhost:3002/command-centre/briefs and verify GET /api/v1/briefs returns HTTP 200 with brief objects sorted descending by created_at timestamp. Confirm at least one morning brief exists with fields: id, created_at (ISO 8601), content (string summary with \u226550 chars), and source metadata indicating Paperclip CRM pipeline + ERPNext financials. Click on the most recent brief to open detail view and verify the brief content displays pipeline deal count and any flagged overdue invoice alerts from ERPNext bridge call."
       },
       {
         "id": 5,
-        "description": "From the brief detail view, attempt to create a new test brief by submitting the form at http://localhost:3002/command-centre/briefs/new with invalid input: set 'content' field to empty string and submit. Verify HTTP 400 validation error response with message 'content is required' or similar. Return to form, enter valid content (≥50 chars, e.g. 'Test brief: 3 active deals, 1 overdue invoice'), and submit. Verify HTTP 201 response with created brief object including id, created_at timestamp, and org_id matching current JWT."
+        "description": "From the brief detail view, attempt to create a new test brief by submitting the form at http://localhost:3002/command-centre/briefs/new with invalid input: set 'content' field to empty string and submit. Verify HTTP 400 validation error response with message 'content is required' or similar. Return to form, enter valid content (\u226550 chars, e.g. 'Test brief: 3 active deals, 1 overdue invoice'), and submit. Verify HTTP 201 response with created brief object including id, created_at timestamp, and org_id matching current JWT."
       },
       {
         "id": 6,
@@ -1295,7 +1279,7 @@
       },
       {
         "id": 8,
-        "description": "Test CRUD completeness: From http://localhost:3002/command-centre/briefs list, select an existing non-production test brief and click 'Edit'. Modify the content field (append ' — UPDATED TEST' to the summary), click 'Save', and verify HTTP 200 response with updated brief object. Navigate away to http://localhost:3002/command-centre/dashboard and return to http://localhost:3002/command-centre/briefs to confirm the edit persisted. Finally, select the test brief again, click 'Delete', verify HTTP 204 response, and confirm the brief no longer appears in the list on refresh. Verify org_id isolation: attempt to access /api/v1/briefs/{deleted_brief_id} and confirm HTTP 403 Forbidden or 404 Not Found (not 200 leaking data)."
+        "description": "Test CRUD completeness: From http://localhost:3002/command-centre/briefs list, select an existing non-production test brief and click 'Edit'. Modify the content field (append ' \u2014 UPDATED TEST' to the summary), click 'Save', and verify HTTP 200 response with updated brief object. Navigate away to http://localhost:3002/command-centre/dashboard and return to http://localhost:3002/command-centre/briefs to confirm the edit persisted. Finally, select the test brief again, click 'Delete', verify HTTP 204 response, and confirm the brief no longer appears in the list on refresh. Verify org_id isolation: attempt to access /api/v1/briefs/{deleted_brief_id} and confirm HTTP 403 Forbidden or 404 Not Found (not 200 leaking data)."
       }
     ],
     "dependsOn": "comc-trunk-superadmin",
@@ -1313,27 +1297,27 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/notifications to establish page context. Then using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/notifications with headers {\"Authorization\": \"Bearer <token from session>\"} and query params ?limit=10&offset=0. PASS CONDITION: HTTP 200 with a JSON object. The response may use either pagination shape: (a) {items: [], total: N, offset: 0, limit: 10} OR (b) {notifications: [], page: 1, has_next_page: boolean}. If total=0 or items is empty, mark as VALID_EMPTY_STATE and proceed — zero notifications is correct for a fresh environment. Store the pagination shape for use in step 3. If items is non-empty, store the first item's id as {{first_notification_id}}."
+        "description": "Navigate to http://localhost:3002/command-centre/notifications to establish page context. Then using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/notifications with headers {\"Authorization\": \"Bearer <token from session>\"} and query params ?limit=10&offset=0. PASS CONDITION: HTTP 200 with a JSON object. The response may use either pagination shape: (a) {items: [], total: N, offset: 0, limit: 10} OR (b) {notifications: [], page: 1, has_next_page: boolean}. If total=0 or items is empty, mark as VALID_EMPTY_STATE and proceed \u2014 zero notifications is correct for a fresh environment. Store the pagination shape for use in step 3. If items is non-empty, store the first item's id as {{first_notification_id}}."
       },
       {
         "id": 3,
-        "description": "CONDITIONAL — only execute if step 2 returned items with content (total > 0). If total=0, mark this step as PASSED (empty state verified in step 2). If total > 10: verify pagination by sending a second GET with ?limit=10&offset=10. Confirm the second response contains different notification IDs than the first. If total ≤ 10: verify that offset=10 returns an empty items array (no more pages)."
+        "description": "CONDITIONAL \u2014 only execute if step 2 returned items with content (total > 0). If total=0, mark this step as PASSED (empty state verified in step 2). If total > 10: verify pagination by sending a second GET with ?limit=10&offset=10. Confirm the second response contains different notification IDs than the first. If total \u2264 10: verify that offset=10 returns an empty items array (no more pages)."
       },
       {
         "id": 4,
-        "description": "CONDITIONAL (step 4) — only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Check the 'read' status of {{first_notification_id}}. If read=true already, store it and skip to step 6. If read=false, mark this as the target for the update test. Record the current read status as {{initial_read_status}}."
+        "description": "CONDITIONAL (step 4) \u2014 only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Check the 'read' status of {{first_notification_id}}. If read=true already, store it and skip to step 6. If read=false, mark this as the target for the update test. Record the current read status as {{initial_read_status}}."
       },
       {
         "id": 5,
-        "description": "CONDITIONAL (step 5) — only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/notifications/{{first_notification_id}}/read with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"} and an empty body {} (or {\"read\": true}). Verify HTTP 200. Parse the response and confirm the returned notification object has 'read': true. Store this as {{patch_response_read_status}}."
+        "description": "CONDITIONAL (step 5) \u2014 only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/notifications/{{first_notification_id}}/read with headers {\"Authorization\": \"Bearer <token>\", \"Content-Type\": \"application/json\"} and an empty body {} (or {\"read\": true}). Verify HTTP 200. Parse the response and confirm the returned notification object has 'read': true. Store this as {{patch_response_read_status}}."
       },
       {
         "id": 6,
-        "description": "CONDITIONAL (step 6) — only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Immediately send the same PATCH request again to {{first_notification_id}}/read with identical headers and body. Verify HTTP 200 (idempotent behavior). Confirm the response still shows 'read': true. This tests IDEMPOTENCY failure mode — the endpoint must not error on re-marking an already-read notification."
+        "description": "CONDITIONAL (step 6) \u2014 only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Immediately send the same PATCH request again to {{first_notification_id}}/read with identical headers and body. Verify HTTP 200 (idempotent behavior). Confirm the response still shows 'read': true. This tests IDEMPOTENCY failure mode \u2014 the endpoint must not error on re-marking an already-read notification."
       },
       {
         "id": 7,
-        "description": "CONDITIONAL (step 7) — only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Send a fresh GET request to http://localhost:3002/api/admin/command-centre/api/v1/notifications?page=1&limit=10. Search the returned list for {{first_notification_id}} and verify its 'read' field is true. This confirms STATE_NOT_PERSISTED failure mode is not present — the read status persists across API calls."
+        "description": "CONDITIONAL (step 7) \u2014 only execute if {{first_notification_id}} was captured in step 2 (i.e., notifications exist). If total=0 in step 2, mark this step PASSED with note 'VALID_EMPTY_STATE'. Send a fresh GET request to http://localhost:3002/api/admin/command-centre/api/v1/notifications?page=1&limit=10. Search the returned list for {{first_notification_id}} and verify its 'read' field is true. This confirms STATE_NOT_PERSISTED failure mode is not present \u2014 the read status persists across API calls."
       },
       {
         "id": 8,
@@ -1345,14 +1329,14 @@
       },
       {
         "id": 10,
-        "description": "Verify the notifications page is responsive — resize the browser and confirm the layout adapts without overflow or content clipping."
+        "description": "Verify the notifications page is responsive \u2014 resize the browser and confirm the layout adapts without overflow or content clipping."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-comc-hld-caching-strategy-2",
-    "description": "[general] Comc Hld Caching Strategy — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Caching Strategy \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1390,7 +1374,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-meeting-prep-llm-generation-and-caching",
@@ -1443,11 +1427,11 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/meetings. If the meetings list shows upcoming meetings, this test will verify the page loads correctly with data. If the list is empty, verify an appropriate empty-state message is displayed (e.g., 'No upcoming meetings', empty calendar icon, or placeholder text). PASS if either meetings are listed OR empty-state is displayed — FAIL only if page shows a spinner indefinitely, blank panel, or error."
+        "description": "Navigate to http://localhost:3002/command-centre/meetings. If the meetings list shows upcoming meetings, this test will verify the page loads correctly with data. If the list is empty, verify an appropriate empty-state message is displayed (e.g., 'No upcoming meetings', empty calendar icon, or placeholder text). PASS if either meetings are listed OR empty-state is displayed \u2014 FAIL only if page shows a spinner indefinitely, blank panel, or error."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): send GET to http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming with Authorization header. Verify HTTP 200. The response body must be a JSON array (may contain meetings or be empty — both are valid). Record the count as {{meeting_count}}. If {{meeting_count}} > 0: verify the left panel shows meeting rows matching the count. If {{meeting_count}} == 0: verify an empty-state placeholder is displayed (e.g. 'No upcoming meetings'). PASS if API returns 200 with valid array AND UI matches the data state."
+        "description": "Using page.evaluate(): send GET to http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming with Authorization header. Verify HTTP 200. The response body must be a JSON array (may contain meetings or be empty \u2014 both are valid). Record the count as {{meeting_count}}. If {{meeting_count}} > 0: verify the left panel shows meeting rows matching the count. If {{meeting_count}} == 0: verify an empty-state placeholder is displayed (e.g. 'No upcoming meetings'). PASS if API returns 200 with valid array AND UI matches the data state."
       },
       {
         "id": 4,
@@ -1511,7 +1495,7 @@
       },
       {
         "id": 3,
-        "description": "Test ERROR DISPLAY state: Navigate to a non-existent agent detail page (e.g., http://localhost:3002/command-centre/agents/nonexistent-uuid-1234). Verify the page shows a graceful error message (e.g., 'Agent not found', 404 page, or redirect back to agents list) — NOT a blank screen, JavaScript crash, or raw stack trace. PASS if error is handled gracefully."
+        "description": "Test ERROR DISPLAY state: Navigate to a non-existent agent detail page (e.g., http://localhost:3002/command-centre/agents/nonexistent-uuid-1234). Verify the page shows a graceful error message (e.g., 'Agent not found', 404 page, or redirect back to agents list) \u2014 NOT a blank screen, JavaScript crash, or raw stack trace. PASS if error is handled gracefully."
       },
       {
         "id": 4,
@@ -1527,7 +1511,7 @@
       },
       {
         "id": 7,
-        "description": "Verify tenant isolation by inspecting the authenticated API response. Using page.evaluate(): send GET to http://localhost:3002/api/admin/command-centre/api/v1/agents with the current session's authorization header. Verify HTTP 200. Then decode the JWT from the cookie or localStorage to extract the org_id claim. Verify all agents in the response belong to the same org_id. PASS if all agents share the same org_id. FAIL only if agents from multiple orgs appear in the response (actual cross-tenant data leak). Note: passing org_id as a query parameter is NOT a valid test — the backend extracts org_id from the JWT, not from query params."
+        "description": "Verify tenant isolation by inspecting the authenticated API response. Using page.evaluate(): send GET to http://localhost:3002/api/admin/command-centre/api/v1/agents with the current session's authorization header. Verify HTTP 200. Then decode the JWT from the cookie or localStorage to extract the org_id claim. Verify all agents in the response belong to the same org_id. PASS if all agents share the same org_id. FAIL only if agents from multiple orgs appear in the response (actual cross-tenant data leak). Note: passing org_id as a query parameter is NOT a valid test \u2014 the backend extracts org_id from the JWT, not from query params."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -1559,7 +1543,7 @@
       },
       {
         "id": 6,
-        "description": "Cross-feature verification: For each agent object in {{agents_api_response}}, verify that status is one of: 'active', 'idle', 'paused_ceo'. Compare the API status field against the DOM status badge color from step 3 using the mapping (active→green, idle→yellow, paused_ceo→red). If mismatch, record as WRONG_STATUS_COLOUR failure."
+        "description": "Cross-feature verification: For each agent object in {{agents_api_response}}, verify that status is one of: 'active', 'idle', 'paused_ceo'. Compare the API status field against the DOM status badge color from step 3 using the mapping (active\u2192green, idle\u2192yellow, paused_ceo\u2192red). If mismatch, record as WRONG_STATUS_COLOUR failure."
       },
       {
         "id": 7,
@@ -1574,7 +1558,7 @@
   },
   {
     "id": "comc-comc-test-oracles-meeting-prep",
-    "description": "[general] Comc Test_Oracles Meeting Prep — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Test_Oracles Meeting Prep \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1616,7 +1600,7 @@
   },
   {
     "id": "comc-biz-erp-sync-status-and-trigger",
-    "description": "[BEHAVIORAL] ERP sync configuration workflow: check sync status and stale flag → trigger an async sync → monitor status updates → verify pending tasks are tracked and cleaned up after completion",
+    "description": "[BEHAVIORAL] ERP sync configuration workflow: check sync status and stale flag \u2192 trigger an async sync \u2192 monitor status updates \u2192 verify pending tasks are tracked and cleaned up after completion",
     "depth": 2,
     "steps": [
       {
@@ -1669,11 +1653,11 @@
       },
       {
         "id": 4,
-        "description": "If step 3 returned heartbeat records: verify each record has 'created_at' as a valid ISO timestamp and 'payload' as a JSON object. Verify records are ordered by created_at descending (newest first). If step 3 returned an empty array: PASS — no heartbeats have been recorded yet, which is valid for agents that haven't been activated."
+        "description": "If step 3 returned heartbeat records: verify each record has 'created_at' as a valid ISO timestamp and 'payload' as a JSON object. Verify records are ordered by created_at descending (newest first). If step 3 returned an empty array: PASS \u2014 no heartbeats have been recorded yet, which is valid for agents that haven't been activated."
       },
       {
         "id": 5,
-        "description": "Verify the heartbeats API returns at most 20 records. Using page.evaluate(): GET http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/heartbeats. Count the response array length. PASS if length is ≤ 20. This confirms the server-side limit prevents unbounded responses."
+        "description": "Verify the heartbeats API returns at most 20 records. Using page.evaluate(): GET http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/heartbeats. Count the response array length. PASS if length is \u2264 20. This confirms the server-side limit prevents unbounded responses."
       },
       {
         "id": 6,
@@ -1692,7 +1676,7 @@
   },
   {
     "id": "comc-comc-hld-integrations-2",
-    "description": "[general] Comc Hld Integrations — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Integrations \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1730,7 +1714,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-roadmap-narrative-priority-1-core-flagship-features-2",
@@ -1743,7 +1727,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/roadmap and verify Priority 1 Core Flagship Features section renders. Confirm presence of feature cards for: 'Automatic Daily Intelligence Brief' (1 endpoint, 0 sub-sections), 'How to access it' (1 endpoint), 'What Is Phronex Command Centre?' (0 endpoints, 1 sub-section), 'Permission Model — Who Can Do What' (0 endpoints, 0 sub-sections), and 'What it does' (0 endpoints, 0 sub-sections). Verify each card displays word count and endpoint count. Expect HTTP 200 and all 5 feature cards visible in DOM."
+        "description": "Navigate to http://localhost:3002/command-centre/roadmap and verify Priority 1 Core Flagship Features section renders. Confirm presence of feature cards for: 'Automatic Daily Intelligence Brief' (1 endpoint, 0 sub-sections), 'How to access it' (1 endpoint), 'What Is Phronex Command Centre?' (0 endpoints, 1 sub-section), 'Permission Model \u2014 Who Can Do What' (0 endpoints, 0 sub-sections), and 'What it does' (0 endpoints, 0 sub-sections). Verify each card displays word count and endpoint count. Expect HTTP 200 and all 5 feature cards visible in DOM."
       },
       {
         "id": 3,
@@ -1751,7 +1735,7 @@
       },
       {
         "id": 4,
-        "description": "From roadmap, click 'Permission Model — Who Can Do What' feature card. Verify the detail view displays three permission tiers: Superadmin (all read/write, admin-only routes access), Authenticated User (standard endpoints, org-scoped data), and inferred Guest (no access). Confirm text states 'All superadmins see all organisations' and 'Data is scoped to their organisation'. Click to expand 'What Is Phronex Command Centre?' sub-section; verify it loads nested content without full page reload (expected XMLHttpRequest with 200 status). DOM must show at least 3 distinct permission description blocks."
+        "description": "From roadmap, click 'Permission Model \u2014 Who Can Do What' feature card. Verify the detail view displays three permission tiers: Superadmin (all read/write, admin-only routes access), Authenticated User (standard endpoints, org-scoped data), and inferred Guest (no access). Confirm text states 'All superadmins see all organisations' and 'Data is scoped to their organisation'. Click to expand 'What Is Phronex Command Centre?' sub-section; verify it loads nested content without full page reload (expected XMLHttpRequest with 200 status). DOM must show at least 3 distinct permission description blocks."
       },
       {
         "id": 5,
@@ -1772,11 +1756,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Roadmap narrative doc section — not a product page"
+    "_skip_reason": "Roadmap narrative doc section \u2014 not a product page"
   },
   {
     "id": "comc-comc-architecture-apscheduler-jobs-2",
-    "description": "[general] Comc Architecture Apscheduler Jobs — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Apscheduler Jobs \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1814,7 +1798,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-roadmap-narrative-priority-3-supporting-infrastructure-features-2",
@@ -1852,11 +1836,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Roadmap narrative doc section — not a product page"
+    "_skip_reason": "Roadmap narrative doc section \u2014 not a product page"
   },
   {
     "id": "comc-biz-brief-settings-customize-and-generate",
-    "description": "[BEHAVIORAL] Brief configuration workflow: load default settings → customize section order and disable sections → save → navigate away and return → create a new brief and verify it uses the custom configuration",
+    "description": "[BEHAVIORAL] Brief configuration workflow: load default settings \u2192 customize section order and disable sections \u2192 save \u2192 navigate away and return \u2192 create a new brief and verify it uses the custom configuration",
     "depth": 2,
     "steps": [
       {
@@ -1892,7 +1876,7 @@
   },
   {
     "id": "comc-meetings",
-    "description": "[operations] Meetings — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[operations] Meetings \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1901,7 +1885,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/meetings. Verify page loads without errors: no blank white screen, no 'Something went wrong' error banner, no console errors (F12 → Console tab). Confirm 'Meetings' heading and 'New Meeting' button are visible."
+        "description": "Navigate to http://localhost:3002/command-centre/meetings. Verify page loads without errors: no blank white screen, no 'Something went wrong' error banner, no console errors (F12 \u2192 Console tab). Confirm 'Meetings' heading and 'New Meeting' button are visible."
       },
       {
         "id": 3,
@@ -1924,7 +1908,7 @@
   },
   {
     "id": "comc-skill-review",
-    "description": "[learning] Skill Review — Trigger interface verification: review-all, review-by-department, status feedback",
+    "description": "[learning] Skill Review \u2014 Trigger interface verification: review-all, review-by-department, status feedback",
     "depth": 1,
     "steps": [
       {
@@ -1956,7 +1940,7 @@
   },
   {
     "id": "comc-comc-hld-performance-targets-2",
-    "description": "[general] Comc Hld Performance Targets — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Performance Targets \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -1994,11 +1978,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-api-growth-experiments",
-    "description": "[general] Comc Api Growth_Experiments — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Api Growth_Experiments \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2014,24 +1998,12 @@
         "description": "On the http://localhost:3002/command-centre/agents page, locate an agent with status='active' and click the 'Pause' action button in its row. Verify POST request to /api/v1/agents/{agent_id}/pause returns HTTP 200. Confirm agent status badge in table immediately changes to 'paused_ceo' (yellow badge). Attempt to pause the same agent again and verify HTTP 409 or 422 error with message 'Agent already paused' is returned and displayed in error toast."
       },
       {
-        "id": 4,
-        "description": "With an agent in paused_ceo status, click the 'Resume' action button in its row. Verify PATCH request to /api/v1/agents/{agent_id}/resume returns HTTP 200. Confirm status badge reverts to 'active' (green badge) and updated_at timestamp is refreshed. Verify agent.org_id matches the JWT org_id claim (no tenant leak)."
-      },
-      {
         "id": 5,
         "description": "Navigate away from http://localhost:3002/command-centre/agents to http://localhost:3002/command-centre/dashboard (Pulse pillar). Observe dashboard loads and displays metric cards: agent count, active brief count, pending approvals. Verify the count of 'Active Agents' reflects the resumed agent state change. Return to http://localhost:3002/command-centre/agents by clicking 'Agents' tab in sidebar. Confirm the agent previously paused/resumed still shows status='active' and all state changes persisted in PostgreSQL (no rollback)."
       },
       {
-        "id": 6,
-        "description": "On http://localhost:3002/command-centre/agents, attempt to create or edit an agent with invalid input: enter agent Name field with only whitespace, leave Department dropdown empty, and click Save. Verify form validation errors appear inline (red text below each field): 'Name is required', 'Department is required'. Confirm POST/PATCH request is NOT sent (no HTTP call in Network tab). Fill fields with valid data (Name='Test Agent Alpha', Department='Strategy', Role='Strategist') and click Save. Verify HTTP 201/200 response and new/updated agent appears in table immediately."
-      },
-      {
         "id": 7,
         "description": "Trigger a cross-service integration check: with a paused agent, navigate to http://localhost:3002/command-centre/initiatives. Create a new initiative with title='Growth Experiment Q1' and link it to the paused agent via a dropdown selector. Verify POST /api/v1/initiatives returns HTTP 201 and the initiative is created with status='active' and agent_id correctly stored. Return to http://localhost:3002/command-centre/agents, resume the linked agent, and navigate back to http://localhost:3002/command-centre/initiatives. Confirm the initiative is still linked to that agent (relationship persisted) and no orphaned state exists."
-      },
-      {
-        "id": 8,
-        "description": "Verify JWT authorization boundary: attempt to access /api/v1/agents without Bearer token in Authorization header. Confirm HTTP 401 'Unauthorized' response. Add invalid JWT (malformed token or expired signature), confirm HTTP 401 'Invalid token'. Add valid JWT from a different org_id (cross-tenant scenario), attempt to fetch agents, and verify HTTP 403 'Forbidden' or HTTP 200 with empty array (agents from other org_id not visible). Confirm tenant isolation is enforced at API layer."
       }
     ],
     "dependsOn": "comc-trunk-superadmin",
@@ -2040,7 +2012,7 @@
   },
   {
     "id": "comc-comc-hld-deployment-constraints-2",
-    "description": "[general] Comc Hld Deployment Constraints — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Deployment Constraints \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2078,11 +2050,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-architecture-phronex-common-modules-consumed-2",
-    "description": "[general] Comc Architecture Phronex Common Modules Consumed — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Phronex Common Modules Consumed \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2107,7 +2079,7 @@
       },
       {
         "id": 6,
-        "description": "Verify cross-service integration: Click on the created initiative to open detail view. Observe that initiative state propagates to related modules (linked KPIs, assigned agents, timeline). Confirm Network tab shows chained API calls: GET /api/initiatives/{id} → GET /api/kpis?initiative_id={id} → GET /api/agents?scope=initiative. All calls return HTTP 200. Verify UI displays KPI metrics and assigned agent names without delay or errors."
+        "description": "Verify cross-service integration: Click on the created initiative to open detail view. Observe that initiative state propagates to related modules (linked KPIs, assigned agents, timeline). Confirm Network tab shows chained API calls: GET /api/initiatives/{id} \u2192 GET /api/kpis?initiative_id={id} \u2192 GET /api/agents?scope=initiative. All calls return HTTP 200. Verify UI displays KPI metrics and assigned agent names without delay or errors."
       },
       {
         "id": 7,
@@ -2120,7 +2092,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-dept-template-apply",
@@ -2137,7 +2109,7 @@
       },
       {
         "id": 3,
-        "description": "Look for an 'Apply Template' button or dropdown. If present: click it. Select a template (e.g. 'Technology' or the first available option). Confirm if prompted. Wait for success message. If no 'Apply Template' button exists: verify the department detail page renders cleanly and PASS — template application may not be available for this org/department."
+        "description": "Look for an 'Apply Template' button or dropdown. If present: click it. Select a template (e.g. 'Technology' or the first available option). Confirm if prompted. Wait for success message. If no 'Apply Template' button exists: verify the department detail page renders cleanly and PASS \u2014 template application may not be available for this org/department."
       },
       {
         "id": 4,
@@ -2156,7 +2128,7 @@
   },
   {
     "id": "comc-comc-architecture-deployment-topology-2",
-    "description": "[general] Comc Architecture Deployment Topology — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Deployment Topology \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2194,11 +2166,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-sales-pipeline",
-    "description": "[revenue] Sales Pipeline — Read-only pipeline stage verification: data table, deal detail, persistence",
+    "description": "[revenue] Sales Pipeline \u2014 Read-only pipeline stage verification: data table, deal detail, persistence",
     "depth": 1,
     "steps": [
       {
@@ -2207,7 +2179,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/sales/pipeline. Verify page loads without console errors (F12 → Console tab clear), no blank page, no 'Something went wrong' toast/modal. Confirm Revenue pillar is highlighted in left sidebar and Pipeline tab is active in sub-navigation."
+        "description": "Navigate to http://localhost:3002/command-centre/sales/pipeline. Verify page loads without console errors (F12 \u2192 Console tab clear), no blank page, no 'Something went wrong' toast/modal. Confirm Revenue pillar is highlighted in left sidebar and Pipeline tab is active in sub-navigation."
       },
       {
         "id": 3,
@@ -2215,7 +2187,7 @@
       },
       {
         "id": 4,
-        "description": "Validate cross-service API contract: Open Network tab (F12 → Network). Verify that on page load, a GET request is made to /api/v1/revenue-intel/pipeline with HTTP 200 response. Inspect response JSON contains 'stages' array with objects having keys: 'stage' (string), 'count' (integer), 'value' (number). Confirm UI table values match response data exactly (no truncation, no rounding mismatches)."
+        "description": "Validate cross-service API contract: Open Network tab (F12 \u2192 Network). Verify that on page load, a GET request is made to /api/v1/revenue-intel/pipeline with HTTP 200 response. Inspect response JSON contains 'stages' array with objects having keys: 'stage' (string), 'count' (integer), 'value' (number). Confirm UI table values match response data exactly (no truncation, no rounding mismatches)."
       },
       {
         "id": 5,
@@ -2230,7 +2202,7 @@
   },
   {
     "id": "comc-agents-idparam-portrait",
-    "description": "[pulse] Agents Idparam Portrait — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[pulse] Agents Idparam Portrait \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2246,16 +2218,8 @@
         "description": "On the Agent Portrait page, verify the following fields are displayed and populated: agent name (text), department (dropdown, e.g. 'Finance'), role (text, e.g. 'Risk Analysis Specialist'), status badge (colour-coded, green=active), capabilities (jsonb array rendered as tag list), model_id (text), and updated_at timestamp. Confirm all fields match the GET /api/v1/agents/{agent_id} HTTP 200 response."
       },
       {
-        "id": 4,
-        "description": "Test VALIDATION: In the Agent Portrait form, clear the 'name' field and attempt to save (click 'Save' button or trigger form submission). Verify inline error message appears near the name field ('Name is required' or equivalent). Confirm HTTP 400 Bad Request is logged in network tab. Restore the name field with a valid value (e.g., 'Finance Agent Updated') and verify the error clears."
-      },
-      {
         "id": 5,
         "description": "Test PERSISTENCE: With a valid agent name in the form, click the 'Save' button. Verify HTTP PATCH /api/v1/agents/{agent_id} returns 200 OK with updated_at timestamp. Close the portrait page by navigating to http://localhost:3002/command-centre/dashboard (click Dashboard in left sidebar). Verify the dashboard loads and displays the agent in the agent status widget. Navigate back to http://localhost:3002/command-centre/agents/[same_agent_uuid]/portrait and confirm the updated name persists in the form field and matches the API response."
-      },
-      {
-        "id": 6,
-        "description": "Test CROSS-SERVICE INTEGRATION: On the Agent Portrait page, change the agent's status from 'active' to 'paused_ceo' via a dropdown or toggle control. Click 'Save'. Verify HTTP PATCH /api/v1/agents/{agent_id}/pause returns 200 OK and agent.status field updates to 'paused_ceo'. Navigate to http://localhost:3002/command-centre/agents (Agent List) and confirm the agent row now displays status badge as 'paused' (yellow/grey colour). Verify the Paperclip backend state is consistent by checking the agent_status widget on the dashboard reflects the paused state."
       },
       {
         "id": 7,
@@ -2270,7 +2234,7 @@
   },
   {
     "id": "comc-comc-architecture-external-dependencies-2",
-    "description": "[general] Comc Architecture External Dependencies — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture External Dependencies \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2299,7 +2263,7 @@
       },
       {
         "id": 7,
-        "description": "PERSISTENCE: Open browser DevTools → Application tab; verify the initiative data is persisted in 'IndexedDB' or 'SessionStorage' with key 'comc_initiative_{initiative_id}'. Verify timestamp 'last_modified_at' in stored state matches current session time (within ±5 seconds). Close and reopen the browser tab; navigate to 'http://localhost:3002/command-centre/initiatives/{initiative_id}' and confirm the initiative still exists with all data persists via GET /api/v1/initiatives/{initiative_id} returning HTTP 200."
+        "description": "PERSISTENCE: Open browser DevTools \u2192 Application tab; verify the initiative data is persisted in 'IndexedDB' or 'SessionStorage' with key 'comc_initiative_{initiative_id}'. Verify timestamp 'last_modified_at' in stored state matches current session time (within \u00b15 seconds). Close and reopen the browser tab; navigate to 'http://localhost:3002/command-centre/initiatives/{initiative_id}' and confirm the initiative still exists with all data persists via GET /api/v1/initiatives/{initiative_id} returning HTTP 200."
       },
       {
         "id": 8,
@@ -2312,7 +2276,7 @@
   },
   {
     "id": "comc-departments-deptidparam-templates",
-    "description": "[general] Departments Deptidparam Templates — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Departments Deptidparam Templates \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2329,7 +2293,7 @@
       },
       {
         "id": 4,
-        "description": "Apply a template to the department. The template feature uses POST /api/admin/command-centre/api/v1/departments/{dept_id}/apply-template with body {\"template_name\": \"...\"} to apply a predefined template. Use page.evaluate() to POST to http://localhost:3002/api/admin/command-centre/api/v1/departments/{deptId}/apply-template with body {\"template_name\": \"Daily_Standup\"}. If HTTP 200/201 is returned, PASS — the template was applied. If HTTP 404 is returned, this means the apply-template endpoint does not exist yet — record as KNOWN_GAP and PASS (this is a planned feature). If the UI has a 'Create Template' button, use it instead: fill Template Name='Daily_Standup_Test', Description='Test template', click Save. Verify the new template appears in the list."
+        "description": "Apply a template to the department. The template feature uses POST /api/admin/command-centre/api/v1/departments/{dept_id}/apply-template with body {\"template_name\": \"...\"} to apply a predefined template. Use page.evaluate() to POST to http://localhost:3002/api/admin/command-centre/api/v1/departments/{deptId}/apply-template with body {\"template_name\": \"Daily_Standup\"}. If HTTP 200/201 is returned, PASS \u2014 the template was applied. If HTTP 404 is returned, this means the apply-template endpoint does not exist yet \u2014 record as KNOWN_GAP and PASS (this is a planned feature). If the UI has a 'Create Template' button, use it instead: fill Template Name='Daily_Standup_Test', Description='Test template', click Save. Verify the new template appears in the list."
       },
       {
         "id": 5,
@@ -2373,7 +2337,7 @@
       },
       {
         "id": 7,
-        "description": "Retrieve the organization context of the current superadmin session by navigating to http://localhost:3002/command-centre/settings and reading the current org name/ID from the page. Store as {{current_org}}. Then using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/contact-from-other-org-5000/interactions with the same headers and body. Verify HTTP status 404 is returned (tenant isolation enforcement). Verify the error message does not leak information (e.g., 'Contact belongs to a different organization' is acceptable; 'This contact exists but you don't have access' is acceptable; 'Contact not found' is ambiguous but acceptable). Failure mode to catch: HTTP 201 or 200 (TENANT_LEAK — interaction created for contact in different org)."
+        "description": "Retrieve the organization context of the current superadmin session by navigating to http://localhost:3002/command-centre/settings and reading the current org name/ID from the page. Store as {{current_org}}. Then using page.evaluate(): send a POST request to http://localhost:3002/api/admin/command-centre/api/v1/crm/contacts/contact-from-other-org-5000/interactions with the same headers and body. Verify HTTP status 404 is returned (tenant isolation enforcement). Verify the error message does not leak information (e.g., 'Contact belongs to a different organization' is acceptable; 'This contact exists but you don't have access' is acceptable; 'Contact not found' is ambiguous but acceptable). Failure mode to catch: HTTP 201 or 200 (TENANT_LEAK \u2014 interaction created for contact in different org)."
       },
       {
         "id": 8,
@@ -2384,7 +2348,7 @@
   },
   {
     "id": "comc-comc-hld-open-design-questions-2",
-    "description": "[general] Comc Hld Open Design Questions — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Open Design Questions \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2422,11 +2386,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-non-functional-requirements-2",
-    "description": "[general] Comc Hld Non Functional Requirements — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Non Functional Requirements \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2546,11 +2510,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-agent-pause-resume-lifecycle",
-    "description": "[BEHAVIORAL] Agent pause/resume state machine: verify agents transition correctly between active→paused→active states, timestamps update on each state change, idempotent pause operations fail appropriately, and tenant isolation prevents cross-org agent manipulation.",
+    "description": "[BEHAVIORAL] Agent pause/resume state machine: verify agents transition correctly between active\u2192paused\u2192active states, timestamps update on each state change, idempotent pause operations fail appropriately, and tenant isolation prevents cross-org agent manipulation.",
     "depth": 8,
     "steps": [
       {
@@ -2583,7 +2547,7 @@
       },
       {
         "id": 8,
-        "description": "Using page.evaluate(): send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/pause (same endpoint, same body) immediately after step 7, without resuming first. PASS CONDITION: the response returns HTTP 200 (idempotent success — agent stays paused, operation is safe to repeat) OR HTTP 400/409 (state machine rejection — also valid). Both behaviors are acceptable API designs. FAIL CONDITION ONLY: 500 error or network error. The agent status must remain 'paused_ceo' regardless of which status code is returned."
+        "description": "Using page.evaluate(): send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/pause (same endpoint, same body) immediately after step 7, without resuming first. PASS CONDITION: the response returns HTTP 200 (idempotent success \u2014 agent stays paused, operation is safe to repeat) OR HTTP 400/409 (state machine rejection \u2014 also valid). Both behaviors are acceptable API designs. FAIL CONDITION ONLY: 500 error or network error. The agent status must remain 'paused_ceo' regardless of which status code is returned."
       },
       {
         "id": 9,
@@ -2607,7 +2571,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/approvals to view the approvals dashboard. Wait for the page to load. PASS CONDITION (A): the page shows a list of pending approvals — record the ID and title of the first pending item as {{approval_1_id}} and {{approval_1_title}} for use in steps 3-8. PASS CONDITION (B): the page shows an empty state message such as 'No pending approvals' or an empty queue — this is a valid production state (approvals are created internally by business logic). Mark PASS with note 'empty approval queue — valid state', and skip steps 3-8 (mark SKIPPED, not FAILED). FAIL ONLY if the page returns a 500 error, login redirect, or blank white screen."
+        "description": "Navigate to http://localhost:3002/command-centre/approvals to view the approvals dashboard. Wait for the page to load. PASS CONDITION (A): the page shows a list of pending approvals \u2014 record the ID and title of the first pending item as {{approval_1_id}} and {{approval_1_title}} for use in steps 3-8. PASS CONDITION (B): the page shows an empty state message such as 'No pending approvals' or an empty queue \u2014 this is a valid production state (approvals are created internally by business logic). Mark PASS with note 'empty approval queue \u2014 valid state', and skip steps 3-8 (mark SKIPPED, not FAILED). FAIL ONLY if the page returns a 500 error, login redirect, or blank white screen."
       },
       {
         "id": 3,
@@ -2638,7 +2602,7 @@
   },
   {
     "id": "comc-agents-learning",
-    "description": "[pulse] Agents Learning — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[pulse] Agents Learning \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2654,24 +2618,12 @@
         "description": "Verify the agents learning data table renders correctly. Confirm either: (a) at least one row appears with columns for agent_id, agent_name, learning_topic, competency_level, and last_updated, OR (b) an explicit empty state message is shown ('No learning records yet' or similar). Verify no blank sections or truncated columns exist."
       },
       {
-        "id": 4,
-        "description": "Locate the 'Add Learning Record' form or button. Fill in required fields: select an agent from 'Agent' dropdown (pick first active agent from agents list), enter 'Learning Topic' text field with value 'API Integration Strategy', set 'Competency Level' to 'Intermediate' via radio button or select, optionally add 'Notes' text area with 'Testing cross-service flow'. Click 'Submit' button. Verify HTTP 201 response from POST /api/v1/agents/{agent_id}/learning with new learning_record object containing id, org_id, agent_id, topic, competency_level, and created_at timestamp. Confirm toast notification appears ('Learning record created successfully') and form clears or redirects."
-      },
-      {
-        "id": 5,
-        "description": "Test validation: attempt to submit the form with empty 'Learning Topic' field. Verify HTTP 400 Bad Request response or inline validation error appears below the field with message 'Learning Topic is required'. Confirm form does not submit and no toast notification fires. Fill in the topic field and verify error clears before resubmit."
-      },
-      {
         "id": 6,
         "description": "Verify API contract boundary: confirm the newly created learning record now appears in the agents learning data table in real-time (no page refresh required, or auto-refresh within 2 seconds). Validate the row displays the correct agent name (matched via agent_id FK), topic, competency level, and a timestamp matching the created_at from the API response. This confirms the POST response payload is correctly reflected in the GET /api/v1/agents/learning list view."
       },
       {
         "id": 7,
         "description": "Test persistence: navigate away from http://localhost:3002/command-centre/agents/learning to http://localhost:3002/command-centre/dashboard (click 'Pulse' pillar or 'Dashboard' link). Verify dashboard loads and displays metric cards. Then navigate back to http://localhost:3002/command-centre/agents/learning. Confirm the learning record created in Step 4 is still visible in the table with the same values (agent_name, topic, competency_level, timestamp). Verify GET /api/v1/agents/learning returns HTTP 200 and includes the persisted record from the database."
-      },
-      {
-        "id": 8,
-        "description": "Edit the learning record: click 'Edit' button (or pencil icon) on the row created in Step 4. Change 'Competency Level' from 'Intermediate' to 'Advanced'. Click 'Save'. Verify HTTP 200 response from PATCH /api/v1/agents/{agent_id}/learning/{learning_id} with updated_at timestamp. Confirm the table row updates in-place to show 'Advanced' without requiring a page reload. Navigate away and back to verify the updated value persists in the database."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -2691,7 +2643,7 @@
       },
       {
         "id": 3,
-        "description": "Click on {{meeting_1_id}} in the left panel. The right panel displays its detail view. Verify the right panel shows: (a) the meeting title matching {{meeting_1_title}}, (b) meeting date and time, (c) three tabs labeled 'Prep', 'Notes', 'Actions' — all visible and clickable. Record this layout state as {{layout_confirmed}}."
+        "description": "Click on {{meeting_1_id}} in the left panel. The right panel displays its detail view. Verify the right panel shows: (a) the meeting title matching {{meeting_1_title}}, (b) meeting date and time, (c) three tabs labeled 'Prep', 'Notes', 'Actions' \u2014 all visible and clickable. Record this layout state as {{layout_confirmed}}."
       },
       {
         "id": 4,
@@ -2735,7 +2687,7 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}} with the authorization header. Verify HTTP 200. Verify the response JSON includes: 'id', 'name', 'status', 'department_id', 'heartbeat_timestamp' (string or null), 'paperclip_last_sync' (string or null). The heartbeat and paperclip fields may be null if no data exists yet — that is acceptable. PASS if the response contains all required fields."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}} with the authorization header. Verify HTTP 200. Verify the response JSON includes: 'id', 'name', 'status', 'department_id', 'heartbeat_timestamp' (string or null), 'paperclip_last_sync' (string or null). The heartbeat and paperclip fields may be null if no data exists yet \u2014 that is acceptable. PASS if the response contains all required fields."
       },
       {
         "id": 5,
@@ -2743,7 +2695,7 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/heartbeats with the authorization header. Verify HTTP 200 response with a JSON array. Each heartbeat entry should have: 'agent_id', 'created_at', 'payload'. The array may be empty (no heartbeats recorded yet) — that is acceptable. PASS if the endpoint returns 200 with an array."
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/agents/{{agent_id}}/heartbeats with the authorization header. Verify HTTP 200 response with a JSON array. Each heartbeat entry should have: 'agent_id', 'created_at', 'payload'. The array may be empty (no heartbeats recorded yet) \u2014 that is acceptable. PASS if the endpoint returns 200 with an array."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -2759,23 +2711,23 @@
       },
       {
         "id": 3,
-        "description": "Navigate to http://localhost:3002/command-centre/meetings. The page loads the Meetings List view. Observe the left panel showing a list of upcoming meetings sorted by date (earliest first). Record the total count of meetings displayed as {{meetings_count_initial}}. Verify HTTP 200 is returned by the GET /api/v1/meetings/upcoming endpoint (inspect Network tab). Note any meetings with duplicate id values — if duplicates exist, this is a failure mode: DUPLICATE_MEETINGS."
+        "description": "Navigate to http://localhost:3002/command-centre/meetings. The page loads the Meetings List view. Observe the left panel showing a list of upcoming meetings sorted by date (earliest first). Record the total count of meetings displayed as {{meetings_count_initial}}. Verify HTTP 200 is returned by the GET /api/v1/meetings/upcoming endpoint (inspect Network tab). Note any meetings with duplicate id values \u2014 if duplicates exist, this is a failure mode: DUPLICATE_MEETINGS."
       },
       {
         "id": 4,
-        "description": "Verify the response payload from step 3 API call contains a list of meeting objects. Each object must have fields: id, title, meeting_date. Optional fields include: meeting_datetime, source, dept_id. If the 'source' field is present, verify it contains one of: 'manual', 'erpnext', 'calendar_sync' (NOT 'oracle' — Oracle ERP is not a valid source). Verify meeting_date values are valid ISO date strings. PASS if the list (even empty) is returned with correct field types."
+        "description": "Verify the response payload from step 3 API call contains a list of meeting objects. Each object must have fields: id, title, meeting_date. Optional fields include: meeting_datetime, source, dept_id. If the 'source' field is present, verify it contains one of: 'manual', 'erpnext', 'calendar_sync' (NOT 'oracle' \u2014 Oracle ERP is not a valid source). Verify meeting_date values are valid ISO date strings. PASS if the list (even empty) is returned with correct field types."
       },
       {
         "id": 5,
-        "description": "Click on the first meeting in the list (if meetings exist). The detail view displays the selected meeting's information — this may be a right panel, a modal, or a detail page depending on the UI layout. Verify the meeting title and date are visible. If the detail view shows sub-sections (prep, notes, actions), verify they render without errors. If no meetings exist (empty list), verify the empty state renders a clear message. PASS in either case."
+        "description": "Click on the first meeting in the list (if meetings exist). The detail view displays the selected meeting's information \u2014 this may be a right panel, a modal, or a detail page depending on the UI layout. Verify the meeting title and date are visible. If the detail view shows sub-sections (prep, notes, actions), verify they render without errors. If no meetings exist (empty list), verify the empty state renders a clear message. PASS in either case."
       },
       {
         "id": 6,
-        "description": "If a meeting detail is open and sub-sections are visible (prep, notes, actions — displayed as tabs, accordion sections, or scrollable panels), click through each section and verify content loads without JavaScript errors. Each section should show either real content or a placeholder message. PASS if all visible sections load without errors. If the UI uses a single scrollable view instead of tabs, verify all sections render in sequence without overlap or blank gaps."
+        "description": "If a meeting detail is open and sub-sections are visible (prep, notes, actions \u2014 displayed as tabs, accordion sections, or scrollable panels), click through each section and verify content loads without JavaScript errors. Each section should show either real content or a placeholder message. PASS if all visible sections load without errors. If the UI uses a single scrollable view instead of tabs, verify all sections render in sequence without overlap or blank gaps."
       },
       {
         "id": 7,
-        "description": "Navigate away from the Meetings List by clicking the Command Centre logo or a different menu item (e.g., navigate to http://localhost:3002/command-centre/dashboard). Then navigate back to http://localhost:3002/command-centre/meetings. Verify: (a) the left panel list is re-populated with the same {{meetings_count_initial}} meetings, (b) the meetings are still sorted by date, (c) if the browser's session storage retained selection state, {{meeting_id_selected}} should still be highlighted (or re-select it if state was cleared — acceptable behavior)."
+        "description": "Navigate away from the Meetings List by clicking the Command Centre logo or a different menu item (e.g., navigate to http://localhost:3002/command-centre/dashboard). Then navigate back to http://localhost:3002/command-centre/meetings. Verify: (a) the left panel list is re-populated with the same {{meetings_count_initial}} meetings, (b) the meetings are still sorted by date, (c) if the browser's session storage retained selection state, {{meeting_id_selected}} should still be highlighted (or re-select it if state was cleared \u2014 acceptable behavior)."
       },
       {
         "id": 8,
@@ -2790,7 +2742,7 @@
   },
   {
     "id": "comc-notifications",
-    "description": "[pulse] Notifications — Read-only feed verification: list rendering, mark-as-read, persistence, tenant isolation",
+    "description": "[pulse] Notifications \u2014 Read-only feed verification: list rendering, mark-as-read, persistence, tenant isolation",
     "depth": 1,
     "steps": [
       {
@@ -2807,11 +2759,11 @@
       },
       {
         "id": 4,
-        "description": "Verify notifications are displayed as a read-only feed. Check that each notification row shows: channel, message preview, event type, read status (read/unread badge), and timestamp. If notifications exist, click on a notification row to expand or view detail. Verify the detail view shows the full message text. PASS if table renders with correct columns and at least one notification is viewable. If list is empty, verify the empty-state message 'No notifications yet' is displayed — PASS on empty-state."
+        "description": "Verify notifications are displayed as a read-only feed. Check that each notification row shows: channel, message preview, event type, read status (read/unread badge), and timestamp. If notifications exist, click on a notification row to expand or view detail. Verify the detail view shows the full message text. PASS if table renders with correct columns and at least one notification is viewable. If list is empty, verify the empty-state message 'No notifications yet' is displayed \u2014 PASS on empty-state."
       },
       {
         "id": 5,
-        "description": "If notifications exist: locate an unread notification (indicated by unread badge or bold text). Click the 'Mark as Read' action (button, toggle, or click on the row). Verify the notification's read status changes visually (badge changes to 'read', text un-bolds). Verify a PATCH request was sent to the API. If no unread notifications exist, verify all notifications show 'read' status — PASS."
+        "description": "If notifications exist: locate an unread notification (indicated by unread badge or bold text). Click the 'Mark as Read' action (button, toggle, or click on the row). Verify the notification's read status changes visually (badge changes to 'read', text un-bolds). Verify a PATCH request was sent to the API. If no unread notifications exist, verify all notifications show 'read' status \u2014 PASS."
       },
       {
         "id": 6,
@@ -2819,14 +2771,14 @@
       },
       {
         "id": 7,
-        "description": "Verify tenant isolation: all notifications displayed belong to the logged-in organisation. Check the API response in the Network tab — each notification object should have an org_id matching the JWT claims. Verify no notifications from other organisations appear. PASS if all notifications are correctly scoped."
+        "description": "Verify tenant isolation: all notifications displayed belong to the logged-in organisation. Check the API response in the Network tab \u2014 each notification object should have an org_id matching the JWT claims. Verify no notifications from other organisations appear. PASS if all notifications are correctly scoped."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
   },
   {
     "id": "comc-comc-architecture-database-schema-key-tables-2",
-    "description": "[general] Comc Architecture Database Schema Key Tables — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Database Schema Key Tables \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2864,11 +2816,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-biz-costs-overview-rollup",
-    "description": "[BEHAVIORAL] Verify costs overview correctly aggregates 4-level cost rollup (org total → dept totals → agent totals → per-call costs) for the current month, handles month boundaries, and detects rollup mismatches.",
+    "description": "[BEHAVIORAL] Verify costs overview correctly aggregates 4-level cost rollup (org total \u2192 dept totals \u2192 agent totals \u2192 per-call costs) for the current month, handles month boundaries, and detects rollup mismatches.",
     "depth": 1,
     "steps": [
       {
@@ -2885,15 +2837,15 @@
       },
       {
         "id": 4,
-        "description": "Validate the response structure: (a) {{org_total}} is a number ≥ 0, (b) {{dept_totals}} is an array with at least 1 entry where each entry has dept_type, total_cost, and agent_count, (c) {{agent_totals}} is an array where each entry has agent_id, agent_name, total_cost, call_count, (d) {{per_call_costs}} is an array where each entry has call_id, duration_seconds, cost_usd, (e) {{summary_month}} is ISO 8601 date string matching current month (e.g. '2026-04-01'). If any check fails, report WRONG_MONTH or ROLLUP_MISMATCH failure."
+        "description": "Validate the response structure: (a) {{org_total}} is a number \u2265 0, (b) {{dept_totals}} is an array with at least 1 entry where each entry has dept_type, total_cost, and agent_count, (c) {{agent_totals}} is an array where each entry has agent_id, agent_name, total_cost, call_count, (d) {{per_call_costs}} is an array where each entry has call_id, duration_seconds, cost_usd, (e) {{summary_month}} is ISO 8601 date string matching current month (e.g. '2026-04-01'). If any check fails, report WRONG_MONTH or ROLLUP_MISMATCH failure."
       },
       {
         "id": 5,
-        "description": "Manually compute rollup integrity: sum all {{dept_totals[].total_cost}} values. Verify this sum equals {{org_total}} within ±0.01 USD (rounding tolerance). Also sum all {{agent_totals[].total_cost}} grouped by department and verify each matches corresponding {{dept_totals[x].total_cost}}. If any mismatch exists, record ROLLUP_MISMATCH failure."
+        "description": "Manually compute rollup integrity: sum all {{dept_totals[].total_cost}} values. Verify this sum equals {{org_total}} within \u00b10.01 USD (rounding tolerance). Also sum all {{agent_totals[].total_cost}} grouped by department and verify each matches corresponding {{dept_totals[x].total_cost}}. If any mismatch exists, record ROLLUP_MISMATCH failure."
       },
       {
         "id": 6,
-        "description": "Verify per-call cost integrity: for each {{per_call_costs}} entry, find matching agent in {{agent_totals}} and verify the cost_usd is ≤ that agent's average cost per call (total_cost / call_count). Also verify no negative costs or costs > 1000 USD exist (sanity bounds). Record any anomalies."
+        "description": "Verify per-call cost integrity: for each {{per_call_costs}} entry, find matching agent in {{agent_totals}} and verify the cost_usd is \u2264 that agent's average cost per call (total_cost / call_count). Also verify no negative costs or costs > 1000 USD exist (sanity bounds). Record any anomalies."
       },
       {
         "id": 7,
@@ -2908,7 +2860,7 @@
   },
   {
     "id": "comc-initiatives-initiativeidparam",
-    "description": "[strategy] Initiatives Initiativeidparam — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[strategy] Initiatives Initiativeidparam \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2940,7 +2892,7 @@
   },
   {
     "id": "comc-settings-assessment",
-    "description": "[config] Settings Assessment — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[config] Settings Assessment \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -2972,7 +2924,7 @@
   },
   {
     "id": "comc-departments-deptidparam",
-    "description": "[general] Departments Deptidparam — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Departments Deptidparam \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -3017,7 +2969,7 @@
       },
       {
         "id": 3,
-        "description": "Create a new Initiative via POST /api/v1/initiatives with payload: {title: 'Q4 Accountability Framework', description: 'Establish partner review cadence', priority: 'high', target_date: '2025-04-30'}. Verify HTTP 201 response. Confirm server-side sets from_dept_id and CEO sentinel. Attempt invalid create with title length < 3 chars ('AB') — verify HTTP 400 with error message 'Title must be at least 3 characters'."
+        "description": "Create a new Initiative via POST /api/v1/initiatives with payload: {title: 'Q4 Accountability Framework', description: 'Establish partner review cadence', priority: 'high', target_date: '2025-04-30'}. Verify HTTP 201 response. Confirm server-side sets from_dept_id and CEO sentinel. Attempt invalid create with title length < 3 chars ('AB') \u2014 verify HTTP 400 with error message 'Title must be at least 3 characters'."
       },
       {
         "id": 4,
@@ -3029,7 +2981,7 @@
       },
       {
         "id": 6,
-        "description": "Persistence and Requirements validation: Navigate to 'http://localhost:3002/command-centre/features/requirements' and verify 'Requirements (features-requirements)' card displays 0 endpoints, 0 sub-sections, 0 error references. Return to 'http://localhost:3002/command-centre/initiatives' and confirm previously created Initiative 'Q4 Accountability Framework' persists with correct priority='high' and status values. Call GET /api/v1/initiatives/{initiative_id} — verify HTTP 200 with full detail including conversation thread metadata."
+        "description": "Persistence and Requirements validation: Navigate to 'http://localhost:3002/command-centre/features/requirements' and verify 'Requirements (features-requirements)' card displays 0 endpoints, 0 sub-sections, 0 error references. Return to 'http://localhost:3002/command-centre/initiatives' and confirm previously created Initiative 'Q4 Accountability Framework' persists with correct priority='high' and status values. Call GET /api/v1/initiatives/{initiative_id} \u2014 verify HTTP 200 with full detail including conversation thread metadata."
       },
       {
         "id": 7,
@@ -3042,7 +2994,7 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Roadmap narrative doc section — not a product page"
+    "_skip_reason": "Roadmap narrative doc section \u2014 not a product page"
   },
   {
     "id": "comc-biz-approvals-list-sorting-filtering",
@@ -3063,7 +3015,7 @@
       },
       {
         "id": 4,
-        "description": "Inspect {{approvals_list_response}} from step 3. PASS CONDITION (A): list contains 1 or more approval objects, each with fields: id, type, summary, priority_score, status. Record {{first_approval_id}} = first item's id. Continue to steps 5-8 to test detail view and filtering. PASS CONDITION (B): list is empty ([]). The approval queue is intentionally empty in QA environments — approvals are generated internally by business logic (budget triggers, delegation rules), not user-created. An empty queue means the system is working correctly with no pending decisions. Mark PASS with note 'empty approval queue — valid state', then skip steps 5-8 (mark SKIPPED, not FAILED). FAIL ONLY if the API returns a non-200 status or the response is not a JSON array."
+        "description": "Inspect {{approvals_list_response}} from step 3. PASS CONDITION (A): list contains 1 or more approval objects, each with fields: id, type, summary, priority_score, status. Record {{first_approval_id}} = first item's id. Continue to steps 5-8 to test detail view and filtering. PASS CONDITION (B): list is empty ([]). The approval queue is intentionally empty in QA environments \u2014 approvals are generated internally by business logic (budget triggers, delegation rules), not user-created. An empty queue means the system is working correctly with no pending decisions. Mark PASS with note 'empty approval queue \u2014 valid state', then skip steps 5-8 (mark SKIPPED, not FAILED). FAIL ONLY if the API returns a non-200 status or the response is not a JSON array."
       },
       {
         "id": 5,
@@ -3075,7 +3027,7 @@
       },
       {
         "id": 7,
-        "description": "Read the detail page content and verify the displayed information matches {{approval_detail}} — summary, type, priority score, requesting agent name, cost estimate, and decision context are all visible and correct. Navigate back to the approvals list (click back button or navigate to http://localhost:3002/command-centre/approvals)."
+        "description": "Read the detail page content and verify the displayed information matches {{approval_detail}} \u2014 summary, type, priority score, requesting agent name, cost estimate, and decision context are all visible and correct. Navigate back to the approvals list (click back button or navigate to http://localhost:3002/command-centre/approvals)."
       },
       {
         "id": 8,
@@ -3090,7 +3042,7 @@
   },
   {
     "id": "comc-vendor-subscriptions",
-    "description": "[revenue] Vendor Subscriptions — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[revenue] Vendor Subscriptions \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -3194,7 +3146,7 @@
   },
   {
     "id": "comc-comc-test-oracles-agent-pause-resume",
-    "description": "[general] Comc Test_Oracles Agent Pause Resume — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Test_Oracles Agent Pause Resume \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -3223,11 +3175,11 @@
       },
       {
         "id": 7,
-        "description": "Create a second superadmin session or switch org context (if multi-org enabled). Attempt to PATCH /api/v1/agents/{agent_id}/pause where {agent_id} belongs to a different org_id than the caller's org scope. Expected cross-service validation (tenant isolation): HTTP 403 Forbidden or HTTP 404 Not Found response; error message indicates agent not found within caller's org scope; original agent remains unaffected in its own org; no TENANT_LEAK — agents from other org_id are not visible or modifiable."
+        "description": "Create a second superadmin session or switch org context (if multi-org enabled). Attempt to PATCH /api/v1/agents/{agent_id}/pause where {agent_id} belongs to a different org_id than the caller's org scope. Expected cross-service validation (tenant isolation): HTTP 403 Forbidden or HTTP 404 Not Found response; error message indicates agent not found within caller's org scope; original agent remains unaffected in its own org; no TENANT_LEAK \u2014 agents from other org_id are not visible or modifiable."
       },
       {
         "id": 8,
-        "description": "Verify Paperclip integration state: after resuming agent, check that ComC has synced the 'active' status back to Paperclip. If available, call GET /api/v1/agents/{agent_id} and inspect the 'paperclip_agent_id' field and any 'paperclip_sync_at' timestamp. Cross-service contract boundary validation: agent status change in ComC (PATCH /api/v1/agents/{agent_id}/resume → HTTP 200, status='active') should trigger downstream sync to Paperclip agent state within configured timeout window (typically <5 seconds). Expected: agent.status='active' persists in ComC; paperclip_sync_at field is recent; no orphaned agent state between services."
+        "description": "Verify Paperclip integration state: after resuming agent, check that ComC has synced the 'active' status back to Paperclip. If available, call GET /api/v1/agents/{agent_id} and inspect the 'paperclip_agent_id' field and any 'paperclip_sync_at' timestamp. Cross-service contract boundary validation: agent status change in ComC (PATCH /api/v1/agents/{agent_id}/resume \u2192 HTTP 200, status='active') should trigger downstream sync to Paperclip agent state within configured timeout window (typically <5 seconds). Expected: agent.status='active' persists in ComC; paperclip_sync_at field is recent; no orphaned agent state between services."
       }
     ],
     "dependsOn": "comc-trunk-superadmin",
@@ -3257,7 +3209,7 @@
       },
       {
         "id": 5,
-        "description": "Open browser's storage/session menu and clear all session cookies and local storage, OR manually navigate to logout endpoint by clicking profile menu → 'Sign Out'."
+        "description": "Open browser's storage/session menu and clear all session cookies and local storage, OR manually navigate to logout endpoint by clicking profile menu \u2192 'Sign Out'."
       },
       {
         "id": 6,
@@ -3280,7 +3232,7 @@
   },
   {
     "id": "comc-comc-architecture-security-boundaries-2",
-    "description": "[general] Comc Architecture Security Boundaries — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Architecture Security Boundaries \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -3289,7 +3241,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to 'http://localhost:3002/command-centre/security/boundaries' (or equivalent admin security settings page). Verify page loads without console errors. Inspect XHR request to 'GET /api/v1/security/boundaries' — confirm response is HTTP 200, contains 'Authorization: Bearer <JWT>' header, and 'org_id' extracted from JWT claims (not request body). Verify response body includes security_rules array with at least one rule object containing fields: rule_id, rule_name, enforcement_level, created_by, and is_active."
+        "description": "Navigate to 'http://localhost:3002/command-centre/security/boundaries' (or equivalent admin security settings page). Verify page loads without console errors. Inspect XHR request to 'GET /api/v1/security/boundaries' \u2014 confirm response is HTTP 200, contains 'Authorization: Bearer <JWT>' header, and 'org_id' extracted from JWT claims (not request body). Verify response body includes security_rules array with at least one rule object containing fields: rule_id, rule_name, enforcement_level, created_by, and is_active."
       },
       {
         "id": 3,
@@ -3301,7 +3253,7 @@
       },
       {
         "id": 5,
-        "description": "Verify the created rule persists across sessions: Navigate away from 'http://localhost:3002/command-centre/security/boundaries' to 'http://localhost:3002/command-centre/dashboard'. Wait 2 seconds, then navigate back to 'http://localhost:3002/command-centre/security/boundaries'. Confirm the previously created rule ('Test_JWT_Validation_Boundary') is still visible in the rules table with all data intact. Verify HTTP GET /api/v1/security/boundaries returns the same rule object (HTTP 200). Confirm no manual refresh was required — data persisted via backend storage and API state."
+        "description": "Verify the created rule persists across sessions: Navigate away from 'http://localhost:3002/command-centre/security/boundaries' to 'http://localhost:3002/command-centre/dashboard'. Wait 2 seconds, then navigate back to 'http://localhost:3002/command-centre/security/boundaries'. Confirm the previously created rule ('Test_JWT_Validation_Boundary') is still visible in the rules table with all data intact. Verify HTTP GET /api/v1/security/boundaries returns the same rule object (HTTP 200). Confirm no manual refresh was required \u2014 data persisted via backend storage and API state."
       },
       {
         "id": 6,
@@ -3318,11 +3270,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-admin-protocol-surface-2",
-    "description": "[general] Comc Hld Admin Protocol Surface — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Admin Protocol Surface \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -3360,11 +3312,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-scheduler-startup-pattern-2",
-    "description": "[general] Comc Hld Scheduler Startup Pattern — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Scheduler Startup Pattern \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -3402,11 +3354,11 @@
     ],
     "dependsOn": "comc-trunk-superadmin",
     "_skip": true,
-    "_skip_reason": "Architecture/HLD doc source — admin panel never built, needs API-level runner"
+    "_skip_reason": "Architecture/HLD doc source \u2014 admin panel never built, needs API-level runner"
   },
   {
     "id": "comc-comc-hld-primary-flow-sequence-diagrams-2",
-    "description": "[general] Comc Hld Primary Flow Sequence Diagrams — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Comc Hld Primary Flow Sequence Diagrams \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -3435,7 +3387,7 @@
       },
       {
         "id": 7,
-        "description": "Test error handling and state recovery: While viewing initiative detail, simulate network error by opening browser DevTools, setting Network throttling to 'Offline', and clicking 'Save Note' on a comment field with text='Follow up with regional sales leads'. Verify error toast 'Failed to save note — please check your connection' appears. Restore network connectivity and click 'Retry' button. Verify HTTP 201 POST request succeeds and note appears in the notes timeline with timestamp."
+        "description": "Test error handling and state recovery: While viewing initiative detail, simulate network error by opening browser DevTools, setting Network throttling to 'Offline', and clicking 'Save Note' on a comment field with text='Follow up with regional sales leads'. Verify error toast 'Failed to save note \u2014 please check your connection' appears. Restore network connectivity and click 'Retry' button. Verify HTTP 201 POST request succeeds and note appears in the notes timeline with timestamp."
       },
       {
         "id": 8,
