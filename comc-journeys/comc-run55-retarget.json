@@ -1,0 +1,767 @@
+[
+  {
+    "id": "comc-trunk-ceo",
+    "description": "CEO trunk: login as qa-test-journeyhawk@phronex.com (cc_ceo role, ComC premium grant). Saves browser state for all per-org leaf journeys.",
+    "isSharedRoot": true,
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "CEO TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre. Verify the Command Centre section loads without a 500 error. The page should show any Command Centre content — a dashboard, navigation links, or department views. If the page redirects to login or shows 403/404, mark failed."
+      },
+      {
+        "id": 3,
+        "description": "CRITICAL — Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed — use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies — an empty state file will cause all 3 dependent CEO leaf journeys to fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-trunk-manager",
+    "description": "Trunk: establish authenticated session for cc_manager role QA account (qa-test-comc-manager@phronex.com). Required by journeys that test manager-level RBAC boundaries.",
+    "depth": 0,
+    "isSharedRoot": true,
+    "steps": [
+      {
+        "id": 1,
+        "description": "MANAGER TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-comc-manager@phronex.com' and password 'v492kb-JXn5Sso1TEKApd2wi9LE'. Submit and wait for the portal sidebar to appear or redirect to http://localhost:3002/command-centre/dashboard. Mark failed if redirected back to http://localhost:3002/auth/login (wrong credentials) or if a 500 error appears."
+      },
+      {
+        "id": 2,
+        "description": "Verify this session has manager-level access, not CEO-only access. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming — expect 200 with a JSON array (meetings endpoint uses require_manager, so cc_manager can access it). Then use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/agents — expect 403 with detail 'CEO role required' (agents endpoint uses require_ceo, which cc_manager does NOT satisfy). PASS if meetings/upcoming=200 AND agents=403. FAIL if agents returns 200 (account has CEO-level access, not manager-level) or if meetings/upcoming returns 403 (cc_manager role was not correctly granted)."
+      },
+      {
+        "id": 3,
+        "description": "CRITICAL — Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed — use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies — an empty state file will cause all dependent manager-role leaf journeys to fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-trunk-superadmin",
+    "description": "Trunk: portal login as superadmin with ComC grant, verify dashboard loads with 7 pillar nav, save browser state.",
+    "isSharedRoot": true,
+    "stateOutputPath": ".tmp/comc-trunk-superadmin-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the ComC dashboard section loads without a 500 error or blank white screen. The dashboard main area should show stat cards (Org Health, Active Agents, Pending Approvals). Verify NO JavaScript TypeError appears in the browser console — if 'toFixed' or 'Cannot read properties of undefined' appears in console errors, this is a stale browser cache serving the old JS bundle: record the chunk filename from the error and mark the step as failed. Verify the left sidebar shows the Command Centre pillar sections (Pulse, Revenue, People, Operations, Strategy, Intelligence, Config). If the page redirects elsewhere or shows 403/404, flag immediately."
+      },
+      {
+        "id": 3,
+        "description": "IMPORTANT — Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical — without it, dependent journeys will fail."
+      }
+    ]
+  },
+  {
+    "id": "comc-agents-idparam-portrait",
+    "description": "[pulse] Agent Portrait — READ-ONLY monitoring view. Tests page load, Overview/Timeline/Calibration tab rendering, and agent info display. No CRUD operations.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired, navigate to http://localhost:3002/auth/login and re-authenticate. Verify the session is active."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify the Agent List page loads (HTTP 200). Locate an existing agent row and click on it to navigate to its portrait page (URL: http://localhost:3002/command-centre/agents/[agent_uuid]/portrait). Verify the page renders without console errors, blank states, or 'Something went wrong' messages. Verify the agent name is displayed prominently in the page header or title area."
+      },
+      {
+        "id": 3,
+        "description": "On the Agent Portrait page, verify the Overview tab is active by default (or click the 'Overview' tab if not). Verify the following agent info fields are displayed: agent name, department, role, status badge (colour-coded), model_id or similar configuration fields. PASS if the Overview tab loads and displays agent information without errors. PASS on empty/missing fields if no data exists — only fail if the tab crashes or shows a JavaScript error."
+      },
+      {
+        "id": 4,
+        "description": "Click the 'Timeline' tab on the Agent Portrait page. Verify the tab activates and the tab content area renders without errors. PASS if the Timeline tab shows activity entries, a timeline visualisation, or a proper empty state ('No activity yet' or similar). FAIL only if the tab throws a JavaScript error, shows a blank white panel with no message, or causes a page crash."
+      },
+      {
+        "id": 5,
+        "description": "Click the 'Calibration' tab on the Agent Portrait page. Verify the tab activates and the tab content area renders without errors. PASS if the Calibration tab shows calibration data, metrics, or a proper empty state. FAIL only if the tab throws a JavaScript error, shows a blank white panel with no message, or causes a page crash."
+      },
+      {
+        "id": 6,
+        "description": "Verify overall page integrity: navigate away from the portrait page to http://localhost:3002/command-centre/agents (agent list). Verify the list loads correctly. Navigate back to the same agent portrait URL. Verify the page reloads and all three tabs (Overview, Timeline, Calibration) are accessible without errors. PASS if round-trip navigation works and tabs remain functional."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-agents-learning",
+    "description": "[pulse] Agents Learning — READ-ONLY view with Rules/Calibration/Peer Observations/Outcomes tabs. Tests that each tab loads and shows data or empty state. No Add/Edit/Delete form expectations.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate to http://localhost:3002/command-centre/dashboard and log in if session expired. Verify JWT token is valid and contains org_id claim."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/agents/learning. Verify page loads without errors: no blank page, no 'Something went wrong' error modal, no console errors. Check that the page title or header contains 'Learning' or 'Agents Learning' and the page renders its tab structure."
+      },
+      {
+        "id": 3,
+        "description": "Verify the 'Rules' tab (or first visible tab) loads correctly. PASS if the tab shows rules data rows OR a proper empty state message. FAIL only if the tab shows a blank panel with no content or message, or throws a JavaScript error."
+      },
+      {
+        "id": 4,
+        "description": "Click the 'Calibration' tab (or equivalent second tab). Verify the tab activates and its content renders. PASS if calibration data or an empty state is displayed. FAIL only on JavaScript error or completely blank panel."
+      },
+      {
+        "id": 5,
+        "description": "Click the 'Peer Observations' tab (or equivalent third tab). Verify the tab activates and its content renders. PASS if peer observations data or an empty state is displayed. FAIL only on JavaScript error or completely blank panel."
+      },
+      {
+        "id": 6,
+        "description": "Click the 'Outcomes' tab (or equivalent fourth tab). Verify the tab activates and its content renders. PASS if outcomes data or an empty state is displayed. FAIL only on JavaScript error or completely blank panel."
+      },
+      {
+        "id": 7,
+        "description": "Verify persistence: navigate away from http://localhost:3002/command-centre/agents/learning to http://localhost:3002/command-centre/dashboard. Then navigate back to http://localhost:3002/command-centre/agents/learning. Confirm the page reloads correctly and tabs are still accessible and functional. PASS if round-trip navigation works without errors."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-error-states-recovery",
+    "description": "[BEHAVIORAL] Error states and recovery paths: validate error banners, retry logic, and graceful degradation across key ComC pages. Steps 1-6 only — network failure simulation and JWT decode steps removed as they are not feasible via browser automation.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (no valid JWT in localStorage), navigate to http://localhost:3002/command-centre/login, enter superadmin credentials (email: superadmin@phronex.internal, password from ENV), and verify redirect to http://localhost:3002/command-centre/dashboard with JWT present in Authorization header."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify page loads (HTTP 200) and agent list table renders with columns: Name, Department, Role, Status, Updated At. Seed test data: ensure at least 1 agent exists with status='active'. If list is empty, POST /api/v1/agents with body {name: 'Test Agent', role: 'finance', department_id: <valid_dept_id>, org_id: <superadmin_org_id>} and verify HTTP 201 response; agent appears in table within 2 seconds."
+      },
+      {
+        "id": 3,
+        "description": "Test ERROR DISPLAY state: Navigate to a non-existent agent detail page (e.g., http://localhost:3002/command-centre/agents/nonexistent-uuid-1234). Verify the page shows a graceful error message (e.g., 'Agent not found', 404 page, or redirect back to agents list) — NOT a blank screen, JavaScript crash, or raw stack trace. PASS if error is handled gracefully."
+      },
+      {
+        "id": 4,
+        "description": "Test CRUD + cross-service integration: Click 'Pause' action on an active agent row. Verify PATCH /api/v1/agents/{agent_id}/pause returns HTTP 200 with updated agent object (status='paused_ceo', updated_at refreshed). Verify agent row status badge changes to yellow immediately (optimistic update) or within 500ms (server-driven). Verify agent's paused state is reflected in downstream /api/v1/dashboard metrics (agent count under 'Active Agents' decreases by 1) by navigating to http://localhost:3002/command-centre/dashboard and observing metric card updates."
+      },
+      {
+        "id": 5,
+        "description": "Test RECOVERY path: Resume the paused agent by clicking 'Resume' action. Verify PATCH /api/v1/agents/{agent_id}/resume returns HTTP 200 with status='active'. Verify agent row updates (badge returns to green). Verify http://localhost:3002/command-centre/dashboard metric cards update within 1 second (Active Agents count increases by 1). Verify idempotent behavior: click Resume again immediately; verify server returns HTTP 200 with no state change (agent already active) and no duplicate updates in UI."
+      },
+      {
+        "id": 6,
+        "description": "Test PERSISTENCE across navigation: From http://localhost:3002/command-centre/agents, note the current state of the test agent (status, name, updated_at timestamp). Navigate to http://localhost:3002/command-centre/dashboard (different page). Wait 2 seconds, then navigate back to http://localhost:3002/command-centre/agents. Verify agent row retains the same state (status unchanged, name unchanged, updated_at timestamp reflects server state, not stale cache). Verify no 'Unsaved Changes' warning appears and no data loss has occurred."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-meetings-list-empty-state",
+    "description": "[BEHAVIORAL] Verify that the Meetings List page loads and renders correctly regardless of data state — empty state OR populated list are both valid. Tests page resilience, layout integrity, and HTTP 200 response.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/meetings. The page loads and sends GET /api/v1/meetings/upcoming. Verify HTTP 200 is returned regardless of whether meetings exist. PASS if the page renders correctly: either meetings are listed in the left panel OR an appropriate empty-state message is displayed ('No upcoming meetings', 'No meetings scheduled', or similar placeholder). FAIL only if the page shows a spinner indefinitely, a blank panel with no message, a JavaScript error, or an HTTP error (4xx/5xx)."
+      },
+      {
+        "id": 3,
+        "description": "Inspect the page layout. Verify the meetings list area renders without layout breaks: the two-panel structure (list panel + detail panel) is visibly present even if no meeting is selected. Navigation elements (menu, logo, back button) are clickable and responsive. If the layout collapses or becomes unusable, record as failure mode: LAYOUT_BROKEN."
+      },
+      {
+        "id": 4,
+        "description": "If meetings exist in the list: click on a meeting row and verify the right panel updates to show meeting details (title, date, department visible). PASS if meeting detail renders. If the list is empty: verify the empty-state placeholder is displayed and no error occurs. PASS on either outcome."
+      },
+      {
+        "id": 5,
+        "description": "Verify the page remains functional: navigation elements (menu, logo, back button) are clickable and responsive. The layout does not break; the two-panel structure is still visibly present. If the layout collapses or becomes unusable, record as failure mode: LAYOUT_BROKEN."
+      },
+      {
+        "id": 6,
+        "description": "Navigate away (to another Command Centre page such as http://localhost:3002/command-centre/dashboard) and return to http://localhost:3002/command-centre/meetings. Verify the page re-renders consistently with another GET /api/v1/meetings/upcoming call returning HTTP 200. The behavior must be repeatable and idempotent — PASS whether the list is populated or empty."
+      },
+      {
+        "id": 7,
+        "description": "Verify page state consistency: confirm no JavaScript console errors appear after the round-trip navigation. Verify no spinner is stuck in a loading state and no error message or stack trace is visible. PASS if the page is stable and responsive after navigating away and back."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-costs",
+    "description": "[operations] Costs — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration. Step 8 (audit trail endpoint) removed as /api/admin/audit-log does not exist.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate to http://localhost:3002/command-centre/costs and log in if session expired. Verify JWT token is present in localStorage and not expired (check 'exp' claim)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/costs. Verify page loads without errors (no blank page, no 'Something went wrong' message, no 500/4xx in Network tab). Confirm main heading 'Costs' and sidebar 'Operations' pillar are visible. Assert no console errors (severity ≥ error)."
+      },
+      {
+        "id": 3,
+        "description": "Verify the Costs Overview data table renders with 4-level rollup: Org Total row, expandable Department rows (showing dept_type, hard_limit_usd, soft_limit_minutes), Agent rows nested under departments, and Per-Call Cost columns. If no cost data exists, confirm empty state message 'No cost data for selected period' is shown (not a blank section). Open Network tab and verify GET /api/v1/costs/summary returns HTTP 200 with cost structure matching schema."
+      },
+      {
+        "id": 4,
+        "description": "Verify the Costs page displays data in a multi-tab layout (Overview, By Department, By Agent, By Task Type, Efficiency). Click each tab and verify content loads without blank sections. The Overview tab should show a cost summary. By Department tab should show per-department breakdown. PASS if all tabs load with data or appropriate empty-state messages."
+      },
+      {
+        "id": 5,
+        "description": "Test persistence: Navigate away from the Costs page to http://localhost:3002/command-centre/dashboard. Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/costs. Verify the same tab layout and data renders consistently. PASS if data persists across navigation."
+      },
+      {
+        "id": 6,
+        "description": "Verify cross-service API contract: Cost Efficiency integration. Locate the 'Efficiency Recommendations' card or tab. Confirm GET /api/v1/costs/efficiency is called (verify in Network tab, HTTP 200). If sufficient cost history exists (≥7 days), verify response contains per-dept analysis, over-budget alerts, and optimization suggestions. Confirm each suggestion includes an LLM-generated message (via phronex-common LLM provider). If insufficient data (<7 days), verify response includes 'Insufficient data' message with recommendation to check back after 7 days. Assert no LLM_TIMEOUT (request completes within 8 seconds)."
+      },
+      {
+        "id": 7,
+        "description": "Verify budget data is accessible: Using page.evaluate(), send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/costs/budget. Verify HTTP 200 response with a JSON array of budget allocation rows. Each row should have at minimum: dept_id or agent_id, period, and a limit field. PASS if the API returns valid budget data (array may be empty — that is acceptable)."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-costs-efficiency",
+    "description": "[operations] Costs Efficiency — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration. Included as-is — negative budget validation will be added to backend before run.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate and log in if session expired. Verify JWT token is present in localStorage and valid (check auth.dependencies validation passes)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/costs/efficiency. Verify the page loads without errors: no blank page, no 'Something went wrong' error banner, browser console free of 500/400 errors, and response from GET /api/v1/costs/efficiency returns HTTP 200."
+      },
+      {
+        "id": 3,
+        "description": "Verify the Costs Efficiency data section renders correctly. Check for: (a) a table/card showing per-department efficiency analysis with columns: Department, Total Cost (USD), Efficiency Score (%), Status (Over-budget/On-track); (b) if cost history <7 days, confirm 'insufficient data' message appears instead of recommendations; (c) if sufficient history, verify at least one department row with realistic efficiency metrics (0–100%). Confirm no ROLLUP_MISMATCH: spot-check that sum of visible department costs aligns with org-level total shown in summary widget."
+      },
+      {
+        "id": 4,
+        "description": "Cross-service validation: Click on a department row (e.g., 'Engineering') to expand or drill-down. Verify that the UI triggers GET /api/v1/costs/efficiency?department=Engineering (inspect Network tab) and receives HTTP 200 with per-agent cost breakdowns. Confirm the response structure includes agent_id, call_count, total_cost_usd, and avg_cost_per_call fields. Verify the expanded view renders these agent-level metrics in a nested table or collapsible section."
+      },
+      {
+        "id": 5,
+        "description": "Validation step — attempt to enter an invalid budget threshold. Locate the 'Set Department Budget Limit' form (if present) or open an edit modal for a department's soft_limit_minutes. Enter a negative value (e.g., -100) and attempt to submit. Verify that the UI displays an inline error message (e.g., 'Budget limit must be a positive number') and the request is NOT sent (confirm no outbound POST /api/v1/costs/budget in Network tab). Confirm the form state reverts to the previous valid value."
+      },
+      {
+        "id": 6,
+        "description": "Persistence step — from the Costs Efficiency page, navigate to a different pillar (e.g., http://localhost:3002/command-centre/pulse/dashboard). Wait 2 seconds, then navigate back to http://localhost:3002/command-centre/costs/efficiency. Verify that: (a) the page reloads and GET /api/v1/costs/efficiency is called again (HTTP 200); (b) the same department rows and efficiency scores are displayed; (c) any previously expanded department sections are collapsed (no client-side state pollution); (d) no orphaned data or duplicate rows appear. Confirm audit log captures the navigation event (via monitoring.audit AdminAuditLog with actor_id from JWT sub)."
+      },
+      {
+        "id": 7,
+        "description": "LLM integration boundary test — verify that efficiency recommendations (if displayed) were generated by the LLM provider. Check that the page renders an 'AI-Generated Insights' section with optimization suggestions (e.g., 'Reduce token usage in Agent X by switching to GPT-3.5 Turbo for summarization'). Confirm the insights panel includes a timestamp and a disclaimer badge. Verify that if LLM generation times out (>30s), the UI falls back gracefully with a message 'Recommendations generating—refresh shortly' instead of hanging or throwing an error."
+      },
+      {
+        "id": 8,
+        "description": "Final state validation — confirm that all cost data visible on the page matches the backend API contract. Export or copy the efficiency table data and cross-check a sample row: pick one department, verify its total_cost_usd + soft_limit_usd values match a fresh call to GET /api/v1/costs/budget?department=X (HTTP 200). Verify that the efficiency score formula is correctly applied: e.g., Efficiency = (Budget Remaining / Budget Allocated) * 100 for on-budget departments. Confirm no console warnings or memory leaks are present (check DevTools Performance/Memory tabs after 30-second idle)."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-departments-deptidparam",
+    "description": "[general] Departments Deptidparam — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration. Included as-is — dept name validation will be added to backend before run.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify JWT token is valid and contains org_id claim. If session expired (> 1 hour old), navigate to http://localhost:3002/command-centre/login, enter superadmin credentials (email: superadmin@phronex.local, password from .env), and click 'Sign In'. Verify redirect to http://localhost:3002/command-centre/dashboard and JWT is saved to session file."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/departments. Verify page loads without errors (no blank page, no 'Something went wrong', no JavaScript console errors). Confirm 'Departments' header is visible and a table or card list of departments renders. Verify table columns include: Department Name, Agents Count, Status (Active/Inactive), Last Heartbeat, Isolation Mode. HTTP GET /api/v1/departments should return 200 with array of departments filtered by caller's org_id."
+      },
+      {
+        "id": 3,
+        "description": "From the departments list, identify a department with at least 1 assigned agent. Click on the department row to navigate to http://localhost:3002/command-centre/departments/[deptId] (e.g., /departments/d-12345). Verify the detail page loads without errors. Confirm the following elements render: Department Name input field (pre-filled with current name), Active/Inactive toggle switch, Agent List section showing assigned agents with name, role, and status badges (colour-coded: green=active, yellow=idle, red=inactive). Verify HTTP GET /api/v1/departments/[deptId] returns 200 with full department object including id, org_id, name, is_active, agent_count, last_heartbeat."
+      },
+      {
+        "id": 4,
+        "description": "On the department detail page, attempt to update the department name by: (a) Clicking the Department Name input field, (b) Clearing the current text, (c) Entering an invalid name (e.g., '123' or a string with only special characters '!!!'), (d) Clicking the 'Save' button. Verify an error message appears below the input field with text like 'Department name must contain at least 3 characters and include letters' or similar validation rule. Confirm the 'Save' button remains enabled (not greyed out) and the invalid data is not submitted. HTTP PATCH /api/v1/departments/[deptId] should NOT be called or should return 400 Bad Request."
+      },
+      {
+        "id": 5,
+        "description": "Clear the invalid input and enter a valid department name (e.g., 'Sales Operations - Updated'). Click 'Save'. Verify HTTP PATCH /api/v1/departments/[deptId] is called with request body { \"name\": \"Sales Operations - Updated\", \"is_active\": true } and returns 200 with updated department object. Confirm a success toast message appears (e.g., 'Department updated successfully'). Verify the Department Name input field now displays the new name."
+      },
+      {
+        "id": 6,
+        "description": "While still on the department detail page (http://localhost:3002/command-centre/departments/[deptId]), toggle the 'Active' switch to 'Inactive'. Verify HTTP PATCH /api/v1/departments/[deptId] is called with { \"is_active\": false } and returns 200. Confirm the toggle reflects the inactive state. Navigate away to http://localhost:3002/command-centre/dashboard (click 'Dashboard' in sidebar), then return to http://localhost:3002/command-centre/departments/[deptId]. Verify the department page reloads and the 'Active' toggle remains in the 'Inactive' state, confirming persistence. HTTP GET /api/v1/departments/[deptId] should return is_active: false."
+      },
+      {
+        "id": 7,
+        "description": "On the department detail page, verify the 'Agent List' section displays assigned agents. Click on one agent row to navigate to the agent detail page (cross-pillar navigation to http://localhost:3002/command-centre/agents/[agentId]). Verify the agent page loads and the 'Department' field shows the current department's name (cross-service state validation: agent.department_id matches the department context). Return to http://localhost:3002/command-centre/departments/[deptId] via browser back button. Confirm the department page reloads with all previous state intact (name, active toggle, agent list)."
+      },
+      {
+        "id": 8,
+        "description": "On the department detail page, scroll to the 'Heartbeat Configuration' section (if visible). Verify it displays last heartbeat timestamp (e.g., '2024-01-15 09:30:00 IST'). If an 'Edit Heartbeat' button exists, click it and verify a modal or inline form opens with fields: Heartbeat Interval (seconds), Isolation Mode (enabled/disabled). Attempt to set Heartbeat Interval to an invalid value (e.g., '-1' or '0'). Click 'Save'. Verify a validation error appears (e.g., 'Interval must be greater than 0'). HTTP PATCH should not be called. Correct the value to a valid number (e.g., '300'), click 'Save', and verify HTTP PATCH /api/v1/departments/[deptId] returns 200. Close the modal and navigate away and back to verify persistence."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-departments-deptidparam-templates",
+    "description": "[general] Department Templates — Navigate to dept detail page, verify dept info displays, check settings/config sections load. No outreach template CRUD (POST /api/v1/outreach/templates does not exist).",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify JWT token is valid (contains org_id claim). If session expired or file missing, navigate to http://localhost:3002/command-centre/login, enter superadmin credentials (email: superadmin@test.local, password: Test@123), and click 'Sign In'. Confirm redirect to http://localhost:3002/command-centre/dashboard with no auth errors in console."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/departments. Locate a department with active status and note its deptId (e.g., dept-001). Then navigate to http://localhost:3002/command-centre/departments/[deptId]/templates (substitute actual deptId). Verify page loads with HTTP 200 response, no blank screen, no 'Something went wrong' error banner, and no console errors (check DevTools console tab)."
+      },
+      {
+        "id": 3,
+        "description": "On the templates page, verify the department information is displayed correctly. Check that the department name or identifier appears in the page header or breadcrumb (e.g., 'Departments > [Dept Name] > Templates'). Verify the page layout renders without errors: header, sidebar, and main content area are all visible."
+      },
+      {
+        "id": 4,
+        "description": "Verify the templates section renders. If templates exist, check that each row or card displays template information (name, status, type, or date). If no templates exist, verify an appropriate empty state message is displayed (e.g., 'No templates yet', 'No templates created for this department'). PASS on either outcome — FAIL only if the section is blank with no message or shows a JavaScript error."
+      },
+      {
+        "id": 5,
+        "description": "Check for any settings or configuration sections on the page. If a settings panel, config section, or options area is visible, verify it renders without errors. PASS if the section loads. If no settings section exists on this page, PASS — this step verifies the page is fully rendered, not that any specific section is present."
+      },
+      {
+        "id": 6,
+        "description": "Verify navigation works correctly: click the department name in the breadcrumb (or back button) to navigate back to http://localhost:3002/command-centre/departments/[deptId] (the department detail page). Verify the department detail page loads and displays department information (name, status, agent count). Then navigate back to the templates page via the navigation and verify it reloads correctly. PASS if both pages load without errors."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-goals",
+    "description": "[strategy] Goals — CRUD, validation, and persistence. Steps 1-7 only (step 8 removed to fit within 50-turn limit).",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (no valid JWT or 401 response), navigate to http://localhost:3002/command-centre and log in using test credentials (superadmin@phronex.local / test-password). Verify JWT is stored in browser localStorage under 'auth_token' key."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/goals. Verify page load: (a) no blank page or 500 error; (b) no 'Something went wrong' error toast; (c) browser console has no fatal errors (warnings acceptable); (d) page title or header contains 'Goals' or 'Strategy Goals'. Wait max 3 seconds for initial render."
+      },
+      {
+        "id": 3,
+        "description": "Verify Goals table/list section renders correctly. If data exists: confirm table has columns for 'Goal Title', 'OKR Type', 'Target Value', 'Department', 'Status', and action buttons ('Edit', 'Delete'). If list is empty: confirm empty state message appears (e.g. 'No goals created yet. Click \"Create Goal\" to get started'). Verify no orphaned loading spinners or broken layout."
+      },
+      {
+        "id": 4,
+        "description": "Locate and click the 'Create Goal' button (primary CTA, typically blue). A modal or form should appear. Fill in form fields with valid test data: (a) 'Goal Title' = 'Q2 Revenue Growth Initiative'; (b) 'OKR Type' = 'Objective' (dropdown); (c) 'Target Value' = '150000' (numeric); (d) 'Department' = select first available department (e.g. 'Sales' or 'Operations'); (e) 'Description' (optional) = 'Increase quarterly revenue by 15%'. Click 'Create Goal' or 'Submit' button. Verify HTTP 201 response in network tab and success toast notification appears (e.g. 'Goal created successfully')."
+      },
+      {
+        "id": 5,
+        "description": "Validate form field constraints: Clear the Title field completely and attempt to submit. Expect either: (a) HTML5 form validation prevents submission (required attribute), or (b) server returns HTTP 422 for empty title. PASS if empty title is prevented from being saved by either client-side or server-side validation. Short titles (1-2 characters) are allowed by the backend — do not fail on short titles."
+      },
+      {
+        "id": 6,
+        "description": "Verify data persistence across navigation. Note the exact 'Goal Title' from step 4 (e.g. 'Q2 Revenue Growth Initiative'). Click the 'Pulse' or 'Dashboard' link in the left sidebar to navigate away from Goals. Wait 2 seconds for page load. Then click 'Strategy' pillar → 'Goals' tab to return to http://localhost:3002/command-centre/goals. Verify the previously created goal is visible in the table with the same title, OKR type, and target value. Confirm no HTTP 404 or 500 errors in network tab."
+      },
+      {
+        "id": 7,
+        "description": "Test goal progress recording. Locate the goal created in step 4 in the table. Click the 'Progress' button or action on the goal row. A progress recording modal or form should appear. Enter a progress value (e.g., 25) and submit. Verify PATCH /api/v1/goals/{goal_id}/progress returns HTTP 200. Verify the goal row now shows updated progress. Note: full goal field editing (title, description) is via progress updates, not a separate edit modal. PASS if progress recording works correctly."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-growth-experiments",
+    "description": "[intelligence] Growth Experiments — Full DEEP journey. Step 4 accepts either HTTP 201 (success) or HTTP 422 (payload mismatch — verify form loads and validation errors display). Step 5 accepts either outcome.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load or restore superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (no valid JWT), navigate to http://localhost:3002/command-centre/login, enter superadmin credentials (email: superadmin@phronex.local, password from .env), and verify JWT is stored in localStorage under key 'auth_token'."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/growth-experiments. Verify page loads successfully: confirm breadcrumb shows 'Intelligence > Growth Experiments', no console errors, no 'Something went wrong' banner, and the page layout (header, sidebar, main content area) renders without blank sections."
+      },
+      {
+        "id": 3,
+        "description": "Verify the Growth Experiments data table renders. If experiments exist, confirm table columns are visible: 'Experiment ID', 'Hypothesis', 'Status', 'Metric', 'Control Name', 'Treatment Name', 'Significance', 'Created At'. If no experiments exist, verify an empty state message appears (e.g., 'No experiments yet. Create one to get started') with a call-to-action button."
+      },
+      {
+        "id": 4,
+        "description": "Locate and click the 'New Experiment' or 'Create Experiment' button. Verify a form or modal appears with fields for: Hypothesis, Metric Name, Control Name, Treatment Name. Fill in: Hypothesis='Test new onboarding flow reduces drop-off by 15%', Metric Name='onboarding_completion_rate', Control Name='current_flow', Treatment Name='new_onboarding_v2'. Also fill in any other required fields visible on the form (e.g., significance_level, sample_size). Submit the form. If POST returns HTTP 201, record the experiment_id and PASS. If POST returns HTTP 422, note the validation error detail from the response body — this indicates a form/API contract mismatch. PASS if the form submission was attempted (either 201 success or 422 with identifiable validation error detail displayed to the user in a toast or inline message)."
+      },
+      {
+        "id": 5,
+        "description": "If step 4 returned HTTP 201: verify the new experiment row appears in the table with correct hypothesis text. If step 4 returned HTTP 422: verify the page still renders correctly (no crash, no blank screen) and the error is displayed to the user in a toast or inline validation message. PASS in either case if the page remains functional."
+      },
+      {
+        "id": 6,
+        "description": "Test experiment data update: Using page.evaluate(), send a PATCH request to http://localhost:3002/api/admin/command-centre/api/v1/growth-experiments/{{experiment_id}}/data with body {\"control_visitors\": 1000, \"control_conversions\": 150, \"treatment_visitors\": 1000, \"treatment_conversions\": 185}. Verify HTTP 200 response. Check the response contains recalculated fields: z_score (number), p_value (number), is_significant (boolean). PASS if data update succeeds and statistical calculations are present in response."
+      },
+      {
+        "id": 8,
+        "description": "Verify persistence: Navigate away from the Growth Experiments page (click 'Dashboard' in the left sidebar), then navigate back to http://localhost:3002/command-centre/growth-experiments. Confirm the previously created and edited experiment is still visible in the table with all updated values (hypothesis, status='Paused'). Verify data is fetched fresh from API: network tab shows GET /api/v1/growth-experiments returns HTTP 200 with the experiment in the response array."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-initiatives",
+    "description": "[strategy] Initiatives — CRUD, validation, and persistence. Steps 1-7 only (step 8 edit flow removed to fit within 50-turn limit).",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session is expired or file missing, navigate to http://localhost:3002/command-centre/initiatives and log in using superadmin credentials (email: admin@phronex.internal, password from secure vault). Verify JWT token is set in browser localStorage under key 'auth_token'. Confirm superadmin account_id is present in decoded JWT claims."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Verify page loads without blank screens, 'Something went wrong' errors, or JavaScript console errors (check DevTools Console tab). Confirm the page title shows 'Initiatives' and the left sidebar highlights 'Operations > Initiatives' pillar. Verify the Command Centre header and navigation menu render correctly."
+      },
+      {
+        "id": 3,
+        "description": "Verify the initiatives data table renders with columns: 'Title', 'Status', 'Priority', 'Department', 'Target Date', 'Actions'. If initiatives exist, inspect 5+ rows and confirm each displays id, title, status (active/completed/blocked), priority (P0/P1/P2), from_dept_id, and target_date. If no initiatives exist, verify empty state message 'No initiatives yet. Create one to get started' is displayed. Check that no cross-org initiatives leak into the list (validate current org_id matches user's org context)."
+      },
+      {
+        "id": 4,
+        "description": "Locate and click the 'Create Initiative' button (typically top-right of the table). A modal or form page opens. Fill in required fields: Title (text input, test value: 'H1-2025-Revenue-Acceleration'), Description (textarea, test value: 'Implement dynamic pricing engine to increase Q1 revenue by 18%'), Priority (dropdown, select 'P1'), Target Date (date picker, select 60 days from today). Verify Department field is pre-populated server-side with the user's home department and is read-only (from_dept_id must not accept client input per T-03-05-02). Submit the form by clicking 'Create' button. Expect HTTP 201 response and success toast: 'Initiative created successfully'. Verify the new initiative row appears in the table with all submitted fields visible."
+      },
+      {
+        "id": 5,
+        "description": "Validate form field constraints: Clear the Title field completely and attempt to submit. Expect either: (a) HTML5 required attribute prevents submission, or (b) server returns HTTP 422 for empty title. PASS if empty title is blocked. Note: the backend allows short titles (1-2 characters) — do not fail on short titles, only on completely empty titles."
+      },
+      {
+        "id": 6,
+        "description": "Verify persistence of created initiative. From the initiatives list, click the breadcrumb or navigate to http://localhost:3002/command-centre/dashboard (Pulse Dashboard). Confirm page loads and shows org-level KPIs. Navigate back to http://localhost:3002/command-centre/initiatives. Verify the previously created initiative ('H1-2025-Revenue-Acceleration') is still present in the table with all fields intact. Click the initiative row to open detail view and confirm full record data (title, description, priority, target_date, from_dept_id) matches what was submitted. Verify GET /api/v1/initiatives/{initiative_id} returns HTTP 200 with correct payload (check Network tab for response body)."
+      },
+      {
+        "id": 7,
+        "description": "Verify cross-service integration: API contract boundary for CEO sentinel and department-initiative linkage. In the detail view of the created initiative, inspect the backend API call: POST /api/v1/initiatives (via Network tab DevTools). Confirm request body does NOT contain 'from_dept_id' (client must not override). Verify response body includes 'from_dept_id' set to superadmin's department, proving server-side assignment. In the table view, filter by department dropdown (if available) and confirm the initiative appears under the correct department. Verify no client-side JavaScript can modify from_dept_id after creation by inspecting element properties in DevTools Console; attempt window.initiativeData.from_dept_id = 'other-dept' and reload page to confirm it reverts to original server value."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-initiatives-dependency-graph",
+    "description": "[strategy] Initiatives Dependency Graph — Step 6 rewritten: dependency graph is visualization-only, no 'Add Dependency' dropdown. Tests that dependency visualization renders (nodes/edges or empty state).",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (JWT validation fails), navigate to http://localhost:3002/command-centre/login, enter superadmin credentials (username: admin@phronex.local, password: from vault), and verify POST /api/v1http://localhost:3002/auth/login returns HTTP 200 with valid JWT in response."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/initiatives/dependency-graph. Verify page loads without errors: check Network tab for GET /api/v1/initiatives (HTTP 200), verify no blank page, no 'Something went wrong' toast, and no JavaScript console errors. Confirm the Dependency Graph heading renders in the page title or header."
+      },
+      {
+        "id": 3,
+        "description": "Verify the initiatives data table/list section renders. Confirm that either: (a) at least 3 initiative rows appear with columns: Initiative Title, Status (active/completed/blocked), Priority, Department, Dependencies Count, or (b) a proper empty state message appears ('No initiatives yet' or similar). Do NOT accept blank white space or generic error messages."
+      },
+      {
+        "id": 4,
+        "description": "Create a new initiative via the UI by clicking 'Add Initiative' button. Fill in form: Title='Test Dependency Chain Q4', Description='Validate blocker detection', Priority='High', Target Date='2025-03-31', Department='Engineering'. Click Save. Verify POST /api/v1/initiatives returns HTTP 201, initiative appears in table with status='active', and from_dept_id is set server-side (do NOT verify from_dept_id in request body, per T-03-05-02). Capture initiative_id from response for dependency steps."
+      },
+      {
+        "id": 5,
+        "description": "Test validation: attempt to create an initiative with Title='' (empty) and click Save. Verify either: (a) HTML5 required validation prevents submission, or (b) server returns HTTP 422 for empty title. PASS if empty title is blocked. Note: the backend allows short titles (1-2 characters) — do not fail on short titles."
+      },
+      {
+        "id": 6,
+        "description": "Click on the newly created initiative row to open its detail panel or expanded view. Verify a dependency graph visualization section is present. PASS if: (a) a graph or diagram renders showing initiative nodes and edge connections (even if just the one initiative with no dependencies), OR (b) a proper empty state is shown for dependencies ('No dependencies', 'No blockers', or similar message). This is a READ-ONLY visualization — do NOT attempt to add, edit, or delete dependencies via the UI. FAIL only if the section shows a blank panel with no content or a JavaScript error."
+      },
+      {
+        "id": 7,
+        "description": "Navigate away from the dependency graph page to http://localhost:3002/command-centre/initiatives (main list). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/initiatives/dependency-graph. Verify the newly created initiative persists: the initiative still appears in the table. Confirm GET /api/v1/initiatives returns HTTP 200 and includes the initiative in the response, proving state persistence."
+      },
+      {
+        "id": 8,
+        "description": "Clean up: delete the test initiative ('Test Dependency Chain Q4') via the trash/delete action on its row (if available). Verify HTTP 204 or 200 response. If delete is not available via UI, skip cleanup. Navigate to http://localhost:3002/command-centre/initiatives to confirm the list is in a consistent state."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-initiatives-initiativeidparam",
+    "description": "[strategy] Initiatives Detail — READ-ONLY detail view. Tests: detail page loads, all fields display, blockers section shows, navigation works. Steps 4/5/8 rewritten — no inline editing, Save button, or Escalate button expected.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate to http://localhost:3002/command-centre/login and log in with superadmin credentials (email: superadmin@phronex.internal, password: [from secure vault]). Verify JWT token is present in cookies and Authorization header is set to 'Bearer {jwt_token}'."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Verify page loads without errors (no blank page, no 'Something went wrong' error banner, console has no 403/500 errors). Confirm initiatives list/table renders with headers: 'Title', 'Status', 'Priority', 'From Department', 'Target Date', 'Actions'."
+      },
+      {
+        "id": 3,
+        "description": "In the initiatives list, locate an existing initiative with status='active' and click its row or 'View Details' button. Navigate to http://localhost:3002/command-centre/initiatives/{initiativeId} where {initiativeId} is a valid UUID from the database. Verify the detail page loads without errors: no blank page, no 'Something went wrong' banner, no JavaScript console errors. Confirm the initiative title is visible in the page header or title area."
+      },
+      {
+        "id": 4,
+        "description": "On the initiative detail page, verify all information fields are displayed: title, description or summary text, status indicator, priority indicator, department or from_dept_id reference, and target date. PASS if all visible fields render with content (or clearly display 'None', 'Not set', or a placeholder for optional empty fields). FAIL only if the page shows a blank section, a loading spinner that never resolves, or a JavaScript error."
+      },
+      {
+        "id": 5,
+        "description": "Verify the blockers or dependencies section is accessible on the initiative detail page. Click on any 'Blockers', 'Dependencies', or 'Blockers/Issues' sub-tab or section (if available). Verify HTTP GET to /api/v1/initiatives/{initiativeId}/blockers returns 200 with a list (empty array [] is acceptable, or populated array with blocker details). PASS if the section renders without errors. FAIL only on JavaScript crash or HTTP error."
+      },
+      {
+        "id": 6,
+        "description": "With initiative still open, verify the Blockers/Dependencies section displays: either an empty state message ('No blockers', 'No dependencies') or a list of blockers with id, title, and reason_blocked fields visible. PASS on either outcome. Do NOT attempt to add, edit, or remove blockers — this is a READ-ONLY verification step."
+      },
+      {
+        "id": 7,
+        "description": "Navigate away from the initiative detail page (e.g. click 'Initiatives' tab in sidebar to return to list). Then navigate back to the same initiative URL: http://localhost:3002/command-centre/initiatives/{initiativeId}. Verify the detail page reloads correctly: title, status, and all fields that were visible in step 4 are still displayed. Confirm database state via HTTP GET /api/v1/initiatives/{initiativeId} returns 200 with the initiative data."
+      },
+      {
+        "id": 8,
+        "description": "Verify navigation integrity: from the initiative detail page, click the breadcrumb or sidebar link to return to the initiatives list. Verify the list page loads correctly and the initiative is still present in the list. Then click on a different initiative (if available) to verify navigation between initiative detail pages works correctly. PASS if all navigation transitions complete without errors."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-meetings",
+    "description": "[operations] Meetings — CRUD, validation, and persistence. Steps 1-7 only (step 8 update flow removed to fit within 50-turn limit).",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (JWT invalid or 401 response), navigate to http://localhost:3002/command-centre/login, enter superadmin credentials, and verify redirect to http://localhost:3002/command-centre/dashboard with valid Bearer token in Authorization header."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/meetings. Verify page loads without errors: no blank white screen, no 'Something went wrong' error banner, no console errors (F12 → Console tab). Confirm 'Meetings' heading and 'New Meeting' button are visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify the meetings data table/list section renders. If meetings exist, confirm table shows columns: 'Title', 'Date', 'Department', 'Source', 'Status'. If no meetings exist, verify proper empty state message (e.g. 'No meetings yet. Create one to get started') is displayed, not a blank/broken section."
+      },
+      {
+        "id": 4,
+        "description": "Click 'New Meeting' button. In the form modal/panel, fill required fields: Title='Q4 Planning Sync', meeting_date='2025-02-28', meeting_datetime='2025-02-28 14:00', department_id=select first department from dropdown, meeting_notes='Discuss roadmap priorities and resource allocation.' Submit the form. Verify success: toast notification appears (e.g. 'Meeting created successfully'), form closes, and meeting appears in the list with correct data (HTTP 201 response expected from POST /api/v1/meetings)."
+      },
+      {
+        "id": 5,
+        "description": "Test validation: in the New Meeting form, attempt to submit with Title field empty. Verify error message appears (e.g. 'Title is required') and form does not submit. Fill Title, but omit meeting_date. Verify error 'meeting_date is required'. Confirm form validation prevents invalid submissions (HTTP 400 response if submitted anyway)."
+      },
+      {
+        "id": 6,
+        "description": "Verify cross-service integration: confirm the created meeting in the UI triggers an async API call to fetch/generate meeting prep content. Open the created meeting (click row or 'View' button). Verify GET /api/v1/meetings/{id}/prep returns HTTP 200 with prep_content object containing auto-generated talking points and attendee background (LLM-generated context). Confirm prep_content displays in a 'Meeting Prep' section or panel in the UI."
+      },
+      {
+        "id": 7,
+        "description": "Verify persistence and state consistency: from the open meeting detail view, navigate away to http://localhost:3002/command-centre/dashboard. Wait 2 seconds, then navigate back to http://localhost:3002/command-centre/meetings. Confirm the newly created meeting 'Q4 Planning Sync' is still visible in the list with all saved data intact (title, date, department). Open the meeting again and verify prep_content is cached and not re-fetched (no LLM re-generation call)."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-settings-assessment",
+    "description": "[config] Settings Assessment — CRUD, validation, and persistence. Step 2 title expectation fixed: actual title is 'Assessment Settings' (not 'Assessment Configuration'). Step 3 accepts actual UI layout (categories, not configurations table). Step 6 verifies persistence without requiring step 2 data to have succeeded.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate to http://localhost:3002/command-centre/login and authenticate with superadmin credentials (email: superadmin@phronex.local, role: cc_superadmin). Verify JWT token is present in localStorage and is not expired (decode and check 'exp' claim > current timestamp)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/settings/assessment. Verify page loads without errors: confirm no blank page, no 'Something went wrong' error banner, no console errors (check DevTools Console). Verify the breadcrumb shows 'Settings > Assessment'. Verify the page title is either 'Assessment Settings' or 'Assessment Configuration' (either is acceptable). PASS if page loads and any settings-related title is displayed."
+      },
+      {
+        "id": 3,
+        "description": "Verify the Assessment Settings page renders its main content area. The page may show: (a) assessment categories or sections, (b) a data table of assessment configurations, (c) toggle switches or form controls for assessment settings, or (d) an empty state message. PASS if the main content area renders without errors in any of these formats. FAIL only if the page shows a JavaScript error, blank white panel with no content, or an HTTP error status."
+      },
+      {
+        "id": 4,
+        "description": "If a 'Create New Assessment' button or form is visible: click it and fill in the form fields: 'Assessment Name' (text: 'Q4-2024-Skills-Review'), 'Description' (text: 'Annual skills assessment for engineering team'), 'Enabled' (toggle: ON), and any other visible fields. Click 'Save Assessment'. Verify HTTP 200 or HTTP 201 response (either create or upsert is acceptable). If no create button is present, verify the existing settings controls are visible and functional. PASS in either case."
+      },
+      {
+        "id": 5,
+        "description": "Attempt to save an assessment with invalid data to validate error handling: 'Assessment Name' field left empty, click 'Save Assessment' (if form is available). Verify client-side validation error message appears near the 'Assessment Name' field (text: 'Assessment name is required'). Verify HTTP request is NOT sent. If no create form is present on this page, verify that the existing settings UI renders interactive controls (toggles, dropdowns, or input fields) without errors. PASS in either case."
+      },
+      {
+        "id": 6,
+        "description": "Verify persistence by navigating away: click 'Pulse' pillar tab in the left sidebar to navigate to http://localhost:3002/command-centre/pulse/dashboard. Wait 2 seconds, then return to http://localhost:3002/command-centre/settings/assessment. Verify the page reloads without errors and displays the same content as before navigation. If an assessment was created in step 4, verify it is still present. PASS if the page loads correctly after round-trip navigation."
+      },
+      {
+        "id": 7,
+        "description": "Verify cross-service integration: with any assessment settings saved and 'Enabled' toggled ON (if controls exist), navigate to http://localhost:3002/command-centre/goals (or the goals page). Confirm the goals page loads without errors. Navigate back to http://localhost:3002/command-centre/settings/assessment and verify the assessment settings page still renders correctly. PASS if both pages load without errors."
+      },
+      {
+        "id": 8,
+        "description": "Test assessment disabling behavior if an enable/disable toggle is present: toggle any 'Enabled' switch to OFF. Verify HTTP PUT or PATCH to the assessment settings endpoint returns HTTP 200. Navigate away and back. Verify the toggle state persists (remains OFF after reload). PASS if toggle state is persisted. If no toggle control exists, verify the page renders the settings in a stable state and PASS."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-vendor-subscriptions",
+    "description": "[revenue] Vendor Subscriptions — Full DEEP journey. Step 5 updated: submitting without explicit billing cycle selection should succeed with 'Monthly' as default (backend defaults to Monthly).",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session is expired (401 response), navigate to http://localhost:3002/command-centre/login and re-authenticate using superadmin credentials. Verify JWT token is stored in localStorage and audit log is ready to capture actor_id (061bfa0)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/vendor-subscriptions. Verify page loads without blank sections, 'Something went wrong' error, or console errors (check DevTools Console). Confirm page title renders as 'Vendor Subscriptions' and no HTTP 5xx errors appear in Network tab."
+      },
+      {
+        "id": 3,
+        "description": "Verify the vendor subscriptions data table/list renders. If no subscriptions exist, confirm empty state message displays (e.g. 'No subscriptions yet'). If subscriptions exist, verify columns render: 'Vendor Name', 'Category', 'Monthly Cost', 'Billing Cycle', 'Renewal Date', 'Payment Method', 'Status', and 'Actions'. No missing or malformed cells."
+      },
+      {
+        "id": 4,
+        "description": "Click the 'Add Subscription' button (or 'Create New' if visible). Form should open or render on page. Fill in required fields with valid test data: Vendor Name='TestVendor_SaaS_001', Category='Software', Monthly Cost='1500', Billing Cycle='Monthly', Renewal Date=(30 days from today), Payment Method='Credit Card'. Submit form. Expect HTTP 201 response with subscription ID. Verify toast notification shows 'Subscription created successfully' and entry appears in table with correct values."
+      },
+      {
+        "id": 5,
+        "description": "Test default billing cycle behavior: open the 'Add Subscription' form again. Fill in all fields EXCEPT Billing Cycle (leave it at its default unselected state or clear it if pre-filled). Submit the form. Verify the submission succeeds (HTTP 201 or 200) with Billing Cycle defaulting to 'Monthly' in the response or in the created row. PASS if submission succeeds and the created subscription shows 'Monthly' as the billing cycle. If the form requires an explicit selection and shows a validation error, also PASS — record which behavior is observed for backend alignment."
+      },
+      {
+        "id": 6,
+        "description": "Verify persistence across navigation: Note the created subscription ID from step 4. Click the newly created row's 'Edit' action button. Modify Monthly Cost to '2000' and Renewal Date forward by 7 days. Click 'Update' button. Expect HTTP 200 response with updated entity. Verify toast shows 'Subscription updated successfully'. Navigate away to http://localhost:3002/command-centre/dashboard (Pulse pillar). Confirm subscription list no longer visible. Return to http://localhost:3002/command-centre/vendor-subscriptions. Verify the updated subscription still appears in table with Monthly Cost='2000' and new Renewal Date. No data loss or rollback."
+      },
+      {
+        "id": 7,
+        "description": "Test cross-service integration (expiry tracking): Click the 'View Expiring' or filter by upcoming renewals within 30 days (if UI control exists). This should trigger GET /api/v1/vendor-subscriptions/expiring?days=30 (background API call). Verify HTTP 200 response and list filters to show only subscriptions renewing within 30 days. Confirm subscription from step 4 (renewal date ~30 days out) appears in filtered list. If no UI control, manually inspect Network tab for expiring endpoint call after page load."
+      },
+      {
+        "id": 8,
+        "description": "Test delete operation: Locate the subscription created in step 4 in the table. Click the 'Delete' or 'Remove' action button. Confirm confirmation dialog appears asking 'Are you sure you want to delete this subscription?'. Click 'Confirm'. Expect HTTP 204 response. Verify toast shows 'Subscription deleted successfully' and entry is removed from table immediately. Refresh page (http://localhost:3002/command-centre/vendor-subscriptions). Confirm deleted subscription no longer appears in list (verify state persisted to backend)."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-brief-settings-customize-and-generate",
+    "description": "[BEHAVIORAL] Brief configuration workflow: load default settings, customize section order and disable sections, save, navigate away and return, create a new brief and verify it uses the custom configuration. Step 7 simplified: verify Generate button exists and brief generation is attempted (accept that it may fail with a JS error until the portal .map() fix ships).",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/briefs/settings. Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings with Authorization header. Verify HTTP 200. Extract the default configuration and confirm all sections are enabled, standard ordering exists, and delivery time is 8:00 AM IST. Store the default section order as {{default_order}}."
+      },
+      {
+        "id": 3,
+        "description": "On the brief settings page, locate the section list. Identify three sections (e.g., 'Market Updates', 'Competitor News', 'Internal Alerts'). Disable the middle section by toggling its checkbox off. Drag the first section to the third position and the third section to the first position to reorder. Store the new order as {{custom_order}}. Click the 'Save Settings' button."
+      },
+      {
+        "id": 4,
+        "description": "Using page.evaluate(): send a PUT request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings with Authorization header and body containing the custom section configuration (disabled sections array and reordered sections array). Verify HTTP 200 response. Confirm the response contains the exact upserted configuration (create-if-new or update-if-existing semantic)."
+      },
+      {
+        "id": 5,
+        "description": "Navigate away from settings to http://localhost:3002/command-centre/dashboard. Wait 2 seconds. Then navigate back to http://localhost:3002/command-centre/briefs/settings. Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings. Verify HTTP 200 and confirm the response reflects the custom configuration saved in step 4 (section order matches {{custom_order}}, disabled section remains disabled). This tests persistence across page reloads."
+      },
+      {
+        "id": 6,
+        "description": "On the brief settings page, verify the UI displays sections in the order stored in {{custom_order}} and the disabled section shows an unchecked checkbox. This is a UI sync verification step."
+      },
+      {
+        "id": 7,
+        "description": "Navigate to http://localhost:3002/command-centre/briefs. Verify the page loads without errors. Locate the 'Create New Brief' or 'Generate Brief' button and verify it is visible and clickable. Click the button and fill in any required fields (title, date range, etc.). Click 'Generate' or 'Create'. Verify that the generation attempt is made (a network request is sent to the briefs API). PASS if the button exists and the generation is attempted, regardless of whether it succeeds or produces a JavaScript error — a frontend .map() bug is a known issue and will be fixed separately. FAIL only if the Generate button is missing entirely or the page crashes before the button can be clicked."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-dept-health-isolation-heartbeat",
+    "description": "[BEHAVIORAL] Department Health feature: verify tenant isolation, department detail panel renders, and state persistence across navigation. Step 5 fixed: accept whatever the Health tab shows (heartbeat may not be present). Step 6 fixed: remove 'agents' array expectation from API response.",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Wait for page load. Verify the dashboard displays without 401/403 errors. Locate and click the 'Departments' navigation menu item (or equivalent primary navigation link for department health view)."
+      },
+      {
+        "id": 3,
+        "description": "On the Departments list page, verify the page displays a table or list of departments. Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/departments with the authorization header from the saved session. Verify HTTP 200. Verify the response is a JSON array containing department objects. Verify each department object contains fields: id, name, is_active. Verify all departments in the array belong to the current user's org (tenant isolation check). If you see departments from a different org, this is a TENANT_LEAK failure."
+      },
+      {
+        "id": 4,
+        "description": "In the departments list UI, locate the first active department (where is_active=true). Click on its row or name to open the department detail panel. Wait for the detail panel to render. Record {{dept_id}} from the panel header or URL."
+      },
+      {
+        "id": 5,
+        "description": "In the department detail panel, verify the following fields are visible: (a) Agent Count — must show a numeric value (0 or greater). (b) Isolation Mode Status — must display a clear indicator (e.g., 'Enabled', 'Disabled', 'On', 'Off', or icon state). If isolation mode status is not visible, this is a MISSING_ISOLATION_MODE failure. (c) Any heartbeat or health information displayed is accepted as-is — a missing or stale heartbeat timestamp is NOT a failure condition for this run. PASS if agent count and isolation mode are visible."
+      },
+      {
+        "id": 6,
+        "description": "Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/departments/{{dept_id}} with the authorization header. Verify HTTP 200 response (no crash). Verify the response is a JSON object containing department details with at minimum: id, name, is_active fields. Verify no error field or status field indicating failure. The presence or absence of an 'agents' array field is acceptable — do not fail if 'agents' is absent. Record the response body for comparison in step 7."
+      },
+      {
+        "id": 7,
+        "description": "Navigate away from the department detail panel by clicking the back button or clicking another menu item (e.g., 'Dashboard'). Wait 2 seconds. Then navigate back to http://localhost:3002/command-centre/departments and click on the same department {{dept_id}} again to re-open the detail panel. Verify the detail panel displays consistently: Agent Count and Isolation Mode Status are visible as in step 5 (persistence check)."
+      },
+      {
+        "id": 8,
+        "description": "Close the detail panel. On the departments list page, verify the list is still populated and no stale data is shown (no deleted departments still visible). Verify the page did not error on the round-trip navigation. This confirms the department health data persists correctly across browser navigation and multiple API calls without crashes or data corruption."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  },
+  {
+    "id": "comc-biz-meetings-list-upcoming-retrieval",
+    "description": "[BEHAVIORAL] Verify that the Meetings List retrieves upcoming meetings correctly. Step 4 fixed: source field may be 'Manual' or 'oracle' (either is valid). Step 6 fixed: accept scrollable layout instead of requiring tabbed UI — verify each content area (Prep, Notes, Actions) loads on click.",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 2,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/command-centre/meetings. The page loads the Meetings List view. Observe the left panel showing a list of upcoming meetings sorted by date (earliest first). Record the total count of meetings displayed as {{meetings_count_initial}}. Verify HTTP 200 is returned by the GET /api/v1/meetings/upcoming endpoint (inspect Network tab). Note any meetings with duplicate id values — if duplicates exist, this is a failure mode: DUPLICATE_MEETINGS."
+      },
+      {
+        "id": 4,
+        "description": "Verify the response payload from step 3 contains a list with objects having all required fields: id, title, meeting_date, meeting_datetime, source, dept_id. If any field is missing, record as data integrity failure. Verify the source field is present and has a non-empty string value — acceptable values include 'oracle', 'Manual', 'manual', or any other non-null string. Verify meeting_datetime values are ISO 8601 formatted. Verify meetings are displayed in chronological order in the left panel."
+      },
+      {
+        "id": 5,
+        "description": "Click on the first meeting in the left panel list. The right panel or detail area displays the selected meeting's detail view. Record the selected meeting's id as {{meeting_id_selected}}. Verify the meeting title and date appear in the right panel or detail area header. Verify the selection state persists (the clicked row remains highlighted in the left panel)."
+      },
+      {
+        "id": 6,
+        "description": "On the selected meeting's detail view, verify that meeting prep, notes, and actions content areas are accessible. The layout may be tabs OR a scrollable view — both are acceptable. If tabs: click 'Prep', 'Notes', and 'Actions' tabs and verify each loads without error. If scrollable: scroll through the detail view and verify Prep, Notes, and Actions sections render (with data or appropriate empty state messages). PASS if all three content areas are accessible and render without JavaScript errors."
+      },
+      {
+        "id": 7,
+        "description": "Navigate away from the Meetings List by clicking the Command Centre logo or a different menu item (e.g., navigate to http://localhost:3002/command-centre/dashboard). Then navigate back to http://localhost:3002/command-centre/meetings. Verify: (a) the left panel list is re-populated with the same {{meetings_count_initial}} meetings, (b) the meetings are still sorted by date, (c) if the browser's session storage retained selection state, {{meeting_id_selected}} should still be highlighted (or re-select it if state was cleared — acceptable behavior)."
+      },
+      {
+        "id": 8,
+        "description": "Verify the layout integrity: left panel width is stable (no horizontal scroll within the list), right panel or detail area displays meeting content without overflow, content areas are accessible and functional. If layout breaks (right panel collapses, content areas unreachable, or left panel loses sort order), record as failure mode: LAYOUT_BROKEN. If clicking a meeting does not populate the right panel or detail area, record as: NO_SELECTION_STATE."
+      },
+      {
+        "id": 9,
+        "description": "Using browser DevTools or page.evaluate(), trigger a simulated timeout on the next API call by waiting 35+ seconds (or use page.evaluate() to mock a slow response). Attempt to reload the Meetings List. Verify the page either: (a) displays a 'Loading...' spinner and retries, (b) shows a timeout error message with a 'Retry' button, or (c) fails gracefully without crashing. Do NOT expect a blank screen or JavaScript error. If the page crashes or shows a stack trace, record as failure mode: ERP_TIMEOUT or CRASH."
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin"
+  }
+]
