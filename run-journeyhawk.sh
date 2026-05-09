@@ -34,6 +34,35 @@ set -euo pipefail
 # Claude Max subscription) which is the correct auth path for DevServer runs.
 unset ANTHROPIC_API_KEY
 
+# ---------- Gap-6: concurrency guard — one run per product at a time ----------
+# flock is called after PRODUCT is parsed; see below.
+
+# ---------- Gap-1: kill-signal grace — pipeline runs even on SIGTERM/Ctrl-C ----------
+_pipeline_ran=0
+_TEMP_FILES_TO_CLEAN=()
+
+_run_pipeline() {
+  if [[ "${_pipeline_ran}" -eq 1 ]]; then return; fi
+  _pipeline_ran=1
+  # Cleanup temp spec files before pipeline (avoids leaking mutated spec paths)
+  for _f in "${_TEMP_FILES_TO_CLEAN[@]+"${_TEMP_FILES_TO_CLEAN[@]}"}"; do
+    rm -f "${_f}" 2>/dev/null || true
+  done
+  if [[ -z "${RESULTS_DIR:-}" ]] || [[ -z "${PRODUCT:-}" ]]; then
+    return  # pipeline not yet reached args parsing — nothing to do
+  fi
+  echo ""
+  echo "[signal] Running intelligence pipeline after signal/abort (Gap-1 grace)..."
+  "${PYTHON:-python3}" -m phronex_common.testing.runner \
+    --product "${PRODUCT}" \
+    --results-dir "${RESULTS_DIR}" \
+    --spec-file "${SPEC_FILE}" \
+    ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"} || true
+}
+
+trap '_run_pipeline; rm -f "${_TEMP_FILES_TO_CLEAN[@]+"${_TEMP_FILES_TO_CLEAN[@]}"}" 2>/dev/null; true' EXIT
+trap '_run_pipeline; exit 0' SIGTERM SIGINT
+
 # ---------- Phase 88 — gate mode for PR merge blocking ----------
 GATE_MODE=0
 
@@ -84,6 +113,17 @@ done
 
 PRODUCT="${1:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
 SPEC_FILE="${2:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
+
+# Gap-6: concurrency guard — prevent two runs for same product corrupting results.
+_LOCK_FILE="/tmp/journeyhawk-${PRODUCT}.lock"
+exec 9>"${_LOCK_FILE}"
+flock -n 9 || {
+  echo "ERROR: JourneyHawk run already in progress for product '${PRODUCT}'" >&2
+  echo "       Lock file: ${_LOCK_FILE}" >&2
+  echo "       If no run is active, remove the lock file and retry." >&2
+  exit 1
+}
+
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 RESULTS_DIR="${3:-journeys-output/${PRODUCT}-${TIMESTAMP}}"
 
@@ -148,7 +188,7 @@ echo "[env] Portal URL: ${PORTAL_URL}"
 TEMP_SPEC=$(mktemp /tmp/jh-spec-XXXXXX.json)
 FILTERED_SPEC=$(mktemp /tmp/jh-spec-filtered-XXXXXX.json)
 _SPEC_ACTIVE=$(mktemp /tmp/jh-spec-active-XXXXXX.json)
-trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}" "${_SPEC_ACTIVE}"' EXIT
+_TEMP_FILES_TO_CLEAN+=("${TEMP_SPEC}" "${FILTERED_SPEC}" "${_SPEC_ACTIVE}")
 # Chain: URL substitution + credential injection.
 # Credential injection — sentinels in spec text are replaced at runtime so the
 # LLM agent receives literal values, never placeholder strings.
@@ -750,7 +790,7 @@ SIGNALS_EOF
 # Fail-open: if DB unavailable or no directives, MUTATED_SPEC == FILTERED_SPEC.
 MUTATED_SPEC=$(mktemp /tmp/jh-spec-mutated-XXXXXX.json)
 export MUTATED_SPEC
-trap 'rm -f "${TEMP_SPEC}" "${FILTERED_SPEC}" "${MUTATED_SPEC}"' EXIT
+_TEMP_FILES_TO_CLEAN+=("${MUTATED_SPEC}")
 echo ""
 echo "[1b/3] Applying wiki mutations (STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
 _MUTATIONS_IN=$("${PYTHON}" -c "import json; print(len(json.load(open('${FILTERED_SPEC}'))))" 2>/dev/null || echo "?")
@@ -1009,16 +1049,21 @@ except Exception:
 " 2>/dev/null) && export ANTHROPIC_API_KEY="${_OAUTH_TOKEN}"
 fi
 
-# Step 2: intelligence pipeline via phronex_common.testing.runner
-echo ""
-echo "[2/3] Running intelligence pipeline (phronex_common.testing.runner)..."
-"${PYTHON}" -m phronex_common.testing.runner \
-  --product "${PRODUCT}" \
-  --results-dir "${RESULTS_DIR}" \
-  --spec-file "${SPEC_FILE}" \
-  ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"}
-
-PIPE_EXIT=$?
+if [[ "${_pipeline_ran}" -eq 0 ]]; then
+  # Step 2: intelligence pipeline via phronex_common.testing.runner
+  echo ""
+  echo "[2/3] Running intelligence pipeline (phronex_common.testing.runner)..."
+  "${PYTHON}" -m phronex_common.testing.runner \
+    --product "${PRODUCT}" \
+    --results-dir "${RESULTS_DIR}" \
+    --spec-file "${SPEC_FILE}" \
+    ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"}
+  PIPE_EXIT=$?
+  _pipeline_ran=1
+else
+  echo "[2/3] Intelligence pipeline already ran (via signal trap) — skipping duplicate."
+  PIPE_EXIT=0
+fi
 
 # Teardown verdict sink now that Step 2 is complete.
 if [[ -n "${_SINK_PID}" ]]; then
