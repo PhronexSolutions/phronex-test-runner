@@ -1029,6 +1029,54 @@ else
 fi
 rm -f "${_SINK_PORT_FILE}"
 
+# === Phase 95 Gap-B: Non-browser journey dispatch ===
+# Dispatches non-browser journeys (http/db executors) from MUTATED_SPEC before
+# Playwright runs. Results land in qa_non_browser_results for the current run_id.
+# Fail-open: if the module is absent or DB unreachable, continues with 0 results.
+echo ""
+echo "[0b/3] Dispatching non-browser journeys (Phase 95 Gap-B)..."
+"${PYTHON}" - <<'NON_BROWSER_EOF' || true
+import os, sys
+
+_db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+_run_id = os.environ.get("JOURNEYHAWK_RUN_ID", "")
+_spec   = os.environ.get("MUTATED_SPEC", "")
+_product = os.environ.get("PRODUCT", "")
+
+if not _db_url or not _run_id or not _spec:
+    print("[non_browser] skipped: missing DB URL, RUN_ID, or MUTATED_SPEC", file=sys.stderr)
+    sys.exit(0)
+
+try:
+    import json
+    from pathlib import Path
+    journeys = json.loads(Path(_spec).read_text())
+    nb_journeys = [j for j in journeys if j.get("executor") in ("http", "db")]
+    if not nb_journeys:
+        print(f"[non_browser] 0 non-browser journeys in spec — skipping dispatch", file=sys.stderr)
+        sys.exit(0)
+
+    from phronex_common.testing.non_browser_runner import dispatch_non_browser_journeys
+    import psycopg2
+    from phronex_common.testing._qa_db import clean_dsn
+    _conn = psycopg2.connect(clean_dsn(_db_url))
+    try:
+        results_written = dispatch_non_browser_journeys(
+            conn=_conn,
+            run_id=_run_id,
+            product_slug=_product,
+            journeys=nb_journeys,
+        )
+        print(f"[non_browser] dispatched {len(nb_journeys)} journeys → {results_written} results written", file=sys.stderr)
+    finally:
+        _conn.close()
+except ImportError:
+    print("[non_browser] dispatch skipped: non_browser_runner not available (fail-open)", file=sys.stderr)
+except Exception as _e:
+    print(f"[non_browser] WARNING: dispatch failed (non-fatal): {_e}", file=sys.stderr)
+NON_BROWSER_EOF
+# === End Phase 95 Gap-B non-browser dispatch ===
+
 # Step 1: cc-test-runner (wrapped by run_arbiter)
 # run_arbiter spawns cc-test-runner as a child, streams its stdout, and
 # SIGTERMs the child on abort triggers (3 consecutive fails / >30 min runtime
@@ -1096,6 +1144,79 @@ try:
 except Exception as e:
     print(f"[handoff] WARNING: poll failed (non-fatal): {e}", file=sys.stderr)
 HANDOFF_EOF
+
+# === Phase 95 Gap-B: CTRF merge — non-browser results into unified report ===
+# Merges qa_non_browser_results rows (written above) into the CTRF report file
+# that the intelligence pipeline reads. Fail-open: if no non-browser results or
+# the merge module is absent, ctrf-report.json is left as-is (Playwright-only).
+echo ""
+echo "[1c/3] Merging non-browser results into CTRF report (Phase 95 Gap-B)..."
+"${PYTHON}" - <<'CTRF_MERGE_EOF' || true
+import os, sys
+
+_db_url  = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+_run_id  = os.environ.get("JOURNEYHAWK_RUN_ID", "")
+_results = os.environ.get("RESULTS_DIR", "")
+
+if not _db_url or not _run_id or not _results:
+    print("[ctrf_merge] skipped: missing DB URL, RUN_ID, or RESULTS_DIR", file=sys.stderr)
+    sys.exit(0)
+
+try:
+    import json
+    from pathlib import Path
+
+    _ctrf_path = Path(_results) / "ctrf-report.json"
+    if not _ctrf_path.exists():
+        print("[ctrf_merge] no ctrf-report.json yet — skipping merge", file=sys.stderr)
+        sys.exit(0)
+
+    import psycopg2
+    from phronex_common.testing._qa_db import clean_dsn
+    _conn = psycopg2.connect(clean_dsn(_db_url))
+    try:
+        with _conn.cursor() as _cur:
+            _cur.execute(
+                "SELECT journey_id, status, duration_ms, error_detail"
+                " FROM qa_non_browser_results"
+                " WHERE run_id = %s",
+                (_run_id,),
+            )
+            _nb_rows = _cur.fetchall()
+    finally:
+        _conn.close()
+
+    if not _nb_rows:
+        print("[ctrf_merge] 0 non-browser results — no merge needed", file=sys.stderr)
+        sys.exit(0)
+
+    _ctrf = json.loads(_ctrf_path.read_text())
+    _tests = _ctrf.setdefault("results", {}).setdefault("tests", [])
+    _merged = 0
+    for _jid, _status, _dur_ms, _err in _nb_rows:
+        _tests.append({
+            "name": _jid,
+            "status": "passed" if _status == "pass" else "failed",
+            "duration": _dur_ms or 0,
+            "message": _err or "",
+            "suite": "non_browser",
+        })
+        _merged += 1
+
+    _summary = _ctrf["results"].setdefault("summary", {})
+    _summary["tests"] = len(_tests)
+    _summary["passed"] = sum(1 for t in _tests if t.get("status") == "passed")
+    _summary["failed"] = sum(1 for t in _tests if t.get("status") == "failed")
+
+    _ctrf_path.write_text(json.dumps(_ctrf, indent=2))
+    print(f"[ctrf_merge] merged {_merged} non-browser results into {_ctrf_path}", file=sys.stderr)
+
+except ImportError:
+    print("[ctrf_merge] skipped: _qa_db not available (fail-open)", file=sys.stderr)
+except Exception as _e:
+    print(f"[ctrf_merge] WARNING: merge failed (non-fatal): {_e}", file=sys.stderr)
+CTRF_MERGE_EOF
+# === End Phase 95 Gap-B CTRF merge ===
 
 # Re-export OAuth token for intelligence pipeline LLM calls.
 # cc-test-runner is done — safe to restore ANTHROPIC_API_KEY from Claude credentials.
