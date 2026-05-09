@@ -198,37 +198,38 @@
   },
   {
     "id": "comc-comc-roadmap-narrative-summary-2",
-    "description": "[general] Comc Roadmap_Narrative Summary \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[config] Briefs & Intelligence \u2014 Verify briefs list page, briefs settings page with section toggles, and intelligence-briefs page all load and function correctly",
+    "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
+    "isSharedRoot": false,
+    "params": {},
+    "role": "verify",
     "steps": [
       {
         "id": 1,
-        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Navigate to http://localhost:3002/command-centre/briefs. Verify the page loads with HTTP 200 and shows a 'Brief History' heading or similar brief list UI. If session expired (redirected to login), re-authenticate as superadmin and navigate back. FAIL if page returns 500 or shows an error state."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify the session is active."
       },
       {
         "id": 2,
-        "description": "On the briefs page, verify the API call succeeds: open browser Network tab, confirm GET http://localhost:3002/api/admin/command-centre/api/v1/briefs returns HTTP 200 with a JSON array. The array may be empty (no briefs generated yet) \u2014 an empty array is a PASS. FAIL only if the response is 500, 404, or non-JSON."
+        "description": "Navigate to http://localhost:3002/command-centre/briefs. Verify the page loads with HTTP 200 and no error banners. The page should show either a list of recent briefs or an empty state message. Verify the GET request to /api/admin/command-centre/api/v1/briefs returns HTTP 200 with a JSON array."
       },
       {
         "id": 3,
-        "description": "Navigate to http://localhost:3002/command-centre/briefs/settings. Verify the page loads with HTTP 200. Confirm the settings page shows brief configuration options (section toggles, delivery time, or similar). Verify GET http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings returns HTTP 200 with a JSON object containing configuration keys. FAIL if 404 or 500."
+        "description": "Navigate to http://localhost:3002/command-centre/briefs/settings. Verify the page loads with HTTP 200. The settings page should show brief section configuration with toggle switches to enable/disable sections and controls for section ordering. Verify GET /api/admin/command-centre/api/v1/briefs/settings returns HTTP 200."
       },
       {
         "id": 4,
-        "description": "On the briefs settings page, toggle any available section switch (e.g., enable or disable a brief section). Submit the change. Verify the PUT request to http://localhost:3002/api/admin/command-centre/api/v1/briefs/settings returns HTTP 200. Reload the page (F5) and confirm the toggled setting persisted. FAIL if the setting reverts after reload."
+        "description": "On the briefs settings page, toggle any available section switch (enable or disable a section). Click save. Verify the PUT request to /api/admin/command-centre/api/v1/briefs/settings returns HTTP 200. A success indicator should appear briefly."
       },
       {
         "id": 5,
-        "description": "Navigate to http://localhost:3002/command-centre/intelligence-briefs. Verify this page loads with HTTP 200 and shows an intelligence briefs view (may show empty state if no intelligence briefs exist \u2014 that is valid). Confirm the URL is distinct from http://localhost:3002/command-centre/briefs (different feature surface). FAIL only on 500 or redirect to login."
+        "description": "Navigate to http://localhost:3002/command-centre/intelligence-briefs. Verify this page loads with HTTP 200 and shows either intelligence brief content (SEO and/or Finance tabs) or an empty state. No error banners or console errors should appear."
       },
       {
         "id": 6,
-        "description": "Navigate away to http://localhost:3002/command-centre (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/briefs. Verify the briefs list page loads with HTTP 200 and no 500 errors in the network log. Use browser_network_request to GET http://localhost:3002/api/admin/command-centre/api/v1/briefs and confirm it returns HTTP 200 with a JSON array (same as step 2). PASS if the page loads cleanly and the API returns 200. This tests navigation persistence \u2014 the page state should survive a round-trip to the dashboard."
+        "description": "Verify persistence: navigate to http://localhost:3002/command-centre/dashboard, wait 2 seconds, navigate back to http://localhost:3002/command-centre/briefs. Verify the page loads with HTTP 200 and renders without errors."
       }
-    ],
-    "dependsOn": "comc-trunk-superadmin",
-    "_skip": true,
-    "_skip_reason": "Roadmap narrative doc section \u2014 not a product page"
+    ]
   },
   {
     "id": "comc-comc-hld-concurrency-model-2",
@@ -694,45 +695,38 @@
   },
   {
     "id": "comc-comc-user-spec-initiatives-amp-strategic-planning",
-    "description": "[general] Comc User_Spec Initiatives Amp Strategic Planning \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[strategy] Initiatives CRUD \u2014 Create a new strategic initiative via modal form, verify it appears in the list, then verify persistence across navigation",
+    "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
+    "isSharedRoot": false,
+    "params": {},
+    "role": "verify",
     "steps": [
       {
         "id": 1,
-        "description": "Load or establish superadmin session: Load cached superadmin JWT session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If expired or missing, navigate to phronex-auth login, authenticate with superadmin credentials (email: qa-superadmin@phronex.internal, password: [from vault]), and verify JWT token is present in localStorage before proceeding."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify the session is active."
       },
       {
         "id": 2,
-        "description": "Navigate to Initiatives dashboard: Navigate to 'http://localhost:3002/command-centre/initiatives'. Verify page loads with HTTP 200. Assert presence of page header 'Strategic Initiatives', filter controls (Status, Department, Owner), and 'Create Initiative' button. Confirm existing initiatives list is populated (or empty state message displays if no initiatives exist)."
+        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Verify the page loads with HTTP 200. The page should display either a list of existing initiatives (table or card layout) or an empty state. A 'New Initiative' button should be visible in the top-right area."
       },
       {
         "id": 3,
-        "description": "Initiate initiative creation flow: Click 'Create Initiative' button. Verify modal/form opens with title 'New Initiative'. Confirm form contains required fields: Title (text input), Goal (textarea), Due Date (date picker), Department (dropdown), Priority (radio: Low/Medium/High), Owner (user select). Assert form validation state is clean (no error messages on load)."
+        "description": "Click the 'New Initiative' button. Verify a modal opens with title 'New Initiative'. The form should contain fields: Title (text input, required), Goal (textarea, required), Priority dropdown, Target Completion Date (date picker), and optionally department selectors."
       },
       {
         "id": 4,
-        "description": "Fill initiative form with valid data: Enter Title='Q2 2026 AI Agent Performance Optimization', Goal='Reduce agent latency by 40% and improve decision accuracy to 95%', Due Date='2026-06-30', Department='Engineering', Priority='High', Owner='QA Superadmin'. Verify all fields accept input without client-side validation errors. Assert 'Submit' button is enabled."
+        "description": "Fill the form: Title = 'JH-Initiative Test Q2', Goal = 'Automated test initiative for JourneyHawk verification'. Leave Priority as default and Target Completion Date empty. Click the 'Create Initiative' button. Verify POST /api/admin/command-centre/api/v1/initiatives/ returns HTTP 201. The modal should close and the new initiative should appear in the list."
       },
       {
         "id": 5,
-        "description": "Validate form submission and API contract: Click 'Submit' button. Monitor network traffic: verify POST request to '/api/v1/initiatives' (or equivalent) with JWT header and payload containing title, goal, due_date, department_id, priority, owner_id. Assert response HTTP 201 with initiative object including new initiative_id, status='active', created_at timestamp, org_id matching superadmin's org. Confirm modal closes and initiator is returned to initiatives list."
+        "description": "Verify the newly created 'JH-Initiative Test Q2' initiative appears in the initiatives list with the correct title. Click on it to view detail (if detail view exists). Verify the goal text matches what was entered."
       },
       {
         "id": 6,
-        "description": "Validate new initiative appears in list and verify cross-service persistence: On initiatives list, search or filter by Title='Q2 2026 AI Agent Performance Optimization'. Verify new initiative row displays with correct Title, Goal preview, Due Date='2026-06-30', Department='Engineering', Status='active', and Owner name. Assert initiative is not present in any other organization's view (confirm tenant isolation by querying DB or checking another org context). Confirm initiative_id from step 5 matches the ID shown in list row."
-      },
-      {
-        "id": 7,
-        "description": "Test form validation: rejection of invalid inputs: Click 'Create Initiative' again. Attempt to submit empty form (all fields blank). Verify client-side validation triggers error messages: 'Title is required', 'Goal is required', 'Due Date is required', 'Department is required'. Verify submit button remains disabled. Enter Title with >500 characters; assert error 'Title must be 500 characters or less'. Enter Due Date as a past date (yesterday); assert error 'Due Date cannot be in the past'. Verify form does not submit."
-      },
-      {
-        "id": 8,
-        "description": "Verify persistence and cross-session availability: Close browser or navigate away from initiatives page to unrelated URL (e.g., 'http://localhost:3002/command-centre/dashboard'). Wait 2 seconds. Navigate back to 'http://localhost:3002/command-centre/initiatives'. Refresh page (Ctrl+R). Verify the initiative 'Q2 2026 AI Agent Performance Optimization' still appears in the list with all saved fields intact (Title, Goal, Due Date, Department, Owner, Status='active'). Assert database persistence by confirming initiative_id matches step 5 response. Confirm cross-service integration: if initiative has associated tasks or approvals configured in backend, verify those relationships are reflected in detail view (click initiative row, expand task list if present)."
+        "description": "Verify persistence: navigate away to http://localhost:3002/command-centre/dashboard, wait 2 seconds, navigate back to http://localhost:3002/command-centre/initiatives. Verify 'JH-Initiative Test Q2' still appears in the list, confirming the creation was persisted to the database."
       }
-    ],
-    "dependsOn": "comc-trunk-superadmin",
-    "_skip": true,
-    "_skip_reason": "Duplicate of existing business journey with proper coverage"
+    ]
   },
   {
     "id": "comc-biz-vendor-subscription-lifecycle",
@@ -1260,45 +1254,38 @@
   },
   {
     "id": "comc-comc-test-oracles-meeting-prep",
-    "description": "[general] Comc Test_Oracles Meeting Prep \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[oracle] Meeting Prep & Notes \u2014 Create a meeting, generate AI prep content, save notes with action items, and verify persistence across navigation",
+    "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
+    "isSharedRoot": false,
+    "params": {},
+    "role": "verify",
     "steps": [
       {
         "id": 1,
-        "description": "Load superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If expired (401 Unauthorized), navigate to 'http://localhost:3002/command-centre/login' and authenticate using test credentials (email: superadmin@phronex.local, password from env COMC_SUPERADMIN_PASSWORD). Verify JWT token is set in localStorage under key 'auth_token'. Confirm left sidebar displays all 7 business pillars including 'Operations' pillar."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify the session is active."
       },
       {
         "id": 2,
-        "description": "Navigate to 'http://localhost:3002/command-centre/operations/meetings'. Wait for meetings list to load (XHR GET /api/v1/meetings/upcoming HTTP 200). Verify response contains array of meeting objects with fields: id, title, meeting_date, meeting_datetime, source (e.g. 'ERPNext', 'DB'), dept_id. Select a meeting without existing prep_content (filter by prep_content == null or empty). Click 'View Details' or meeting row to open meeting detail view."
+        "description": "Navigate to http://localhost:3002/command-centre/meetings. Verify the page loads with HTTP 200. The page should show a two-panel layout: upcoming meetings list on the left and a detail/notes panel on the right. If no meetings exist, an 'Add Meeting' form or button should be visible."
       },
       {
         "id": 3,
-        "description": "On meeting detail page, locate 'Meeting Prep' section. Click 'Generate Prep' button. Monitor XHR POST /api/v1/meetings/{meeting_id}/prep HTTP 200. Verify response includes auto-generated prep_content object with keys: context (LLM-generated meeting context), talking_points (array of strings), attendee_background (object with attendee names and roles). Confirm generated_at timestamp is set. Display prep_content in UI under 'Meeting Context', 'Key Talking Points', and 'Attendee Background' sections."
+        "description": "Create a test meeting: fill in the Add Meeting form with title 'JH-Meeting Prep Test', date set to tomorrow, and optional notes 'Automated test meeting'. Click the create/add button. Verify POST /api/admin/command-centre/api/v1/meetings returns HTTP 201. The new meeting should appear in the left panel list."
       },
       {
         "id": 4,
-        "description": "With prep_content now cached, click 'Refresh Prep' or reload meeting detail page. Monitor XHR GET /api/v1/meetings/{meeting_id}/prep HTTP 200. Verify response returns same prep_content with identical context, talking_points, and attendee_background values (no LLM re-invocation). Confirm response time < 200ms (indicating cache hit, not LLM generation). Validate that generated_at timestamp has NOT changed from step 3."
+        "description": "Click the newly created 'JH-Meeting Prep Test' meeting in the left panel. The right panel should show meeting detail with a 'Generate Prep' button. Click 'Generate Prep'. Verify GET /api/admin/command-centre/api/v1/meetings/{meeting_id}/prep returns HTTP 200. The prep content area should display generated text (or an error message if LLM is unavailable \u2014 either is acceptable, the endpoint must not 500)."
       },
       {
         "id": 5,
-        "description": "In meeting detail view, scroll to 'Meeting Notes' section. Enter notes text: 'Q: Budget allocation for Q2 initiatives? A: Approved $500K. Follow-up: Finance to send allocation breakdown by EOD Friday.' Add action_items using 'Add Action Item' button: Item 1 (description: 'Finance to send Q2 budget breakdown', assigned_to: 'CFO', due_date: '2025-01-17'). Item 2 (description: 'Review prep_content with attendees', assigned_to: 'Meeting Organizer', due_date: '2025-01-16'). Click 'Save Notes' button."
+        "description": "In the meeting detail panel, locate the notes section. Enter notes text: 'Budget discussion for Q2 initiatives.' and save. Verify POST /api/admin/command-centre/api/v1/meetings/{meeting_id}/notes returns HTTP 200. A 'Saved' confirmation should appear briefly."
       },
       {
         "id": 6,
-        "description": "Monitor XHR POST /api/v1/meetings/{meeting_id}/notes HTTP 200. Verify request body contains notes string and action_items array with all fields. Confirm response returns 200 with persisted meeting object including notes_id and updated_at timestamp. Validate UI displays success toast: 'Meeting notes saved successfully'. Verify action_items appear in a table below notes with columns: description, assigned_to, due_date, status (default 'open')."
-      },
-      {
-        "id": 7,
-        "description": "Navigate away from meeting detail: click 'Meetings' in breadcrumb or left sidebar to return to meetings list (http://localhost:3002/command-centre/operations/meetings). Then click back into the same meeting to reload detail view. Monitor XHR GET /api/v1/meetings/{meeting_id} HTTP 200. Verify persisted notes string is displayed exactly as entered in step 5. Verify action_items array contains both items with correct descriptions, assignments, and due_dates. Confirm no data loss occurred across navigation."
-      },
-      {
-        "id": 8,
-        "description": "Test validation error handling: In notes section, attempt to save notes with invalid action_item (missing required assigned_to field). Click 'Save Notes' button. Verify XHR POST /api/v1/meetings/{meeting_id}/notes returns HTTP 400 with error response: {error: 'validation_failed', details: [{field: 'action_items[0].assigned_to', message: 'assigned_to is required'}]}. Confirm UI displays inline validation error message: 'All action items must have an assignee.' Verify notes section remains unchanged (partial save prevented). Complete the action_item by selecting an assignee and re-save; confirm HTTP 200 response and success message. Verify meeting detail reflects both original and newly added action_items."
+        "description": "Verify persistence: navigate away to http://localhost:3002/command-centre/dashboard, wait 2 seconds, navigate back to http://localhost:3002/command-centre/meetings. Click the 'JH-Meeting Prep Test' meeting. Verify the notes text 'Budget discussion for Q2 initiatives.' is still displayed in the notes section, confirming persistence."
       }
-    ],
-    "dependsOn": "comc-trunk-superadmin",
-    "_skip": true,
-    "_skip_reason": "Duplicate of existing business journey with proper coverage"
+    ]
   },
   {
     "id": "comc-biz-erp-sync-status-and-trigger",
@@ -1478,33 +1465,38 @@
   },
   {
     "id": "comc-comc-api-growth-experiments",
-    "description": "[general] Comc Api Growth_Experiments \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[cross-pillar] Agent Pause \u2192 Dashboard Refresh \u2192 Initiative Linking \u2014 Verify pausing an agent on the Agents page reflects on the dashboard metrics and that initiatives can reference the paused agent",
+    "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
+    "isSharedRoot": false,
+    "params": {},
+    "role": "verify",
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. If session expired (401 response or redirect to http://localhost:3002/auth/login), navigate to Phronex Portal login, enter superadmin credentials, and verify JWT is issued and stored. Confirm redirect to http://localhost:3002/command-centre/dashboard completes successfully."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify the session is active by checking no login redirect occurs."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify page loads with HTTP 200 and displays agent list table containing columns: Agent Name, Department, Role, Status (colour-coded badge), paperclip_agent_id. Confirm at least 3 agents are visible across 2+ departments (e.g., Finance, Marketing). Note one active agent ID for step 4."
+        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify the page loads and displays the agent list table. Identify an agent with status 'active' (green badge). Note the agent name."
       },
       {
         "id": 3,
-        "description": "On the http://localhost:3002/command-centre/agents page, locate an agent with status='active' and click the 'Pause' action button in its row. Verify POST request to /api/v1/agents/{agent_id}/pause returns HTTP 200. Confirm agent status badge in table immediately changes to 'paused_ceo' (yellow badge). Attempt to pause the same agent again and verify HTTP 409 or 422 error with message 'Agent already paused' is returned and displayed in error toast."
+        "description": "Click the 'Pause' button in the agent's row. Verify the PATCH request to /api/admin/command-centre/api/v1/agents/{agent_id}/pause returns HTTP 200. Verify the agent's status badge changes from green ('active') to red ('paused_ceo'). The button label should change to 'Resume'."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to http://localhost:3002/command-centre/dashboard. Verify the dashboard loads without errors. Observe that the dashboard metric cards render (agent count, active count, etc.). The paused agent should be reflected in the metrics."
       },
       {
         "id": 5,
-        "description": "Navigate away from http://localhost:3002/command-centre/agents to http://localhost:3002/command-centre/dashboard (Pulse pillar). Observe dashboard loads and displays metric cards: agent count, active brief count, pending approvals. Verify the count of 'Active Agents' reflects the resumed agent state change. Return to http://localhost:3002/command-centre/agents by clicking 'Agents' tab in sidebar. Confirm the agent previously paused/resumed still shows status='active' and all state changes persisted in PostgreSQL (no rollback)."
+        "description": "Navigate back to http://localhost:3002/command-centre/agents. Click the 'Resume' button on the previously paused agent. Verify the PATCH request to /api/admin/command-centre/api/v1/agents/{agent_id}/resume returns HTTP 200. Verify the status badge returns to green ('active') and the button label changes back to 'Pause'."
       },
       {
-        "id": 7,
-        "description": "Trigger a cross-service integration check: with a paused agent, navigate to http://localhost:3002/command-centre/initiatives. Create a new initiative with title='Growth Experiment Q1' and link it to the paused agent via a dropdown selector. Verify POST /api/v1/initiatives returns HTTP 201 and the initiative is created with status='active' and agent_id correctly stored. Return to http://localhost:3002/command-centre/agents, resume the linked agent, and navigate back to http://localhost:3002/command-centre/initiatives. Confirm the initiative is still linked to that agent (relationship persisted) and no orphaned state exists."
+        "id": 6,
+        "description": "Verify persistence: navigate away to http://localhost:3002/command-centre/dashboard, wait 2 seconds, navigate back to http://localhost:3002/command-centre/agents. Verify the agent's status is still 'active' (green badge), confirming the resume was persisted."
       }
-    ],
-    "dependsOn": "comc-trunk-superadmin",
-    "_skip": true,
-    "_skip_reason": "Duplicate of existing business journey with proper coverage"
+    ]
   },
   {
     "id": "comc-biz-dept-template-apply",
@@ -2256,45 +2248,34 @@
   },
   {
     "id": "comc-comc-test-oracles-agent-pause-resume",
-    "description": "[general] Comc Test_Oracles Agent Pause Resume \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[oracle] Agent Pause/Resume lifecycle \u2014 Verify pause changes status badge to red (paused_ceo), resume restores to green (active), and both states persist across page navigation",
+    "dependsOn": "comc-trunk-superadmin",
     "depth": 1,
+    "isSharedRoot": false,
+    "params": {},
+    "role": "verify",
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate to http://localhost:3002/command-centre/dashboard and log in with valid phronex-auth credentials (is_superadmin=true). Verify JWT Bearer token is present in all subsequent requests. Expected: Dashboard loads with metric cards (agent count, active brief count, pending approvals, department health summary); all cards render with non-zero data."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify the session is active."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify agent list renders with table/card rows showing columns: name, department, role, status badge (colour-coded: green=active, yellow=idle, red=paused_ceo). Locate an agent with status='active' (e.g. name='Finance Agent Alpha', department='Finance', role='agent'). Record agent_id from row data or DOM attribute. Expected: HTTP 200 response from GET /api/v1/agents; JSON array contains agent record with id, org_id, name, role, status, department_id, paperclip_agent_id."
+        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify the agent list renders with at least one agent row. Each row should show: agent name, department, role, status badge (colour-coded: green=active, yellow=idle, red=paused_ceo), and a Pause/Resume button."
       },
       {
         "id": 3,
-        "description": "Click 'Pause' button/action on the selected active agent row. Verify browser sends PATCH /api/v1/agents/{agent_id}/pause with Authorization header. Expected: HTTP 200 response; agent.status field in response changes from 'active' to 'paused_ceo'; agent.updated_at timestamp is refreshed (later than previous timestamp); agent row in UI updates: status badge changes to red and displays 'paused_ceo' label."
+        "description": "Find an agent with status 'active'. Click the 'Pause' button in that row. Verify the PATCH request to /api/admin/command-centre/api/v1/agents/{agent_id}/pause returns HTTP 200. Verify the status badge changes to red with text 'paused_ceo'. The button label should change to 'Resume'."
       },
       {
         "id": 4,
-        "description": "While agent remains in paused_ceo state, attempt to pause again by clicking the 'Pause' button. Verify PATCH /api/v1/agents/{agent_id}/pause is sent. Expected failure mode validation: HTTP 400 or 409 response with error message (e.g. 'Agent is already paused' or 'Invalid state transition'); UI displays error toast/alert; agent status remains 'paused_ceo'; no duplicate pause operation succeeds."
+        "description": "Click the 'Resume' button on the same agent. Verify the PATCH request to /api/admin/command-centre/api/v1/agents/{agent_id}/resume returns HTTP 200. Verify the status badge returns to green with text 'active'. The button label should change back to 'Pause'."
       },
       {
         "id": 5,
-        "description": "Click 'Resume' button/action on the paused agent row. Verify browser sends PATCH /api/v1/agents/{agent_id}/resume with Authorization header. Expected: HTTP 200 response; agent.status field in response changes from 'paused_ceo' to 'active'; agent.updated_at timestamp is refreshed; agent row in UI updates: status badge returns to green and displays 'active' label."
-      },
-      {
-        "id": 6,
-        "description": "Navigate away from http://localhost:3002/command-centre/agents to http://localhost:3002/command-centre/dashboard, then navigate back to http://localhost:3002/command-centre/agents. Verify agent list reloads from backend. Locate the same agent by id/name and confirm status persists as 'active' in database. Expected: GET /api/v1/agents HTTP 200; agent.status in response is 'active'; status badge displays green without manual refresh; no transient state corruption."
-      },
-      {
-        "id": 7,
-        "description": "Create a second superadmin session or switch org context (if multi-org enabled). Attempt to PATCH /api/v1/agents/{agent_id}/pause where {agent_id} belongs to a different org_id than the caller's org scope. Expected cross-service validation (tenant isolation): HTTP 403 Forbidden or HTTP 404 Not Found response; error message indicates agent not found within caller's org scope; original agent remains unaffected in its own org; no TENANT_LEAK \u2014 agents from other org_id are not visible or modifiable."
-      },
-      {
-        "id": 8,
-        "description": "Verify Paperclip integration state: after resuming agent, check that ComC has synced the 'active' status back to Paperclip. If available, call GET /api/v1/agents/{agent_id} and inspect the 'paperclip_agent_id' field and any 'paperclip_sync_at' timestamp. Cross-service contract boundary validation: agent status change in ComC (PATCH /api/v1/agents/{agent_id}/resume \u2192 HTTP 200, status='active') should trigger downstream sync to Paperclip agent state within configured timeout window (typically <5 seconds). Expected: agent.status='active' persists in ComC; paperclip_sync_at field is recent; no orphaned agent state between services."
+        "description": "Verify persistence: navigate away to http://localhost:3002/command-centre/dashboard. Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/agents. Verify the agent's status is still 'active' (green badge), confirming the resume persisted to the database."
       }
-    ],
-    "dependsOn": "comc-trunk-superadmin",
-    "_skip": true,
-    "_skip_reason": "Duplicate of existing business journey with proper coverage"
+    ]
   },
   {
     "id": "comc-data-isolation-user-initiative-visibility",
