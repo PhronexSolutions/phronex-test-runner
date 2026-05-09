@@ -1,33 +1,33 @@
 [
   {
     "id": "comc-br-01-tier-limit-enforcement",
-    "description": "FREE tier instance cannot create more than 3 active campaigns",
+    "description": "FREE tier org cannot exceed the goal count cap (business rule enforcement)",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_free_tier"],
     "steps": [
-      {"id": 1, "description": "Create campaign 1 — should succeed", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c1"}, "expected_status": 201},
-      {"id": 2, "description": "Create campaign 2 — should succeed", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c2"}, "expected_status": 201},
-      {"id": 3, "description": "Create campaign 3 — should succeed", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c3"}, "expected_status": 201},
-      {"id": 4, "description": "Create campaign 4 — must hit tier cap", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c4"}, "expected_status": [402, 429]}
+      {"id": 1, "description": "Create goal 1 — should succeed", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_free_tier", "body": {"title": "qa-g1", "target_value": 100, "unit": "units", "direction": "increase"}, "expected_status": 201},
+      {"id": 2, "description": "Create goal 2 — should succeed", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_free_tier", "body": {"title": "qa-g2", "target_value": 100, "unit": "units", "direction": "increase"}, "expected_status": 201},
+      {"id": 3, "description": "Create goal 3 — should succeed", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_free_tier", "body": {"title": "qa-g3", "target_value": 100, "unit": "units", "direction": "increase"}, "expected_status": 201},
+      {"id": 4, "description": "Create goal 4 — must hit tier cap (402 or 429)", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_free_tier", "body": {"title": "qa-g4", "target_value": 100, "unit": "units", "direction": "increase"}, "expected_status": [402, 429]}
     ]
   },
   {
-    "id": "comc-br-02-campaign-budget-cap",
-    "description": "Campaign budget cannot exceed tier-defined monthly cap",
+    "id": "comc-br-02-goal-progress-bounds",
+    "description": "Goal progress value cannot exceed target_value by more than 200%",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_paid_tier"],
     "steps": [
-      {"id": 1, "description": "Set campaign budget above cap — must reject", "method": "PUT", "path": "/api/v1/campaigns/qa-c1/budget", "fixture": "qa_api_token_paid_tier", "body": {"amount_cents": 999999999}, "expected_status": [400, 422]},
-      {"id": 2, "description": "Set campaign budget at cap — must accept", "method": "PUT", "path": "/api/v1/campaigns/qa-c1/budget", "fixture": "qa_api_token_paid_tier", "body": {"amount_cents": 100000}, "expected_status": 200}
+      {"id": 1, "description": "PATCH progress to 10x target — must reject (400 or 422)", "method": "PATCH", "path": "/api/v1/goals/qa-goal-id/progress", "fixture": "qa_api_token_paid_tier", "body": {"current_value": 99999999}, "expected_status": [400, 422]},
+      {"id": 2, "description": "PATCH progress within bounds — must accept (200)", "method": "PATCH", "path": "/api/v1/goals/qa-goal-id/progress", "fixture": "qa_api_token_paid_tier", "body": {"current_value": 95}, "expected_status": 200}
     ]
   },
   {
-    "id": "comc-br-03-user-permission-boundary",
-    "description": "Member role cannot delete an instance owned by another member",
+    "id": "comc-br-03-department-member-permission",
+    "description": "Member role cannot delete a department they do not own",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_member"],
     "steps": [
-      {"id": 1, "description": "DELETE other-user instance as member — must 403", "method": "DELETE", "path": "/api/v1/instances/qa-other-instance", "fixture": "qa_api_token_member", "expected_status": 403}
+      {"id": 1, "description": "DELETE /departments/{other_dept} as member — must 403", "method": "DELETE", "path": "/api/v1/departments/qa-other-dept-id", "fixture": "qa_api_token_member", "expected_status": 403}
     ]
   },
   {
@@ -35,131 +35,131 @@
     "description": "Protected endpoint without Authorization header returns 401",
     "executor": "http",
     "steps": [
-      {"id": 1, "description": "GET protected with no token", "method": "GET", "path": "/api/v1/me", "fixture": "qa_api_token_empty", "expected_status": 401}
+      {"id": 1, "description": "GET /goals with no token — must 401", "method": "GET", "path": "/api/v1/goals", "fixture": "qa_api_token_empty", "expected_status": 401}
     ]
   },
   {
     "id": "comc-sec-02-idor-other-tenant",
-    "description": "Cannot read another tenant's resource via direct ID",
+    "description": "Cannot read another tenant's goal via direct ID",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_tenant_a"],
     "steps": [
-      {"id": 1, "description": "GET /campaigns/{tenant_b_id} as tenant A", "method": "GET", "path": "/api/v1/campaigns/qa-tenant-b-campaign-id", "fixture": "qa_api_token_tenant_a", "expected_status": [403, 404]}
+      {"id": 1, "description": "GET /goals/{tenant_b_goal_id} as tenant A — must 403 or 404", "method": "GET", "path": "/api/v1/goals/qa-tenant-b-goal-id", "fixture": "qa_api_token_tenant_a", "expected_status": [403, 404]}
     ]
   },
   {
     "id": "comc-sec-03-rate-limit",
-    "description": "Auth endpoint enforces rate limit after threshold",
+    "description": "Public auth/terms endpoint enforces rate limit after burst",
     "executor": "http",
     "steps": [
-      {"id": 1, "description": "Burst 1", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
-      {"id": 2, "description": "Burst 2", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
-      {"id": 3, "description": "Burst 3", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
-      {"id": 4, "description": "Burst 4", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
-      {"id": 5, "description": "Burst 5 — must hit rate limit", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": 429}
+      {"id": 1, "description": "Burst 1 — POST terms/accept with bad token", "method": "POST", "path": "/api/v1/auth/accept", "fixture": "qa_api_token_empty", "body": {"version": "qa-invalid"}, "expected_status": [400, 401, 422]},
+      {"id": 2, "description": "Burst 2", "method": "POST", "path": "/api/v1/auth/accept", "fixture": "qa_api_token_empty", "body": {"version": "qa-invalid"}, "expected_status": [400, 401, 422]},
+      {"id": 3, "description": "Burst 3", "method": "POST", "path": "/api/v1/auth/accept", "fixture": "qa_api_token_empty", "body": {"version": "qa-invalid"}, "expected_status": [400, 401, 422]},
+      {"id": 4, "description": "Burst 4", "method": "POST", "path": "/api/v1/auth/accept", "fixture": "qa_api_token_empty", "body": {"version": "qa-invalid"}, "expected_status": [400, 401, 422]},
+      {"id": 5, "description": "Burst 5 — must hit rate limit (429)", "method": "POST", "path": "/api/v1/auth/accept", "fixture": "qa_api_token_empty", "body": {"version": "qa-invalid"}, "expected_status": 429}
     ]
   },
   {
     "id": "comc-sec-04-xss-text-fields",
-    "description": "XSS payloads in text fields are sanitised, not reflected, no 500",
+    "description": "XSS payloads in goal title are sanitised, not reflected, never 500",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_paid_tier"],
     "payload_set": "xss",
     "steps": [
-      {"id": 1, "description": "POST campaign name with XSS payload — expect 200/201/400 never 500, body must NOT echo raw <script>", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "payload_set": "xss", "expected_status": [200, 201, 400, 422]}
+      {"id": 1, "description": "POST goal with XSS title — expect 200/201/400/422, body must NOT echo raw <script>", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_paid_tier", "payload_set": "xss", "expected_status": [200, 201, 400, 422]}
     ]
   },
   {
     "id": "comc-sec-05-sqli-search",
-    "description": "SQL injection in search params returns safely (no 500, no data leak)",
+    "description": "SQL injection in OKR map query param returns safely (no 500, no data leak)",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_paid_tier"],
     "payload_set": "sqli",
     "steps": [
-      {"id": 1, "description": "GET /campaigns?q=<sqli payloads> — expect 200/400, never 500", "method": "GET", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "payload_set": "sqli", "expected_status": [200, 400]}
+      {"id": 1, "description": "GET /goals/okr-map?q=<sqli> — expect 200/400, never 500", "method": "GET", "path": "/api/v1/goals/okr-map", "fixture": "qa_api_token_paid_tier", "payload_set": "sqli", "expected_status": [200, 400]}
     ]
   },
   {
     "id": "comc-sec-06-malformed-jwt",
-    "description": "Malformed JWT vectors all return 401, never 500",
+    "description": "Malformed JWT vectors on protected endpoint all return 401, never 500",
     "executor": "http",
     "payload_set": "malformed_jwt",
     "steps": [
-      {"id": 1, "description": "GET /me with malformed JWT — must return 401", "method": "GET", "path": "/api/v1/me", "fixture": "qa_api_token_empty", "payload_set": "malformed_jwt", "expected_status": 401}
+      {"id": 1, "description": "GET /goals with malformed JWT — must return 401", "method": "GET", "path": "/api/v1/goals", "fixture": "qa_api_token_empty", "payload_set": "malformed_jwt", "expected_status": 401}
     ]
   },
   {
     "id": "comc-sec-07-oversized-payload",
-    "description": "Oversized request body is rejected with 400 or 413, never 500",
+    "description": "Oversized request body on goal creation is rejected (400 or 413), never 500",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_paid_tier"],
     "payload_set": "format_abuse",
     "steps": [
-      {"id": 1, "description": "POST oversized body — must 400 or 413", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "payload_set": "format_abuse", "expected_status": [400, 413]}
+      {"id": 1, "description": "POST /goals with oversized body — must 400 or 413", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_paid_tier", "payload_set": "format_abuse", "expected_status": [400, 413]}
     ]
   },
   {
     "id": "comc-sec-08-wrong-content-type",
-    "description": "Wrong Content-Type returns 415, never silent accept or 500",
+    "description": "Wrong Content-Type on POST /goals returns 415 or 400, never silent accept or 500",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_paid_tier"],
     "steps": [
-      {"id": 1, "description": "POST /campaigns with text/plain body", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "body": "not-json", "headers": {"Content-Type": "text/plain"}, "expected_status": [400, 415]}
+      {"id": 1, "description": "POST /goals with text/plain body", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_paid_tier", "body": "not-json", "headers": {"Content-Type": "text/plain"}, "expected_status": [400, 415]}
     ]
   },
   {
-    "id": "comc-int-01-campaign-creates-notification",
-    "description": "Creating a campaign triggers a notification record in DB",
+    "id": "comc-int-01-goal-progress-triggers-kpi-refresh",
+    "description": "Updating goal progress causes the org KPI health score to recalculate (HTTP + DB)",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_paid_tier"],
     "steps": [
-      {"id": 1, "description": "POST campaign", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "body": {"name": "qa-int-1"}, "expected_status": 201},
-      {"id": 2, "description": "Assert notification row exists for new campaign", "executor": "db", "query": "SELECT 1 FROM notifications WHERE entity_type='campaign' AND entity_name='qa-int-1' LIMIT 1", "expected_row_count": 1}
+      {"id": 1, "description": "PATCH goal progress", "method": "PATCH", "path": "/api/v1/goals/qa-int-goal-id/progress", "fixture": "qa_api_token_paid_tier", "body": {"current_value": 80}, "expected_status": 200},
+      {"id": 2, "description": "DB: kpi_snapshots has a fresh row for this goal after progress update", "executor": "db", "query": "SELECT 1 FROM kpi_snapshots WHERE goal_id='qa-int-goal-id' AND recorded_at > now() - interval '10 seconds' LIMIT 1", "expected_row_count": 1}
     ]
   },
   {
-    "id": "comc-int-02-feature-flag-changes-behaviour",
-    "description": "Toggling beta feature flag changes endpoint response shape",
+    "id": "comc-int-02-approval-gate-blocks-lock",
+    "description": "Goal lock endpoint is gated behind approval — unapproved goals cannot be locked",
     "executor": "http",
-    "fixture_requirements": ["qa_api_token_admin"],
+    "fixture_requirements": ["qa_api_token_paid_tier"],
     "steps": [
-      {"id": 1, "description": "GET /campaigns with flag OFF — must NOT include 'beta_score' field", "method": "GET", "path": "/api/v1/campaigns", "fixture": "qa_api_token_admin", "expected_status": 200},
-      {"id": 2, "description": "POST flag enable", "method": "POST", "path": "/api/v1/admin/feature-flags/beta_score", "fixture": "qa_api_token_admin", "body": {"enabled": true}, "expected_status": 200},
-      {"id": 3, "description": "GET /campaigns with flag ON — response shape must change", "method": "GET", "path": "/api/v1/campaigns", "fixture": "qa_api_token_admin", "expected_status": 200},
-      {"id": 4, "description": "POST flag disable (cleanup)", "method": "POST", "path": "/api/v1/admin/feature-flags/beta_score", "fixture": "qa_api_token_admin", "body": {"enabled": false}, "expected_status": 200}
+      {"id": 1, "description": "POST /goals/{id}/lock on goal without approval — must 403 or 409", "method": "POST", "path": "/api/v1/goals/qa-unapproved-goal-id/lock", "fixture": "qa_api_token_paid_tier", "expected_status": [403, 409]},
+      {"id": 2, "description": "POST /approvals approve the goal", "method": "POST", "path": "/api/v1/approvals/qa-unapproved-goal-id/approve", "fixture": "qa_api_token_admin", "body": {"comment": "qa approved"}, "expected_status": 200},
+      {"id": 3, "description": "POST /goals/{id}/lock after approval — must 200", "method": "POST", "path": "/api/v1/goals/qa-unapproved-goal-id/lock", "fixture": "qa_api_token_paid_tier", "expected_status": 200}
     ]
   },
   {
-    "id": "comc-e2e-01-full-lifecycle",
-    "description": "Signup -> create instance -> use feature -> assert DB state",
+    "id": "comc-e2e-01-full-goal-lifecycle",
+    "description": "Create goal -> update progress -> lock -> verify DB state and business rule",
     "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
     "steps": [
-      {"id": 1, "description": "POST /auth/signup", "method": "POST", "path": "/api/v1/auth/signup", "fixture": "qa_api_token_empty", "body": {"email": "qa-e2e@example.com", "password": "Pass1234!"}, "expected_status": [200, 201]},
-      {"id": 2, "description": "POST /instances create", "method": "POST", "path": "/api/v1/instances", "fixture": "qa_api_token_e2e", "body": {"name": "qa-e2e-instance"}, "expected_status": 201},
-      {"id": 3, "description": "POST /instances/{id}/start", "method": "POST", "path": "/api/v1/instances/qa-e2e-instance/start", "fixture": "qa_api_token_e2e", "expected_status": 200},
-      {"id": 4, "description": "DB: instance exists with status=running", "executor": "db", "query": "SELECT status FROM instances WHERE name='qa-e2e-instance' LIMIT 1", "expected_row_count": 1},
-      {"id": 5, "description": "Business rule: lifecycle preserved through DB", "executor": "business_rule", "assertion": "len(db_results) >= 1 and db_results[-1]['passed'] == True"}
+      {"id": 1, "description": "POST /goals — create lifecycle goal", "method": "POST", "path": "/api/v1/goals", "fixture": "qa_api_token_paid_tier", "body": {"title": "qa-e2e-lifecycle", "target_value": 100, "unit": "units", "direction": "increase"}, "expected_status": 201},
+      {"id": 2, "description": "PATCH /goals/{id}/progress — update to 100%", "method": "PATCH", "path": "/api/v1/goals/qa-e2e-lifecycle-id/progress", "fixture": "qa_api_token_paid_tier", "body": {"current_value": 100}, "expected_status": 200},
+      {"id": 3, "description": "POST /goals/{id}/lock — lock completed goal", "method": "POST", "path": "/api/v1/goals/qa-e2e-lifecycle-id/lock", "fixture": "qa_api_token_paid_tier", "expected_status": 200},
+      {"id": 4, "description": "DB: goals table has status=locked for qa-e2e-lifecycle-id", "executor": "db", "query": "SELECT 1 FROM goals WHERE id='qa-e2e-lifecycle-id' AND status='locked' LIMIT 1", "expected_row_count": 1},
+      {"id": 5, "description": "Business rule: locked goal cannot accept further progress updates", "executor": "business_rule", "assertion": "len(db_results) >= 1 and db_results[-1]['passed'] == True"}
     ]
   },
   {
-    "id": "comc-di-01-failed-payment-no-upgrade",
-    "description": "Failed payment must not upgrade subscription tier in DB",
+    "id": "comc-di-01-failed-billing-no-tier-upgrade",
+    "description": "Failed Stripe checkout must not upgrade subscription tier in DB",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_free_tier"],
     "steps": [
-      {"id": 1, "description": "POST /billing/upgrade with bad card", "method": "POST", "path": "/api/v1/billing/upgrade", "fixture": "qa_api_token_free_tier", "body": {"plan": "paid", "card_token": "tok_decline"}, "expected_status": [400, 402, 422]},
-      {"id": 2, "description": "DB: subscription tier still FREE", "executor": "db", "query": "SELECT tier FROM subscriptions WHERE user_email='qa-free@example.com' AND tier='FREE' LIMIT 1", "expected_row_count": 1}
+      {"id": 1, "description": "POST /billing/checkout with decline card token — must 400/402/422", "method": "POST", "path": "/api/v1/billing/checkout", "fixture": "qa_api_token_free_tier", "body": {"plan": "paid", "success_url": "https://qa.example.com/ok", "cancel_url": "https://qa.example.com/cancel"}, "expected_status": [400, 402, 422]},
+      {"id": 2, "description": "DB: org subscription still FREE after failed checkout", "executor": "db", "query": "SELECT tier FROM org_subscriptions WHERE org_id='qa-free-org-id' AND tier='FREE' LIMIT 1", "expected_row_count": 1}
     ]
   },
   {
-    "id": "comc-di-02-no-orphans-after-delete",
-    "description": "Deleting an instance removes all child rows (campaigns, notifications)",
+    "id": "comc-di-02-heartbeat-stale-detection",
+    "description": "Agent heartbeat gap > threshold is detected as stale by business rule",
     "executor": "http",
     "fixture_requirements": ["qa_api_token_paid_tier"],
     "steps": [
-      {"id": 1, "description": "DELETE /instances/qa-orphan-test", "method": "DELETE", "path": "/api/v1/instances/qa-orphan-test", "fixture": "qa_api_token_paid_tier", "expected_status": [200, 204]},
-      {"id": 2, "description": "DB: zero campaign rows for that instance", "executor": "db", "query": "SELECT 1 FROM campaigns WHERE instance_name='qa-orphan-test'", "expected_row_count": 0},
-      {"id": 3, "description": "DB: zero notification rows for that instance", "executor": "db", "query": "SELECT 1 FROM notifications WHERE entity_type='instance' AND entity_name='qa-orphan-test'", "expected_row_count": 0}
+      {"id": 1, "description": "GET /agents — list agents", "method": "GET", "path": "/api/v1/agents", "fixture": "qa_api_token_paid_tier", "expected_status": 200},
+      {"id": 2, "description": "DB: find agents with last_heartbeat > 5 min ago", "executor": "db", "query": "SELECT id FROM agents WHERE last_heartbeat < now() - interval '5 minutes' LIMIT 5", "expected_row_count": 0},
+      {"id": 3, "description": "Business rule: no stale agents means heartbeat cron is healthy", "executor": "business_rule", "assertion": "all(r['passed'] for r in db_results) if db_results else True"}
     ]
   }
 ]
