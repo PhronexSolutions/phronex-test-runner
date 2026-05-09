@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v18.0
 milestone_name: milestone
 status: verifying
-last_updated: "2026-05-05T10:02:35.944Z"
+last_updated: "2026-05-09T22:03:44.930Z"
 last_activity: 2026-05-03 - Portal tree spec (21 nodes), v18.0 bug fixes, smoke consolidation
 ---
 

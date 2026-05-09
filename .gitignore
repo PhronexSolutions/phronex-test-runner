@@ -174,3 +174,9 @@ comc-journeys/results/
 comc-journeys/results-*/
 *-retired.json
 results/
+comc-journeys/*-retarget.json
+journeys-output-run*/
+save-state*.js
+save_state*.js
+save_storage_state.js
+temp_*.js
