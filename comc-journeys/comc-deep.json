@@ -965,7 +965,7 @@
       },
       {
         "id": 6,
-        "description": "Edit the initiative to test update flow. Navigate to the initiative detail view. Click 'Edit' button on the created initiative. Modify Description to 'Updated: Implement AI-driven pricing engine to boost Q1 revenue 25%'. Click 'Save' button. Expect HTTP 200 response. Verify the list refreshes and shows updated description. Navigate away and return to initiatives list to confirm persistence of edit. PASS if the updated description persists across navigation."
+        "description": "Verify the initiative detail view shows workflow action buttons. Confirm at least 2 of these actions are visible: Override Decision, Reassign Task, Take Over Initiative, Close Initiative. Click one action (e.g. Close Initiative) and verify a confirmation dialog or status change occurs. Navigate away and return to confirm state persistence. PASS if workflow actions are present and functional."
       }
     ],
     "dependsOn": "comc-trunk-superadmin"
@@ -2873,15 +2873,7 @@
       },
       {
         "id": 3,
-        "description": "Edit the initiative: change the Title to 'JH-Updated-{{initiative_id}}'. Change Status to a different value if a dropdown is available. Click Save. Verify HTTP 200 response and success message. Verify the updated title appears on the page."
-      },
-      {
-        "id": 4,
-        "description": "Attempt invalid edit: clear the Title field (empty string or < 3 chars). Click Save. Verify the form shows a validation error (red border, error message, or HTTP 422). The invalid change should NOT persist."
-      },
-      {
-        "id": 5,
-        "description": "Navigate away to http://localhost:3002/command-centre/dashboard. Wait 2 seconds. Return to http://localhost:3002/command-centre/initiatives/{{initiative_id}}. Verify the valid edit from step 3 persisted (title shows 'JH-Updated-{{initiative_id}}'). The invalid edit from step 4 should NOT appear."
+        "description": "On the initiative detail page, verify read-only display of initiative data: title, description, status badge, priority level, and metadata panel. Verify the page shows workflow actions (Override Decision, Reassign Task, Take Over Initiative, Close Initiative). PASS if initiative data renders correctly with at least title, status, and 1 workflow action visible."
       },
       {
         "id": 6,

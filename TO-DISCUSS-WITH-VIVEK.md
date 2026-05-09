@@ -179,18 +179,13 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-## D-11: Heartbeat SQL bug — `entity_memory = :data::jsonb` asyncpg incompatibility
+## D-11: Heartbeat SQL bug — `entity_memory = :data::jsonb` asyncpg incompatibility — RESOLVED
 
-**Symptom:** Persistent ERROR in ComC logs every ~30 seconds:
-```
-asyncpg.exceptions.PostgresSyntaxError: syntax error at or near ":"
-SQL: UPDATE departments SET entity_memory = :data::jsonb WHERE id = $1
-```
-asyncpg uses positional params (`$1`), not named params (`:name`). The `:data` in `:data::jsonb` is being parsed as a named param.
+**Status:** RESOLVED — fix already applied in phronex-common v0.17.3 (`db_store.py` lines 166, 194).
 
-**Impact:** `update_recent_events` fails for every department heartbeat. Cascades into `InFailedSQLTransactionError` on the subsequent `agent_heartbeats` INSERT (transaction is in aborted state after the SQL error).
+**Fix:** Replaced `:data::jsonb` with `cast(:data as jsonb)` in `PostgresMemoryStore.write_memory()` and `write_brain()`. The `cast()` SQL function avoids asyncpg's colon-collision parser issue entirely. ComC service restarted 2026-05-09 14:30 with the fix live.
 
-**Fix needed:** In `heartbeat_service.py`, replace `:data::jsonb` with a proper SQLAlchemy text expression or use `cast(text_binding, jsonb)`. Not fixed during this session — outside the immediate scope.
+**No decision needed.**
 
 ---
 
