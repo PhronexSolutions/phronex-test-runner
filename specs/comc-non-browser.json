@@ -1,0 +1,165 @@
+[
+  {
+    "id": "comc-br-01-tier-limit-enforcement",
+    "description": "FREE tier instance cannot create more than 3 active campaigns",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_free_tier"],
+    "steps": [
+      {"id": 1, "description": "Create campaign 1 — should succeed", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c1"}, "expected_status": 201},
+      {"id": 2, "description": "Create campaign 2 — should succeed", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c2"}, "expected_status": 201},
+      {"id": 3, "description": "Create campaign 3 — should succeed", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c3"}, "expected_status": 201},
+      {"id": 4, "description": "Create campaign 4 — must hit tier cap", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_free_tier", "body": {"name": "qa-c4"}, "expected_status": [402, 429]}
+    ]
+  },
+  {
+    "id": "comc-br-02-campaign-budget-cap",
+    "description": "Campaign budget cannot exceed tier-defined monthly cap",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
+    "steps": [
+      {"id": 1, "description": "Set campaign budget above cap — must reject", "method": "PUT", "path": "/api/v1/campaigns/qa-c1/budget", "fixture": "qa_api_token_paid_tier", "body": {"amount_cents": 999999999}, "expected_status": [400, 422]},
+      {"id": 2, "description": "Set campaign budget at cap — must accept", "method": "PUT", "path": "/api/v1/campaigns/qa-c1/budget", "fixture": "qa_api_token_paid_tier", "body": {"amount_cents": 100000}, "expected_status": 200}
+    ]
+  },
+  {
+    "id": "comc-br-03-user-permission-boundary",
+    "description": "Member role cannot delete an instance owned by another member",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_member"],
+    "steps": [
+      {"id": 1, "description": "DELETE other-user instance as member — must 403", "method": "DELETE", "path": "/api/v1/instances/qa-other-instance", "fixture": "qa_api_token_member", "expected_status": 403}
+    ]
+  },
+  {
+    "id": "comc-sec-01-auth-bypass-no-token",
+    "description": "Protected endpoint without Authorization header returns 401",
+    "executor": "http",
+    "steps": [
+      {"id": 1, "description": "GET protected with no token", "method": "GET", "path": "/api/v1/me", "fixture": "qa_api_token_empty", "expected_status": 401}
+    ]
+  },
+  {
+    "id": "comc-sec-02-idor-other-tenant",
+    "description": "Cannot read another tenant's resource via direct ID",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_tenant_a"],
+    "steps": [
+      {"id": 1, "description": "GET /campaigns/{tenant_b_id} as tenant A", "method": "GET", "path": "/api/v1/campaigns/qa-tenant-b-campaign-id", "fixture": "qa_api_token_tenant_a", "expected_status": [403, 404]}
+    ]
+  },
+  {
+    "id": "comc-sec-03-rate-limit",
+    "description": "Auth endpoint enforces rate limit after threshold",
+    "executor": "http",
+    "steps": [
+      {"id": 1, "description": "Burst 1", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
+      {"id": 2, "description": "Burst 2", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
+      {"id": 3, "description": "Burst 3", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
+      {"id": 4, "description": "Burst 4", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": [400, 401]},
+      {"id": 5, "description": "Burst 5 — must hit rate limit", "method": "POST", "path": "/api/v1/auth/login", "fixture": "qa_api_token_empty", "body": {"email": "qa@example.com", "password": "wrong"}, "expected_status": 429}
+    ]
+  },
+  {
+    "id": "comc-sec-04-xss-text-fields",
+    "description": "XSS payloads in text fields are sanitised, not reflected, no 500",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
+    "payload_set": "xss",
+    "steps": [
+      {"id": 1, "description": "POST campaign name with XSS payload — expect 200/201/400 never 500, body must NOT echo raw <script>", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "payload_set": "xss", "expected_status": [200, 201, 400, 422]}
+    ]
+  },
+  {
+    "id": "comc-sec-05-sqli-search",
+    "description": "SQL injection in search params returns safely (no 500, no data leak)",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
+    "payload_set": "sqli",
+    "steps": [
+      {"id": 1, "description": "GET /campaigns?q=<sqli payloads> — expect 200/400, never 500", "method": "GET", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "payload_set": "sqli", "expected_status": [200, 400]}
+    ]
+  },
+  {
+    "id": "comc-sec-06-malformed-jwt",
+    "description": "Malformed JWT vectors all return 401, never 500",
+    "executor": "http",
+    "payload_set": "malformed_jwt",
+    "steps": [
+      {"id": 1, "description": "GET /me with malformed JWT — must return 401", "method": "GET", "path": "/api/v1/me", "fixture": "qa_api_token_empty", "payload_set": "malformed_jwt", "expected_status": 401}
+    ]
+  },
+  {
+    "id": "comc-sec-07-oversized-payload",
+    "description": "Oversized request body is rejected with 400 or 413, never 500",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
+    "payload_set": "format_abuse",
+    "steps": [
+      {"id": 1, "description": "POST oversized body — must 400 or 413", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "payload_set": "format_abuse", "expected_status": [400, 413]}
+    ]
+  },
+  {
+    "id": "comc-sec-08-wrong-content-type",
+    "description": "Wrong Content-Type returns 415, never silent accept or 500",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
+    "steps": [
+      {"id": 1, "description": "POST /campaigns with text/plain body", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "body": "not-json", "headers": {"Content-Type": "text/plain"}, "expected_status": [400, 415]}
+    ]
+  },
+  {
+    "id": "comc-int-01-campaign-creates-notification",
+    "description": "Creating a campaign triggers a notification record in DB",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
+    "steps": [
+      {"id": 1, "description": "POST campaign", "method": "POST", "path": "/api/v1/campaigns", "fixture": "qa_api_token_paid_tier", "body": {"name": "qa-int-1"}, "expected_status": 201},
+      {"id": 2, "description": "Assert notification row exists for new campaign", "executor": "db", "query": "SELECT 1 FROM notifications WHERE entity_type='campaign' AND entity_name='qa-int-1' LIMIT 1", "expected_row_count": 1}
+    ]
+  },
+  {
+    "id": "comc-int-02-feature-flag-changes-behaviour",
+    "description": "Toggling beta feature flag changes endpoint response shape",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_admin"],
+    "steps": [
+      {"id": 1, "description": "GET /campaigns with flag OFF — must NOT include 'beta_score' field", "method": "GET", "path": "/api/v1/campaigns", "fixture": "qa_api_token_admin", "expected_status": 200},
+      {"id": 2, "description": "POST flag enable", "method": "POST", "path": "/api/v1/admin/feature-flags/beta_score", "fixture": "qa_api_token_admin", "body": {"enabled": true}, "expected_status": 200},
+      {"id": 3, "description": "GET /campaigns with flag ON — response shape must change", "method": "GET", "path": "/api/v1/campaigns", "fixture": "qa_api_token_admin", "expected_status": 200},
+      {"id": 4, "description": "POST flag disable (cleanup)", "method": "POST", "path": "/api/v1/admin/feature-flags/beta_score", "fixture": "qa_api_token_admin", "body": {"enabled": false}, "expected_status": 200}
+    ]
+  },
+  {
+    "id": "comc-e2e-01-full-lifecycle",
+    "description": "Signup -> create instance -> use feature -> assert DB state",
+    "executor": "http",
+    "steps": [
+      {"id": 1, "description": "POST /auth/signup", "method": "POST", "path": "/api/v1/auth/signup", "fixture": "qa_api_token_empty", "body": {"email": "qa-e2e@example.com", "password": "Pass1234!"}, "expected_status": [200, 201]},
+      {"id": 2, "description": "POST /instances create", "method": "POST", "path": "/api/v1/instances", "fixture": "qa_api_token_e2e", "body": {"name": "qa-e2e-instance"}, "expected_status": 201},
+      {"id": 3, "description": "POST /instances/{id}/start", "method": "POST", "path": "/api/v1/instances/qa-e2e-instance/start", "fixture": "qa_api_token_e2e", "expected_status": 200},
+      {"id": 4, "description": "DB: instance exists with status=running", "executor": "db", "query": "SELECT status FROM instances WHERE name='qa-e2e-instance' LIMIT 1", "expected_row_count": 1},
+      {"id": 5, "description": "Business rule: lifecycle preserved through DB", "executor": "business_rule", "assertion": "len(db_results) >= 1 and db_results[-1]['passed'] == True"}
+    ]
+  },
+  {
+    "id": "comc-di-01-failed-payment-no-upgrade",
+    "description": "Failed payment must not upgrade subscription tier in DB",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_free_tier"],
+    "steps": [
+      {"id": 1, "description": "POST /billing/upgrade with bad card", "method": "POST", "path": "/api/v1/billing/upgrade", "fixture": "qa_api_token_free_tier", "body": {"plan": "paid", "card_token": "tok_decline"}, "expected_status": [400, 402, 422]},
+      {"id": 2, "description": "DB: subscription tier still FREE", "executor": "db", "query": "SELECT tier FROM subscriptions WHERE user_email='qa-free@example.com' AND tier='FREE' LIMIT 1", "expected_row_count": 1}
+    ]
+  },
+  {
+    "id": "comc-di-02-no-orphans-after-delete",
+    "description": "Deleting an instance removes all child rows (campaigns, notifications)",
+    "executor": "http",
+    "fixture_requirements": ["qa_api_token_paid_tier"],
+    "steps": [
+      {"id": 1, "description": "DELETE /instances/qa-orphan-test", "method": "DELETE", "path": "/api/v1/instances/qa-orphan-test", "fixture": "qa_api_token_paid_tier", "expected_status": [200, 204]},
+      {"id": 2, "description": "DB: zero campaign rows for that instance", "executor": "db", "query": "SELECT 1 FROM campaigns WHERE instance_name='qa-orphan-test'", "expected_row_count": 0},
+      {"id": 3, "description": "DB: zero notification rows for that instance", "executor": "db", "query": "SELECT 1 FROM notifications WHERE entity_type='instance' AND entity_name='qa-orphan-test'", "expected_row_count": 0}
+    ]
+  }
+]
