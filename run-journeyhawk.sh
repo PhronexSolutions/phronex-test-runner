@@ -991,7 +991,7 @@ _RUNNER_START_SEC=${SECONDS}
   "${SCRIPT_DIR}/cli/cc-test-runner" \
     -t "${MUTATED_SPEC}" \
     -o "${RESULTS_DIR}" \
-    --maxTurns 100 \
+    --maxTurns 150 \
     --statePort "${CCTR_STATE_PORT}" \
   || CC_EXIT=$?
 export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
