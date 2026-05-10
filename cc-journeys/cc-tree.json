@@ -444,7 +444,7 @@
       },
       {
         "id": 3,
-        "description": "Verify GDPR data export response: (a) HTTP status 200, (b) response is valid JSON (not empty), (c) no 500 or 4xx error. PASS if status=200 and response is non-empty. The export may return empty arrays for a test user with no data \u2014 that is acceptable."
+        "description": "Verify GDPR data export response from step 2: (a) HTTP status 200, (b) content-type header contains 'zip' or 'octet-stream' (confirms it is a ZIP file, not an error), (c) no 500 or 4xx error. PASS if status=200 and content-type is a binary type. NOTE: Do NOT attempt to parse the response body as JSON \u2014 it is a binary ZIP archive."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
