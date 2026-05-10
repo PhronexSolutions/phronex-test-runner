@@ -436,7 +436,7 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store 'token' field as VISITOR_TOKEN. NOTE: field is 'token' not 'access_token'."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. The response contains 'token' field (not 'access_token'). Store token as VISITOR_TOKEN."
       },
       {
         "id": 2,
@@ -485,16 +485,20 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+      },
+      {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Expect HTTP 200. Response shape: {\"token\": \"<jwt_string>\", \"token_type\": \"bearer\"}. Verify token is a non-empty string containing two dots (JWT format: header.payload.signature)."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store 'token' field as ANON_TOKEN."
       },
       {
         "id": 2,
-        "description": "Decode the JWT payload (base64url decode the middle segment \u2014 do NOT verify signature, this is a contract test). Verify the payload contains: 'instance_id' = 'e2e-test-instance', 'exp' claim (expiry timestamp in the future), 'sub' or 'user_id' claim (non-empty string). If 'instance_id' is missing from claims, the token is malformed."
+        "description": "Decode ANON_TOKEN JWT payload: atob(ANON_TOKEN.split('.')[1]) \u2014 base64url decode the middle segment. Verify payload contains: 'instance_id'='e2e-test-instance', 'exp' claim (future timestamp), 'sub' or 'user_id' claim (UUID)."
       },
       {
         "id": 3,
-        "description": "Verify the token works: GET https://cc.phronex.com/api/v1/config/usage with Authorization: Bearer <access_token>. Expect HTTP 200 (not 401). If 401 is returned with a valid-looking token, the auth verifier may be misconfigured for this instance."
+        "description": "Verify token works: using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200 (not 401). If 401 returned with a valid token, auth verifier may be misconfigured."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -516,7 +520,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-qa-identify-test@example.com', name:'JH QA Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store the 'token' field as IDENTIFIED_TOKEN. NOTE: Field is 'token' not 'access_token'."
+        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-qa-identify-test@example.com', name:'JH QA Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store the 'token' field as IDENTIFIED_TOKEN. NOTE: Field is 'token' not 'token'."
       },
       {
         "id": 3,
