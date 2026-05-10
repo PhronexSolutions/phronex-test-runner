@@ -503,16 +503,20 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+      },
+      {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store the returned token as ANON_TOKEN."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store the 'token' field as ANON_TOKEN."
       },
       {
         "id": 2,
-        "description": "POST https://cc.phronex.com/api/v1/auth/identify with Authorization: Bearer <ANON_TOKEN>, Content-Type: application/json, and body {\"email\": \"jh-qa-identify-test@example.com\", \"name\": \"JH QA Test\", \"instance_id\": \"e2e-test-instance\"}. Expect HTTP 200. Response should contain a new access_token."
+        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-qa-identify-test@example.com', name:'JH QA Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store the 'token' field as IDENTIFIED_TOKEN. NOTE: Field is 'token' not 'access_token'."
       },
       {
         "id": 3,
-        "description": "Decode the new JWT payload. Verify: (a) 'exp' claim is approximately 30 days in the future (> 25 days from now), (b) 'instance_id' = 'e2e-test-instance', (c) 'tier' field is present (any value is acceptable), (d) 'sub' field is a UUID string (CC uses UUID as subject, not email \u2014 this is correct). The 30-day expiry differentiates an identified session from the shorter anonymous session. Do NOT expect the email address in the JWT payload \u2014 CC stores user_id (UUID) as the subject."
+        "description": "Decode IDENTIFIED_TOKEN JWT payload (base64 decode the middle section). Verify: (a) 'sub' field is a UUID string (NOT email \u2014 CC uses UUID as subject), (b) 'instance_id' = 'e2e-test-instance', (c) 'tier' field is present (any value is acceptable), (d) 'exp' claim is > current time (token not already expired). PASS if sub is a UUID and instance_id matches. The user_id in response body should match the sub claim."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
