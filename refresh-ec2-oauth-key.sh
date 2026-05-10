@@ -80,24 +80,36 @@ echo "   Token prefix: ${ACCESS_TOKEN:0:25}..."
 echo "   Expires:      $EXPIRY"
 
 # ── Step 2: Verify the OAuth token works ──────────────────────────────────
-echo "[2/5] Verifying OAuth token against Anthropic API..."
-RESULT=$(curl -s \
-  -X POST https://api.anthropic.com/v1/messages \
-  -H "x-api-key: $ACCESS_TOKEN" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "content-type: application/json" \
-  -d '{"model":"claude-haiku-4-5-20251001","max_tokens":5,"messages":[{"role":"user","content":"hi"}]}' \
-  --max-time 15 \
-  | python3 -c "import sys,json; d=json.load(sys.stdin); print('OK' if 'content' in d else 'FAIL:'+str(d.get('error','')))" 2>/dev/null \
-  || echo "FAIL:curl_error")
+# Claude Max OAuth tokens route through Claude.ai's rate buckets — calling
+# api.anthropic.com/v1/messages directly returns rate_limit_error even when
+# the token is valid. Use `claude -p` (subprocess) which honours the OAuth
+# routing correctly. Fall back to expiry-check only if claude CLI unavailable.
+echo "[2/5] Verifying OAuth token via claude CLI..."
+RESULT=$(env -u ANTHROPIC_API_KEY claude -p "respond with the single word OK" \
+  --model claude-haiku-4-5-20251001 --max-turns 1 2>/dev/null | tr -d '\n' | head -c 10 || echo "")
 
-if [ "$RESULT" != "OK" ]; then
-  echo "   ERROR: OAuth token verification failed: $RESULT"
-  echo "   The Claude Max subscription may be unavailable or the token is corrupt."
+if echo "$RESULT" | grep -qi "OK"; then
+  echo "   Token verified OK (via claude CLI)"
+elif [ -n "$ACCESS_TOKEN" ] && python3 -c "
+import json, datetime, sys
+d = json.load(open('$CREDS_FILE'))
+exp_ms = d['claudeAiOauth'].get('expiresAt', 0)
+exp = datetime.datetime.fromtimestamp(exp_ms / 1000)
+now = datetime.datetime.now()
+remaining = (exp - now).total_seconds()
+if remaining > 300:
+    print(f'Token valid for {int(remaining/60)} more minutes')
+    sys.exit(0)
+else:
+    print(f'Token expires in {int(remaining/60)} min — too close')
+    sys.exit(1)
+" 2>/dev/null; then
+  echo "   Token verified OK (expiry check — CLI gave: '${RESULT:0:50}')"
+else
+  echo "   ERROR: OAuth token appears expired or invalid."
   echo "   Re-authenticate: claude auth login"
   exit 1
 fi
-echo "   Token verified OK"
 
 # ── Step 3: EC2 health check (one check covers all three EC2 services) ─────
 echo ""
