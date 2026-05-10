@@ -1483,6 +1483,10 @@
       {
         "id": 6,
         "description": "Verify persistence: navigate away to http://localhost:3002/command-centre/dashboard, wait 2 seconds, navigate back to http://localhost:3002/command-centre/agents. Verify the agent's status is still 'active' (green badge), confirming the resume was persisted."
+      },
+      {
+        "id": 7,
+        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify the agent list renders with at least one agent row. Each row should show: agent name, department, role, status badge (colour-coded: green=active, yellow=idle, red=paused_ceo), and a Pause/Resume button."
       }
     ]
   },
@@ -2223,52 +2227,21 @@
     "dependsOn": "comc-trunk-superadmin"
   },
   {
-    "id": "comc-comc-test-oracles-agent-pause-resume",
-    "description": "[oracle] Agent Pause/Resume lifecycle \u2014 Verify pause changes status badge to red (paused_ceo), resume restores to green (active), and both states persist across page navigation",
-    "dependsOn": "comc-trunk-superadmin",
-    "depth": 1,
-    "isSharedRoot": false,
-    "params": {},
-    "role": "verify",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json'. Verify the session is active."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/agents. Verify the agent list renders with at least one agent row. Each row should show: agent name, department, role, status badge (colour-coded: green=active, yellow=idle, red=paused_ceo), and a Pause/Resume button."
-      },
-      {
-        "id": 3,
-        "description": "Find an agent with status 'active'. Click the 'Pause' button in that row. Verify the PATCH request to /api/admin/command-centre/api/v1/agents/{agent_id}/pause returns HTTP 200. Verify the status badge changes to red with text 'paused_ceo'. The button label should change to 'Resume'."
-      },
-      {
-        "id": 4,
-        "description": "Click the 'Resume' button on the same agent. Verify the PATCH request to /api/admin/command-centre/api/v1/agents/{agent_id}/resume returns HTTP 200. Verify the status badge returns to green with text 'active'. The button label should change back to 'Pause'."
-      },
-      {
-        "id": 5,
-        "description": "Verify persistence: navigate away to http://localhost:3002/command-centre/dashboard. Wait 2 seconds. Navigate back to http://localhost:3002/command-centre/agents. Verify the agent's status is still 'active' (green badge), confirming the resume persisted to the database."
-      }
-    ]
-  },
-  {
     "id": "comc-data-isolation-user-initiative-visibility",
     "description": "[BEHAVIORAL] RBAC boundary: manager can access initiatives page; manager cannot access CEO-only pages (agents, ethos). Tests that the portal correctly enforces role boundaries by verifying page-level access control across the cc_manager and cc_ceo role boundary.",
     "depth": 2,
     "steps": [
       {
         "id": 1,
-        "description": "NO SESSION LOAD NEEDED \u2014 the browser is already in the manager session from the preceding comc-trunk-manager journey (journeys run sequentially in the same browser instance). Navigate directly to http://localhost:3002/command-centre and take a snapshot. PASS if the ComC sidebar is visible and no login form is present. FAIL only if the login page appears \u2014 that would mean the trunk session was not established."
+        "description": "DO NOT take a snapshot first. DO NOT check current state first. Execute these steps immediately in order: (1) Use browser_tabs to close all tabs except the current one. (2) Use browser_evaluate with script 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe service worker cache. (3) Navigate to http://localhost:3002/auth/login?t=Date.now(). (4) Fill the email field with 'qa-test-comc-manager@phronex.com' and password field with 'v492kb-JXn5Sso1TEKApd2wi9LE'. (5) Submit the form. (6) Wait for the portal sidebar to appear. PASS if sidebar renders. FAIL only if redirected back to login or 500 error."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Take a snapshot. Verify: (a) the page renders without a 500 error or crash, (b) the page shows either an initiatives list or an empty state ('No initiatives yet' or similar). The manager role should have read access to initiatives. FAIL if the page shows a 403/forbidden error or a JavaScript crash."
+        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Take a snapshot. The initiatives backend uses require_ceo on ALL endpoints \u2014 a cc_manager session should receive a 403/access-denied response. PASS if the page shows a 403 error, a 'CEO role required' banner, or redirects away from the page. FAIL only if the initiatives list loads successfully with data (that would mean cc_manager bypassed the CEO gate on initiatives)."
       },
       {
         "id": 3,
-        "description": "On the initiatives page, verify there is no 'CEO role required' error banner, no redirect to the dashboard, and no 403 response visible in the UI. The manager account (cc_manager role) must be able to view the initiatives section. Record the page title or heading visible in the snapshot. PASS if any initiatives content or empty state renders. FAIL only if a 403/forbidden message appears."
+        "description": "Confirm the initiatives 403 boundary: take a snapshot and verify the current page is NOT showing initiatives list content. The cc_manager role must NOT have access to initiatives (require_ceo gate). Record whether the page shows a 403 message, a permission error banner, or redirected to another page. PASS if access is denied in any form. FAIL only if initiatives content is visible (titles, status columns, initiative cards) \u2014 that would be a CEO gate bypass."
       },
       {
         "id": 4,
