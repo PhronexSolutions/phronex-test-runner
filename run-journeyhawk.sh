@@ -7,17 +7,18 @@
 # reusable by all products). This script is a thin launcher only.
 #
 # Usage:
-#   ./run-journeyhawk.sh <product-slug> <spec-file> [results-dir] [--skip-passed]
+#   ./run-journeyhawk.sh [flags] <product-slug> <spec-file> [results-dir]
 #
-# Flags (may appear anywhere before the positional args):
+# Flags MUST appear BEFORE the positional args (product-slug, spec-file, results-dir):
 #   --skip-passed  Skip journeys whose most recent verdict is PASS/PASS_ORACLE.
 #                  Trunks (isSharedRoot) and depended-on journeys always run.
 #                  Saves LLM budget by not re-running already-proven journeys.
+#                  NOTE: MAINTAIN strategy mode auto-sets this — no flag needed.
 #
 # Examples (full run with intelligence pipeline):
 #   ./run-journeyhawk.sh jp jp-journeys/jp-deep.json
 #   ./run-journeyhawk.sh portal portal-journeys/portal-tree.json
-#   ./run-journeyhawk.sh comc comc-journeys/comc-deep.generated.json --skip-passed
+#   ./run-journeyhawk.sh --skip-passed comc comc-journeys/comc-deep.json
 #
 # Smoke run (single trunk, bypassing intelligence pipeline — direct cc-test-runner):
 #   ./cli/cc-test-runner -t jp-journeys/jp-deep.json -o results-smoke-jp --runJourney jp-trunk-main
@@ -692,6 +693,37 @@ with open('${TEMP_SPEC}', 'w') as f:
     json.dump(kept, f, indent=2)
 " 2>&1 && _STAGE_DEPTH_STATUS="ok" || { echo "[0d/3] WARN: depth enforcement failed (non-fatal, continuing)"; _STAGE_DEPTH_STATUS="WARN: failed"; }
 _STAGE_AFTER_DEPTH=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
+
+# Step 0d/3: Write depth classifications to qa_journey_depth_log (Phase 92)
+"${PYTHON}" - <<'DEPTH_LOG_EOF' || true
+import os, json, sys
+db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+run_id = os.environ.get("JOURNEYHAWK_RUN_ID", "")
+product = os.environ.get("JOURNEYHAWK_PRODUCT", "")
+spec_path = os.environ.get("MUTATED_SPEC") or os.environ.get("TEMP_SPEC", "")
+if not db_url or not product or not spec_path:
+    sys.exit(0)
+try:
+    import psycopg2
+    from phronex_common.testing._qa_db import clean_dsn
+    from phronex_common.testing.depth_scorer import score_journey
+    specs = json.load(open(spec_path))
+    conn = psycopg2.connect(clean_dsn(db_url))
+    with conn.cursor() as cur:
+        for j in specs:
+            depth = score_journey(j)
+            cur.execute(
+                "INSERT INTO qa_journey_depth_log "
+                "(product_slug, journey_id, run_id, depth_classification, action_taken) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                (product, j.get("id", "?"), run_id, depth.value, "kept")
+            )
+    conn.commit()
+    conn.close()
+    print(f"[0d/3] Depth log: {len(specs)} rows written to qa_journey_depth_log")
+except Exception as e:
+    print(f"[0d/3] Depth log write failed (non-fatal): {e}", file=sys.stderr)
+DEPTH_LOG_EOF
 
 # Step 0e: Strategist run filter (Phase 90)
 # Applies depth gate (Reason D) + coverage-based filtering. Writes filtered spec
