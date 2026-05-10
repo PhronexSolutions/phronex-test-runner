@@ -112,8 +112,8 @@ while [[ $# -gt 0 ]]; do
 done
 # ---------- end Phase 82 ----------
 
-PRODUCT="${1:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
-SPEC_FILE="${2:?Usage: run-journeyhawk.sh <product-slug> <spec-file> [results-dir]}"
+PRODUCT="${1:?Usage: run-journeyhawk.sh [flags] <product-slug> <spec-file> [results-dir]}"
+SPEC_FILE="${2:?Usage: run-journeyhawk.sh [flags] <product-slug> <spec-file> [results-dir]}"
 
 # Gap-6: concurrency guard — prevent two runs for same product corrupting results.
 _LOCK_FILE="/tmp/journeyhawk-${PRODUCT}.lock"
