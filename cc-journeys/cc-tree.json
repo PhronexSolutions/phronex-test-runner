@@ -342,19 +342,19 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Look for a 'Branding', 'Appearance', or 'Widget Styling' section or tab. If not on this page, try http://localhost:3002/cc/branding?instance=e2e-test-instance."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. IMPORTANT: The instance page has multiple sub-tabs. Look for a tab bar with tabs like: 'Settings & Branding', 'Lead Form', 'Authentication', 'LLM', 'Webhooks', 'Branding'. Click the 'Branding' tab (the last one). Wait for the branding form to load."
       },
       {
         "id": 2,
-        "description": "Record the current primary colour value (hex code). Change the primary colour to a distinctly different value — if current is blue-ish (#1a73e8), change to green (#10b981). If a colour picker is present, use it; otherwise edit the hex input directly."
+        "description": "On the Branding tab: look for colour input fields (primary colour, accent colour) and text inputs (display name, welcome message). Record the current primary colour hex value. Change it to a distinctly different value — if current is copper-ish (#c0803e), try '#10b981' (green). Enter the new hex value in the primary colour input."
       },
       {
         "id": 3,
-        "description": "Click 'Save Branding' or the save button. Verify the save succeeds (200 response on PUT /api/v1/instance/e2e-test-instance/branding). If a widget preview panel is visible on the page, verify its primary colour updated to the new value."
+        "description": "Click 'Save Branding' or the save button. Check the Network tab for the request — for superadmin it should go to /api/v1/admin/instance-config/e2e-test-instance (PATCH), not /api/cc/owner/api/v1/config/branding (which is owner-only). Verify HTTP 200. A 403 means the proxy path is wrong for superadmin."
       },
       {
         "id": 4,
-        "description": "Restore the original primary colour: enter the hex value recorded in step 2 and save again. Verify the restoration succeeds. This prevents the live widget from showing test colours."
+        "description": "Restore the original primary colour: enter the hex value recorded in step 2 and save again. Verify the save succeeds. This prevents the live widget from showing test colours."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -591,24 +591,32 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for API calls via page.evaluate()."
+      },
+      {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/skills/templates with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 200 with a JSON array. Verify at least one template exists. Record the first template's 'id' or 'template_id'."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/skills/templates', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Expect HTTP 200 with a JSON array. Verify at least one template exists. Record the first template's 'id' as TEMPLATE_ID."
       },
       {
         "id": 2,
-        "description": "POST https://cc.phronex.com/api/v1/skills/from-template with X-Admin-Secret: PhronexCC2025Admin header, Content-Type: application/json, and body {\"template_id\": \"<template_id_from_step_1>\", \"instance_id\": \"e2e-test-instance\"}. Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
+        "description": "Get user token first: Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) — it is user-scoped, not admin-scoped."
       },
       {
         "id": 3,
-        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 200. Verify response contains 'id' matching SKILL_ID, 'status' = 'draft', 'instance_id' = 'e2e-test-instance'."
+        "description": "Using page.evaluate() with USER_TOKEN and TEMPLATE_ID: fetch('https://cc.phronex.com/api/v1/skills/from-template', {method:'POST', headers:{'Authorization':'Bearer '+USER_TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({template_id:TEMPLATE_ID, instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
       },
       {
         "id": 4,
-        "description": "DELETE https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 204 (no content)."
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>r.json()). Expect HTTP 200. Verify response contains 'id' matching SKILL_ID and 'instance_id' = 'e2e-test-instance'."
       },
       {
         "id": 5,
-        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 404 — confirming the skill was fully deleted and not just soft-deleted. A 200 response with the skill still present means deletion is broken."
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {method:'DELETE', headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 204 (no content)."
+      },
+      {
+        "id": 6,
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 — confirming the skill was fully deleted. A 200 response means deletion is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
