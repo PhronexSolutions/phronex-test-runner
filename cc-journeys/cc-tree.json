@@ -440,7 +440,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('https://cc.phronex.com/api/v1/me/data-export', {headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200."
+        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('https://cc.phronex.com/api/v1/me/data-export', {headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}}).then(r=>{return {status:r.status, type:r.headers.get('content-type')||'unknown', size:r.headers.get('content-length')||'unknown'}}). Expect HTTP 200. NOTE: Response is a ZIP file (application/zip or application/octet-stream) \u2014 do NOT call .json() on it. PASS if status=200 and content-type contains 'zip' or 'octet-stream'."
       },
       {
         "id": 3,
