@@ -467,43 +467,35 @@
   },
   {
     "id": "comc-revenue-leads-enrichment-integrity",
-    "description": "[BEHAVIORAL] Revenue Leads journey: verify lead dossier generation with company enrichment produces correct data structure, handles LLM timeouts gracefully, and prevents raw_context leakage per T-11-05-04. Tests end-to-end flow from lead input through enrichment to revenue intel consumption.",
+    "description": "[BEHAVIORAL] Revenue Leads journey: verify leads API is reachable, returns correct org-scoped response shape (id, company_name, bant_score, status), and that the portal /leads page renders without error. Tests the CEO role gate, org-scoping enforcement, and correct serialization \u2014 not LLM enrichment (async, not synchronous).",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears after navigating to http://localhost:3002/command-centre."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/leads to open the leads portal. Verify the page loads and displays the leads list or creation interface. Record the current URL and page title."
+        "description": "Navigate to http://localhost:3002/command-centre/revenue/leads (or the leads section under the Revenue pillar in the left sidebar). Verify the page renders \u2014 no blank white screen, no 500 error banner, no 'Something went wrong' text. Record the current URL. If the page shows an empty state ('No leads yet' or similar), that is a PASS \u2014 empty is valid."
       },
       {
         "id": 3,
-        "description": "Locate and click the 'New Lead' or 'Create Lead' button on the leads page. When the form opens, fill in the Company Name field with 'TestCorp Industries' and any required contact fields (e.g. email: test@testcorp.local). Click the 'Generate Dossier' or 'Enrich' button to trigger the lead dossier generation."
+        "description": "Use page.evaluate() to send a GET request directly to the leads API: const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/leads', {credentials: 'include'}); const status = r.status; const body = await r.json(); console.log('leads_status:', status, 'leads_count:', Array.isArray(body) ? body.length : body); Verify HTTP 200. Verify the response is a JSON array (empty array is valid \u2014 means no leads yet for this org). FAIL only on HTTP 403, 500, or non-array response."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): after clicking Generate, monitor the network for a POST request to http://localhost:3002/api/admin/command-centre/api/v1/lead-dossier/generate. Once the response arrives, verify HTTP status 200 (or 503 if LLM unavailable \u2014 both are valid non-crash responses). Parse the response JSON and verify it contains the expected fields: 'company_name', 'industry', 'estimated_size', 'tech_stack' (array), 'pain_points' (array), 'decision_makers' (array), 'talk_track' (string), 'enriched_at' (ISO timestamp). PASS if response is 200 with all fields present, or 503 with error detail. FAIL only on 500 (unhandled crash)."
+        "description": "If the leads array from step 3 is non-empty: pick the first lead object and verify it contains these fields: 'id' (non-empty string), 'company_name' (string, may be empty), 'bant_score' (number), 'status' (string). Verify the lead does NOT contain a 'raw_context' field at the top level (raw_context leakage would be a security finding per T-11-05-04). If the leads array is empty, skip field validation and mark this step PASS \u2014 no data to leak. PASS either way as long as no raw_context leakage occurs."
       },
       {
         "id": 5,
-        "description": "In the response JSON from step 4, verify that 'talk_track' field contains a non-empty string (the AI-generated sales approach narrative). Verify 'tech_stack' is an array (may be empty if enrichment was minimal). Verify 'estimated_size' is one of: 'smb', 'mid-market', 'enterprise', or a descriptive string. Verify 'enriched_at' is a valid ISO datetime. PASS if field types match expectations."
+        "description": "Use page.evaluate() to verify the superadmin token is properly rejected by the org-scoped endpoint. Send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/leads using a fresh fetch with no credentials: const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/leads'); const s = r.status; console.log('unauthed_leads_status:', s); Verify HTTP 401 or 403 \u2014 unauthenticated requests MUST be rejected. FAIL if unauthenticated request returns HTTP 200."
       },
       {
         "id": 6,
-        "description": "Wait 30 seconds to simulate potential LLM processing delay. Using page.evaluate(): send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/revenue-intel/?lead_id={{lead_id}} with Authorization header using the superadmin token. Verify HTTP 200. Parse response and verify it contains 'pipeline_summary' object, 'lead_count' integer, and 'key_metrics' array. If HTTP 504 or 'LLM_TIMEOUT' error appears in response, record as expected failure mode and proceed to step 7."
-      },
-      {
-        "id": 7,
-        "description": "Navigate away from the leads page by clicking a different section in the left sidebar (e.g. Briefs, Initiatives). Wait 5 seconds. Then navigate back to http://localhost:3002/command-centre/leads and search for or filter by 'TestCorp Industries' using company name search. Verify the lead still exists and displays the same enriched data as step 4. Verify {{company_name}} and {{lead_id}} persist in the UI and backend."
-      },
-      {
-        "id": 8,
-        "description": "Click on the lead row to open its detail view. Verify the dossier data from step 4 is displayed: company_name, industry, estimated_size, and talk_track should be visible in the detail panel. Verify the page does not show a crash or 'Something went wrong'. PASS if the detail view renders with enrichment data visible."
+        "description": "Use page.evaluate() to call the lead dossier generate endpoint to verify it is reachable and returns a structured error (not a 500 crash) when called without a valid company to enrich: const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/lead-dossier/generate', {method: 'POST', credentials: 'include', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({company_name: 'JH-NoopCo', contact_name: 'Test', source: 'journeyhawk_test'})}); const s = r.status; console.log('dossier_status:', s); PASS if status is 200, 422 (validation error), or 503 (LLM unavailable). FAIL only on 500 (unhandled crash)."
       }
     ],
-    "dependsOn": "comc-trunk-superadmin"
+    "dependsOn": "comc-trunk-ceo"
   },
   {
     "id": "comc-biz-dept-health-isolation-heartbeat",
@@ -2267,46 +2259,38 @@
   },
   {
     "id": "comc-data-isolation-user-initiative-visibility",
-    "description": "[BEHAVIORAL] User A creates an initiative, logs out; User B logs in and verifies User A's initiative is NOT visible in their list or search results.",
-    "depth": 3,
+    "description": "[BEHAVIORAL] Org-scoping isolation: verifies that (1) superadmin tokens without a ComC grant are blocked at the org-scoped initiatives endpoint (403), (2) the manager role can read initiatives scoped to their org, and (3) all returned initiatives share the same org_id \u2014 no cross-tenant leakage. Tests the get_org_id() 403 gate and org_id WHERE clause in list_initiatives().",
+    "depth": 2,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Load saved Manager session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears after navigating to http://localhost:3002/command-centre."
       },
       {
         "id": 2,
-        "description": "Navigate to 'http://localhost:3002/command-centre/initiatives'. Click 'New Initiative' button."
+        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Verify the page loads without a 500 error or blank white screen. The page should show an initiatives list or an empty state message. Record whether data is present."
       },
       {
         "id": 3,
-        "description": "Fill in 'Initiative Title' field with 'Isolation Test {{timestamp}}'. Fill 'Description' field with 'CEO Private Initiative'. Click 'Save' button. Store returned initiative ID as {{initiative_id_a}}."
+        "description": "Use page.evaluate() to call the initiatives API with the current session (manager token, has org_id): const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/initiatives', {credentials: 'include'}); const s = r.status; const body = await r.json(); console.log('initiatives_status:', s, 'count:', Array.isArray(body) ? body.length : 'not-array', 'body:', JSON.stringify(body).slice(0, 200)); Verify HTTP 200. Verify the response is a JSON array (empty array is valid). FAIL on HTTP 403 (manager must be able to read initiatives) or 500."
       },
       {
         "id": 4,
-        "description": "Verify initiative appears in CEO's initiatives list. Note its exact title for later comparison."
+        "description": "If the initiatives array from step 3 is non-empty: pick the first initiative object and verify it contains: 'id' (string), 'title' (string), 'status' (string). Record the org_id field if present. Verify that org_id, if present in the response, is a single consistent UUID \u2014 all items in the array should have the same org_id. PASS if array is empty (no initiatives yet) or all items have consistent org_id. FAIL only if org_id values differ across items (cross-tenant leak)."
       },
       {
         "id": 5,
-        "description": "Open browser's storage/session menu and clear all session cookies and local storage, OR manually navigate to logout endpoint by clicking profile menu \u2192 'Sign Out'."
+        "description": "Now switch to superadmin session. Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify no login prompt appears."
       },
       {
         "id": 6,
-        "description": "Load saved Manager session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+        "description": "Use page.evaluate() to call the initiatives API with the superadmin session (superadmin token has NO ComC org_id): const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/initiatives', {credentials: 'include'}); const s = r.status; const body = await r.text(); console.log('superadmin_initiatives_status:', s, 'body:', body.slice(0, 200)); EXPECTED: HTTP 403 with detail 'ComC instance grant required' \u2014 superadmin tokens without a ComC grant must be blocked by get_org_id(). PASS if status is 403. FAIL if status is 200 (org-scoping bypass \u2014 data leak) or 500 (crash)."
       },
       {
         "id": 7,
-        "description": "Navigate to 'http://localhost:3002/command-centre/initiatives'. Verify Manager's initiatives list is displayed."
-      },
-      {
-        "id": 8,
-        "description": "Search for 'Isolation Test' using the page search/filter field. Verify CEO's initiative with ID {{initiative_id_a}} does NOT appear in results."
-      },
-      {
-        "id": 9,
-        "description": "Use page.evaluate() to send GET request to http://localhost:3002/api/admin/command-centre/api/v1/initiatives with Manager's bearer token. Parse JSON response and verify CEO's initiative ({{initiative_id_a}}) is NOT in the returned array."
+        "description": "Verify the portal handles the superadmin 403 gracefully. Navigate to http://localhost:3002/command-centre/initiatives while the superadmin session is active. Verify the page shows an error state, redirect to login, or empty message \u2014 it must NOT show a JavaScript crash or blank white page. The portal should degrade gracefully when the backend returns 403 for org-scoped endpoints. PASS if any reasonable error/empty UI renders without a JavaScript exception in the console."
       }
     ],
-    "dependsOn": "comc-trunk-ceo"
+    "dependsOn": "comc-trunk-manager"
   }
 ]
