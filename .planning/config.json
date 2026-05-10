@@ -1,5 +1,5 @@
 {
-  "model_profile": "quality",
+  "model_profile": "budget",
   "commit_docs": true,
   "parallelization": false,
   "search_gitignored": false,
@@ -39,9 +39,9 @@
   "mode": "yolo",
   "granularity": "coarse",
   "model_overrides": {
-    "plan": "claude-opus-4-6",
-    "execute": "claude-opus-4-6",
-    "verify": "claude-opus-4-6",
-    "research": "claude-opus-4-6"
+    "plan": "claude-sonnet-4-6",
+    "execute": "claude-sonnet-4-6",
+    "verify": "claude-sonnet-4-6",
+    "research": "claude-sonnet-4-6"
   }
 }
