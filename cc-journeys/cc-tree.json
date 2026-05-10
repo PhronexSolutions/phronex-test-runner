@@ -464,7 +464,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello, what can you help me with?', instance_id:'e2e-test-instance', session_id:'jh-widget-test-session'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,300)}}). Expect HTTP 200. Response is SSE stream (text/event-stream). PASS if status=200."
+        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello, what can you help me with?', instance_id:'e2e-test-instance', session_id:'11111111-1111-4111-a111-111111111111'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,300)}}). Expect HTTP 200. Response is SSE stream (text/event-stream). PASS if status=200."
       },
       {
         "id": 3,
@@ -546,7 +546,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({message:'What is Phronex?', instance_id:'e2e-test-instance', session_id:'jh-api-test-session'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,500)}}). Expect HTTP 200. Chat response streams as SSE text/event-stream \u2014 the text field will contain 'data:' lines."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({message:'What is Phronex?', instance_id:'e2e-test-instance', session_id:'22222222-2222-4222-a222-222222222222'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,500)}}). Expect HTTP 200. Chat response streams as SSE text/event-stream \u2014 the text field will contain 'data:' lines."
       },
       {
         "id": 3,
@@ -568,7 +568,7 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/branding?instance_id=e2e-test-instance').then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200. Store response as BRANDING."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/branding?instance_id=e2e-test-instance').then(r=>{return r.json().then(body=>({status:r.status,body}))}). Expect HTTP 200. Store response as BRANDING."
       },
       {
         "id": 2,
@@ -761,7 +761,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN_A: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'jh-idor-test'})}}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 403 (cross-instance blocked). A 200 that returns maxine instance data is an IDOR vulnerability."
+        "description": "Using page.evaluate() with TOKEN_A: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'33333333-3333-4333-a333-333333333333'})}}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 403 (cross-instance blocked). A 200 that returns maxine instance data is an IDOR vulnerability."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -783,7 +783,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: send 15 rapid POST requests to /api/v1/chat/message using Promise.all(). Each request: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'jh-rate-test'})}).then(r=>r.status). After all complete, check statuses. Expect at least one 429 response if rate limiting is enforced."
+        "description": "Using page.evaluate() with TOKEN: send 15 rapid POST requests to /api/v1/chat/message using Promise.all(). Each request: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'44444444-4444-4444-a444-444444444444'})}).then(r=>r.status). After all complete, check statuses. Expect at least one 429 response if rate limiting is enforced."
       },
       {
         "id": 3,
@@ -835,7 +835,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'},body:JSON.stringify({instance_id:'e2e-test-instance', message:'<script>alert(1)</script> Tell me about Phronex. <img src=x onerror=alert(2)>', session_id:null})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 200. Record response text as RESPONSE."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'},body:JSON.stringify({instance_id:'e2e-test-instance', message:'<script>alert(1)</script> Tell me about Phronex. <img src=x onerror=alert(2)>', session_id:\"66666666-6666-4666-a666-666666666666\"})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 200. Record response text as RESPONSE."
       },
       {
         "id": 3,
@@ -891,19 +891,19 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/users with X-Admin-Secret: wrong-secret-value. Expect HTTP 401 or 403. If the response is 200, the admin secret validation is broken."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin secret validation is broken."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/instances with X-Admin-Secret: (empty string). Expect HTTP 401 or 403."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/instances', {headers:{'X-Admin-Secret':''}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Empty admin secret must be rejected."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('POST:https://cc.phronex.com/api/v1/ip-blocks with X-Admin-Secret: wrong-secret and body {\"ip\": \"192.0.2.1\", \"reason\": \"test\"}. Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({ip:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/keys with no headers at all. Expect HTTP 401 or 403. The /keys endpoint exposes sensitive configuration \u2014 it must be fully protected."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected \u2014 no headers means no access."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -1029,7 +1029,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'jh-chat-disabled-test'})}).then(r=>{return {status:r.status, body:r.json()}}).then(result=>result). Expect HTTP 503 if LLM is disabled, or HTTP 200 if LLM is healthy. Record actual response."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'55555555-5555-4555-a555-555555555555'})}).then(r=>{return {status:r.status, body:r.json()}}).then(result=>result). Expect HTTP 503 if LLM is disabled, or HTTP 200 if LLM is healthy. Record actual response."
       },
       {
         "id": 4,
