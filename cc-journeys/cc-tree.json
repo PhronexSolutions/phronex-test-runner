@@ -761,20 +761,24 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+      },
+      {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/config/usage with Authorization: Bearer TRUNCATED_TOKEN_ABC123. Expect HTTP 401 (not 500). A 500 means the JWT decoder crashes on malformed input instead of returning a clean auth error."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 (not 500). A 500 means JWT decoding throws unhandled exception."
       },
       {
         "id": 2,
-        "description": "GET https://cc.phronex.com/api/v1/config/usage with Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE. Expect HTTP 401 — this JWT has a valid structure but wrong signature."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401. Invalid signature must be rejected."
       },
       {
         "id": 3,
-        "description": "GET https://cc.phronex.com/api/v1/config/usage with Authorization: Bearer (empty string after Bearer). Expect HTTP 401."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401."
       },
       {
         "id": 4,
-        "description": "GET https://cc.phronex.com/api/v1/config/usage with Authorization: InvalidScheme abc123 (not Bearer scheme). Expect HTTP 401 or 422. Any response that is 500 indicates the auth middleware crashes on unexpected input."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Never 500."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -788,15 +792,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store access_token."
+        "description": "Navigate to https://app.phronex.com to establish browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token. Store as TOKEN."
       },
       {
         "id": 2,
-        "description": "POST https://cc.phronex.com/api/v1/chat/message with Authorization: Bearer <token> and body {\"instance_id\": \"e2e-test-instance\", \"message\": \"<script>alert('xss')</script><img src=x onerror=alert(1)>Tell me about your services\", \"session_id\": null}. Expect HTTP 200 (the server should accept the message without crashing)."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'},body:JSON.stringify({instance_id:'e2e-test-instance', message:'<script>alert(1)</script> Tell me about Phronex. <img src=x onerror=alert(2)>', session_id:null})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 200. Record response text as RESPONSE."
       },
       {
         "id": 3,
-        "description": "Verify the response text does NOT contain unescaped '<script>' tags or 'onerror=' attributes. The AI's response text should discuss services normally — the XSS payload in the user's message should not be reflected verbatim in the response. If the raw script tag appears in the response text, the output is not sanitised."
+        "description": "Verify RESPONSE text does NOT contain unescaped '<script>' tags or 'onerror=' attributes that would execute JavaScript. The AI's response should discuss the question normally. Pass if: response is 200 AND the response body is plain text/JSON without raw HTML script injection. Fail if: response body echoes back '<script>alert(1)</script>' as literal HTML."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
