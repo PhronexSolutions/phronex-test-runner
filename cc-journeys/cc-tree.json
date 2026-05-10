@@ -520,7 +520,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-qa-identify-test@example.com', name:'JH QA Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store the 'token' field as IDENTIFIED_TOKEN. NOTE: Field is 'token' not 'token'."
+        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-qa-identify-test@example.com', name:'JH QA Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store the 'token' field as IDENTIFIED_TOKEN. NOTE: Field is 'token' not 'access_token'."
       },
       {
         "id": 3,
