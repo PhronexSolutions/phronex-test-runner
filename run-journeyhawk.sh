@@ -17,6 +17,10 @@
 #                  Trunks (isSharedRoot) and depended-on journeys always run.
 #                  Saves LLM budget by not re-running already-proven journeys.
 #                  NOTE: MAINTAIN strategy mode auto-sets this — no flag needed.
+#   --force-active Override MAINTAIN mode's skip flags. Runs ALL journeys with
+#                  full generation + enrichment, treating existing specs as a base.
+#                  Use after test infra changes or when you want a full reassessment.
+#                  Also triggered automatically when DocChain detects stale artefacts.
 #
 # Examples (full run with intelligence pipeline):
 #   ./run-journeyhawk.sh jp jp-journeys/jp-deep.json
@@ -72,6 +76,7 @@ GATE_MODE=0
 
 # ---------- skip-passed flag — skip journeys that passed in prior runs ----------
 SKIP_PASSED=0
+FORCE_ACTIVE=0
 
 # ---------- Phase 82 STRAT-16 — per-run mode override ----------
 while [[ $# -gt 0 ]]; do
@@ -100,6 +105,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --waive-resources)
       export JOURNEYHAWK_WAIVE_RESOURCES=1
+      shift
+      continue
+      ;;
+    --force-active)
+      FORCE_ACTIVE=1
       shift
       continue
       ;;
@@ -218,17 +228,25 @@ PYEOF
 fi
 echo "[mode] strategy_mode=${STRATEGY_MODE}"
 
-# MAINTAIN → auto-enable skip-passed (only if user did not pass --skip-passed).
-if [[ "${STRATEGY_MODE}" == "MAINTAIN" ]] && [[ "${SKIP_PASSED}" -eq 0 ]]; then
-  SKIP_PASSED=1
-  echo "[mode] MAINTAIN: SKIP_PASSED=1 auto-set (regression anchors only)"
-fi
-
-# COLD_START or MAINTAIN → skip LLM journey generation.
-if [[ "${STRATEGY_MODE}" == "COLD_START" ]] || [[ "${STRATEGY_MODE}" == "MAINTAIN" ]]; then
-  JOURNEYHAWK_SKIP_GENERATION="${JOURNEYHAWK_SKIP_GENERATION:-1}"
+# --force-active: override MAINTAIN's skip flags — treat as full EXPAND run.
+if [[ "${FORCE_ACTIVE}" -eq 1 ]]; then
+  SKIP_PASSED=0
+  JOURNEYHAWK_SKIP_GENERATION=0
   export JOURNEYHAWK_SKIP_GENERATION
-  echo "[mode] ${STRATEGY_MODE}: JOURNEYHAWK_SKIP_GENERATION=${JOURNEYHAWK_SKIP_GENERATION} (auto-set if unset)"
+  echo "[mode] --force-active: generation ON, skip-passed OFF (full reassessment)"
+else
+  # MAINTAIN → auto-enable skip-passed (only if user did not pass --skip-passed).
+  if [[ "${STRATEGY_MODE}" == "MAINTAIN" ]] && [[ "${SKIP_PASSED}" -eq 0 ]]; then
+    SKIP_PASSED=1
+    echo "[mode] MAINTAIN: SKIP_PASSED=1 auto-set (regression anchors only)"
+  fi
+
+  # COLD_START or MAINTAIN → skip LLM journey generation.
+  if [[ "${STRATEGY_MODE}" == "COLD_START" ]] || [[ "${STRATEGY_MODE}" == "MAINTAIN" ]]; then
+    JOURNEYHAWK_SKIP_GENERATION="${JOURNEYHAWK_SKIP_GENERATION:-1}"
+    export JOURNEYHAWK_SKIP_GENERATION
+    echo "[mode] ${STRATEGY_MODE}: JOURNEYHAWK_SKIP_GENERATION=${JOURNEYHAWK_SKIP_GENERATION} (auto-set if unset)"
+  fi
 fi
 export STRATEGY_MODE
 
@@ -446,15 +464,18 @@ fi
 declare -A _PRODUCT_REPO_MAP=(["jp"]="jobportal" ["cc"]="contentcompanion" ["comc"]="phronex-command-centre" ["website"]="phronex-website" ["portal"]="phronex-portal" ["praxis"]="praxis")
 _PRODUCT_REPO="${_PRODUCT_REPO_MAP[${PRODUCT}]:-${PRODUCT}}"
 _DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/ouroborous/code}/${_PRODUCT_REPO}/.docs"
+_DOCCHAIN_CHANGED=0
 if [[ -d "${_DOCS_DIR}" ]]; then
   echo ""
   echo "[0b/3] DocChain stage gate (STRAT-09, STRATEGIST_MODE=${STRATEGIST_MODE:-ACTIVE})..."
   _GATE_MODE="${STRATEGIST_MODE_OVERRIDE:-${STRATEGIST_MODE:-ACTIVE}}"
   _GATE_EXIT=0
+  _GATE_LOG=$(mktemp /tmp/jh-gate-XXXXXX.log)
+  _TEMP_FILES_TO_CLEAN+=("${_GATE_LOG}")
   "${PYTHON}" -m phronex_common.docchain.stage_gate \
     --stage pre_run \
     --docs-dir "${_DOCS_DIR}" \
-    --product "${PRODUCT}" || _GATE_EXIT=$?
+    --product "${PRODUCT}" 2>&1 | tee "${_GATE_LOG}" || _GATE_EXIT=$?
   if [[ ${_GATE_EXIT} -ne 0 ]]; then
     if [[ "${_GATE_MODE}" == "ACTIVE" ]]; then
       echo "[0b/3] DocChain gate: BLOCKED (ACTIVE mode) — aborting run. Fix missing artefacts above." >&2
@@ -463,8 +484,20 @@ if [[ -d "${_DOCS_DIR}" ]]; then
       echo "[0b/3] DocChain gate: advisory (non-blocking in ${_GATE_MODE} mode)"
     fi
   fi
+  if grep -qE "auto-generated|regenerat" "${_GATE_LOG}" 2>/dev/null; then
+    _DOCCHAIN_CHANGED=1
+  fi
 else
   echo "[0b/3] DocChain stage gate skipped — docs dir not found: ${_DOCS_DIR}"
+fi
+
+# MAINTAIN override: if DocChain artefacts were regenerated (= product design shifted),
+# force generation ON and skip-passed OFF for this run only.
+if [[ "${_DOCCHAIN_CHANGED}" -eq 1 ]] && [[ "${STRATEGY_MODE}" == "MAINTAIN" ]]; then
+  echo "[mode] MAINTAIN override: DocChain artefacts changed — running as EXPAND this cycle"
+  JOURNEYHAWK_SKIP_GENERATION=0
+  export JOURNEYHAWK_SKIP_GENERATION
+  SKIP_PASSED=0
 fi
 
 # Restore OAuth token for Python LLM calls in journey generation (Step 0b-gen).
