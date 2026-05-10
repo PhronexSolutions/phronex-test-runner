@@ -472,7 +472,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Then navigate to http://localhost:3002/command-centre/dashboard to confirm the session is active. Verify the dashboard renders (no login redirect, no 500 error). FAIL if you see the login form or a 500 error."
+        "description": "LOAD SAVED SESSION \u2014 call the mcp__cctr-playwright__browser_set_storage_state tool with filename '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json'. Do NOT attempt to log in manually \u2014 the session file already contains valid cookies. After loading, navigate to http://localhost:3002/command-centre/dashboard. Take a snapshot and verify the ComC dashboard renders (sidebar visible, stat cards visible, no login form). FAIL only if the login page appears after loading the session \u2014 that means the state file is empty or expired."
       },
       {
         "id": 2,
@@ -2260,7 +2260,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved Manager session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json' using the browser storage state tool. Then navigate to http://localhost:3002/command-centre to confirm the session is active \u2014 sidebar should be visible, no login form. FAIL if you see the login page."
+        "description": "LOAD SAVED SESSION \u2014 call the mcp__cctr-playwright__browser_set_storage_state tool with filename '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json'. Do NOT attempt to log in manually \u2014 the session file already contains valid cookies from the manager trunk. After loading, navigate to http://localhost:3002/command-centre. Take a snapshot and verify the sidebar is visible and no login form is present. FAIL only if the login page appears after loading the session."
       },
       {
         "id": 2,
