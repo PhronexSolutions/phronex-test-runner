@@ -346,15 +346,15 @@
       },
       {
         "id": 1,
-        "description": "First, GET current branding via page.evaluate(): fetch('/api/admin/cc/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Extract branding.primary_color and store as ORIGINAL_COLOR."
+        "description": "First, GET current branding via page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Extract branding.primary_color and store as ORIGINAL_COLOR."
       },
       {
         "id": 2,
-        "description": "PATCH branding colour to '#1a2b3c' via page.evaluate(): fetch('/api/admin/cc/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:'#1a2b3c'}})}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200. NOTE: Portal proxy at /api/admin/cc/... forwards X-Admin-Secret to CC backend."
+        "description": "PATCH branding colour to '#1a2b3c' via page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:'#1a2b3c'}})}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200. NOTE: Portal proxy at /api/admin/cc/... forwards X-Admin-Secret to CC backend."
       },
       {
         "id": 3,
-        "description": "GET branding again via page.evaluate() to verify persistence: fetch('/api/admin/cc/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Verify branding.primary_color === '#1a2b3c'."
+        "description": "GET branding again via page.evaluate() to verify persistence: fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Verify branding.primary_color === '#1a2b3c'."
       },
       {
         "id": 4,
