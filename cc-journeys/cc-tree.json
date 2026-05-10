@@ -498,7 +498,7 @@
       },
       {
         "id": 3,
-        "description": "Verify token works: using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200 (not 401). If 401 returned with a valid token, auth verifier may be misconfigured."
+        "description": "Verify token works: using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 (not 401). If 401 returned with a valid token, auth verifier may be misconfigured."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -623,7 +623,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with USER_TOKEN and TEMPLATE_ID: fetch('https://cc.phronex.com/api/v1/skills/from-template', {method:'POST', headers:{'Authorization':'Bearer '+USER_TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({template_id:TEMPLATE_ID, instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
+        "description": "Using page.evaluate() with USER_TOKEN and TEMPLATE_ID: fetch('https://cc.phronex.com/api/v1/skills/from-template', {method:'POST', headers:{'Authorization':'Bearer '+USER_TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({template_id:TEMPLATE_ID, instance_id:'e2e-test-instance'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
       },
       {
         "id": 4,
@@ -757,11 +757,11 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN_A from step 1: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 403 (cross-instance access denied). PASS=403, FAIL=200 (IDOR vulnerability)."
+        "description": "Using page.evaluate() with TOKEN_A from step 1: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 403 (cross-instance access denied). PASS=403, FAIL=200 (IDOR vulnerability)."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN_A: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'33333333-3333-4333-a333-333333333333'})}}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 403 (cross-instance blocked). A 200 that returns maxine instance data is an IDOR vulnerability."
+        "description": "Using page.evaluate() with TOKEN_A: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'33333333-3333-4333-a333-333333333333'})}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 403 (cross-instance blocked). A 200 that returns maxine instance data is an IDOR vulnerability."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -969,7 +969,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({tier:'pro'})}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200 with checkout_url or payment link. A 422/400 means tier name is wrong \u2014 try 'starter' or check billing/status first."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({tier:'pro'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 with checkout_url or payment link. A 422/400 means tier name is wrong \u2014 try 'starter' or check billing/status first."
       },
       {
         "id": 3,
@@ -1025,7 +1025,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'55555555-5555-4555-a555-555555555555'})}).then(r=>{return {status:r.status, body:r.json()}}).then(result=>result). Expect HTTP 503 if LLM is disabled, or HTTP 200 if LLM is healthy. Record actual response."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'55555555-5555-4555-a555-555555555555'})}).then(r=>r.json().then(body=>({status:r.status, body}))).then(result=>result). Expect HTTP 503 if LLM is disabled, or HTTP 200 if LLM is healthy. Record actual response."
       },
       {
         "id": 4,
