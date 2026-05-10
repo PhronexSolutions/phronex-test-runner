@@ -293,7 +293,15 @@ All three granted via `POST /admin/accounts/{id}/complimentary-grant` in phronex
 | Chat history | `https://cc.phronex.com/api/v1/chat/history` | — |
 | Health check | `https://cc.phronex.com/api/v1/health` | — |
 
-**ChatMessageRequest body fields:** `{"instance_id": "...", "message": "...", "session_id": null}`. The field is `session_id` NOT `conversation_id`. The field is `message` NOT `content`.
+**ChatMessageRequest body fields:** `{"instance_id": "...", "message": "...", "session_id": "<UUID>"}`. The field is `session_id` NOT `conversation_id`. The field is `message` NOT `content`.
+
+**⚠️ session_id MUST be a valid UUID (discovered CC run 5, 2026-05-11):** `CC /api/v1/chat/message` calls `uuid.UUID(session_id)` before any business logic. Non-UUID strings like `"jh-api-test-session"` cause HTTP 500 (ValueError: badly formed hexadecimal UUID string) before the response handler runs. Always use deterministic UUID v4 values in specs: e.g. `"22222222-2222-4222-a222-222222222222"`. Sending `null` skips session restore (new session); sending a valid UUID that doesn't exist is also safe (starts new session).
+
+**CC backend root 404 — not a product outage (discovered CC run 5, 2026-05-11):** `https://cc.phronex.com/` returns 404. This is expected — the CC FastAPI backend exposes no HTML root. All endpoints are under `/api/v1/*` and `/docs`. Playwright agents that navigate to `cc.phronex.com/` will always see 404 and cascade all steps as "app is down". Generated lifecycle journeys had this bug systematically (all 11 `cc-deep-*-lifecycle` journeys). The fix is in `_is_garbage_journey()` Class 4 (journey_generator.py, 2026-05-11).
+
+**Portal proxy injects instance_id — use direct CC URLs from page.evaluate() (discovered CC run 5, 2026-05-11):** The portal proxy at `/api/admin/cc/api/v1/admin/instance-config/{id}` overrides the `instance_id` from the session context, causing 403 "Request must be scoped to your instance" when the path param doesn't match. Always use the direct CC URL `https://cc.phronex.com/api/v1/admin/instance-config/{id}` from `page.evaluate()` — CORS allows `app.phronex.com` to call `cc.phronex.com` directly.
+
+**CC admin endpoint prefix is /api/v1/admin/* (discovered CC run 5, 2026-05-11):** The prefix `admin` is required: `/api/v1/admin/users`, `/api/v1/admin/instances`, `/api/v1/admin/keys`, `/api/v1/admin/instance-config/{id}`. Routes without the `admin` prefix return 404 (e.g. `/api/v1/users` → 404, `/api/v1/admin/users` → 200/403).
 
 **CC SkillResponse field name (defect #252, fixed 2026-05-05):** Backend `SkillResponse` Pydantic model uses `id: str` (NOT `skill_id`). Portal `SkillsClient.tsx` originally declared `Skill.skill_id` — causing all delete/submit/preview handlers to pass `undefined`. Corrected to `Skill.id`. When checking CC Skills API responses, the field is `id`, not `skill_id`. This is a TypeScript `as Type[]` cast hazard — the compiler cannot catch mismatches at cast boundaries.
 
