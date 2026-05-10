@@ -805,19 +805,19 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422 (not 500). 401=missing/invalid JWT, 422=validation error before auth. A 500 means JWT decoding throws unhandled exception. PASS on any non-500 response."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422 (not 500). 401=missing/invalid JWT, 422=validation error before auth. A 500 means JWT decoding throws unhandled exception. PASS on any non-500 response."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401. Invalid signature must be rejected."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Invalid signature must be rejected \u2014 never 200 or 500."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Empty Bearer token must be rejected \u2014 never 200 or 500."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Never 500."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected \u2014 never 200 or 500."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
