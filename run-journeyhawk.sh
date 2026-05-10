@@ -10,6 +10,9 @@
 #   ./run-journeyhawk.sh [flags] <product-slug> <spec-file> [results-dir]
 #
 # Flags MUST appear BEFORE the positional args (product-slug, spec-file, results-dir):
+#   --llm-oauth    Force all LLM calls through Claude OAuth subprocess (claude -p).
+#                  $0 cost on Max subscription, ~3-4s extra latency per call.
+#                  The JourneyHawk skill MUST always pass this flag.
 #   --skip-passed  Skip journeys whose most recent verdict is PASS/PASS_ORACLE.
 #                  Trunks (isSharedRoot) and depended-on journeys always run.
 #                  Saves LLM budget by not re-running already-proven journeys.
@@ -75,6 +78,11 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --gate-mode)
       GATE_MODE=1
+      shift
+      continue
+      ;;
+    --llm-oauth)
+      export LLM_OAUTH_MANDATE_ALL=true
       shift
       continue
       ;;
