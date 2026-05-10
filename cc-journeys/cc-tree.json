@@ -456,7 +456,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com to establish browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Extract access_token. Store as VISITOR_TOKEN."
+        "description": "Navigate to https://app.phronex.com to establish browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Extract token. Store as VISITOR_TOKEN."
       },
       {
         "id": 2,
@@ -482,7 +482,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Expect HTTP 200. Response shape: {\"access_token\": \"<jwt_string>\", \"token_type\": \"bearer\"}. Verify access_token is a non-empty string containing two dots (JWT format: header.payload.signature)."
+        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Expect HTTP 200. Response shape: {\"token\": \"<jwt_string>\", \"token_type\": \"bearer\"}. Verify token is a non-empty string containing two dots (JWT format: header.payload.signature)."
       },
       {
         "id": 2,
@@ -504,7 +504,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store the returned access_token as ANON_TOKEN."
+        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store the returned token as ANON_TOKEN."
       },
       {
         "id": 2,
@@ -530,7 +530,7 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store access_token as TOKEN."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store token as TOKEN."
       },
       {
         "id": 2,
@@ -577,7 +577,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com. Using page.evaluate(): call fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Verify HTTP 200 and extract access_token from response. Store as TOKEN."
+        "description": "Navigate to https://app.phronex.com. Using page.evaluate(): call fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Verify HTTP 200 and extract token from response. Store as TOKEN."
       },
       {
         "id": 2,
@@ -607,7 +607,7 @@
       },
       {
         "id": 2,
-        "description": "Get user token first: Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) \u2014 it is user-scoped, not admin-scoped."
+        "description": "Get user token first: Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) \u2014 it is user-scoped, not admin-scoped."
       },
       {
         "id": 3,
@@ -637,7 +637,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store access_token."
+        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store token."
       },
       {
         "id": 2,
@@ -729,7 +729,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store the access_token as INSTANCE_A_TOKEN."
+        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store the token as INSTANCE_A_TOKEN."
       },
       {
         "id": 2,
@@ -751,7 +751,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store access_token."
+        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store token."
       },
       {
         "id": 2,
@@ -807,7 +807,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com to establish browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token. Store as TOKEN."
+        "description": "Navigate to https://app.phronex.com to establish browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
       },
       {
         "id": 2,
@@ -833,7 +833,7 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token. Store as TOKEN."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
       },
       {
         "id": 2,
@@ -893,7 +893,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store access_token."
+        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store token."
       },
       {
         "id": 2,
@@ -941,7 +941,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store access_token."
+        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store token."
       },
       {
         "id": 2,
