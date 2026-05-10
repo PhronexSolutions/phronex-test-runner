@@ -741,3 +741,44 @@ An empty array is the correct API contract for an unconfigured org. The generate
 
 **Rule:** Never write journey specs that assume brief settings or similar config-on-demand resources are pre-populated. Always: GET → check state → PUT if needed → verify PUT result.
 
+### FastAPI validates request schema BEFORE auth Depends() (discovered CC run 5/6, 2026-05-11)
+
+**Pattern:** FastAPI routes with required body or query params run Pydantic validation before any `Depends()` auth middleware. A route like `POST /api/v1/billing/status` that requires `instance_id` in the body returns **HTTP 422 Unprocessable Entity** before the JWT auth ever fires.
+
+**Consequence for security testing:** A journey testing "invalid JWT is rejected" against such an endpoint actually tests Pydantic, not auth. The JWT rejection never happens. The journey will FAIL_ORACLE (expects 401/403, gets 422) and look like a broken auth gate when it isn't.
+
+**Fix:** Security auth-rejection journeys must use endpoints with no required params — e.g. `GET /api/v1/chat/sessions` (no body, no required query params). `GET /api/v1/admin/users` also works if testing admin auth. Always prefer GET endpoints with no params for auth boundary testing.
+
+**Rule:** Before writing an auth-rejection journey, check whether the target endpoint has required params. If it does, choose a different endpoint. The defect is in the spec, not the product.
+
+---
+
+### `body: r.json()` Promise anti-pattern in `page.evaluate()` fetch chains (discovered CC run 5/6, 2026-05-11)
+
+**Pattern:** In `page.evaluate()`, `r.json()` is an async method that returns a Promise. Writing `{status: r.status, body: r.json()}` captures the **Promise object**, not the resolved value. The journey agent receives `body: {}` or `body: [object Promise]` and cannot verify any response fields.
+
+**Correct pattern:**
+```javascript
+// WRONG — body captures a Promise
+.then(r => ({status: r.status, body: r.json()}))
+
+// CORRECT — chain .then() to resolve the JSON before returning
+.then(r => r.json().then(body => ({status: r.status, body})))
+```
+
+**Fix applied:** 7 journey steps across auth-anonymous, api-skills-crud, sec-idor-cross-instance, biz-billing-checkout, biz-chat-disabled corrected in CC run 6 spec fixes.
+
+**Rule:** Any `page.evaluate()` fetch chain that needs to return response body must use `.then(r => r.json().then(body => ({status: r.status, body})))`. Grep for `body:\s*r\.json\(\)` before finalising any spec.
+
+---
+
+### Class 5 garbage journeys — no actionable URL in any step (structural fix, 2026-05-11)
+
+**Pattern:** The journey generator's heuristic path (`_generate_from_discovery`) can produce journeys where every step is pure prose — "GSD acceptance: X", "Verify the system does Y" — with no `https://` URL, `/api/` path, or navigation target. These are planning-doc artefacts that a browser agent cannot execute.
+
+**Detection:** `_is_garbage_journey()` in `journey_generator.py` now has Class 5 detection. A journey is garbage if no step description contains `https?://`, `/api/`, or `navigate to.*https?://`.
+
+**Curator fix:** `spec_curator.curate()` now runs an unconditional static spec garbage scan before checking for the generated cache file. In `--no-llm` mode (where `cc-tree.generated.json` is never written), the previous fast-path never ran. Garbage now evicted from `cc-tree.json` itself on the first post-run curator call.
+
+**Rule:** After any run that uses `JOURNEYHAWK_NO_LLM=1`, the curator still evicts garbage from the static spec. No manual cleanup needed — but verify the curator ran by checking logs for `[curator] Evicted N garbage journeys from static spec`.
+
