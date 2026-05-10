@@ -472,7 +472,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "LOAD SAVED SESSION \u2014 call the mcp__cctr-playwright__browser_set_storage_state tool with filename '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json'. Do NOT attempt to log in manually \u2014 the session file already contains valid cookies. After loading, navigate to http://localhost:3002/command-centre/dashboard. Take a snapshot and verify the ComC dashboard renders (sidebar visible, stat cards visible, no login form). FAIL only if the login page appears after loading the session \u2014 that means the state file is empty or expired."
+        "description": "LOAD CEO SESSION via browser_run_code. Execute this exact Node.js code to inject the saved CEO cookies into the current browser context: const fs = require('fs'); const raw = fs.readFileSync('/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', 'utf8'); const state = JSON.parse(raw); await page.context().addCookies(state.cookies); console.log('loaded cookies count:', state.cookies.length); After the code runs, navigate to http://localhost:3002/command-centre/dashboard and take a snapshot. PASS if the ComC dashboard renders (sidebar visible, no login form). FAIL only if the login page appears \u2014 meaning cookies were empty or expired. Do NOT attempt to log in manually."
       },
       {
         "id": 2,
@@ -2260,7 +2260,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "LOAD SAVED SESSION \u2014 call the mcp__cctr-playwright__browser_set_storage_state tool with filename '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json'. Do NOT attempt to log in manually \u2014 the session file already contains valid cookies from the manager trunk. After loading, navigate to http://localhost:3002/command-centre. Take a snapshot and verify the sidebar is visible and no login form is present. FAIL only if the login page appears after loading the session."
+        "description": "NO SESSION LOAD NEEDED \u2014 the browser is already in the manager session from the preceding comc-trunk-manager journey (journeys run sequentially in the same browser instance). Navigate directly to http://localhost:3002/command-centre and take a snapshot. PASS if the ComC sidebar is visible and no login form is present. FAIL only if the login page appears \u2014 that would mean the trunk session was not established."
       },
       {
         "id": 2,
