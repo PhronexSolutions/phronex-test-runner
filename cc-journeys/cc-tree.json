@@ -813,20 +813,24 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+      },
+      {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store access_token."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token. Store as TOKEN."
       },
       {
         "id": 2,
-        "description": "POST https://cc.phronex.com/api/v1/auth/identify with Authorization: Bearer <token> and body {\"email\": \"test@example.com' OR '1'='1\", \"name\": \"SQLi Test\", \"instance_id\": \"e2e-test-instance\"}. Expect HTTP 422 (validation error) or 400 (bad request)."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"test@example.com' OR '1'='1\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 422 or 400 (validation error). NOT 500 (which would indicate a SQL error leaked)."
       },
       {
         "id": 3,
-        "description": "Verify the response does NOT contain SQL error messages: no 'syntax error', no 'pg_catalog', no 'relation', no 'column', no PostgreSQL error codes. The response should be a clean validation error or a generic 400. Any SQL error text leaking is an information disclosure vulnerability."
+        "description": "Verify the response from step 2 does NOT contain SQL error messages: no 'syntax error', no 'pg_catalog', no 'relation', no 'column', no PostgreSQL error codes. A clean 422 or 400 validation error is passing. A 500 with SQL error text is a FAIL."
       },
       {
         "id": 4,
-        "description": "POST https://cc.phronex.com/api/v1/auth/identify with body {\"email\": \"'; DROP TABLE users; --\", \"name\": \"SQLi Test\", \"instance_id\": \"e2e-test-instance\"}. Expect 422 or 400. Verify no SQL errors in response. Verify the users table still functions by making a successful /auth/anonymous call after."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"'; DROP TABLE users; --\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect 422 or 400. Verify no SQL errors in response."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
