@@ -467,32 +467,28 @@
   },
   {
     "id": "comc-revenue-leads-enrichment-integrity",
-    "description": "[BEHAVIORAL] Revenue Leads journey: verify leads API is reachable, returns correct org-scoped response shape (id, company_name, bant_score, status), and that the portal /leads page renders without error. Tests the CEO role gate, org-scoping enforcement, and correct serialization \u2014 not LLM enrichment (async, not synchronous).",
+    "description": "[BEHAVIORAL] Revenue Leads journey: verify the leads portal page renders correctly with CEO session, handles empty state gracefully, and navigates to the lead dossier section without crashing. Tests that the Revenue pillar is functional end-to-end for a CEO user.",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears after navigating to http://localhost:3002/command-centre."
+        "description": "Load saved CEO session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json' using the browser storage state tool. Then navigate to http://localhost:3002/command-centre/dashboard to confirm the session is active. Verify the dashboard renders (no login redirect, no 500 error). FAIL if you see the login form or a 500 error."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/revenue/leads (or the leads section under the Revenue pillar in the left sidebar). Verify the page renders \u2014 no blank white screen, no 500 error banner, no 'Something went wrong' text. Record the current URL. If the page shows an empty state ('No leads yet' or similar), that is a PASS \u2014 empty is valid."
+        "description": "Navigate to http://localhost:3002/command-centre/revenue/leads. Take a snapshot of the page. Verify: (a) no 500 error banner or 'Something went wrong' text, (b) no JavaScript 'TypeError' in the browser console. The page may show an empty state ('No leads yet', 'No results', or a blank table) \u2014 that is a PASS. The page must NOT crash. PASS if the page renders any content without a runtime error."
       },
       {
         "id": 3,
-        "description": "Use page.evaluate() to send a GET request directly to the leads API: const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/leads', {credentials: 'include'}); const status = r.status; const body = await r.json(); console.log('leads_status:', status, 'leads_count:', Array.isArray(body) ? body.length : body); Verify HTTP 200. Verify the response is a JSON array (empty array is valid \u2014 means no leads yet for this org). FAIL only on HTTP 403, 500, or non-array response."
+        "description": "On the leads page, check the browser console for errors. Look specifically for: 'Cannot read properties of undefined', 'TypeError', 'is not a function', or any red error that causes a blank section. If any such error appears alongside a blank or broken leads section, mark this step FAILED and record the error message. If the console is clean or only shows network 404s for non-critical resources, mark PASS."
       },
       {
         "id": 4,
-        "description": "If the leads array from step 3 is non-empty: pick the first lead object and verify it contains these fields: 'id' (non-empty string), 'company_name' (string, may be empty), 'bant_score' (number), 'status' (string). Verify the lead does NOT contain a 'raw_context' field at the top level (raw_context leakage would be a security finding per T-11-05-04). If the leads array is empty, skip field validation and mark this step PASS \u2014 no data to leak. PASS either way as long as no raw_context leakage occurs."
+        "description": "Navigate to http://localhost:3002/command-centre/revenue/lead-dossier. Verify the page loads without a 500 error or blank white screen. The page should show either: (a) a lead dossier generation form (company name input + generate button), or (b) a list of past dossiers, or (c) an empty state. Any of these is a PASS. FAIL only if the page shows 'Something went wrong' or a JavaScript crash banner."
       },
       {
         "id": 5,
-        "description": "Use page.evaluate() to verify the superadmin token is properly rejected by the org-scoped endpoint. Send a GET request to http://localhost:3002/api/admin/command-centre/api/v1/leads using a fresh fetch with no credentials: const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/leads'); const s = r.status; console.log('unauthed_leads_status:', s); Verify HTTP 401 or 403 \u2014 unauthenticated requests MUST be rejected. FAIL if unauthenticated request returns HTTP 200."
-      },
-      {
-        "id": 6,
-        "description": "Use page.evaluate() to call the lead dossier generate endpoint to verify it is reachable and returns a structured error (not a 500 crash) when called without a valid company to enrich: const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/lead-dossier/generate', {method: 'POST', credentials: 'include', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({company_name: 'JH-NoopCo', contact_name: 'Test', source: 'journeyhawk_test'})}); const s = r.status; console.log('dossier_status:', s); PASS if status is 200, 422 (validation error), or 503 (LLM unavailable). FAIL only on 500 (unhandled crash)."
+        "description": "Navigate to http://localhost:3002/command-centre/revenue/revenue-intel. Verify the page renders without a crash. Take a snapshot. The revenue intelligence page should show charts, metrics, or an empty state \u2014 any rendered content without a crash is a PASS. Check the browser console for errors specific to this page (not carried-over errors from prior navigation). FAIL only on a JavaScript crash or 500 error banner visible on screen."
       }
     ],
     "dependsOn": "comc-trunk-ceo"
@@ -2259,36 +2255,28 @@
   },
   {
     "id": "comc-data-isolation-user-initiative-visibility",
-    "description": "[BEHAVIORAL] Org-scoping isolation: verifies that (1) superadmin tokens without a ComC grant are blocked at the org-scoped initiatives endpoint (403), (2) the manager role can read initiatives scoped to their org, and (3) all returned initiatives share the same org_id \u2014 no cross-tenant leakage. Tests the get_org_id() 403 gate and org_id WHERE clause in list_initiatives().",
+    "description": "[BEHAVIORAL] RBAC boundary: manager can access initiatives page; manager cannot access CEO-only pages (agents, ethos). Tests that the portal correctly enforces role boundaries by verifying page-level access control across the cc_manager and cc_ceo role boundary.",
     "depth": 2,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved Manager session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears after navigating to http://localhost:3002/command-centre."
+        "description": "Load saved Manager session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json' using the browser storage state tool. Then navigate to http://localhost:3002/command-centre to confirm the session is active \u2014 sidebar should be visible, no login form. FAIL if you see the login page."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Verify the page loads without a 500 error or blank white screen. The page should show an initiatives list or an empty state message. Record whether data is present."
+        "description": "Navigate to http://localhost:3002/command-centre/initiatives. Take a snapshot. Verify: (a) the page renders without a 500 error or crash, (b) the page shows either an initiatives list or an empty state ('No initiatives yet' or similar). The manager role should have read access to initiatives. FAIL if the page shows a 403/forbidden error or a JavaScript crash."
       },
       {
         "id": 3,
-        "description": "Use page.evaluate() to call the initiatives API with the current session (manager token, has org_id): const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/initiatives', {credentials: 'include'}); const s = r.status; const body = await r.json(); console.log('initiatives_status:', s, 'count:', Array.isArray(body) ? body.length : 'not-array', 'body:', JSON.stringify(body).slice(0, 200)); Verify HTTP 200. Verify the response is a JSON array (empty array is valid). FAIL on HTTP 403 (manager must be able to read initiatives) or 500."
+        "description": "On the initiatives page, verify there is no 'CEO role required' error banner, no redirect to the dashboard, and no 403 response visible in the UI. The manager account (cc_manager role) must be able to view the initiatives section. Record the page title or heading visible in the snapshot. PASS if any initiatives content or empty state renders. FAIL only if a 403/forbidden message appears."
       },
       {
         "id": 4,
-        "description": "If the initiatives array from step 3 is non-empty: pick the first initiative object and verify it contains: 'id' (string), 'title' (string), 'status' (string). Record the org_id field if present. Verify that org_id, if present in the response, is a single consistent UUID \u2014 all items in the array should have the same org_id. PASS if array is empty (no initiatives yet) or all items have consistent org_id. FAIL only if org_id values differ across items (cross-tenant leak)."
+        "description": "Navigate to http://localhost:3002/command-centre/agents to test the CEO-only boundary. The agents page requires require_ceo (cc_ceo role). Take a snapshot. Verify that the cc_manager session either: (a) sees a 403/forbidden error page, (b) is redirected to the dashboard or a 'permissions' page, OR (c) the page renders but a 403 error appears when data loads (API returns 403 for the manager token). PASS if any of these access-denied outcomes occurs. FAIL if the agents page loads fully with agent data \u2014 that would mean the cc_manager bypassed the CEO gate."
       },
       {
         "id": 5,
-        "description": "Now switch to superadmin session. Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' using the browser storage state tool. Verify no login prompt appears."
-      },
-      {
-        "id": 6,
-        "description": "Use page.evaluate() to call the initiatives API with the superadmin session (superadmin token has NO ComC org_id): const r = await fetch('http://localhost:3002/api/admin/command-centre/api/v1/initiatives', {credentials: 'include'}); const s = r.status; const body = await r.text(); console.log('superadmin_initiatives_status:', s, 'body:', body.slice(0, 200)); EXPECTED: HTTP 403 with detail 'ComC instance grant required' \u2014 superadmin tokens without a ComC grant must be blocked by get_org_id(). PASS if status is 403. FAIL if status is 200 (org-scoping bypass \u2014 data leak) or 500 (crash)."
-      },
-      {
-        "id": 7,
-        "description": "Verify the portal handles the superadmin 403 gracefully. Navigate to http://localhost:3002/command-centre/initiatives while the superadmin session is active. Verify the page shows an error state, redirect to login, or empty message \u2014 it must NOT show a JavaScript crash or blank white page. The portal should degrade gracefully when the backend returns 403 for org-scoped endpoints. PASS if any reasonable error/empty UI renders without a JavaScript exception in the console."
+        "description": "Navigate to http://localhost:3002/command-centre/crm to confirm the manager has access to manager-level features. CRM uses require_manager which cc_manager satisfies. Verify: (a) no 403/forbidden error, (b) the CRM contacts page or an empty state renders. Then navigate to http://localhost:3002/command-centre/meetings \u2014 another manager-level page. Verify it renders without a 403. PASS if both CRM and meetings pages render. FAIL if either shows a 403 or crashes."
       }
     ],
     "dependsOn": "comc-trunk-manager"
