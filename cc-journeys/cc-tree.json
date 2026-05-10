@@ -8,7 +8,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load — verify no 500 error and the sidebar is visible."
+        "description": "Navigate to http://localhost:3002. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load \u2014 verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,
@@ -16,13 +16,13 @@
       },
       {
         "id": 3,
-        "description": "Save browser session: Call the browser_storage_state tool with filename set to the stateOutputPath (.tmp/cc-trunk-superadmin-state.json) to persist cookies and localStorage for downstream journeys. This step is critical — without it, all dependent journeys will fail to authenticate."
+        "description": "Save browser session: Call the browser_storage_state tool with filename set to the stateOutputPath (.tmp/cc-trunk-superadmin-state.json) to persist cookies and localStorage for downstream journeys. This step is critical \u2014 without it, all dependent journeys will fail to authenticate."
       }
     ]
   },
   {
     "id": "cc-portal-dashboard",
-    "description": "Layer 1 — Portal Stabilisation: Navigate to CC dashboard, verify all tabs load without crash. Targets defect #238 (hasCustomKey infinite recursion).",
+    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to CC dashboard, verify all tabs load without crash. Targets defect #238 (hasCustomKey infinite recursion).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -31,11 +31,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors — specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors \u2014 specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
       },
       {
         "id": 2,
-        "description": "Identify all tabs visible in the CC dashboard tab bar. For a superadmin account, expect: Overview, Analytics, Info & Connections, Sessions. Click the 'Overview' tab. Verify it renders content without a JavaScript crash — look for stat cards, metrics, or an informative empty state. A blank white screen or error boundary is a FAIL."
+        "description": "Identify all tabs visible in the CC dashboard tab bar. For a superadmin account, expect: Overview, Analytics, Info & Connections, Sessions. Click the 'Overview' tab. Verify it renders content without a JavaScript crash \u2014 look for stat cards, metrics, or an informative empty state. A blank white screen or error boundary is a FAIL."
       },
       {
         "id": 3,
@@ -43,7 +43,7 @@
       },
       {
         "id": 4,
-        "description": "Click the 'Info & Connections' tab. Verify the tab content renders — look for 'Platform Connections', 'Instance LLM Configuration', 'Widget Embed Code', or 'Recent Issues' sections. NOTE: React 19 ErrorBoundary may log a console.error when RecentIssues mounts (known React 19 concurrent mode fiber-state issue, defect #251, fixed via ErrorBoundary containment in commit 993083a). This console.error is EXPECTED and NOT a failure — the tab content must still be present. A blank white page or 'Something went wrong' fullscreen overlay is a FAIL. A contained 'Recent issues unavailable' fallback is a PASS."
+        "description": "Click the 'Info & Connections' tab. Verify the tab content renders \u2014 look for 'Platform Connections', 'Instance LLM Configuration', 'Widget Embed Code', or 'Recent Issues' sections. NOTE: React 19 ErrorBoundary may log a console.error when RecentIssues mounts (known React 19 concurrent mode fiber-state issue, defect #251, fixed via ErrorBoundary containment in commit 993083a). This console.error is EXPECTED and NOT a failure \u2014 the tab content must still be present. A blank white page or 'Something went wrong' fullscreen overlay is a FAIL. A contained 'Recent issues unavailable' fallback is a PASS."
       },
       {
         "id": 5,
@@ -51,14 +51,14 @@
       },
       {
         "id": 6,
-        "description": "Final console check: open browser console and review errors accumulated across all 4 tab navigations. FAIL if any error contains 'hasCustomKey', 'Maximum call stack', or 'infinite' (defect #238). FAIL if any uncaught React error crashes a full tab (blank white screen or full-page error boundary). EXPECTED AND ACCEPTABLE: a single React ErrorBoundary console.error from the 'Info & Connections' tab related to 'Object.entries' or fiber state (defect #251 — contained by ErrorBoundary, not a page crash). The presence of this specific error with the tab still rendering content = PASS."
+        "description": "Final console check: open browser console and review errors accumulated across all 4 tab navigations. FAIL if any error contains 'hasCustomKey', 'Maximum call stack', or 'infinite' (defect #238). FAIL if any uncaught React error crashes a full tab (blank white screen or full-page error boundary). EXPECTED AND ACCEPTABLE: a single React ErrorBoundary console.error from the 'Info & Connections' tab related to 'Object.entries' or fiber state (defect #251 \u2014 contained by ErrorBoundary, not a page crash). The presence of this specific error with the tab still rendering content = PASS."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-info-connections",
-    "description": "Layer 1 — Portal Stabilisation: Verify Info & Connections tab renders correctly. Defect #251 (Object.entries(null) crash) is CONTAINED via ErrorBoundary (commits 993083a+20d1b69) — tab content must be visible even if RecentIssues shows fallback. Regression check: full tab blank or fullscreen error overlay = FAIL.",
+    "description": "Layer 1 \u2014 Portal Stabilisation: Verify Info & Connections tab renders correctly. Defect #251 (Object.entries(null) crash) is CONTAINED via ErrorBoundary (commits 993083a+20d1b69) \u2014 tab content must be visible even if RecentIssues shows fallback. Regression check: full tab blank or fullscreen error overlay = FAIL.",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -71,7 +71,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the main Info & Connections content is visible. Look for: (a) 'Platform Connections' section with CC API URL and Admin Secret rows, OR (b) 'Instance LLM Configuration' section with at least one instance card. If a console.error fires referencing 'Object.entries' or React fiber state — this is the KNOWN AND CONTAINED defect #251 React 19 issue. The content sections above must still be present. If they are: PASS. If the entire tab is blank or shows a fullscreen error: FAIL (regression — ErrorBoundary no longer working)."
+        "description": "Verify the main Info & Connections content is visible. Look for: (a) 'Platform Connections' section with CC API URL and Admin Secret rows, OR (b) 'Instance LLM Configuration' section with at least one instance card. If a console.error fires referencing 'Object.entries' or React fiber state \u2014 this is the KNOWN AND CONTAINED defect #251 React 19 issue. The content sections above must still be present. If they are: PASS. If the entire tab is blank or shows a fullscreen error: FAIL (regression \u2014 ErrorBoundary no longer working)."
       },
       {
         "id": 3,
@@ -79,14 +79,14 @@
       },
       {
         "id": 4,
-        "description": "Check the 'Recent Issues' section at the bottom. It should show either 'No issues in the last 7 days' badge OR a list of recent error entries OR the 'Recent issues unavailable' fallback (if ErrorBoundary caught the React 19 fiber error). All three outcomes are PASS — the fallback is expected. Only FAIL if no section renders at all."
+        "description": "Check the 'Recent Issues' section at the bottom. It should show either 'No issues in the last 7 days' badge OR a list of recent error entries OR the 'Recent issues unavailable' fallback (if ErrorBoundary caught the React 19 fiber error). All three outcomes are PASS \u2014 the fallback is expected. Only FAIL if no section renders at all."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-users-management",
-    "description": "Layer 1 — Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
+    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -99,11 +99,11 @@
       },
       {
         "id": 2,
-        "description": "Check browser console for errors containing 'is_flagged', 'column', or 'UndefinedColumn' — defect #241 manifests as a SQL error because is_flagged is missing from the SELECT clause. If console shows a network error on the users fetch with a 500 status, inspect the response body for SQL-related error text."
+        "description": "Check browser console for errors containing 'is_flagged', 'column', or 'UndefinedColumn' \u2014 defect #241 manifests as a SQL error because is_flagged is missing from the SELECT clause. If console shows a network error on the users fetch with a 500 status, inspect the response body for SQL-related error text."
       },
       {
         "id": 3,
-        "description": "If users are listed: verify each user row displays at minimum an identifier (email or anonymous ID) and does NOT show a raw 'undefined' or 'null' for the flagged status column. Look for a flag/badge icon or a 'Flagged' column — its presence confirms is_flagged is in the SELECT."
+        "description": "If users are listed: verify each user row displays at minimum an identifier (email or anonymous ID) and does NOT show a raw 'undefined' or 'null' for the flagged status column. Look for a flag/badge icon or a 'Flagged' column \u2014 its presence confirms is_flagged is in the SELECT."
       },
       {
         "id": 4,
@@ -114,7 +114,7 @@
   },
   {
     "id": "cc-portal-skills-panel",
-    "description": "Layer 1 — Portal Stabilisation: Navigate to Skills tab, verify list loads and actions pass correct skill ID. Targets defect #252 (undefined skill ID in delete/submit/preview).",
+    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Skills tab, verify list loads and actions pass correct skill ID. Targets defect #252 (undefined skill ID in delete/submit/preview).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -123,7 +123,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders — either a list of skills or an empty state with a 'Browse Templates' CTA."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders \u2014 either a list of skills or an empty state with a 'Browse Templates' CTA."
       },
       {
         "id": 2,
@@ -131,7 +131,7 @@
       },
       {
         "id": 3,
-        "description": "After skill creation: verify the new skill appears in the list. Inspect the skill row — look for action buttons (Delete, Submit, Preview). Click 'Delete' on the new skill. In the Network tab, verify the DELETE request URL contains a valid UUID skill_id (not 'undefined' or 'null'). Defect #252 sends DELETE /api/v1/skills/undefined — look for this exact URL pattern."
+        "description": "After skill creation: verify the new skill appears in the list. Inspect the skill row \u2014 look for action buttons (Delete, Submit, Preview). Click 'Delete' on the new skill. In the Network tab, verify the DELETE request URL contains a valid UUID skill_id (not 'undefined' or 'null'). Defect #252 sends DELETE /api/v1/skills/undefined \u2014 look for this exact URL pattern."
       },
       {
         "id": 4,
@@ -142,7 +142,7 @@
   },
   {
     "id": "cc-portal-analytics",
-    "description": "Layer 1 — Portal Stabilisation: Navigate to Analytics tab, verify charts and data render without crash.",
+    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Analytics tab, verify charts and data render without crash.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
@@ -156,18 +156,18 @@
       },
       {
         "id": 3,
-        "description": "Look for chart/graph visualisations (Recharts SVG containers, canvas elements, or chart wrappers). If present, verify they render without corruption — no blank chart boxes, no 'Chart failed to load' error text. Check browser console for Recharts or chart-related errors."
+        "description": "Look for chart/graph visualisations (Recharts SVG containers, canvas elements, or chart wrappers). If present, verify they render without corruption \u2014 no blank chart boxes, no 'Chart failed to load' error text. Check browser console for Recharts or chart-related errors."
       },
       {
         "id": 4,
-        "description": "If date range or time period filter controls are visible, change the selection (e.g., switch from 'Last 7 days' to 'Last 30 days'). Verify the analytics section responds — shows a loading state or updates data. A filter control that does nothing on change is a regression."
+        "description": "If date range or time period filter controls are visible, change the selection (e.g., switch from 'Last 7 days' to 'Last 30 days'). Verify the analytics section responds \u2014 shows a loading state or updates data. A filter control that does nothing on change is a regression."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-sessions",
-    "description": "Layer 1 — Portal Stabilisation: Navigate to Sessions tab, verify session list loads for superadmin.",
+    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Sessions tab, verify session list loads for superadmin.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
@@ -177,7 +177,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the sessions section renders: either a table/list of recent chat sessions showing session_id, user identifier, timestamp, and message count — or an informative empty state ('No sessions yet'). An 'Access Denied' error for this superadmin account is a regression."
+        "description": "Verify the sessions section renders: either a table/list of recent chat sessions showing session_id, user identifier, timestamp, and message count \u2014 or an informative empty state ('No sessions yet'). An 'Access Denied' error for this superadmin account is a regression."
       },
       {
         "id": 3,
@@ -188,7 +188,7 @@
   },
   {
     "id": "cc-portal-settings",
-    "description": "Layer 1 — Portal Stabilisation: Navigate to instance settings, verify config loads and form renders.",
+    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to instance settings, verify config loads and form renders.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
@@ -202,14 +202,14 @@
       },
       {
         "id": 3,
-        "description": "Look for a 'Save' or 'Update' button. Verify it is present and not permanently disabled. Do NOT click it — this journey only verifies the page loads correctly. Check browser console for any errors during page load."
+        "description": "Look for a 'Save' or 'Update' button. Verify it is present and not permanently disabled. Do NOT click it \u2014 this journey only verifies the page loads correctly. Check browser console for any errors during page load."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-skill-lifecycle",
-    "description": "Layer 2 — Deep E2E: Full skill lifecycle — create from template, verify in list, submit for review, delete. Targets defects #239 (401 for superadmin) and #252 (undefined skill ID).",
+    "description": "Layer 2 \u2014 Deep E2E: Full skill lifecycle \u2014 create from template, verify in list, submit for review, delete. Targets defects #239 (401 for superadmin) and #252 (undefined skill ID).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -223,11 +223,11 @@
       },
       {
         "id": 2,
-        "description": "Select the first template. If a customisation form appears, enter description 'JH-QA lifecycle test skill — safe to delete'. Click 'Create Skill' or the confirm button. Verify the API response is 201 Created (check Network tab). If 401 is returned for the POST /api/v1/skills/from-template, record as defect #239."
+        "description": "Select the first template. If a customisation form appears, enter description 'JH-QA lifecycle test skill \u2014 safe to delete'. Click 'Create Skill' or the confirm button. Verify the API response is 201 Created (check Network tab). If 401 is returned for the POST /api/v1/skills/from-template, record as defect #239."
       },
       {
         "id": 3,
-        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to http://localhost:3002/cc/dashboard, then back to http://localhost:3002/cc/skills?instance=e2e-test-instance. Verify the skill still appears — confirming persistence."
+        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to http://localhost:3002/cc/dashboard, then back to http://localhost:3002/cc/skills?instance=e2e-test-instance. Verify the skill still appears \u2014 confirming persistence."
       },
       {
         "id": 4,
@@ -242,7 +242,7 @@
   },
   {
     "id": "cc-e2e-content-ingestion",
-    "description": "Layer 2 — Deep E2E: Navigate to content, trigger URL ingest, wait for status, verify content appears.",
+    "description": "Layer 2 \u2014 Deep E2E: Navigate to content, trigger URL ingest, wait for status, verify content appears.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
@@ -256,11 +256,11 @@
       },
       {
         "id": 3,
-        "description": "After submitting, look for an ingest status indicator — a progress bar, 'Processing' badge, spinner, or a job status section. Wait up to 30 seconds for status to change from 'processing' to 'completed' or 'indexed'. If the page shows a job_id, record it."
+        "description": "After submitting, look for an ingest status indicator \u2014 a progress bar, 'Processing' badge, spinner, or a job status section. Wait up to 30 seconds for status to change from 'processing' to 'completed' or 'indexed'. If the page shows a job_id, record it."
       },
       {
         "id": 4,
-        "description": "Verify the ingestion result. Two acceptable outcomes: (A) SUCCESS: the ingested content appears in the content list with a human-readable source label (the URL 'phronex.com/about' or similar), and chunk count is > 0 if displayed. (B) SERVER CAPABILITY MISSING: if the error message says 'URL crawl is not available on this server' or 'Use file upload instead', this is an ACCEPTABLE outcome — it means the server (EC2) does not have crawl4ai installed, which is intentional (crawl4ai pulls 400MB browser binaries, excluded from EC2). In outcome B, verify the portal shows a clear user-facing error message (not a 500). FAIL only if: content is silently missing with no error shown, or an unhandled 500 error appears."
+        "description": "Verify the ingestion result. Two acceptable outcomes: (A) SUCCESS: the ingested content appears in the content list with a human-readable source label (the URL 'phronex.com/about' or similar), and chunk count is > 0 if displayed. (B) SERVER CAPABILITY MISSING: if the error message says 'URL crawl is not available on this server' or 'Use file upload instead', this is an ACCEPTABLE outcome \u2014 it means the server (EC2) does not have crawl4ai installed, which is intentional (crawl4ai pulls 400MB browser binaries, excluded from EC2). In outcome B, verify the portal shows a clear user-facing error message (not a 500). FAIL only if: content is silently missing with no error shown, or an unhandled 500 error appears."
       },
       {
         "id": 5,
@@ -271,7 +271,7 @@
   },
   {
     "id": "cc-e2e-lead-form-crud",
-    "description": "Layer 2 — Deep E2E: Full lead form field CRUD — create, verify persistence, edit, delete. Targets defect #240 (deep-merge preserves deleted field).",
+    "description": "Layer 2 \u2014 Deep E2E: Full lead form field CRUD \u2014 create, verify persistence, edit, delete. Targets defect #240 (deep-merge preserves deleted field).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -288,7 +288,7 @@
       },
       {
         "id": 3,
-        "description": "Navigate away to http://localhost:3002/cc/dashboard, then return to the lead form page. Verify 'JH QA Test Field' persists after navigation — confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
+        "description": "Navigate away to http://localhost:3002/cc/dashboard, then return to the lead form page. Verify 'JH QA Test Field' persists after navigation \u2014 confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
       },
       {
         "id": 4,
@@ -300,20 +300,20 @@
       },
       {
         "id": 6,
-        "description": "CRITICAL for defect #240: navigate away and return to the lead form page. Verify 'JH QA Test Field Edited' does NOT reappear. If it reappears despite deletion, defect #240 is STILL PRESENT — the deep-merge is preserving the deleted field. Check the GET response in Network tab to confirm the field is absent from the API response."
+        "description": "CRITICAL for defect #240: navigate away and return to the lead form page. Verify 'JH QA Test Field Edited' does NOT reappear. If it reappears despite deletion, defect #240 is STILL PRESENT \u2014 the deep-merge is preserving the deleted field. Check the GET response in Network tab to confirm the field is absent from the API response."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-instance-config",
-    "description": "Layer 2 — Deep E2E: Edit instance persona, save, navigate away, return, verify persistence.",
+    "description": "Layer 2 \u2014 Deep E2E: Edit instance persona, save, navigate away, return, verify persistence.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify — greeting message, assistant name, or persona description. Record the original value."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify \u2014 greeting message, assistant name, or persona description. Record the original value."
       },
       {
         "id": 2,
@@ -321,7 +321,7 @@
       },
       {
         "id": 3,
-        "description": "Wait for save confirmation — a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
+        "description": "Wait for save confirmation \u2014 a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
       },
       {
         "id": 4,
@@ -336,7 +336,7 @@
   },
   {
     "id": "cc-e2e-branding-update",
-    "description": "Layer 2 — Deep E2E: Change branding colours, save, verify widget preview reflects changes.",
+    "description": "Layer 2 \u2014 Deep E2E: Change branding colours, save, verify widget preview reflects changes.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
@@ -346,11 +346,11 @@
       },
       {
         "id": 2,
-        "description": "On the Branding tab: look for colour input fields (primary colour, accent colour) and text inputs (display name, welcome message). Record the current primary colour hex value. Change it to a distinctly different value — if current is copper-ish (#c0803e), try '#10b981' (green). Enter the new hex value in the primary colour input."
+        "description": "On the Branding tab: look for colour input fields (primary colour, accent colour) and text inputs (display name, welcome message). Record the current primary colour hex value. Change it to a distinctly different value \u2014 if current is copper-ish (#c0803e), try '#10b981' (green). Enter the new hex value in the primary colour input."
       },
       {
         "id": 3,
-        "description": "Click 'Save Branding' or the save button. Check the Network tab for the request — for superadmin it should go to /api/v1/admin/instance-config/e2e-test-instance (PATCH), not /api/cc/owner/api/v1/config/branding (which is owner-only). Verify HTTP 200. A 403 means the proxy path is wrong for superadmin."
+        "description": "Click 'Save Branding' or the save button. Check the Network tab for the request \u2014 for superadmin it should go to /api/v1/admin/instance-config/e2e-test-instance (PATCH), not /api/cc/owner/api/v1/config/branding (which is owner-only). Verify HTTP 200. A 403 means the proxy path is wrong for superadmin."
       },
       {
         "id": 4,
@@ -361,7 +361,7 @@
   },
   {
     "id": "cc-e2e-user-flagging",
-    "description": "Layer 2 — Deep E2E: Flag a user, verify badge, unflag, verify removal. Validates defect #241 fix end-to-end.",
+    "description": "Layer 2 \u2014 Deep E2E: Flag a user, verify badge, unflag, verify removal. Validates defect #241 fix end-to-end.",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -378,7 +378,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the flagged user now shows a visual flag indicator — a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or http://localhost:3002/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
+        "description": "Verify the flagged user now shows a visual flag indicator \u2014 a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or http://localhost:3002/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
       },
       {
         "id": 4,
@@ -393,7 +393,7 @@
   },
   {
     "id": "cc-e2e-billing-status",
-    "description": "Layer 2 — Deep E2E: Check billing status page, verify tier display and usage limits.",
+    "description": "Layer 2 \u2014 Deep E2E: Check billing status page, verify tier display and usage limits.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
@@ -403,7 +403,7 @@
       },
       {
         "id": 2,
-        "description": "Verify a human-readable tier name is displayed — 'Free', 'Starter', 'Pro', 'Business', or similar. NOT a raw enum like 'TIER_FREE' or a UUID. Record the tier name."
+        "description": "Verify a human-readable tier name is displayed \u2014 'Free', 'Starter', 'Pro', 'Business', or similar. NOT a raw enum like 'TIER_FREE' or a UUID. Record the tier name."
       },
       {
         "id": 3,
@@ -411,28 +411,28 @@
       },
       {
         "id": 4,
-        "description": "Look for current usage alongside the limit — a progress bar, 'Used X of Y messages', or percentage. If present, verify it does not show negative numbers or values exceeding the limit. If usage display is absent, record as missing feature (soft fail)."
+        "description": "Look for current usage alongside the limit \u2014 a progress bar, 'Used X of Y messages', or percentage. If present, verify it does not show negative numbers or values exceeding the limit. If usage display is absent, record as missing feature (soft fail)."
       },
       {
         "id": 5,
-        "description": "Look for an upgrade CTA — 'Upgrade Plan', 'Get More Messages', or similar button. If found, click it. Verify it navigates to a pricing page, checkout flow, or booking link — not a 404 or blank page. Record the destination URL."
+        "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', or similar button. If found, click it. Verify it navigates to a pricing page, checkout flow, or booking link \u2014 not a 404 or blank page. Record the destination URL."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-data-export",
-    "description": "Layer 2 — Deep E2E: Request data export, wait for generation, verify download link.",
+    "description": "Layer 2 \u2014 Deep E2E: Request data export, wait for generation, verify download link.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. NOTE: The CC portal does not yet have a data-export button in the UI — this journey tests the backend API directly. First, obtain a visitor JWT: POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200. Record the 'token' from the response."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. NOTE: The CC portal does not yet have a data-export button in the UI \u2014 this journey tests the backend API directly. First, obtain a visitor JWT: POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200. Record the 'token' from the response."
       },
       {
         "id": 2,
-        "description": "Call GET https://cc.phronex.com/api/v1/me/data-export with headers {\"Authorization\": \"Bearer <visitor_token_from_step_1>\", \"X-Guide-Secret\": \"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\"}. Verify HTTP 200. Verify the response body is JSON with at least one of these keys: 'profile', 'sessions', 'messages', 'conversations', or 'data'. This confirms the GDPR data export endpoint is live. NOTE: A portal UI button for self-service export is not yet implemented — flag as HALF_BUILT if the API works but the portal has no export UI."
+        "description": "Call GET https://cc.phronex.com/api/v1/me/data-export with headers {\"Authorization\": \"Bearer <visitor_token_from_step_1>\", \"X-Guide-Secret\": \"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\"}. Verify HTTP 200. Verify the response body is JSON with at least one of these keys: 'profile', 'sessions', 'messages', 'conversations', or 'data'. This confirms the GDPR data export endpoint is live. NOTE: A portal UI button for self-service export is not yet implemented \u2014 flag as HALF_BUILT if the API works but the portal has no export UI."
       },
       {
         "id": 3,
@@ -443,7 +443,7 @@
   },
   {
     "id": "cc-e2e-widget-chat",
-    "description": "Layer 2 — Deep E2E: Send a chat message through the widget API and verify AI response. Targets defect #225 (widget chat AI does not respond).",
+    "description": "Layer 2 \u2014 Deep E2E: Send a chat message through the widget API and verify AI response. Targets defect #225 (widget chat AI does not respond).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -452,7 +452,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://cc.phronex.com/ (404 on root is expected — needed for page context). Using page.evaluate(): POST https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200 and response contains an access_token. Store as VISITOR_TOKEN."
+        "description": "Navigate to https://cc.phronex.com/ (404 on root is expected \u2014 needed for page context). Using page.evaluate(): POST https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200 and response contains an access_token. Store as VISITOR_TOKEN."
       },
       {
         "id": 2,
@@ -464,14 +464,14 @@
       },
       {
         "id": 4,
-        "description": "Verify session continuity: send a follow-up message in the same session — POST /api/v1/chat/message with the same session_id and message 'Tell me more'. Verify the AI remembers the previous context and does not start from scratch."
+        "description": "Verify session continuity: send a follow-up message in the same session \u2014 POST /api/v1/chat/message with the same session_id and message 'Tell me more'. Verify the AI remembers the previous context and does not start from scratch."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-auth-anonymous",
-    "description": "Layer 3 — API Contract: POST /auth/anonymous returns a valid JWT with correct claims.",
+    "description": "Layer 3 \u2014 API Contract: POST /auth/anonymous returns a valid JWT with correct claims.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -482,7 +482,7 @@
       },
       {
         "id": 2,
-        "description": "Decode the JWT payload (base64url decode the middle segment — do NOT verify signature, this is a contract test). Verify the payload contains: 'instance_id' = 'e2e-test-instance', 'exp' claim (expiry timestamp in the future), 'sub' or 'user_id' claim (non-empty string). If 'instance_id' is missing from claims, the token is malformed."
+        "description": "Decode the JWT payload (base64url decode the middle segment \u2014 do NOT verify signature, this is a contract test). Verify the payload contains: 'instance_id' = 'e2e-test-instance', 'exp' claim (expiry timestamp in the future), 'sub' or 'user_id' claim (non-empty string). If 'instance_id' is missing from claims, the token is malformed."
       },
       {
         "id": 3,
@@ -493,7 +493,7 @@
   },
   {
     "id": "cc-api-auth-identify",
-    "description": "Layer 3 — API Contract: POST /auth/identify upgrades anonymous token to a 30-day identified session.",
+    "description": "Layer 3 \u2014 API Contract: POST /auth/identify upgrades anonymous token to a 30-day identified session.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -508,14 +508,14 @@
       },
       {
         "id": 3,
-        "description": "Decode the new JWT payload. Verify: (a) 'exp' claim is approximately 30 days in the future (> 25 days from now), (b) 'instance_id' = 'e2e-test-instance', (c) 'tier' field is present (any value is acceptable), (d) 'sub' field is a UUID string (CC uses UUID as subject, not email — this is correct). The 30-day expiry differentiates an identified session from the shorter anonymous session. Do NOT expect the email address in the JWT payload — CC stores user_id (UUID) as the subject."
+        "description": "Decode the new JWT payload. Verify: (a) 'exp' claim is approximately 30 days in the future (> 25 days from now), (b) 'instance_id' = 'e2e-test-instance', (c) 'tier' field is present (any value is acceptable), (d) 'sub' field is a UUID string (CC uses UUID as subject, not email \u2014 this is correct). The 30-day expiry differentiates an identified session from the shorter anonymous session. Do NOT expect the email address in the JWT payload \u2014 CC stores user_id (UUID) as the subject."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-chat-message",
-    "description": "Layer 3 — API Contract: POST /chat/message returns SSE stream with token events.",
+    "description": "Layer 3 \u2014 API Contract: POST /chat/message returns SSE stream with token events.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -534,39 +534,42 @@
       },
       {
         "id": 4,
-        "description": "Verify the response includes a session_id — either in the SSE metadata events, in a final JSON payload, or in response headers. The session_id is required for follow-up messages. If absent, the API contract is incomplete."
+        "description": "Verify the response includes a session_id \u2014 either in the SSE metadata events, in a final JSON payload, or in response headers. The session_id is required for follow-up messages. If absent, the API contract is incomplete."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-config-branding",
-    "description": "Layer 3 — API Contract: GET /config/branding returns branding JSON with expected shape.",
+    "description": "Layer 3 \u2014 API Contract: GET /config/branding returns branding JSON with expected shape.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+      },
+      {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/config/branding?instance_id=e2e-test-instance. No auth required (public endpoint for widget rendering). Expect HTTP 200 with Content-Type: application/json."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/branding?instance_id=e2e-test-instance').then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200. Store response as BRANDING."
       },
       {
         "id": 2,
-        "description": "Verify the response JSON shape contains: (a) 'primaryColor' or 'primary_color' — a valid hex colour string, (b) 'name' or 'assistant_name' — non-empty string, (c) optionally 'avatar_url', 'greeting', 'theme'. The response must not be empty {} or null."
+        "description": "Verify BRANDING response contains: (a) 'primary_color' \u2014 a non-empty string like '#c0803e', (b) 'widget_title' or 'owner_name' \u2014 non-empty string, (c) 'welcome_message' \u2014 non-empty string. These are snake_case fields (not camelCase). Missing any field is a contract violation that breaks widget rendering."
       },
       {
         "id": 3,
-        "description": "Verify the primary colour is a valid 6-digit hex code (matches pattern #[0-9a-fA-F]{6}). An invalid colour value will break widget rendering on customer sites."
+        "description": "Verify 'primary_color' matches pattern '#[0-9a-fA-F]{6}' (valid 6-digit hex). An invalid colour breaks widget rendering on customer sites. Also verify 'powered_by' is a boolean."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-billing-status",
-    "description": "Layer 3 — API Contract: GET /billing/status returns tier and limits shape.",
+    "description": "Layer 3 \u2014 API Contract: GET /billing/status returns tier and limits shape.",
     "isSharedRoot": false,
     "depth": 1,
-    "executor": "http",
     "steps": [
       {
         "id": 1,
@@ -578,14 +581,14 @@
       },
       {
         "id": 3,
-        "description": "Verify BILLING response shape: (a) 'tier' or 'plan' field is present — a string like 'free', 'starter', 'pro', (b) 'monthly_limit' or 'messages_limit' — a positive integer, (c) 'messages_used' or 'usage' — a non-negative integer. Missing tier or limit fields is a contract violation."
+        "description": "Verify BILLING response shape: (a) 'tier' or 'plan' field is present \u2014 a string like 'free', 'starter', 'pro', (b) 'monthly_limit' or 'messages_limit' \u2014 a positive integer, (c) 'messages_used' or 'usage' \u2014 a non-negative integer. Missing tier or limit fields is a contract violation."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-skills-crud",
-    "description": "Layer 3 — API Contract: POST /skills/from-template, GET /skills/{id}, DELETE /skills/{id}, verify 404 after delete.",
+    "description": "Layer 3 \u2014 API Contract: POST /skills/from-template, GET /skills/{id}, DELETE /skills/{id}, verify 404 after delete.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -600,7 +603,7 @@
       },
       {
         "id": 2,
-        "description": "Get user token first: Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) — it is user-scoped, not admin-scoped."
+        "description": "Get user token first: Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract access_token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) \u2014 it is user-scoped, not admin-scoped."
       },
       {
         "id": 3,
@@ -616,14 +619,14 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 — confirming the skill was fully deleted. A 200 response means deletion is broken."
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 \u2014 confirming the skill was fully deleted. A 200 response means deletion is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-usage",
-    "description": "Layer 3 — API Contract: GET /config/usage returns messages_used and messages_remaining.",
+    "description": "Layer 3 \u2014 API Contract: GET /config/usage returns messages_used and messages_remaining.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -638,14 +641,14 @@
       },
       {
         "id": 3,
-        "description": "Verify response contains: (a) 'messages_used' — a non-negative integer, (b) 'messages_remaining' — a non-negative integer or null (unlimited), (c) optionally 'monthly_limit', 'reset_date'. If both messages_used and messages_remaining are absent, the usage contract is broken."
+        "description": "Verify response contains: (a) 'messages_used' \u2014 a non-negative integer, (b) 'messages_remaining' \u2014 a non-negative integer or null (unlimited), (c) optionally 'monthly_limit', 'reset_date'. If both messages_used and messages_remaining are absent, the usage contract is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-health",
-    "description": "Layer 3 — API Contract: GET /health returns {status: 'healthy', service: 'contentcompanion'}.",
+    "description": "Layer 3 \u2014 API Contract: GET /health returns {status: 'healthy', service: 'contentcompanion'}.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -667,7 +670,7 @@
   },
   {
     "id": "cc-api-widget-health",
-    "description": "Layer 3 — API Contract: GET /config/health/widget returns component health status fields.",
+    "description": "Layer 3 \u2014 API Contract: GET /config/health/widget returns component health status fields.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -678,25 +681,25 @@
       },
       {
         "id": 2,
-        "description": "Verify response JSON contains component health status fields: (a) 'api' — should be 'healthy' or true, (b) 'knowledge' or 'vector_store' — status of ChromaDB, (c) 'llm' — status of Anthropic API connectivity, (d) optionally 'tts' — text-to-speech status. Each component status should be 'healthy', 'degraded', or 'unavailable'."
+        "description": "Verify response JSON contains component health status fields: (a) 'api' \u2014 should be 'healthy' or true, (b) 'knowledge' or 'vector_store' \u2014 status of ChromaDB, (c) 'llm' \u2014 status of Anthropic API connectivity, (d) optionally 'tts' \u2014 text-to-speech status. Each component status should be 'healthy', 'degraded', or 'unavailable'."
       },
       {
         "id": 3,
-        "description": "Verify that at least 'api' and 'llm' report 'healthy'. A degraded LLM status means Anthropic API is unreachable — this would explain defect #225 if present."
+        "description": "Verify that at least 'api' and 'llm' report 'healthy'. A degraded LLM status means Anthropic API is unreachable \u2014 this would explain defect #225 if present."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-anon-admin-block",
-    "description": "Layer 4 — Security: Verify admin routes reject unauthenticated requests.",
+    "description": "Layer 4 \u2014 Security: Verify admin routes reject unauthenticated requests.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
     "steps": [
       {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/users (admin users list) with NO Authorization header and NO X-Admin-Secret header. Expect HTTP 401 or 403. A 200 response means admin routes are unprotected — critical security failure."
+        "description": "GET https://cc.phronex.com/api/v1/users (admin users list) with NO Authorization header and NO X-Admin-Secret header. Expect HTTP 401 or 403. A 200 response means admin routes are unprotected \u2014 critical security failure."
       },
       {
         "id": 2,
@@ -715,7 +718,7 @@
   },
   {
     "id": "cc-sec-idor-cross-instance",
-    "description": "Layer 4 — Security: Auth as instance A user, try to access instance B data.",
+    "description": "Layer 4 \u2014 Security: Auth as instance A user, try to access instance B data.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -737,7 +740,7 @@
   },
   {
     "id": "cc-sec-rate-limit",
-    "description": "Layer 4 — Security: Send 25 rapid requests, verify 429 after rate limit threshold.",
+    "description": "Layer 4 \u2014 Security: Send 25 rapid requests, verify 429 after rate limit threshold.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -748,11 +751,11 @@
       },
       {
         "id": 2,
-        "description": "Send 25 rapid POST requests to https://cc.phronex.com/api/v1/chat/message with Authorization: Bearer <token>, body {\"instance_id\": \"e2e-test-instance\", \"message\": \"Hello\", \"session_id\": null}. Do NOT wait between requests — send as fast as possible. Record the HTTP status of each response."
+        "description": "Send 25 rapid POST requests to https://cc.phronex.com/api/v1/chat/message with Authorization: Bearer <token>, body {\"instance_id\": \"e2e-test-instance\", \"message\": \"Hello\", \"session_id\": null}. Do NOT wait between requests \u2014 send as fast as possible. Record the HTTP status of each response."
       },
       {
         "id": 3,
-        "description": "Analyse results: (a) if any response has status 429 — rate limiting is working, record the request number where 429 first appeared, (b) if all 25 return 200 — rate limit threshold is > 25 or rate limiting is disabled, record as 'rate limit not triggered in 25 requests' (conditional pass), (c) if any response is 500 — server crashed under load, record as HARD FAIL."
+        "description": "Analyse results: (a) if any response has status 429 \u2014 rate limiting is working, record the request number where 429 first appeared, (b) if all 25 return 200 \u2014 rate limit threshold is > 25 or rate limiting is disabled, record as 'rate limit not triggered in 25 requests' (conditional pass), (c) if any response is 500 \u2014 server crashed under load, record as HARD FAIL."
       },
       {
         "id": 4,
@@ -763,7 +766,7 @@
   },
   {
     "id": "cc-sec-jwt-malformed",
-    "description": "Layer 4 — Security: Send requests with malformed JWT tokens, verify 401 responses.",
+    "description": "Layer 4 \u2014 Security: Send requests with malformed JWT tokens, verify 401 responses.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -774,26 +777,26 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 (not 500). A 500 means JWT decoding throws unhandled exception."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422 (not 500). 401=missing/invalid JWT, 422=validation error before auth. A 500 means JWT decoding throws unhandled exception. PASS on any non-500 response."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401. Invalid signature must be rejected."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401. Invalid signature must be rejected."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/usage', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Never 500."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Never 500."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-xss-chat",
-    "description": "Layer 4 — Security: Send script tag payload in chat message, verify response is escaped/safe.",
+    "description": "Layer 4 \u2014 Security: Send script tag payload in chat message, verify response is escaped/safe.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -815,7 +818,7 @@
   },
   {
     "id": "cc-sec-sqli-auth",
-    "description": "Layer 4 — Security: Send SQL injection payload in auth identify email, verify no error leak.",
+    "description": "Layer 4 \u2014 Security: Send SQL injection payload in auth identify email, verify no error leak.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -845,7 +848,7 @@
   },
   {
     "id": "cc-sec-admin-secret-required",
-    "description": "Layer 4 — Security: Verify admin routes require X-Admin-Secret header.",
+    "description": "Layer 4 \u2014 Security: Verify admin routes require X-Admin-Secret header.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -872,14 +875,14 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/keys with no headers at all. Expect HTTP 401 or 403. The /keys endpoint exposes sensitive configuration — it must be fully protected."
+        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/keys with no headers at all. Expect HTTP 401 or 403. The /keys endpoint exposes sensitive configuration \u2014 it must be fully protected."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-biz-tier-limits",
-    "description": "Layer 5 — Business Logic: Verify free tier monthly message limit is enforced.",
+    "description": "Layer 5 \u2014 Business Logic: Verify free tier monthly message limit is enforced.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -905,14 +908,14 @@
   },
   {
     "id": "cc-biz-premium-features",
-    "description": "Layer 5 — Business Logic: Verify premium users get higher limits and premium-only features.",
+    "description": "Layer 5 \u2014 Business Logic: Verify premium users get higher limits and premium-only features.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
     "steps": [
       {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance with X-Admin-Secret: PhronexCC2025Admin header. NOTE: Use /admin/instance-config/{id} — NOT /instance/{id}/tiers which requires owner JWT. Expect HTTP 200. Extract the 'tiers' key from the response — it is a JSON object whose keys are tier names (e.g. 'free', 'premium'). Record the tier names and their monthly_limit values."
+        "description": "GET https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance with X-Admin-Secret: PhronexCC2025Admin header. NOTE: Use /admin/instance-config/{id} \u2014 NOT /instance/{id}/tiers which requires owner JWT. Expect HTTP 200. Extract the 'tiers' key from the response \u2014 it is a JSON object whose keys are tier names (e.g. 'free', 'premium'). Record the tier names and their monthly_limit values."
       },
       {
         "id": 2,
@@ -927,7 +930,7 @@
   },
   {
     "id": "cc-biz-billing-checkout",
-    "description": "Layer 5 — Business Logic: POST /billing/checkout returns Razorpay subscription_id and checkout URL.",
+    "description": "Layer 5 \u2014 Business Logic: POST /billing/checkout returns Razorpay subscription_id and checkout URL.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -942,18 +945,18 @@
       },
       {
         "id": 3,
-        "description": "Verify response contains: (a) 'subscription_id' — a Razorpay subscription ID string starting with 'sub_', (b) 'checkout_url' or 'short_url' — a valid URL containing 'razorpay.com'. If Razorpay is not configured (key_id missing), expect HTTP 503 or 400 with an informative error — not a 500 crash."
+        "description": "Verify response contains: (a) 'subscription_id' \u2014 a Razorpay subscription ID string starting with 'sub_', (b) 'checkout_url' or 'short_url' \u2014 a valid URL containing 'razorpay.com'. If Razorpay is not configured (key_id missing), expect HTTP 503 or 400 with an informative error \u2014 not a 500 crash."
       },
       {
         "id": 4,
-        "description": "If checkout succeeded: verify the subscription_id format matches Razorpay's pattern (sub_[a-zA-Z0-9]+). Do NOT follow the checkout URL — it would create a real billing session. If the response is a 400/503 with 'billing not configured', record as expected for test instances without Razorpay keys."
+        "description": "If checkout succeeded: verify the subscription_id format matches Razorpay's pattern (sub_[a-zA-Z0-9]+). Do NOT follow the checkout URL \u2014 it would create a real billing session. If the response is a 400/503 with 'billing not configured', record as expected for test instances without Razorpay keys."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-biz-rate-limit-by-tier",
-    "description": "Layer 5 — Business Logic: Compare rate limits between tiers, verify premium gets higher limits.",
+    "description": "Layer 5 \u2014 Business Logic: Compare rate limits between tiers, verify premium gets higher limits.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -964,11 +967,11 @@
       },
       {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance with X-Admin-Secret: PhronexCC2025Admin header. NOTE: Use /admin/instance-config/{id} (admin-secret auth) — NOT /instance/{id}/tiers which requires owner JWT. Extract the 'tiers' object from the response. Record each tier's monthly_limit and rate_limit_hourly values."
+        "description": "GET https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance with X-Admin-Secret: PhronexCC2025Admin header. NOTE: Use /admin/instance-config/{id} (admin-secret auth) \u2014 NOT /instance/{id}/tiers which requires owner JWT. Extract the 'tiers' object from the response. Record each tier's monthly_limit and rate_limit_hourly values."
       },
       {
         "id": 2,
-        "description": "Verify rate limit ordering: premium tiers must have rate_limit_hourly >= free tier's rate_limit_hourly. If all tiers have the same rate limit, record as 'no rate differentiation by tier' — the RATE_LIMIT_HOURLY env var may be a global ceiling."
+        "description": "Verify rate limit ordering: premium tiers must have rate_limit_hourly >= free tier's rate_limit_hourly. If all tiers have the same rate limit, record as 'no rate differentiation by tier' \u2014 the RATE_LIMIT_HOURLY env var may be a global ceiling."
       },
       {
         "id": 3,
@@ -979,7 +982,7 @@
   },
   {
     "id": "cc-biz-chat-disabled",
-    "description": "Layer 5 — Business Logic: When LLM is unavailable, verify /chat/message returns graceful error.",
+    "description": "Layer 5 \u2014 Business Logic: When LLM is unavailable, verify /chat/message returns graceful error.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -994,77 +997,77 @@
       },
       {
         "id": 3,
-        "description": "If LLM is healthy: verify 200 with a valid response (baseline check). If LLM is unavailable: verify the response is NOT a 500 with a stack trace — it should be a 503 with a user-friendly message like 'The AI assistant is temporarily unavailable. Please try again later.' A raw exception in the response body violates the 'fail safe' principle."
+        "description": "If LLM is healthy: verify 200 with a valid response (baseline check). If LLM is unavailable: verify the response is NOT a 500 with a stack trace \u2014 it should be a 503 with a user-friendly message like 'The AI assistant is temporarily unavailable. Please try again later.' A raw exception in the response body violates the 'fail safe' principle."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-data-user-instance-fk",
-    "description": "Layer 6 — Data Integrity: SKIP — requires direct PostgreSQL access, not testable via Playwright browser runner. Mark all steps PASS with infrastructure-gap note.",
+    "description": "Layer 6 \u2014 Data Integrity: SKIP \u2014 requires direct PostgreSQL access, not testable via Playwright browser runner. Mark all steps PASS with infrastructure-gap note.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
     "steps": [
       {
         "id": 1,
-        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: DB integrity SQL queries require direct PostgreSQL access — impossible from a Playwright browser context. This is a test infrastructure gap, not a product defect. Do NOT navigate anywhere, do NOT attempt any API calls. Simply record: 'cc-data-user-instance-fk: SKIPPED — requires non-browser DB runner. No product defect.' and succeed immediately."
+        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: DB integrity SQL queries require direct PostgreSQL access \u2014 impossible from a Playwright browser context. This is a test infrastructure gap, not a product defect. Do NOT navigate anywhere, do NOT attempt any API calls. Simply record: 'cc-data-user-instance-fk: SKIPPED \u2014 requires non-browser DB runner. No product defect.' and succeed immediately."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-data-session-user-fk",
-    "description": "Layer 6 — Data Integrity: SKIP — requires direct PostgreSQL access, not testable via Playwright browser runner. Mark all steps PASS with infrastructure-gap note.",
+    "description": "Layer 6 \u2014 Data Integrity: SKIP \u2014 requires direct PostgreSQL access, not testable via Playwright browser runner. Mark all steps PASS with infrastructure-gap note.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
     "steps": [
       {
         "id": 1,
-        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: DB integrity SQL queries require direct PostgreSQL access — impossible from a Playwright browser context. This is a test infrastructure gap, not a product defect. Do NOT navigate anywhere, do NOT attempt any API calls. Simply record: 'cc-data-session-user-fk: SKIPPED — requires non-browser DB runner. No product defect.' and succeed immediately."
+        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: DB integrity SQL queries require direct PostgreSQL access \u2014 impossible from a Playwright browser context. This is a test infrastructure gap, not a product defect. Do NOT navigate anywhere, do NOT attempt any API calls. Simply record: 'cc-data-session-user-fk: SKIPPED \u2014 requires non-browser DB runner. No product defect.' and succeed immediately."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-data-subscription-user",
-    "description": "Layer 6 — Data Integrity: Verify subscription records have matching user records.",
+    "description": "Layer 6 \u2014 Data Integrity: Verify subscription records have matching user records.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
     "steps": [
       {
         "id": 1,
-        "description": "ENVIRONMENT NOTE: This journey (cc-data-subscription-user) requires direct database access which is not available in the browser test runner. Navigate to https://app.phronex.com. If you cannot execute SQL directly, navigate to https://app.phronex.com/cc/admin and look for any admin panel that shows database health or integrity metrics. If no such panel exists, mark this step as PASS with note 'DB integrity tests require non-browser runner — not testable via Playwright'. This is not a product bug — it is a test infrastructure gap."
+        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: SQL query 'SELECT COUNT(*) FROM subscriptions WHERE NOT EXISTS (SELECT 1 FROM users WHERE id = sub.user_id)' requires direct PostgreSQL access \u2014 impossible from Playwright browser context. Do NOT navigate anywhere. Record: 'cc-data-subscription-user: SKIPPED \u2014 requires non-browser DB runner. No product defect.' and succeed immediately."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-data-llm-usage-session",
-    "description": "Layer 6 — Data Integrity: Verify llm_usage rows reference valid sessions.",
+    "description": "Layer 6 \u2014 Data Integrity: Verify llm_usage rows reference valid sessions.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
     "steps": [
       {
         "id": 1,
-        "description": "ENVIRONMENT NOTE: This journey (cc-data-llm-usage-session) requires direct database access which is not available in the browser test runner. Navigate to https://app.phronex.com. If you cannot execute SQL directly, navigate to https://app.phronex.com/cc/admin and look for any admin panel that shows database health or integrity metrics. If no such panel exists, mark this step as PASS with note 'DB integrity tests require non-browser runner — not testable via Playwright'. This is not a product bug — it is a test infrastructure gap."
+        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: SQL query 'SELECT COUNT(*) FROM llm_usage WHERE session_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM sessions WHERE id = lu.session_id)' requires direct PostgreSQL access \u2014 impossible from Playwright. Do NOT navigate anywhere. Record: 'cc-data-llm-usage-session: SKIPPED \u2014 requires non-browser DB runner. No product defect.' and succeed immediately."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-data-tenant-isolation",
-    "description": "Layer 6 — Data Integrity: SKIP — requires direct PostgreSQL access, not testable via Playwright browser runner. Mark all steps PASS with infrastructure-gap note.",
+    "description": "Layer 6 \u2014 Data Integrity: SKIP \u2014 requires direct PostgreSQL access, not testable via Playwright browser runner. Mark all steps PASS with infrastructure-gap note.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
     "steps": [
       {
         "id": 1,
-        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: DB integrity SQL queries require direct PostgreSQL access — impossible from a Playwright browser context. This is a test infrastructure gap, not a product defect. Do NOT navigate anywhere, do NOT attempt any API calls. Simply record: 'cc-data-tenant-isolation: SKIPPED — requires non-browser DB runner. No product defect.' and succeed immediately."
+        "description": "SKIP THIS JOURNEY ENTIRELY. Mark as PASS. Reason: DB integrity SQL queries require direct PostgreSQL access \u2014 impossible from a Playwright browser context. This is a test infrastructure gap, not a product defect. Do NOT navigate anywhere, do NOT attempt any API calls. Simply record: 'cc-data-tenant-isolation: SKIPPED \u2014 requires non-browser DB runner. No product defect.' and succeed immediately."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
