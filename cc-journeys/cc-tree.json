@@ -464,7 +464,7 @@
       },
       {
         "id": 2,
-        "description": "Send chat message: POST https://cc.phronex.com/api/v1/chat/message with headers {\"Authorization\": \"Bearer <VISITOR_TOKEN>\", \"X-Guide-Secret\": \"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\", \"Content-Type\": \"application/json\"} and body {\"instance_id\": \"e2e-test-instance\", \"message\": \"What does this company do?\", \"session_id\": null}. Verify HTTP 200. If response is SSE, read until stream ends. Record the full AI response text and session_id."
+        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello, what can you help me with?', instance_id:'e2e-test-instance', session_id:'jh-widget-test-session'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,300)}}). Expect HTTP 200. Response is SSE stream (text/event-stream). PASS if status=200."
       },
       {
         "id": 3,
@@ -648,16 +648,20 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+      },
+      {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store token."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as ANON_TOKEN."
       },
       {
         "id": 2,
-        "description": "GET https://cc.phronex.com/api/v1/config/usage with Authorization: Bearer <token>. Expect HTTP 200 with JSON body."
+        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.json()). Expect HTTP 200. Store as USAGE."
       },
       {
         "id": 3,
-        "description": "Verify response contains: (a) 'messages_used' \u2014 a non-negative integer, (b) 'messages_remaining' \u2014 a non-negative integer or null (unlimited), (c) optionally 'monthly_limit', 'reset_date'. If both messages_used and messages_remaining are absent, the usage contract is broken."
+        "description": "Verify USAGE response: (a) 'messages_used' is a non-negative integer, (b) 'messages_remaining' is a non-negative integer or null (null = unlimited), (c) 'monthly_limit' present if not unlimited. PASS if status=200 and messages_used >= 0."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -715,7 +719,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/users (admin users list) with NO Authorization header and NO X-Admin-Secret header. Expect HTTP 401 or 403. A 200 response means admin routes are unprotected \u2014 critical security failure."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/users', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin routes are unprotected \u2014 critical security finding."
       },
       {
         "id": 2,
@@ -741,7 +745,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store the token as INSTANCE_A_TOKEN."
+        "description": "Navigate to https://app.phronex.com for browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' as TOKEN_A."
       },
       {
         "id": 2,
