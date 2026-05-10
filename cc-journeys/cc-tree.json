@@ -472,7 +472,7 @@
       },
       {
         "id": 4,
-        "description": "Verify session continuity: send a follow-up message in the same session \u2014 POST /api/v1/chat/message with the same session_id and message 'Tell me more'. Verify the AI remembers the previous context and does not start from scratch."
+        "description": "Verify session continuity: using page.evaluate(), send a follow-up message in the same session \u2014 POST /api/v1/chat/message with the same session_id, message='Tell me more', and header 'X-Guide-Secret: 6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'. Verify the AI responds (HTTP 200 with SSE stream containing at least one 'data:' line). The same session_id continuity confirms the session is maintained."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -881,10 +881,6 @@
     "depth": 1,
     "executor": "http",
     "steps": [
-      {
-        "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context."
-      },
       {
         "id": 0,
         "description": "Navigate to https://app.phronex.com to establish browser context for subsequent API calls via page.evaluate()."
