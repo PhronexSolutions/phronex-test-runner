@@ -891,11 +891,11 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin secret validation is broken."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin secret validation is broken."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/instances', {headers:{'X-Admin-Secret':''}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Empty admin secret must be rejected."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instances', {headers:{'X-Admin-Secret':''}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Empty admin secret must be rejected."
       },
       {
         "id": 3,
@@ -903,7 +903,7 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected \u2014 no headers means no access."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected \u2014 no headers means no access."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
