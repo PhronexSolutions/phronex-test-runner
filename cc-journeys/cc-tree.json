@@ -181,7 +181,7 @@
       },
       {
         "id": 3,
-        "description": "If sessions are listed: click the first session row to expand or navigate to session detail. Verify conversation messages are displayed with alternating user/assistant formatting. A session detail that shows only raw JSON or UUIDs with no formatted messages is a display failure."
+        "description": "If sessions are listed: look for a 'View' button on each session row (the rows themselves may not be clickable \u2014 there is a View button in the actions column). Click the 'View' button on the first session. Verify conversation messages are displayed with alternating user/assistant formatting. NOTE: If session detail shows a modal or panel with conversation content, PASS. If 'View' button is disabled or no modal opens at all, this is a finding: 'Session drill-down not functional'."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
