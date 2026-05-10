@@ -570,15 +570,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "POST https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"}. Store access_token."
+        "description": "Navigate to https://app.phronex.com. Using page.evaluate(): call fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Verify HTTP 200 and extract access_token from response. Store as TOKEN."
       },
       {
         "id": 2,
-        "description": "GET https://cc.phronex.com/api/v1/billing/status with Authorization: Bearer <token>. Expect HTTP 200 with JSON body."
+        "description": "Using page.evaluate() with TOKEN from step 1: call fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json()). Verify HTTP 200. Store response as BILLING."
       },
       {
         "id": 3,
-        "description": "Verify response shape: must contain (a) 'tier' or 'plan' field — a string like 'free', 'starter', 'pro', (b) 'monthly_limit' or 'messages_limit' — a positive integer, (c) 'messages_used' or 'usage' — a non-negative integer, (d) optionally 'subscription_id', 'expires_at'. Missing tier or limit fields is a contract violation."
+        "description": "Verify BILLING response shape: (a) 'tier' or 'plan' field is present — a string like 'free', 'starter', 'pro', (b) 'monthly_limit' or 'messages_limit' — a positive integer, (c) 'messages_used' or 'usage' — a non-negative integer. Missing tier or limit fields is a contract violation."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
