@@ -843,20 +843,28 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context."
+      },
+      {
+        "id": 0,
+        "description": "Navigate to https://app.phronex.com to establish browser context for subsequent API calls via page.evaluate()."
+      },
+      {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/users with X-Admin-Secret: wrong-secret-value. Expect HTTP 401 or 403. If the response is 200, the admin secret validation is broken."
+        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/users with X-Admin-Secret: wrong-secret-value. Expect HTTP 401 or 403. If the response is 200, the admin secret validation is broken."
       },
       {
         "id": 2,
-        "description": "GET https://cc.phronex.com/api/v1/instances with X-Admin-Secret: (empty string). Expect HTTP 401 or 403."
+        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/instances with X-Admin-Secret: (empty string). Expect HTTP 401 or 403."
       },
       {
         "id": 3,
-        "description": "POST https://cc.phronex.com/api/v1/ip-blocks with X-Admin-Secret: wrong-secret and body {\"ip\": \"192.0.2.1\", \"reason\": \"test\"}. Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass."
+        "description": "Using page.evaluate(): fetch('POST:https://cc.phronex.com/api/v1/ip-blocks with X-Admin-Secret: wrong-secret and body {\"ip\": \"192.0.2.1\", \"reason\": \"test\"}. Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass."
       },
       {
         "id": 4,
-        "description": "GET https://cc.phronex.com/api/v1/keys with no headers at all. Expect HTTP 401 or 403. The /keys endpoint exposes sensitive configuration — it must be fully protected."
+        "description": "Using page.evaluate(): fetch('cc.phronex.com/api/v1/keys with no headers at all. Expect HTTP 401 or 403. The /keys endpoint exposes sensitive configuration — it must be fully protected."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
