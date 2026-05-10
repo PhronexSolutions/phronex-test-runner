@@ -906,6 +906,33 @@ else
   _STAGE_AFTER_MUTATIONS="${_MUTATIONS_IN}"
 fi
 
+# Step 1b2: Apply approved heuristics from qa_proposed_heuristics (Phase 93)
+# Appends verification steps to matching journeys for approved PROPOSED_INVARIANTS.
+# Fail-open: if function raises, MUTATED_SPEC unchanged.
+"${PYTHON}" - <<'APPROVED_HEURISTICS_EOF' || true
+import os, json, sys
+db_url = os.environ.get("PHRONEX_QA_DATABASE_URL_SYNC", "")
+product = os.environ.get("JOURNEYHAWK_PRODUCT", "")
+spec_path = os.environ.get("MUTATED_SPEC", "")
+if not db_url or not product or not spec_path:
+    sys.exit(0)
+try:
+    from phronex_common.testing.strategist.approved_heuristics import apply_approved_heuristics
+    spec = json.load(open(spec_path))
+    before = sum(len(j.get("steps", [])) for j in spec)
+    mutated = apply_approved_heuristics(product, spec, db_url=db_url)
+    after = sum(len(j.get("steps", [])) for j in mutated)
+    added = after - before
+    if added > 0:
+        with open(spec_path, "w") as f:
+            json.dump(mutated, f, indent=2)
+        print(f"[1b2/3] Approved heuristics: {added} verification steps appended")
+    else:
+        print("[1b2/3] Approved heuristics: no matching journeys (0 steps added)")
+except Exception as e:
+    print(f"[1b2/3] Approved heuristics failed (non-fatal): {e}", file=sys.stderr)
+APPROVED_HEURISTICS_EOF
+
 # ── Pipeline funnel summary ──────────────────────────────────────────────────
 echo ""
 echo "============================================================"
