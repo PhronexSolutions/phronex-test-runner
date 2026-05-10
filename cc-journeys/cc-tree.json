@@ -350,7 +350,7 @@
       },
       {
         "id": 2,
-        "description": "PATCH branding colour to '#1a2b3c' via page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:'#1a2b3c'}})}).then(r=>{return {status:r.status, body:r.json()}}). Expect HTTP 200. NOTE: Portal proxy at /api/admin/cc/... forwards X-Admin-Secret to CC backend."
+        "description": "PATCH branding colour to '#1a2b3c' via page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:'#1a2b3c'}})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200. NOTE: Portal proxy at /api/admin/cc/... forwards X-Admin-Secret to CC backend."
       },
       {
         "id": 3,
