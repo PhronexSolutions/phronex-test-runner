@@ -592,23 +592,23 @@
     "steps": [
       {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/skills/templates with X-Admin-Secret header (from .qa.env ADMIN_SECRET). Expect HTTP 200 with a JSON array. Verify at least one template exists. Record the first template's 'id' or 'template_id'."
+        "description": "GET https://cc.phronex.com/api/v1/skills/templates with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 200 with a JSON array. Verify at least one template exists. Record the first template's 'id' or 'template_id'."
       },
       {
         "id": 2,
-        "description": "POST https://cc.phronex.com/api/v1/skills/from-template with X-Admin-Secret header, Content-Type: application/json, and body {\"template_id\": \"<template_id_from_step_1>\", \"instance_id\": \"e2e-test-instance\"}. Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
+        "description": "POST https://cc.phronex.com/api/v1/skills/from-template with X-Admin-Secret: PhronexCC2025Admin header, Content-Type: application/json, and body {\"template_id\": \"<template_id_from_step_1>\", \"instance_id\": \"e2e-test-instance\"}. Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
       },
       {
         "id": 3,
-        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret header. Expect HTTP 200. Verify response contains 'id' matching SKILL_ID, 'status' = 'draft', 'instance_id' = 'e2e-test-instance'."
+        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 200. Verify response contains 'id' matching SKILL_ID, 'status' = 'draft', 'instance_id' = 'e2e-test-instance'."
       },
       {
         "id": 4,
-        "description": "DELETE https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret header. Expect HTTP 204 (no content)."
+        "description": "DELETE https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 204 (no content)."
       },
       {
         "id": 5,
-        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret header. Expect HTTP 404 — confirming the skill was fully deleted and not just soft-deleted. A 200 response with the skill still present means deletion is broken."
+        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret: PhronexCC2025Admin header. Expect HTTP 404 — confirming the skill was fully deleted and not just soft-deleted. A 200 response with the skill still present means deletion is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
