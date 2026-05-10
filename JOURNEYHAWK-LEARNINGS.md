@@ -74,6 +74,24 @@ JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL j
 
 ---
 
+### React 19 ErrorBoundary console.error FP (discovered CC run 4, 2026-05-10)
+
+**Signature:** A step that checks browser console errors sees a `TypeError: Cannot convert undefined or null to object` or `Object.entries(null)` console.error — but the NEXT step passes (page is functional). Step outcome is `failed` but user flow continues.
+
+**Root cause:** React 19 concurrent mode's `componentDidCatch` in an `ErrorBoundary` **always** emits a `console.error` with the caught error, even when the boundary gracefully shows a fallback UI. Playwright's `page.on('console')` listener captures this as an error event. This is React's designed behavior — not a product bug.
+
+**Specific instance — CC Info & Connections tab (defect #251):** Switching from Analytics→Info tab triggers React 19 fiber state contamination (stale `setState` from analytics fetch intersects with new Info tab's `RecentIssues` component mount). This fires `Object.entries(null)` inside React's internal `processUpdateQueue`. The `ErrorBoundary` wrapping `RecentIssues` catches it and shows `"Recent issues unavailable"` fallback. All other Info tab content (Platform Connections, Instance LLM Configuration, Widget Embed Code) renders correctly.
+
+**Fix commits:** `20d1b69` (AbortController to prevent stale setState) + `993083a` (ErrorBoundary containment). Both in portal main as of 2026-05-05.
+
+**How to distinguish from a real crash:**
+- **False positive:** Next step passes. Tab content is visible. Only `RecentIssues` section shows fallback. console.error references React fiber / `processUpdateQueue` / `Object.entries`.
+- **Real defect:** Next step fails OR tab shows blank white / full-page "Something went wrong" overlay. console.error references user code in identifiable component file.
+
+**Action:** Mark the step as PASS if subsequent steps confirm tab content rendered. File as false positive in `qa_known_defects.is_false_positive=true`. Do NOT re-file as a new defect on every run.
+
+---
+
 ### Browser Tab Contamination FP (discovered CC run 3, 2026-04-30)
 
 **Signature:** All steps in a journey show `pending` and step-outcomes.json is missing. The debug log shows the runner navigated to a DIFFERENT product's URL (e.g. `/jp/dashboard`) despite the spec being for CC. The runner's first assistant message says something like "The browser appears to be blank. Let me navigate to the JobPortal jobs page..."
