@@ -8,11 +8,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load \u2014 verify no 500 error and the sidebar is visible."
+        "description": "Navigate to https://app.phronex.com. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load \u2014 verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/cc. Verify the CC product section loads without a 500 error or blank white screen. Verify at least one CC sub-navigation item is visible (Dashboard, Content, Skills, Instance, Users, etc.). This confirms the CC product section is accessible for this superadmin account."
+        "description": "Navigate to https://app.phronex.com/cc. Verify the CC product section loads without a 500 error or blank white screen. Verify at least one CC sub-navigation item is visible (Dashboard, Content, Skills, Instance, Users, etc.). This confirms the CC product section is accessible for this superadmin account."
       },
       {
         "id": 3,
@@ -31,7 +31,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors \u2014 specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors \u2014 specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
       },
       {
         "id": 2,
@@ -67,7 +67,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Click the 'Info & Connections' tab. Wait for the tab content to render (up to 5 seconds)."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Click the 'Info & Connections' tab. Wait for the tab content to render (up to 5 seconds)."
       },
       {
         "id": 2,
@@ -95,7 +95,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/users?instance=e2e-test-instance. Wait for the users list to load. Verify the page does not show a 500 error."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/users?instance=e2e-test-instance. Wait for the users list to load. Verify the page does not show a 500 error."
       },
       {
         "id": 2,
@@ -107,7 +107,7 @@
       },
       {
         "id": 4,
-        "description": "Navigate to http://localhost:3002/cc/all-users (superadmin cross-instance view). Verify this page loads without a 500 error. If it shows users, verify the flagged status indicator is visible here too. A crash on this page with a different error than #241 should be recorded as a new defect."
+        "description": "Navigate to https://app.phronex.com/cc/all-users (superadmin cross-instance view). Verify this page loads without a 500 error. If it shows users, verify the flagged status indicator is visible here too. A crash on this page with a different error than #241 should be recorded as a new defect."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -123,7 +123,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders \u2014 either a list of skills or an empty state with a 'Browse Templates' CTA."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders \u2014 either a list of skills or an empty state with a 'Browse Templates' CTA."
       },
       {
         "id": 2,
@@ -148,7 +148,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Click the 'Analytics' tab. Verify the tab activates and the analytics section renders without a JavaScript crash."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Click the 'Analytics' tab. Verify the tab activates and the analytics section renders without a JavaScript crash."
       },
       {
         "id": 2,
@@ -173,7 +173,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Click the 'Sessions' tab. Verify the tab activates without a crash."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Click the 'Sessions' tab. Verify the tab activates without a crash."
       },
       {
         "id": 2,
@@ -194,7 +194,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Verify the page loads with a settings form showing current configuration values. A blank page, 'Failed to load', or 500 error is a FAIL."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Verify the page loads with a settings form showing current configuration values. A blank page, 'Failed to load', or 500 error is a FAIL."
       },
       {
         "id": 2,
@@ -219,7 +219,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/skills?instance=e2e-test-instance. Click 'Browse Templates' or 'Create from Template'. Verify the template list loads with at least one template showing name and description. If a 401 error occurs on the templates fetch, record as defect #239 STILL PRESENT."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Click 'Browse Templates' or 'Create from Template'. Verify the template list loads with at least one template showing name and description. If a 401 error occurs on the templates fetch, record as defect #239 STILL PRESENT."
       },
       {
         "id": 2,
@@ -227,7 +227,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to http://localhost:3002/cc/dashboard, then back to http://localhost:3002/cc/skills?instance=e2e-test-instance. Verify the skill still appears \u2014 confirming persistence."
+        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to https://app.phronex.com/cc/dashboard, then back to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Verify the skill still appears \u2014 confirming persistence."
       },
       {
         "id": 4,
@@ -248,7 +248,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/content?instance=e2e-test-instance. Verify the content/knowledge base page loads. Record the current number of content items or sources listed."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/content?instance=e2e-test-instance. Verify the content/knowledge base page loads. Record the current number of content items or sources listed."
       },
       {
         "id": 2,
@@ -280,7 +280,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/lead-form?instance=e2e-test-instance (or the instance settings page with lead form section). Record the initial count of lead form fields."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (or the instance settings page with lead form section). Record the initial count of lead form fields."
       },
       {
         "id": 2,
@@ -288,7 +288,7 @@
       },
       {
         "id": 3,
-        "description": "Navigate away to http://localhost:3002/cc/dashboard, then return to the lead form page. Verify 'JH QA Test Field' persists after navigation \u2014 confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard, then return to the lead form page. Verify 'JH QA Test Field' persists after navigation \u2014 confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
       },
       {
         "id": 4,
@@ -313,7 +313,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify \u2014 greeting message, assistant name, or persona description. Record the original value."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify \u2014 greeting message, assistant name, or persona description. Record the original value."
       },
       {
         "id": 2,
@@ -325,7 +325,7 @@
       },
       {
         "id": 4,
-        "description": "Navigate away to http://localhost:3002/cc/dashboard. Wait for dashboard to load. Navigate back to http://localhost:3002/cc/instance?instance=e2e-test-instance. Verify the edited field still contains '[JH-QA-2026]'. If the value reverted, this is a persistence failure."
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard. Wait for dashboard to load. Navigate back to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Verify the edited field still contains '[JH-QA-2026]'. If the value reverted, this is a persistence failure."
       },
       {
         "id": 5,
@@ -374,7 +374,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/users?instance=e2e-test-instance. Wait for the users list to load. If no users exist, this journey is a SKIP (cannot test flagging without users). Record the count of flagged users (look for a 'Flagged' filter or badge count)."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/users?instance=e2e-test-instance. Wait for the users list to load. If no users exist, this journey is a SKIP (cannot test flagging without users). Record the count of flagged users (look for a 'Flagged' filter or badge count)."
       },
       {
         "id": 2,
@@ -382,7 +382,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the flagged user now shows a visual flag indicator \u2014 a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or http://localhost:3002/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
+        "description": "Verify the flagged user now shows a visual flag indicator \u2014 a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or https://app.phronex.com/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
       },
       {
         "id": 4,
@@ -403,7 +403,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/subscription?instance=e2e-test-instance (or http://localhost:3002/cc/billing?instance=e2e-test-instance). Verify the page loads without a 500 error."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/subscription?instance=e2e-test-instance (or https://app.phronex.com/cc/billing?instance=e2e-test-instance). Verify the page loads without a 500 error."
       },
       {
         "id": 2,
