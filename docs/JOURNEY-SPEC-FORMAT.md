@@ -108,9 +108,26 @@ Journeys with `executor` field (not in the Zod schema but used by `run-journeyha
 
 ## Placeholder Substitution
 
-`run-journeyhawk.sh` performs sed replacement before running:
+`run-journeyhawk.sh` performs sed replacement before running. **Use the exact bare sentinel strings below — NOT dunder-wrapped `__X__` format.**
 
-| Placeholder | Replaced with | Source |
-|-------------|--------------|--------|
-| `__PORTAL_URL__` | `$PHRONEX_PORTAL_URL` | `.qa.env` |
-| `__QA_PORTAL_PASSWORD__` | `$PHRONEX_QA_PORTAL_PASSWORD` | `.qa.env` |
+| Sentinel string (use verbatim) | Replaced with | Source |
+|--------------------------------|--------------|--------|
+| `http://localhost:3002` | `$PORTAL_URL` (default: `https://app.phronex.com`) | `.qa.env` or shell |
+| `QA_SUPERADMIN_PASSWORD` | `$PHRONEX_PORTAL_TEST_PASSWORD` | `.qa.env` |
+| `qa-test-journeyhawk@phronex.com` | `$PHRONEX_PORTAL_TEST_EMAIL` | `.qa.env` |
+| `QA_OWNER_EMAIL` | `$QA_OWNER_EMAIL` | `.qa.env` |
+| `QA_OWNER_PASSWORD` | `$QA_OWNER_PASSWORD` | `.qa.env` |
+| `QA_USER_EMAIL` | `$QA_USER_EMAIL` | `.qa.env` |
+| `QA_USER_PASSWORD` | `$QA_USER_PASSWORD` | `.qa.env` |
+
+**❌ WRONG** (dunder format — not recognised by the sed step):
+```jsonc
+"Navigate to __PORTAL_URL__ and enter password __QA_PORTAL_PASSWORD__"
+```
+
+**✅ CORRECT** (bare sentinel — sed replaces these at runtime):
+```jsonc
+"Navigate to http://localhost:3002 and enter password QA_SUPERADMIN_PASSWORD"
+```
+
+The `{{paramName}}` double-curly syntax is a separate mechanism resolved by the TypeScript `resolveParams()` from a journey's `params: {}` object — it is NOT the same as shell credential injection.

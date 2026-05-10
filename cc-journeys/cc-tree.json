@@ -8,21 +8,21 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to __PORTAL_URL__. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password '__QA_PORTAL_PASSWORD__' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load \u2014 verify no 500 error and the sidebar is visible."
+        "description": "Navigate to http://localhost:3002. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load — verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,
-        "description": "Navigate to __PORTAL_URL__/cc. Verify the CC product section loads without a 500 error or blank white screen. Verify at least one CC sub-navigation item is visible (Dashboard, Content, Skills, Instance, Users, etc.). This confirms the CC product section is accessible for this superadmin account."
+        "description": "Navigate to http://localhost:3002/cc. Verify the CC product section loads without a 500 error or blank white screen. Verify at least one CC sub-navigation item is visible (Dashboard, Content, Skills, Instance, Users, etc.). This confirms the CC product section is accessible for this superadmin account."
       },
       {
         "id": 3,
-        "description": "Save browser session: Call the browser_storage_state tool with filename set to the stateOutputPath (.tmp/cc-trunk-superadmin-state.json) to persist cookies and localStorage for downstream journeys. This step is critical \u2014 without it, all dependent journeys will fail to authenticate."
+        "description": "Save browser session: Call the browser_storage_state tool with filename set to the stateOutputPath (.tmp/cc-trunk-superadmin-state.json) to persist cookies and localStorage for downstream journeys. This step is critical — without it, all dependent journeys will fail to authenticate."
       }
     ]
   },
   {
     "id": "cc-portal-dashboard",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to CC dashboard, verify all tabs load without crash. Targets defect #238 (hasCustomKey infinite recursion).",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to CC dashboard, verify all tabs load without crash. Targets defect #238 (hasCustomKey infinite recursion).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -31,11 +31,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors \u2014 specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors — specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
       },
       {
         "id": 2,
-        "description": "Identify all tabs visible in the CC dashboard tab bar. For a superadmin account, expect: Overview, Analytics, Info & Connections, Sessions. Click the 'Overview' tab. Verify it renders content without a JavaScript crash \u2014 look for stat cards, metrics, or an informative empty state. A blank white screen or error boundary is a FAIL."
+        "description": "Identify all tabs visible in the CC dashboard tab bar. For a superadmin account, expect: Overview, Analytics, Info & Connections, Sessions. Click the 'Overview' tab. Verify it renders content without a JavaScript crash — look for stat cards, metrics, or an informative empty state. A blank white screen or error boundary is a FAIL."
       },
       {
         "id": 3,
@@ -51,14 +51,14 @@
       },
       {
         "id": 6,
-        "description": "Final console check: open browser console and count total uncaught errors accumulated across all 4 tab navigations. If any error contains 'hasCustomKey', 'Maximum call stack', or 'infinite' \u2014 record as defect #238 STILL PRESENT. Zero console errors = PASS."
+        "description": "Final console check: open browser console and count total uncaught errors accumulated across all 4 tab navigations. If any error contains 'hasCustomKey', 'Maximum call stack', or 'infinite' — record as defect #238 STILL PRESENT. Zero console errors = PASS."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-info-connections",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Info & Connections tab, verify no TypeError on Object.entries(null). Targets defect #251.",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Info & Connections tab, verify no TypeError on Object.entries(null). Targets defect #251.",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -67,11 +67,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/dashboard. Click the 'Info & Connections' tab (or navigate directly to __PORTAL_URL__/cc/dashboard?tab=info). Wait for the tab content to render."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Click the 'Info & Connections' tab (or navigate directly to http://localhost:3002/cc/dashboard?tab=info). Wait for the tab content to render."
       },
       {
         "id": 2,
-        "description": "Open browser console and check for TypeError containing 'Object.entries' or 'null is not iterable' \u2014 this is defect #251 where Object.entries receives null instead of an object. Record the exact error message if found."
+        "description": "Open browser console and check for TypeError containing 'Object.entries' or 'null is not iterable' — this is defect #251 where Object.entries receives null instead of an object. Record the exact error message if found."
       },
       {
         "id": 3,
@@ -86,7 +86,7 @@
   },
   {
     "id": "cc-portal-users-management",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -95,26 +95,26 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/users?instance=e2e-test-instance. Wait for the users list to load. Verify the page does not show a 500 error."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/users?instance=e2e-test-instance. Wait for the users list to load. Verify the page does not show a 500 error."
       },
       {
         "id": 2,
-        "description": "Check browser console for errors containing 'is_flagged', 'column', or 'UndefinedColumn' \u2014 defect #241 manifests as a SQL error because is_flagged is missing from the SELECT clause. If console shows a network error on the users fetch with a 500 status, inspect the response body for SQL-related error text."
+        "description": "Check browser console for errors containing 'is_flagged', 'column', or 'UndefinedColumn' — defect #241 manifests as a SQL error because is_flagged is missing from the SELECT clause. If console shows a network error on the users fetch with a 500 status, inspect the response body for SQL-related error text."
       },
       {
         "id": 3,
-        "description": "If users are listed: verify each user row displays at minimum an identifier (email or anonymous ID) and does NOT show a raw 'undefined' or 'null' for the flagged status column. Look for a flag/badge icon or a 'Flagged' column \u2014 its presence confirms is_flagged is in the SELECT."
+        "description": "If users are listed: verify each user row displays at minimum an identifier (email or anonymous ID) and does NOT show a raw 'undefined' or 'null' for the flagged status column. Look for a flag/badge icon or a 'Flagged' column — its presence confirms is_flagged is in the SELECT."
       },
       {
         "id": 4,
-        "description": "Navigate to __PORTAL_URL__/cc/all-users (superadmin cross-instance view). Verify this page loads without a 500 error. If it shows users, verify the flagged status indicator is visible here too. A crash on this page with a different error than #241 should be recorded as a new defect."
+        "description": "Navigate to http://localhost:3002/cc/all-users (superadmin cross-instance view). Verify this page loads without a 500 error. If it shows users, verify the flagged status indicator is visible here too. A crash on this page with a different error than #241 should be recorded as a new defect."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-skills-panel",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Skills tab, verify list loads and actions pass correct skill ID. Targets defect #252 (undefined skill ID in delete/submit/preview).",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Skills tab, verify list loads and actions pass correct skill ID. Targets defect #252 (undefined skill ID in delete/submit/preview).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -123,7 +123,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders \u2014 either a list of skills or an empty state with a 'Browse Templates' CTA."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders — either a list of skills or an empty state with a 'Browse Templates' CTA."
       },
       {
         "id": 2,
@@ -131,7 +131,7 @@
       },
       {
         "id": 3,
-        "description": "After skill creation: verify the new skill appears in the list. Inspect the skill row \u2014 look for action buttons (Delete, Submit, Preview). Click 'Delete' on the new skill. In the Network tab, verify the DELETE request URL contains a valid UUID skill_id (not 'undefined' or 'null'). Defect #252 sends DELETE /api/v1/skills/undefined \u2014 look for this exact URL pattern."
+        "description": "After skill creation: verify the new skill appears in the list. Inspect the skill row — look for action buttons (Delete, Submit, Preview). Click 'Delete' on the new skill. In the Network tab, verify the DELETE request URL contains a valid UUID skill_id (not 'undefined' or 'null'). Defect #252 sends DELETE /api/v1/skills/undefined — look for this exact URL pattern."
       },
       {
         "id": 4,
@@ -142,13 +142,13 @@
   },
   {
     "id": "cc-portal-analytics",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Analytics tab, verify charts and data render without crash.",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Analytics tab, verify charts and data render without crash.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/dashboard. Click the 'Analytics' tab. Verify the tab activates and the analytics section renders without a JavaScript crash."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Click the 'Analytics' tab. Verify the tab activates and the analytics section renders without a JavaScript crash."
       },
       {
         "id": 2,
@@ -156,28 +156,28 @@
       },
       {
         "id": 3,
-        "description": "Look for chart/graph visualisations (Recharts SVG containers, canvas elements, or chart wrappers). If present, verify they render without corruption \u2014 no blank chart boxes, no 'Chart failed to load' error text. Check browser console for Recharts or chart-related errors."
+        "description": "Look for chart/graph visualisations (Recharts SVG containers, canvas elements, or chart wrappers). If present, verify they render without corruption — no blank chart boxes, no 'Chart failed to load' error text. Check browser console for Recharts or chart-related errors."
       },
       {
         "id": 4,
-        "description": "If date range or time period filter controls are visible, change the selection (e.g., switch from 'Last 7 days' to 'Last 30 days'). Verify the analytics section responds \u2014 shows a loading state or updates data. A filter control that does nothing on change is a regression."
+        "description": "If date range or time period filter controls are visible, change the selection (e.g., switch from 'Last 7 days' to 'Last 30 days'). Verify the analytics section responds — shows a loading state or updates data. A filter control that does nothing on change is a regression."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-sessions",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Sessions tab, verify session list loads for superadmin.",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Sessions tab, verify session list loads for superadmin.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/dashboard. Click the 'Sessions' tab. Verify the tab activates without a crash."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/dashboard. Click the 'Sessions' tab. Verify the tab activates without a crash."
       },
       {
         "id": 2,
-        "description": "Verify the sessions section renders: either a table/list of recent chat sessions showing session_id, user identifier, timestamp, and message count \u2014 or an informative empty state ('No sessions yet'). An 'Access Denied' error for this superadmin account is a regression."
+        "description": "Verify the sessions section renders: either a table/list of recent chat sessions showing session_id, user identifier, timestamp, and message count — or an informative empty state ('No sessions yet'). An 'Access Denied' error for this superadmin account is a regression."
       },
       {
         "id": 3,
@@ -188,13 +188,13 @@
   },
   {
     "id": "cc-portal-settings",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to instance settings, verify config loads and form renders.",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to instance settings, verify config loads and form renders.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/instance?instance=e2e-test-instance. Verify the page loads with a settings form showing current configuration values. A blank page, 'Failed to load', or 500 error is a FAIL."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Verify the page loads with a settings form showing current configuration values. A blank page, 'Failed to load', or 500 error is a FAIL."
       },
       {
         "id": 2,
@@ -202,14 +202,14 @@
       },
       {
         "id": 3,
-        "description": "Look for a 'Save' or 'Update' button. Verify it is present and not permanently disabled. Do NOT click it \u2014 this journey only verifies the page loads correctly. Check browser console for any errors during page load."
+        "description": "Look for a 'Save' or 'Update' button. Verify it is present and not permanently disabled. Do NOT click it — this journey only verifies the page loads correctly. Check browser console for any errors during page load."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-skill-lifecycle",
-    "description": "Layer 2 \u2014 Deep E2E: Full skill lifecycle \u2014 create from template, verify in list, submit for review, delete. Targets defects #239 (401 for superadmin) and #252 (undefined skill ID).",
+    "description": "Layer 2 — Deep E2E: Full skill lifecycle — create from template, verify in list, submit for review, delete. Targets defects #239 (401 for superadmin) and #252 (undefined skill ID).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -219,15 +219,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/skills?instance=e2e-test-instance. Click 'Browse Templates' or 'Create from Template'. Verify the template list loads with at least one template showing name and description. If a 401 error occurs on the templates fetch, record as defect #239 STILL PRESENT."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/skills?instance=e2e-test-instance. Click 'Browse Templates' or 'Create from Template'. Verify the template list loads with at least one template showing name and description. If a 401 error occurs on the templates fetch, record as defect #239 STILL PRESENT."
       },
       {
         "id": 2,
-        "description": "Select the first template. If a customisation form appears, enter description 'JH-QA lifecycle test skill \u2014 safe to delete'. Click 'Create Skill' or the confirm button. Verify the API response is 201 Created (check Network tab). If 401 is returned for the POST /api/v1/skills/from-template, record as defect #239."
+        "description": "Select the first template. If a customisation form appears, enter description 'JH-QA lifecycle test skill — safe to delete'. Click 'Create Skill' or the confirm button. Verify the API response is 201 Created (check Network tab). If 401 is returned for the POST /api/v1/skills/from-template, record as defect #239."
       },
       {
         "id": 3,
-        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to __PORTAL_URL__/cc/dashboard, then back to __PORTAL_URL__/cc/skills?instance=e2e-test-instance. Verify the skill still appears \u2014 confirming persistence."
+        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to http://localhost:3002/cc/dashboard, then back to http://localhost:3002/cc/skills?instance=e2e-test-instance. Verify the skill still appears — confirming persistence."
       },
       {
         "id": 4,
@@ -242,13 +242,13 @@
   },
   {
     "id": "cc-e2e-content-ingestion",
-    "description": "Layer 2 \u2014 Deep E2E: Navigate to content, trigger URL ingest, wait for status, verify content appears.",
+    "description": "Layer 2 — Deep E2E: Navigate to content, trigger URL ingest, wait for status, verify content appears.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/content?instance=e2e-test-instance. Verify the content/knowledge base page loads. Record the current number of content items or sources listed."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/content?instance=e2e-test-instance. Verify the content/knowledge base page loads. Record the current number of content items or sources listed."
       },
       {
         "id": 2,
@@ -256,7 +256,7 @@
       },
       {
         "id": 3,
-        "description": "After submitting, look for an ingest status indicator \u2014 a progress bar, 'Processing' badge, spinner, or a job status section. Wait up to 30 seconds for status to change from 'processing' to 'completed' or 'indexed'. If the page shows a job_id, record it."
+        "description": "After submitting, look for an ingest status indicator — a progress bar, 'Processing' badge, spinner, or a job status section. Wait up to 30 seconds for status to change from 'processing' to 'completed' or 'indexed'. If the page shows a job_id, record it."
       },
       {
         "id": 4,
@@ -271,7 +271,7 @@
   },
   {
     "id": "cc-e2e-lead-form-crud",
-    "description": "Layer 2 \u2014 Deep E2E: Full lead form field CRUD \u2014 create, verify persistence, edit, delete. Targets defect #240 (deep-merge preserves deleted field).",
+    "description": "Layer 2 — Deep E2E: Full lead form field CRUD — create, verify persistence, edit, delete. Targets defect #240 (deep-merge preserves deleted field).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -280,7 +280,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/lead-form?instance=e2e-test-instance (or the instance settings page with lead form section). Record the initial count of lead form fields."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/lead-form?instance=e2e-test-instance (or the instance settings page with lead form section). Record the initial count of lead form fields."
       },
       {
         "id": 2,
@@ -288,7 +288,7 @@
       },
       {
         "id": 3,
-        "description": "Navigate away to __PORTAL_URL__/cc/dashboard, then return to the lead form page. Verify 'JH QA Test Field' persists after navigation \u2014 confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
+        "description": "Navigate away to http://localhost:3002/cc/dashboard, then return to the lead form page. Verify 'JH QA Test Field' persists after navigation — confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
       },
       {
         "id": 4,
@@ -300,20 +300,20 @@
       },
       {
         "id": 6,
-        "description": "CRITICAL for defect #240: navigate away and return to the lead form page. Verify 'JH QA Test Field Edited' does NOT reappear. If it reappears despite deletion, defect #240 is STILL PRESENT \u2014 the deep-merge is preserving the deleted field. Check the GET response in Network tab to confirm the field is absent from the API response."
+        "description": "CRITICAL for defect #240: navigate away and return to the lead form page. Verify 'JH QA Test Field Edited' does NOT reappear. If it reappears despite deletion, defect #240 is STILL PRESENT — the deep-merge is preserving the deleted field. Check the GET response in Network tab to confirm the field is absent from the API response."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-instance-config",
-    "description": "Layer 2 \u2014 Deep E2E: Edit instance persona, save, navigate away, return, verify persistence.",
+    "description": "Layer 2 — Deep E2E: Edit instance persona, save, navigate away, return, verify persistence.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify \u2014 greeting message, assistant name, or persona description. Record the original value."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify — greeting message, assistant name, or persona description. Record the original value."
       },
       {
         "id": 2,
@@ -321,11 +321,11 @@
       },
       {
         "id": 3,
-        "description": "Wait for save confirmation \u2014 a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
+        "description": "Wait for save confirmation — a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
       },
       {
         "id": 4,
-        "description": "Navigate away to __PORTAL_URL__/cc/dashboard. Wait for dashboard to load. Navigate back to __PORTAL_URL__/cc/instance?instance=e2e-test-instance. Verify the edited field still contains '[JH-QA-2026]'. If the value reverted, this is a persistence failure."
+        "description": "Navigate away to http://localhost:3002/cc/dashboard. Wait for dashboard to load. Navigate back to http://localhost:3002/cc/instance?instance=e2e-test-instance. Verify the edited field still contains '[JH-QA-2026]'. If the value reverted, this is a persistence failure."
       },
       {
         "id": 5,
@@ -336,17 +336,17 @@
   },
   {
     "id": "cc-e2e-branding-update",
-    "description": "Layer 2 \u2014 Deep E2E: Change branding colours, save, verify widget preview reflects changes.",
+    "description": "Layer 2 — Deep E2E: Change branding colours, save, verify widget preview reflects changes.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/instance?instance=e2e-test-instance. Look for a 'Branding', 'Appearance', or 'Widget Styling' section or tab. If not on this page, try __PORTAL_URL__/cc/branding?instance=e2e-test-instance."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Look for a 'Branding', 'Appearance', or 'Widget Styling' section or tab. If not on this page, try http://localhost:3002/cc/branding?instance=e2e-test-instance."
       },
       {
         "id": 2,
-        "description": "Record the current primary colour value (hex code). Change the primary colour to a distinctly different value \u2014 if current is blue-ish (#1a73e8), change to green (#10b981). If a colour picker is present, use it; otherwise edit the hex input directly."
+        "description": "Record the current primary colour value (hex code). Change the primary colour to a distinctly different value — if current is blue-ish (#1a73e8), change to green (#10b981). If a colour picker is present, use it; otherwise edit the hex input directly."
       },
       {
         "id": 3,
@@ -361,7 +361,7 @@
   },
   {
     "id": "cc-e2e-user-flagging",
-    "description": "Layer 2 \u2014 Deep E2E: Flag a user, verify badge, unflag, verify removal. Validates defect #241 fix end-to-end.",
+    "description": "Layer 2 — Deep E2E: Flag a user, verify badge, unflag, verify removal. Validates defect #241 fix end-to-end.",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -370,7 +370,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/users?instance=e2e-test-instance. Wait for the users list to load. If no users exist, this journey is a SKIP (cannot test flagging without users). Record the count of flagged users (look for a 'Flagged' filter or badge count)."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/users?instance=e2e-test-instance. Wait for the users list to load. If no users exist, this journey is a SKIP (cannot test flagging without users). Record the count of flagged users (look for a 'Flagged' filter or badge count)."
       },
       {
         "id": 2,
@@ -378,7 +378,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the flagged user now shows a visual flag indicator \u2014 a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or __PORTAL_URL__/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
+        "description": "Verify the flagged user now shows a visual flag indicator — a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or http://localhost:3002/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
       },
       {
         "id": 4,
@@ -393,17 +393,17 @@
   },
   {
     "id": "cc-e2e-billing-status",
-    "description": "Layer 2 \u2014 Deep E2E: Check billing status page, verify tier display and usage limits.",
+    "description": "Layer 2 — Deep E2E: Check billing status page, verify tier display and usage limits.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/subscription?instance=e2e-test-instance (or __PORTAL_URL__/cc/billing?instance=e2e-test-instance). Verify the page loads without a 500 error."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/subscription?instance=e2e-test-instance (or http://localhost:3002/cc/billing?instance=e2e-test-instance). Verify the page loads without a 500 error."
       },
       {
         "id": 2,
-        "description": "Verify a human-readable tier name is displayed \u2014 'Free', 'Starter', 'Pro', 'Business', or similar. NOT a raw enum like 'TIER_FREE' or a UUID. Record the tier name."
+        "description": "Verify a human-readable tier name is displayed — 'Free', 'Starter', 'Pro', 'Business', or similar. NOT a raw enum like 'TIER_FREE' or a UUID. Record the tier name."
       },
       {
         "id": 3,
@@ -411,39 +411,39 @@
       },
       {
         "id": 4,
-        "description": "Look for current usage alongside the limit \u2014 a progress bar, 'Used X of Y messages', or percentage. If present, verify it does not show negative numbers or values exceeding the limit. If usage display is absent, record as missing feature (soft fail)."
+        "description": "Look for current usage alongside the limit — a progress bar, 'Used X of Y messages', or percentage. If present, verify it does not show negative numbers or values exceeding the limit. If usage display is absent, record as missing feature (soft fail)."
       },
       {
         "id": 5,
-        "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', or similar button. If found, click it. Verify it navigates to a pricing page, checkout flow, or booking link \u2014 not a 404 or blank page. Record the destination URL."
+        "description": "Look for an upgrade CTA — 'Upgrade Plan', 'Get More Messages', or similar button. If found, click it. Verify it navigates to a pricing page, checkout flow, or booking link — not a 404 or blank page. Record the destination URL."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-data-export",
-    "description": "Layer 2 \u2014 Deep E2E: Request data export, wait for generation, verify download link.",
+    "description": "Layer 2 — Deep E2E: Request data export, wait for generation, verify download link.",
     "isSharedRoot": false,
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to __PORTAL_URL__/cc/instance?instance=e2e-test-instance. Look for a 'Data Export', 'Export Data', or 'Download Data' section or button. If not found on this page, check __PORTAL_URL__/cc/settings?instance=e2e-test-instance or __PORTAL_URL__/cc/data-export?instance=e2e-test-instance."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to http://localhost:3002/cc/instance?instance=e2e-test-instance. Look for a 'Data Export', 'Export Data', or 'Download Data' section or button. If not found on this page, check http://localhost:3002/cc/settings?instance=e2e-test-instance or http://localhost:3002/cc/data-export?instance=e2e-test-instance."
       },
       {
         "id": 2,
-        "description": "Click the data export trigger button. Verify the request initiates \u2014 a loading state, 'Export started' message, or progress indicator appears. If the export triggers a GET /api/v1/me/data-export, verify the response status."
+        "description": "Click the data export trigger button. Verify the request initiates — a loading state, 'Export started' message, or progress indicator appears. If the export triggers a GET /api/v1/me/data-export, verify the response status."
       },
       {
         "id": 3,
-        "description": "If the export produces a downloadable file (CSV, JSON, ZIP): verify the download link is valid and accessible. If the export is async, wait up to 30 seconds for completion. If no export functionality exists on any page, record as 'Data export UI not surfaced' \u2014 the backend route /api/v1/me/data-export exists but lacks portal UI."
+        "description": "If the export produces a downloadable file (CSV, JSON, ZIP): verify the download link is valid and accessible. If the export is async, wait up to 30 seconds for completion. If no export functionality exists on any page, record as 'Data export UI not surfaced' — the backend route /api/v1/me/data-export exists but lacks portal UI."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-widget-chat",
-    "description": "Layer 2 \u2014 Deep E2E: Send a chat message through the widget API and verify AI response. Targets defect #225 (widget chat AI does not respond).",
+    "description": "Layer 2 — Deep E2E: Send a chat message through the widget API and verify AI response. Targets defect #225 (widget chat AI does not respond).",
     "isSharedRoot": false,
     "depth": 1,
     "defects": [
@@ -452,7 +452,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://cc.phronex.com/ (404 on root is expected \u2014 needed for page context). Using page.evaluate(): POST https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200 and response contains an access_token. Store as VISITOR_TOKEN."
+        "description": "Navigate to https://cc.phronex.com/ (404 on root is expected — needed for page context). Using page.evaluate(): POST https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify HTTP 200 and response contains an access_token. Store as VISITOR_TOKEN."
       },
       {
         "id": 2,
@@ -464,14 +464,14 @@
       },
       {
         "id": 4,
-        "description": "Verify session continuity: send a follow-up message in the same session \u2014 POST /api/v1/chat/message with the same session_id and message 'Tell me more'. Verify the AI remembers the previous context and does not start from scratch."
+        "description": "Verify session continuity: send a follow-up message in the same session — POST /api/v1/chat/message with the same session_id and message 'Tell me more'. Verify the AI remembers the previous context and does not start from scratch."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-auth-anonymous",
-    "description": "Layer 3 \u2014 API Contract: POST /auth/anonymous returns a valid JWT with correct claims.",
+    "description": "Layer 3 — API Contract: POST /auth/anonymous returns a valid JWT with correct claims.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -482,7 +482,7 @@
       },
       {
         "id": 2,
-        "description": "Decode the JWT payload (base64url decode the middle segment \u2014 do NOT verify signature, this is a contract test). Verify the payload contains: 'instance_id' = 'e2e-test-instance', 'exp' claim (expiry timestamp in the future), 'sub' or 'user_id' claim (non-empty string). If 'instance_id' is missing from claims, the token is malformed."
+        "description": "Decode the JWT payload (base64url decode the middle segment — do NOT verify signature, this is a contract test). Verify the payload contains: 'instance_id' = 'e2e-test-instance', 'exp' claim (expiry timestamp in the future), 'sub' or 'user_id' claim (non-empty string). If 'instance_id' is missing from claims, the token is malformed."
       },
       {
         "id": 3,
@@ -493,7 +493,7 @@
   },
   {
     "id": "cc-api-auth-identify",
-    "description": "Layer 3 \u2014 API Contract: POST /auth/identify upgrades anonymous token to a 30-day identified session.",
+    "description": "Layer 3 — API Contract: POST /auth/identify upgrades anonymous token to a 30-day identified session.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -515,7 +515,7 @@
   },
   {
     "id": "cc-api-chat-message",
-    "description": "Layer 3 \u2014 API Contract: POST /chat/message returns SSE stream with token events.",
+    "description": "Layer 3 — API Contract: POST /chat/message returns SSE stream with token events.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -534,14 +534,14 @@
       },
       {
         "id": 4,
-        "description": "Verify the response includes a session_id \u2014 either in the SSE metadata events, in a final JSON payload, or in response headers. The session_id is required for follow-up messages. If absent, the API contract is incomplete."
+        "description": "Verify the response includes a session_id — either in the SSE metadata events, in a final JSON payload, or in response headers. The session_id is required for follow-up messages. If absent, the API contract is incomplete."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-config-branding",
-    "description": "Layer 3 \u2014 API Contract: GET /config/branding returns branding JSON with expected shape.",
+    "description": "Layer 3 — API Contract: GET /config/branding returns branding JSON with expected shape.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -552,7 +552,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the response JSON shape contains: (a) 'primaryColor' or 'primary_color' \u2014 a valid hex colour string, (b) 'name' or 'assistant_name' \u2014 non-empty string, (c) optionally 'avatar_url', 'greeting', 'theme'. The response must not be empty {} or null."
+        "description": "Verify the response JSON shape contains: (a) 'primaryColor' or 'primary_color' — a valid hex colour string, (b) 'name' or 'assistant_name' — non-empty string, (c) optionally 'avatar_url', 'greeting', 'theme'. The response must not be empty {} or null."
       },
       {
         "id": 3,
@@ -563,7 +563,7 @@
   },
   {
     "id": "cc-api-billing-status",
-    "description": "Layer 3 \u2014 API Contract: GET /billing/status returns tier and limits shape.",
+    "description": "Layer 3 — API Contract: GET /billing/status returns tier and limits shape.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -578,14 +578,14 @@
       },
       {
         "id": 3,
-        "description": "Verify response shape: must contain (a) 'tier' or 'plan' field \u2014 a string like 'free', 'starter', 'pro', (b) 'monthly_limit' or 'messages_limit' \u2014 a positive integer, (c) 'messages_used' or 'usage' \u2014 a non-negative integer, (d) optionally 'subscription_id', 'expires_at'. Missing tier or limit fields is a contract violation."
+        "description": "Verify response shape: must contain (a) 'tier' or 'plan' field — a string like 'free', 'starter', 'pro', (b) 'monthly_limit' or 'messages_limit' — a positive integer, (c) 'messages_used' or 'usage' — a non-negative integer, (d) optionally 'subscription_id', 'expires_at'. Missing tier or limit fields is a contract violation."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-skills-crud",
-    "description": "Layer 3 \u2014 API Contract: POST /skills/from-template, GET /skills/{id}, DELETE /skills/{id}, verify 404 after delete.",
+    "description": "Layer 3 — API Contract: POST /skills/from-template, GET /skills/{id}, DELETE /skills/{id}, verify 404 after delete.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -608,14 +608,14 @@
       },
       {
         "id": 5,
-        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret header. Expect HTTP 404 \u2014 confirming the skill was fully deleted and not just soft-deleted. A 200 response with the skill still present means deletion is broken."
+        "description": "GET https://cc.phronex.com/api/v1/skills/<SKILL_ID> with X-Admin-Secret header. Expect HTTP 404 — confirming the skill was fully deleted and not just soft-deleted. A 200 response with the skill still present means deletion is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-usage",
-    "description": "Layer 3 \u2014 API Contract: GET /config/usage returns messages_used and messages_remaining.",
+    "description": "Layer 3 — API Contract: GET /config/usage returns messages_used and messages_remaining.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -630,14 +630,14 @@
       },
       {
         "id": 3,
-        "description": "Verify response contains: (a) 'messages_used' \u2014 a non-negative integer, (b) 'messages_remaining' \u2014 a non-negative integer or null (unlimited), (c) optionally 'monthly_limit', 'reset_date'. If both messages_used and messages_remaining are absent, the usage contract is broken."
+        "description": "Verify response contains: (a) 'messages_used' — a non-negative integer, (b) 'messages_remaining' — a non-negative integer or null (unlimited), (c) optionally 'monthly_limit', 'reset_date'. If both messages_used and messages_remaining are absent, the usage contract is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-health",
-    "description": "Layer 3 \u2014 API Contract: GET /health returns {status: 'healthy', service: 'contentcompanion'}.",
+    "description": "Layer 3 — API Contract: GET /health returns {status: 'healthy', service: 'contentcompanion'}.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -659,7 +659,7 @@
   },
   {
     "id": "cc-api-widget-health",
-    "description": "Layer 3 \u2014 API Contract: GET /config/health/widget returns component health status fields.",
+    "description": "Layer 3 — API Contract: GET /config/health/widget returns component health status fields.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -670,25 +670,25 @@
       },
       {
         "id": 2,
-        "description": "Verify response JSON contains component health status fields: (a) 'api' \u2014 should be 'healthy' or true, (b) 'knowledge' or 'vector_store' \u2014 status of ChromaDB, (c) 'llm' \u2014 status of Anthropic API connectivity, (d) optionally 'tts' \u2014 text-to-speech status. Each component status should be 'healthy', 'degraded', or 'unavailable'."
+        "description": "Verify response JSON contains component health status fields: (a) 'api' — should be 'healthy' or true, (b) 'knowledge' or 'vector_store' — status of ChromaDB, (c) 'llm' — status of Anthropic API connectivity, (d) optionally 'tts' — text-to-speech status. Each component status should be 'healthy', 'degraded', or 'unavailable'."
       },
       {
         "id": 3,
-        "description": "Verify that at least 'api' and 'llm' report 'healthy'. A degraded LLM status means Anthropic API is unreachable \u2014 this would explain defect #225 if present."
+        "description": "Verify that at least 'api' and 'llm' report 'healthy'. A degraded LLM status means Anthropic API is unreachable — this would explain defect #225 if present."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-anon-admin-block",
-    "description": "Layer 4 \u2014 Security: Verify admin routes reject unauthenticated requests.",
+    "description": "Layer 4 — Security: Verify admin routes reject unauthenticated requests.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
     "steps": [
       {
         "id": 1,
-        "description": "GET https://cc.phronex.com/api/v1/users (admin users list) with NO Authorization header and NO X-Admin-Secret header. Expect HTTP 401 or 403. A 200 response means admin routes are unprotected \u2014 critical security failure."
+        "description": "GET https://cc.phronex.com/api/v1/users (admin users list) with NO Authorization header and NO X-Admin-Secret header. Expect HTTP 401 or 403. A 200 response means admin routes are unprotected — critical security failure."
       },
       {
         "id": 2,
@@ -707,7 +707,7 @@
   },
   {
     "id": "cc-sec-idor-cross-instance",
-    "description": "Layer 4 \u2014 Security: Auth as instance A user, try to access instance B data.",
+    "description": "Layer 4 — Security: Auth as instance A user, try to access instance B data.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -729,7 +729,7 @@
   },
   {
     "id": "cc-sec-rate-limit",
-    "description": "Layer 4 \u2014 Security: Send 25 rapid requests, verify 429 after rate limit threshold.",
+    "description": "Layer 4 — Security: Send 25 rapid requests, verify 429 after rate limit threshold.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -740,11 +740,11 @@
       },
       {
         "id": 2,
-        "description": "Send 25 rapid POST requests to https://cc.phronex.com/api/v1/chat/message with Authorization: Bearer <token>, body {\"instance_id\": \"e2e-test-instance\", \"message\": \"Hello\", \"session_id\": null}. Do NOT wait between requests \u2014 send as fast as possible. Record the HTTP status of each response."
+        "description": "Send 25 rapid POST requests to https://cc.phronex.com/api/v1/chat/message with Authorization: Bearer <token>, body {\"instance_id\": \"e2e-test-instance\", \"message\": \"Hello\", \"session_id\": null}. Do NOT wait between requests — send as fast as possible. Record the HTTP status of each response."
       },
       {
         "id": 3,
-        "description": "Analyse results: (a) if any response has status 429 \u2014 rate limiting is working, record the request number where 429 first appeared, (b) if all 25 return 200 \u2014 rate limit threshold is > 25 or rate limiting is disabled, record as 'rate limit not triggered in 25 requests' (conditional pass), (c) if any response is 500 \u2014 server crashed under load, record as HARD FAIL."
+        "description": "Analyse results: (a) if any response has status 429 — rate limiting is working, record the request number where 429 first appeared, (b) if all 25 return 200 — rate limit threshold is > 25 or rate limiting is disabled, record as 'rate limit not triggered in 25 requests' (conditional pass), (c) if any response is 500 — server crashed under load, record as HARD FAIL."
       },
       {
         "id": 4,
@@ -755,7 +755,7 @@
   },
   {
     "id": "cc-sec-jwt-malformed",
-    "description": "Layer 4 \u2014 Security: Send requests with malformed JWT tokens, verify 401 responses.",
+    "description": "Layer 4 — Security: Send requests with malformed JWT tokens, verify 401 responses.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -766,7 +766,7 @@
       },
       {
         "id": 2,
-        "description": "GET https://cc.phronex.com/api/v1/config/usage with Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE. Expect HTTP 401 \u2014 this JWT has a valid structure but wrong signature."
+        "description": "GET https://cc.phronex.com/api/v1/config/usage with Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE. Expect HTTP 401 — this JWT has a valid structure but wrong signature."
       },
       {
         "id": 3,
@@ -781,7 +781,7 @@
   },
   {
     "id": "cc-sec-xss-chat",
-    "description": "Layer 4 \u2014 Security: Send script tag payload in chat message, verify response is escaped/safe.",
+    "description": "Layer 4 — Security: Send script tag payload in chat message, verify response is escaped/safe.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -796,14 +796,14 @@
       },
       {
         "id": 3,
-        "description": "Verify the response text does NOT contain unescaped '<script>' tags or 'onerror=' attributes. The AI's response text should discuss services normally \u2014 the XSS payload in the user's message should not be reflected verbatim in the response. If the raw script tag appears in the response text, the output is not sanitised."
+        "description": "Verify the response text does NOT contain unescaped '<script>' tags or 'onerror=' attributes. The AI's response text should discuss services normally — the XSS payload in the user's message should not be reflected verbatim in the response. If the raw script tag appears in the response text, the output is not sanitised."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-sqli-auth",
-    "description": "Layer 4 \u2014 Security: Send SQL injection payload in auth identify email, verify no error leak.",
+    "description": "Layer 4 — Security: Send SQL injection payload in auth identify email, verify no error leak.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -829,7 +829,7 @@
   },
   {
     "id": "cc-sec-admin-secret-required",
-    "description": "Layer 4 \u2014 Security: Verify admin routes require X-Admin-Secret header.",
+    "description": "Layer 4 — Security: Verify admin routes require X-Admin-Secret header.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -848,14 +848,14 @@
       },
       {
         "id": 4,
-        "description": "GET https://cc.phronex.com/api/v1/keys with no headers at all. Expect HTTP 401 or 403. The /keys endpoint exposes sensitive configuration \u2014 it must be fully protected."
+        "description": "GET https://cc.phronex.com/api/v1/keys with no headers at all. Expect HTTP 401 or 403. The /keys endpoint exposes sensitive configuration — it must be fully protected."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-biz-tier-limits",
-    "description": "Layer 5 \u2014 Business Logic: Verify free tier monthly message limit is enforced.",
+    "description": "Layer 5 — Business Logic: Verify free tier monthly message limit is enforced.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -881,7 +881,7 @@
   },
   {
     "id": "cc-biz-premium-features",
-    "description": "Layer 5 \u2014 Business Logic: Verify premium users get higher limits and premium-only features.",
+    "description": "Layer 5 — Business Logic: Verify premium users get higher limits and premium-only features.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -903,7 +903,7 @@
   },
   {
     "id": "cc-biz-billing-checkout",
-    "description": "Layer 5 \u2014 Business Logic: POST /billing/checkout returns Razorpay subscription_id and checkout URL.",
+    "description": "Layer 5 — Business Logic: POST /billing/checkout returns Razorpay subscription_id and checkout URL.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -918,18 +918,18 @@
       },
       {
         "id": 3,
-        "description": "Verify response contains: (a) 'subscription_id' \u2014 a Razorpay subscription ID string starting with 'sub_', (b) 'checkout_url' or 'short_url' \u2014 a valid URL containing 'razorpay.com'. If Razorpay is not configured (key_id missing), expect HTTP 503 or 400 with an informative error \u2014 not a 500 crash."
+        "description": "Verify response contains: (a) 'subscription_id' — a Razorpay subscription ID string starting with 'sub_', (b) 'checkout_url' or 'short_url' — a valid URL containing 'razorpay.com'. If Razorpay is not configured (key_id missing), expect HTTP 503 or 400 with an informative error — not a 500 crash."
       },
       {
         "id": 4,
-        "description": "If checkout succeeded: verify the subscription_id format matches Razorpay's pattern (sub_[a-zA-Z0-9]+). Do NOT follow the checkout URL \u2014 it would create a real billing session. If the response is a 400/503 with 'billing not configured', record as expected for test instances without Razorpay keys."
+        "description": "If checkout succeeded: verify the subscription_id format matches Razorpay's pattern (sub_[a-zA-Z0-9]+). Do NOT follow the checkout URL — it would create a real billing session. If the response is a 400/503 with 'billing not configured', record as expected for test instances without Razorpay keys."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-biz-rate-limit-by-tier",
-    "description": "Layer 5 \u2014 Business Logic: Compare rate limits between tiers, verify premium gets higher limits.",
+    "description": "Layer 5 — Business Logic: Compare rate limits between tiers, verify premium gets higher limits.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -940,7 +940,7 @@
       },
       {
         "id": 2,
-        "description": "Verify rate limit ordering: premium tiers must have rate_limit_hourly >= free tier's rate_limit_hourly. If all tiers have the same rate limit, record as 'no rate differentiation by tier' \u2014 the RATE_LIMIT_HOURLY env var may be a global ceiling."
+        "description": "Verify rate limit ordering: premium tiers must have rate_limit_hourly >= free tier's rate_limit_hourly. If all tiers have the same rate limit, record as 'no rate differentiation by tier' — the RATE_LIMIT_HOURLY env var may be a global ceiling."
       },
       {
         "id": 3,
@@ -951,7 +951,7 @@
   },
   {
     "id": "cc-biz-chat-disabled",
-    "description": "Layer 5 \u2014 Business Logic: When LLM is unavailable, verify /chat/message returns graceful error.",
+    "description": "Layer 5 — Business Logic: When LLM is unavailable, verify /chat/message returns graceful error.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "http",
@@ -966,14 +966,14 @@
       },
       {
         "id": 3,
-        "description": "If LLM is healthy: verify 200 with a valid response (baseline check). If LLM is unavailable: verify the response is NOT a 500 with a stack trace \u2014 it should be a 503 with a user-friendly message like 'The AI assistant is temporarily unavailable. Please try again later.' A raw exception in the response body violates the 'fail safe' principle."
+        "description": "If LLM is healthy: verify 200 with a valid response (baseline check). If LLM is unavailable: verify the response is NOT a 500 with a stack trace — it should be a 503 with a user-friendly message like 'The AI assistant is temporarily unavailable. Please try again later.' A raw exception in the response body violates the 'fail safe' principle."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-data-user-instance-fk",
-    "description": "Layer 6 \u2014 Data Integrity: Verify every user row has a valid instance_id FK \u2014 no orphan users.",
+    "description": "Layer 6 — Data Integrity: Verify every user row has a valid instance_id FK — no orphan users.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
@@ -991,7 +991,7 @@
   },
   {
     "id": "cc-data-session-user-fk",
-    "description": "Layer 6 \u2014 Data Integrity: Verify every session row has a valid user_id \u2014 no orphan sessions.",
+    "description": "Layer 6 — Data Integrity: Verify every session row has a valid user_id — no orphan sessions.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
@@ -1009,14 +1009,14 @@
   },
   {
     "id": "cc-data-subscription-user",
-    "description": "Layer 6 \u2014 Data Integrity: Verify subscription records have matching user records.",
+    "description": "Layer 6 — Data Integrity: Verify subscription records have matching user records.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
     "steps": [
       {
         "id": 1,
-        "description": "Execute SQL: SELECT COUNT(*) AS orphan_count FROM subscriptions sub WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = sub.user_id). Expected result: orphan_count = 0. Orphan subscriptions mean billing records reference deleted users \u2014 revenue reconciliation risk."
+        "description": "Execute SQL: SELECT COUNT(*) AS orphan_count FROM subscriptions sub WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = sub.user_id). Expected result: orphan_count = 0. Orphan subscriptions mean billing records reference deleted users — revenue reconciliation risk."
       },
       {
         "id": 2,
@@ -1027,7 +1027,7 @@
   },
   {
     "id": "cc-data-llm-usage-session",
-    "description": "Layer 6 \u2014 Data Integrity: Verify llm_usage rows reference valid sessions.",
+    "description": "Layer 6 — Data Integrity: Verify llm_usage rows reference valid sessions.",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
@@ -1045,14 +1045,14 @@
   },
   {
     "id": "cc-data-tenant-isolation",
-    "description": "Layer 6 \u2014 Data Integrity: Verify no table has rows where instance_id is null (except system tables).",
+    "description": "Layer 6 — Data Integrity: Verify no table has rows where instance_id is null (except system tables).",
     "isSharedRoot": false,
     "depth": 1,
     "executor": "db",
     "steps": [
       {
         "id": 1,
-        "description": "Execute SQL: SELECT COUNT(*) AS null_count FROM users WHERE instance_id IS NULL. Expected: null_count = 0. Users without an instance_id break multi-tenancy \u2014 they belong to no tenant."
+        "description": "Execute SQL: SELECT COUNT(*) AS null_count FROM users WHERE instance_id IS NULL. Expected: null_count = 0. Users without an instance_id break multi-tenancy — they belong to no tenant."
       },
       {
         "id": 2,
