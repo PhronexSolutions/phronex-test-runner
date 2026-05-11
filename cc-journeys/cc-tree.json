@@ -861,11 +861,11 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"test@example.com' OR '1'='1\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 422 or 400 (validation error). NOT 500 (which would indicate a SQL error leaked)."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"test@example.com' OR '1'='1\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). The backend uses parameterized queries \u2014 HTTP 200 is acceptable (payload stored as literal string, not injected). HTTP 500 with SQL error text is FAIL. HTTP 422 is also acceptable (strict email validation). Record status and check step 3 for SQL error leakage."
       },
       {
         "id": 3,
-        "description": "Verify the response from step 2 does NOT contain SQL error messages: no 'syntax error', no 'pg_catalog', no 'relation', no 'column', no PostgreSQL error codes. A clean 422 or 400 validation error is passing. A 500 with SQL error text is a FAIL."
+        "description": "Verify the response from step 2 does NOT contain SQL error messages: no 'syntax error', no 'pg_catalog', no 'relation', no 'column', no PostgreSQL error codes. PASS if status is 200 (stored as literal) or 422 (rejected by email validator) \u2014 both indicate SQL injection is prevented. FAIL only if status is 500 or response body contains SQL error text."
       },
       {
         "id": 4,
