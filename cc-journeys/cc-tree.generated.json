@@ -6,7 +6,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load \u2014 verify no 500 error and the sidebar is visible."
+        "description": "Navigate to https://app.phronex.com. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load — verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,
@@ -14,7 +14,7 @@
       },
       {
         "id": 3,
-        "description": "Save browser session: Call the browser_storage_state tool with filename set to the stateOutputPath (.tmp/cc-trunk-superadmin-state.json) to persist cookies and localStorage for downstream journeys. This step is critical \u2014 without it, all dependent journeys will fail to authenticate."
+        "description": "Save browser session: Call the browser_storage_state tool with filename set to the stateOutputPath (.tmp/cc-trunk-superadmin-state.json) to persist cookies and localStorage for downstream journeys. This step is critical — without it, all dependent journeys will fail to authenticate."
       }
     ],
     "isSharedRoot": true,
@@ -22,16 +22,16 @@
   },
   {
     "id": "cc-portal-dashboard",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to CC dashboard, verify all tabs load without crash. Targets defect #238 (hasCustomKey infinite recursion).",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to CC dashboard, verify all tabs load without crash. Targets defect #238 (hasCustomKey infinite recursion).",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors \u2014 specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors — specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
       },
       {
         "id": 2,
-        "description": "Identify all tabs visible in the CC dashboard tab bar. For a superadmin account, expect: Overview, Analytics, Info & Connections, Sessions. Click the 'Overview' tab. Verify it renders content without a JavaScript crash \u2014 look for stat cards, metrics, or an informative empty state. A blank white screen or error boundary is a FAIL."
+        "description": "Identify all tabs visible in the CC dashboard tab bar. For a superadmin account, expect: Overview, Analytics, Info & Connections, Sessions. Click the 'Overview' tab. Verify it renders content without a JavaScript crash — look for stat cards, metrics, or an informative empty state. A blank white screen or error boundary is a FAIL."
       },
       {
         "id": 3,
@@ -39,7 +39,7 @@
       },
       {
         "id": 4,
-        "description": "Click the 'Info & Connections' tab. Verify the tab content renders \u2014 look for 'Platform Connections', 'Instance LLM Configuration', 'Widget Embed Code', or 'Recent Issues' sections. NOTE: React 19 ErrorBoundary may log a console.error when RecentIssues mounts (known React 19 concurrent mode fiber-state issue, defect #251, fixed via ErrorBoundary containment in commit 993083a). This console.error is EXPECTED and NOT a failure \u2014 the tab content must still be present. A blank white page or 'Something went wrong' fullscreen overlay is a FAIL. A contained 'Recent issues unavailable' fallback is a PASS."
+        "description": "Click the 'Info & Connections' tab. Verify the tab content renders — look for 'Platform Connections', 'Instance LLM Configuration', 'Widget Embed Code', or 'Recent Issues' sections. NOTE: React 19 ErrorBoundary may log a console.error when RecentIssues mounts (known React 19 concurrent mode fiber-state issue, defect #251, fixed via ErrorBoundary containment in commit 993083a). This console.error is EXPECTED and NOT a failure — the tab content must still be present. A blank white page or 'Something went wrong' fullscreen overlay is a FAIL. A contained 'Recent issues unavailable' fallback is a PASS."
       },
       {
         "id": 5,
@@ -47,14 +47,14 @@
       },
       {
         "id": 6,
-        "description": "Final console check: open browser console and review errors accumulated across all 4 tab navigations. FAIL if any error contains 'hasCustomKey', 'Maximum call stack', or 'infinite' (defect #238). FAIL if any uncaught React error crashes a full tab (blank white screen or full-page error boundary). EXPECTED AND ACCEPTABLE: a single React ErrorBoundary console.error from the 'Info & Connections' tab related to 'Object.entries' or fiber state (defect #251 \u2014 contained by ErrorBoundary, not a page crash). The presence of this specific error with the tab still rendering content = PASS."
+        "description": "Final console check: open browser console and review errors accumulated across all 4 tab navigations. FAIL if any error contains 'hasCustomKey', 'Maximum call stack', or 'infinite' (defect #238). FAIL if any uncaught React error crashes a full tab (blank white screen or full-page error boundary). EXPECTED AND ACCEPTABLE: a single React ErrorBoundary console.error from the 'Info & Connections' tab related to 'Object.entries' or fiber state (defect #251 — contained by ErrorBoundary, not a page crash). The presence of this specific error with the tab still rendering content = PASS."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-info-connections",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Verify Info & Connections tab renders correctly. Defect #251 (Object.entries(null) crash) is CONTAINED via ErrorBoundary (commits 993083a+20d1b69) \u2014 tab content must be visible even if RecentIssues shows fallback. Regression check: full tab blank or fullscreen error overlay = FAIL.",
+    "description": "Layer 1 — Portal Stabilisation: Verify Info & Connections tab renders correctly. Defect #251 (Object.entries(null) crash) is CONTAINED via ErrorBoundary (commits 993083a+20d1b69) — tab content must be visible even if RecentIssues shows fallback. Regression check: full tab blank or fullscreen error overlay = FAIL.",
     "depth": 1,
     "steps": [
       {
@@ -63,7 +63,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the main Info & Connections content is visible. Look for: (a) 'Platform Connections' section with CC API URL and Admin Secret rows, OR (b) 'Instance LLM Configuration' section with at least one instance card. If a console.error fires referencing 'Object.entries' or React fiber state \u2014 this is the KNOWN AND CONTAINED defect #251 React 19 issue. The content sections above must still be present. If they are: PASS. If the entire tab is blank or shows a fullscreen error: FAIL (regression \u2014 ErrorBoundary no longer working)."
+        "description": "Verify the main Info & Connections content is visible. Look for: (a) 'Platform Connections' section with CC API URL and Admin Secret rows, OR (b) 'Instance LLM Configuration' section with at least one instance card. If a console.error fires referencing 'Object.entries' or React fiber state — this is the KNOWN AND CONTAINED defect #251 React 19 issue. The content sections above must still be present. If they are: PASS. If the entire tab is blank or shows a fullscreen error: FAIL (regression — ErrorBoundary no longer working)."
       },
       {
         "id": 3,
@@ -71,14 +71,14 @@
       },
       {
         "id": 4,
-        "description": "Check the 'Recent Issues' section at the bottom. It should show either 'No issues in the last 7 days' badge OR a list of recent error entries OR the 'Recent issues unavailable' fallback (if ErrorBoundary caught the React 19 fiber error). All three outcomes are PASS \u2014 the fallback is expected. Only FAIL if no section renders at all."
+        "description": "Check the 'Recent Issues' section at the bottom. It should show either 'No issues in the last 7 days' badge OR a list of recent error entries OR the 'Recent issues unavailable' fallback (if ErrorBoundary caught the React 19 fiber error). All three outcomes are PASS — the fallback is expected. Only FAIL if no section renders at all."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-users-management",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
     "depth": 1,
     "steps": [
       {
@@ -87,11 +87,11 @@
       },
       {
         "id": 2,
-        "description": "Check browser console for errors containing 'is_flagged', 'column', or 'UndefinedColumn' \u2014 defect #241 manifests as a SQL error because is_flagged is missing from the SELECT clause. If console shows a network error on the users fetch with a 500 status, inspect the response body for SQL-related error text."
+        "description": "Check browser console for errors containing 'is_flagged', 'column', or 'UndefinedColumn' — defect #241 manifests as a SQL error because is_flagged is missing from the SELECT clause. If console shows a network error on the users fetch with a 500 status, inspect the response body for SQL-related error text."
       },
       {
         "id": 3,
-        "description": "Check what the users count display shows. IMPORTANT \u2014 three cases: (A) page shows '0 of N users' where N > 0 AND table body is empty \u2192 PASS (this is portal bundle staleness, source filter fix in commit 8e35075 not yet deployed to EC2 \u2014 INFRASTRUCTURE issue, not product defect, record as PASS with note). (B) API returns a 500 or page crashes with JS error \u2192 FAIL (product defect). (C) Users ARE rendered \u2192 PASS; verify each row shows identifier (email or ID) and flagged rows show a red background or flag icon (NOT a column header \u2014 CC uses row-level highlighting, not a dedicated Flagged column)."
+        "description": "Check what the users count display shows. IMPORTANT — three cases: (A) page shows '0 of N users' where N > 0 AND table body is empty → PASS (this is portal bundle staleness, source filter fix in commit 8e35075 not yet deployed to EC2 — INFRASTRUCTURE issue, not product defect, record as PASS with note). (B) API returns a 500 or page crashes with JS error → FAIL (product defect). (C) Users ARE rendered → PASS; verify each row shows identifier (email or ID) and flagged rows show a red background or flag icon (NOT a column header — CC uses row-level highlighting, not a dedicated Flagged column)."
       },
       {
         "id": 4,
@@ -102,12 +102,12 @@
   },
   {
     "id": "cc-portal-skills-panel",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Skills tab, verify list loads and actions pass correct skill ID. Targets defect #252 (undefined skill ID in delete/submit/preview).",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Skills tab, verify list loads and actions pass correct skill ID. Targets defect #252 (undefined skill ID in delete/submit/preview).",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders \u2014 either a list of skills or an empty state with a 'Browse Templates' CTA."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Wait for the skills page to load. Verify the page renders — either a list of skills or an empty state with a 'Browse Templates' CTA."
       },
       {
         "id": 2,
@@ -115,7 +115,7 @@
       },
       {
         "id": 3,
-        "description": "After skill creation: verify the new skill appears in the list. Inspect the skill row \u2014 look for action buttons (Delete, Submit, Preview). Click 'Delete' on the new skill. In the Network tab, verify the DELETE request URL contains a valid UUID skill_id (not 'undefined' or 'null'). Defect #252 sends DELETE /api/v1/skills/undefined \u2014 look for this exact URL pattern."
+        "description": "After skill creation: verify the new skill appears in the list. Inspect the skill row — look for action buttons (Delete, Submit, Preview). Click 'Delete' on the new skill. In the Network tab, verify the DELETE request URL contains a valid UUID skill_id (not 'undefined' or 'null'). Defect #252 sends DELETE /api/v1/skills/undefined — look for this exact URL pattern."
       },
       {
         "id": 4,
@@ -126,7 +126,7 @@
   },
   {
     "id": "cc-portal-analytics",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Analytics tab, verify charts and data render without crash.",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Analytics tab, verify charts and data render without crash.",
     "depth": 1,
     "steps": [
       {
@@ -139,18 +139,18 @@
       },
       {
         "id": 3,
-        "description": "Look for chart/graph visualisations (Recharts SVG containers, canvas elements, or chart wrappers). If present, verify they render without corruption \u2014 no blank chart boxes, no 'Chart failed to load' error text. Check browser console for Recharts or chart-related errors."
+        "description": "Look for chart/graph visualisations (Recharts SVG containers, canvas elements, or chart wrappers). If present, verify they render without corruption — no blank chart boxes, no 'Chart failed to load' error text. Check browser console for Recharts or chart-related errors."
       },
       {
         "id": 4,
-        "description": "If date range or time period filter controls are visible, change the selection (e.g., switch from 'Last 7 days' to 'Last 30 days'). Verify the analytics section responds \u2014 shows a loading state or updates data. A filter control that does nothing on change is a regression."
+        "description": "If date range or time period filter controls are visible, change the selection (e.g., switch from 'Last 7 days' to 'Last 30 days'). Verify the analytics section responds — shows a loading state or updates data. A filter control that does nothing on change is a regression."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-sessions",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Sessions tab, verify session list loads for superadmin.",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to Sessions tab, verify session list loads for superadmin.",
     "depth": 1,
     "steps": [
       {
@@ -159,18 +159,18 @@
       },
       {
         "id": 2,
-        "description": "Verify the sessions section renders: either a table/list of recent chat sessions showing session_id, user identifier, timestamp, and message count \u2014 or an informative empty state ('No sessions yet'). An 'Access Denied' error for this superadmin account is a regression."
+        "description": "Verify the sessions section renders: either a table/list of recent chat sessions showing session_id, user identifier, timestamp, and message count — or an informative empty state ('No sessions yet'). An 'Access Denied' error for this superadmin account is a regression."
       },
       {
         "id": 3,
-        "description": "If sessions are listed: look for a 'View' button on each session row (the rows themselves may not be clickable \u2014 there is a View button in the actions column). Click the 'View' button on the first session. Verify a slide-over panel opens on the right showing session messages with alternating user/assistant bubbles. NOTE: The View button IS implemented in the codebase (SessionHistoryClient.tsx line 261). If 'View' buttons are ABSENT entirely \u2014 this is a portal bundle staleness issue (infrastructure, NOT a product defect). Mark step as PASS with note: 'INFRA: View button absent \u2014 portal bundle predates implementation; pending EC2 deploy'. Only FAIL if: (a) View button IS visible but clicking it does nothing, or (b) modal opens but shows an error instead of messages."
+        "description": "If sessions are listed: look for a 'View' button on each session row (the rows themselves may not be clickable — there is a View button in the actions column). Click the 'View' button on the first session. Verify a slide-over panel opens on the right showing session messages with alternating user/assistant bubbles. NOTE: The View button IS implemented in the codebase (SessionHistoryClient.tsx line 261). If 'View' buttons are ABSENT entirely — this is a portal bundle staleness issue (infrastructure, NOT a product defect). Mark step as PASS with note: 'INFRA: View button absent — portal bundle predates implementation; pending EC2 deploy'. Only FAIL if: (a) View button IS visible but clicking it does nothing, or (b) modal opens but shows an error instead of messages."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-portal-settings",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to instance settings, verify config loads and form renders.",
+    "description": "Layer 1 — Portal Stabilisation: Navigate to instance settings, verify config loads and form renders.",
     "depth": 1,
     "steps": [
       {
@@ -183,14 +183,14 @@
       },
       {
         "id": 3,
-        "description": "Look for a 'Save' or 'Update' button. Verify it is present and not permanently disabled. Do NOT click it \u2014 this journey only verifies the page loads correctly. Check browser console for any errors during page load."
+        "description": "Look for a 'Save' or 'Update' button. Verify it is present and not permanently disabled. Do NOT click it — this journey only verifies the page loads correctly. Check browser console for any errors during page load."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-skill-lifecycle",
-    "description": "Layer 2 \u2014 Deep E2E: Full skill lifecycle \u2014 create from template, verify in list, submit for review, delete. Targets defects #239 (401 for superadmin) and #252 (undefined skill ID).",
+    "description": "Layer 2 — Deep E2E: Full skill lifecycle — create from template, verify in list, submit for review, delete. Targets defects #239 (401 for superadmin) and #252 (undefined skill ID).",
     "depth": 1,
     "steps": [
       {
@@ -199,11 +199,11 @@
       },
       {
         "id": 2,
-        "description": "Select the first template. If a customisation form appears, enter description 'JH-QA lifecycle test skill \u2014 safe to delete'. Click 'Create Skill' or the confirm button. Verify the API response is 201 Created (check Network tab). If 401 is returned for the POST /api/v1/skills/from-template, record as defect #239."
+        "description": "Select the first template. If a customisation form appears, enter description 'JH-QA lifecycle test skill — safe to delete'. Click 'Create Skill' or the confirm button. Verify the API response is 201 Created (check Network tab). If 401 is returned for the POST /api/v1/skills/from-template, record as defect #239."
       },
       {
         "id": 3,
-        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to https://app.phronex.com/cc/dashboard, then back to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Verify the skill still appears \u2014 confirming persistence."
+        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to https://app.phronex.com/cc/dashboard, then back to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Verify the skill still appears — confirming persistence."
       },
       {
         "id": 4,
@@ -218,7 +218,7 @@
   },
   {
     "id": "cc-e2e-content-ingestion",
-    "description": "Layer 2 \u2014 Deep E2E: Navigate to content, trigger URL ingest, wait for status, verify content appears.",
+    "description": "Layer 2 — Deep E2E: Navigate to content, trigger URL ingest, wait for status, verify content appears.",
     "depth": 1,
     "steps": [
       {
@@ -231,11 +231,11 @@
       },
       {
         "id": 3,
-        "description": "After submitting, look for an ingest status indicator \u2014 a progress bar, 'Processing' badge, spinner, or a job status section. Wait up to 30 seconds for status to change from 'processing' to 'completed' or 'indexed'. If the page shows a job_id, record it."
+        "description": "After submitting, look for an ingest status indicator — a progress bar, 'Processing' badge, spinner, or a job status section. Wait up to 30 seconds for status to change from 'processing' to 'completed' or 'indexed'. If the page shows a job_id, record it."
       },
       {
         "id": 4,
-        "description": "Verify the ingestion result. Three acceptable outcomes: (A) SUCCESS: the ingested content appears in the content list with a human-readable source label (the URL \"phronex.com/about\" or similar), and chunk count is > 0 if displayed. (B) SERVER CAPABILITY MISSING: if the error message says \"URL crawl is not available on this server\" or \"Use file upload instead\", this is an ACCEPTABLE outcome \u2014 it means the server (EC2) does not have crawl4ai installed, which is intentional. Verify the portal shows a clear user-facing error message (not a 500). (C) CRAWL TIMED OUT: if the interface shows \"Crawling website... 0%\" for more than 45 seconds and then resets WITHOUT displaying any error message \u2014 this is a FAIL (silent failure). The portal MUST display a visible error message when a crawl job fails or times out. FAIL only if: no user-facing error is ever shown, or an unhandled 500 error appears. NOTE: If outcome C occurs, wait up to 45 seconds before judging. Check browser console for network errors (404 on status poll = backend restart, 500 = backend error)."
+        "description": "Verify the ingestion result. Three acceptable outcomes: (A) SUCCESS: the ingested content appears in the content list with a human-readable source label (the URL \"phronex.com/about\" or similar), and chunk count is > 0 if displayed. (B) SERVER CAPABILITY MISSING: if the error message says \"URL crawl is not available on this server\" or \"Use file upload instead\", this is an ACCEPTABLE outcome — it means the server (EC2) does not have crawl4ai installed, which is intentional. Verify the portal shows a clear user-facing error message (not a 500). (C) CRAWL TIMED OUT: if the interface shows \"Crawling website... 0%\" for more than 45 seconds and then resets WITHOUT displaying any error message — this is a FAIL (silent failure). The portal MUST display a visible error message when a crawl job fails or times out. FAIL only if: no user-facing error is ever shown, or an unhandled 500 error appears. NOTE: If outcome C occurs, wait up to 45 seconds before judging. Check browser console for network errors (404 on status poll = backend restart, 500 = backend error)."
       },
       {
         "id": 5,
@@ -246,7 +246,7 @@
   },
   {
     "id": "cc-e2e-lead-form-crud",
-    "description": "Layer 2 \u2014 Deep E2E: Full lead form field CRUD \u2014 create, verify persistence, edit, delete. Targets defect #240 (deep-merge preserves deleted field).",
+    "description": "Layer 2 — Deep E2E: Full lead form field CRUD — create, verify persistence, edit, delete. Targets defect #240 (deep-merge preserves deleted field).",
     "depth": 1,
     "steps": [
       {
@@ -259,7 +259,7 @@
       },
       {
         "id": 3,
-        "description": "Navigate away to https://app.phronex.com/cc/dashboard?instance=e2e-test-instance, then navigate BACK to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (IMPORTANT: always include ?instance=e2e-test-instance in the URL \u2014 without it the superadmin sees \"No CC instance linked\"). Wait for the fields list to load. Verify \"JH QA Test Field\" persists after navigation \u2014 confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard?instance=e2e-test-instance, then BACK to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (IMPORTANT: always include ?instance=e2e-test-instance). Verify the 'JH QA Test Field' added in step 2 is STILL present in the list. Field count should be initial_count + 1. NOTE: The portal calls /api/admin/cc/api/v1/admin/instance/{id}/lead-form-fields (the admin path) — not /api/v1/instance/{id}/lead-form-fields. Both should return the same fields. A count drop back to initial_count = FAIL (persistence bug). If the field persists, PASS."
       },
       {
         "id": 4,
@@ -271,19 +271,19 @@
       },
       {
         "id": 6,
-        "description": "CRITICAL for defect #240: navigate away to /cc/dashboard?instance=e2e-test-instance and return to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (always include ?instance=). Verify \"JH QA Test Field Edited\" does NOT reappear. If it reappears despite deletion, defect #240 is STILL PRESENT \u2014 the deep-merge is preserving the deleted field. Check the GET response in Network tab to confirm the field is absent from the API response."
+        "description": "CRITICAL for defect #240: navigate away to /cc/dashboard?instance=e2e-test-instance and return to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (always include ?instance=). Verify \"JH QA Test Field Edited\" does NOT reappear. If it reappears despite deletion, defect #240 is STILL PRESENT — the deep-merge is preserving the deleted field. Check the GET response in Network tab to confirm the field is absent from the API response."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-instance-config",
-    "description": "Layer 2 \u2014 Deep E2E: Edit instance persona, save, navigate away, return, verify persistence.",
+    "description": "Layer 2 — Deep E2E: Edit instance persona, save, navigate away, return, verify persistence.",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify \u2014 greeting message, assistant name, or persona description. Record the original value."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify — greeting message, assistant name, or persona description. Record the original value."
       },
       {
         "id": 2,
@@ -291,7 +291,7 @@
       },
       {
         "id": 3,
-        "description": "Wait for save confirmation \u2014 a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
+        "description": "Wait for save confirmation — a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
       },
       {
         "id": 4,
@@ -303,19 +303,19 @@
       },
       {
         "id": 99,
-        "description": "CLEANUP RECOVERY: If step 5 did not complete, navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Check if '[JH-QA-2026]' appears in any field. If so, remove it and save. If the field no longer contains '[JH-QA-2026]', the cleanup already succeeded or was already restored \u2014 record as PASS. This step ensures test data contamination is always cleaned regardless of step 5 outcome."
+        "description": "CLEANUP RECOVERY: If step 5 did not complete, navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Check if '[JH-QA-2026]' appears in any field. If so, remove it and save. If the field no longer contains '[JH-QA-2026]', the cleanup already succeeded or was already restored — record as PASS. This step ensures test data contamination is always cleaned regardless of step 5 outcome."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-branding-update",
-    "description": "Layer 2 \u2014 Deep E2E: Change branding colours, save, verify widget preview reflects changes.",
+    "description": "Layer 2 — Deep E2E: Change branding colours, save, verify widget preview reflects changes.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on the CC widget domain (same-origin required for fetch() calls \u2014 navigating to app.phronex.com would cause CORS errors on cc.phronex.com API calls). Verify the health endpoint returns HTTP 200."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on the CC widget domain (same-origin required for fetch() calls — navigating to app.phronex.com would cause CORS errors on cc.phronex.com API calls). Verify the health endpoint returns HTTP 200."
       },
       {
         "id": 1,
@@ -338,7 +338,7 @@
   },
   {
     "id": "cc-e2e-user-flagging",
-    "description": "Layer 2 \u2014 Deep E2E: Flag a user, verify badge, unflag, verify removal. Validates defect #241 fix end-to-end.",
+    "description": "Layer 2 — Deep E2E: Flag a user, verify badge, unflag, verify removal. Validates defect #241 fix end-to-end.",
     "depth": 1,
     "steps": [
       {
@@ -351,7 +351,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the flagged user now shows a visual flag indicator \u2014 a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or https://app.phronex.com/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
+        "description": "Verify the flagged user now shows a visual flag indicator — a badge, icon, colour change, or 'Flagged' label. Navigate to the flagged users filter or https://app.phronex.com/cc/users?instance=e2e-test-instance&flagged=true. Verify the flagged user appears in the filtered view."
       },
       {
         "id": 4,
@@ -366,7 +366,7 @@
   },
   {
     "id": "cc-e2e-billing-status",
-    "description": "Layer 2 \u2014 Deep E2E: Check billing status page, verify tier display and usage limits.",
+    "description": "Layer 2 — Deep E2E: Check billing status page, verify tier display and usage limits.",
     "depth": 1,
     "steps": [
       {
@@ -375,7 +375,7 @@
       },
       {
         "id": 2,
-        "description": "Verify a human-readable tier name is displayed \u2014 'Free', 'Starter', 'Pro', 'Business', or similar. NOT a raw enum like 'TIER_FREE' or a UUID. Record the tier name."
+        "description": "Verify a human-readable tier name is displayed — 'Free', 'Starter', 'Pro', 'Business', or similar. NOT a raw enum like 'TIER_FREE' or a UUID. Record the tier name."
       },
       {
         "id": 3,
@@ -383,42 +383,42 @@
       },
       {
         "id": 4,
-        "description": "Look for current usage alongside the limit \u2014 a progress bar, 'Used X of Y messages', or percentage. If present, verify it does not show negative numbers or values exceeding the limit. If usage display is absent, record as missing feature (soft fail)."
+        "description": "Look for current usage alongside the limit — a progress bar, 'Used X of Y messages', or percentage. If present, verify it does not show negative numbers or values exceeding the limit. If usage display is absent, record as missing feature (soft fail)."
       },
       {
         "id": 5,
-        "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', or similar button. If found, verify the button is visible and clickable. Do NOT click it further than the initial click that opens a checkout dialog or navigates to a pricing page \u2014 stop at the first navigation/modal. Verify it does not immediately return a 404 or error page on click. IMPORTANT: Do NOT proceed through any payment form, complete any checkout, or enter any payment details. Record the destination URL or dialog title only."
+        "description": "Look for an upgrade CTA — 'Upgrade Plan', 'Get More Messages', or similar button. If found, verify the button is visible and clickable. Do NOT click it further than the initial click that opens a checkout dialog or navigates to a pricing page — stop at the first navigation/modal. Verify it does not immediately return a 404 or error page on click. IMPORTANT: Do NOT proceed through any payment form, complete any checkout, or enter any payment details. Record the destination URL or dialog title only."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-data-export",
-    "description": "Layer 2 \u2014 Deep E2E: Request data export, wait for generation, verify download link.",
+    "description": "Layer 2 — Deep E2E: Request data export, wait for generation, verify download link.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "CC-SPECIFIC CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context for the CC API. The health endpoint returns HTTP 200 with {\"status\": \"healthy\"}. This is REQUIRED \u2014 all subsequent fetch() calls in page.evaluate() MUST use relative paths like /api/v1/... (NOT https://cc.phronex.com/...) or CORS will block them."
+        "description": "CC-SPECIFIC CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context for the CC API. The health endpoint returns HTTP 200 with {\"status\": \"healthy\"}. This is REQUIRED — all subsequent fetch() calls in page.evaluate() MUST use relative paths like /api/v1/... (NOT https://cc.phronex.com/...) or CORS will block them."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate() \u2014 MUST be called while browser is on cc.phronex.com (from step 0): fetch(\"/api/v1/auth/anonymous\", {method:\"POST\", headers:{\"Content-Type\":\"application/json\"}, body:JSON.stringify({instance_id:\"e2e-test-instance\"})}).then(r=>r.json()). Expect HTTP 200. The response contains \"token\" field (not \"access_token\"). Store token as VISITOR_TOKEN."
+        "description": "Using page.evaluate() — MUST be called while browser is on cc.phronex.com (from step 0): fetch(\"/api/v1/auth/anonymous\", {method:\"POST\", headers:{\"Content-Type\":\"application/json\"}, body:JSON.stringify({instance_id:\"e2e-test-instance\"})}).then(r=>r.json()). Expect HTTP 200. The response contains \"token\" field (not \"access_token\"). Store token as VISITOR_TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with VISITOR_TOKEN \u2014 MUST use relative path (same-origin, cc.phronex.com context): fetch(\"/api/v1/me/data-export\", {headers:{\"Authorization\":\"Bearer \"+VISITOR_TOKEN, \"X-Guide-Secret\":\"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\"}}).then(r=>{return {status:r.status, type:r.headers.get(\"content-type\")||\"unknown\", size:r.headers.get(\"content-length\")||\"unknown\"}}). Expect HTTP 200. NOTE: Response is a ZIP file (application/zip or application/octet-stream) \u2014 do NOT call .json() on it. PASS if status=200 and content-type contains \"zip\" or \"octet-stream\". If status=403 or 404, verify VISITOR_TOKEN was set correctly from step 1."
+        "description": "Using page.evaluate() with VISITOR_TOKEN — MUST use relative path (same-origin, cc.phronex.com context): fetch(\"/api/v1/me/data-export\", {headers:{\"Authorization\":\"Bearer \"+VISITOR_TOKEN, \"X-Guide-Secret\":\"6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075\"}}).then(r=>{return {status:r.status, type:r.headers.get(\"content-type\")||\"unknown\", size:r.headers.get(\"content-length\")||\"unknown\"}}). Expect HTTP 200. NOTE: Response is a ZIP file (application/zip or application/octet-stream) — do NOT call .json() on it. PASS if status=200 and content-type contains \"zip\" or \"octet-stream\". If status=403 or 404, verify VISITOR_TOKEN was set correctly from step 1."
       },
       {
         "id": 3,
-        "description": "Verify GDPR data export response from step 2: (a) HTTP status 200, (b) content-type header contains 'zip' or 'octet-stream' (confirms it is a ZIP file, not an error), (c) no 500 or 4xx error. PASS if status=200 and content-type is a binary type. NOTE: Do NOT attempt to parse the response body as JSON \u2014 it is a binary ZIP archive."
+        "description": "Verify GDPR data export response from step 2: (a) HTTP status 200, (b) content-type header contains 'zip' or 'octet-stream' (confirms it is a ZIP file, not an error), (c) no 500 or 4xx error. PASS if status=200 and content-type is a binary type. NOTE: Do NOT attempt to parse the response body as JSON — it is a binary ZIP archive."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-e2e-widget-chat",
-    "description": "Layer 2 \u2014 Deep E2E: Send a chat message through the widget API and verify AI response. Targets defect #225 (widget chat AI does not respond).",
+    "description": "Layer 2 — Deep E2E: Send a chat message through the widget API and verify AI response. Targets defect #225 (widget chat AI does not respond).",
     "depth": 1,
     "steps": [
       {
@@ -435,19 +435,19 @@
       },
       {
         "id": 4,
-        "description": "Verify session continuity: using page.evaluate(), send a follow-up message in the same session \u2014 POST /api/v1/chat/message with the same session_id, message='Tell me more', and header 'X-Guide-Secret: 6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'. Verify the AI responds (HTTP 200 with SSE stream containing at least one 'data:' line). The same session_id continuity confirms the session is maintained."
+        "description": "Verify session continuity: using page.evaluate(), send a follow-up message in the same session — POST /api/v1/chat/message with the same session_id, message='Tell me more', and header 'X-Guide-Secret: 6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'. Verify the AI responds (HTTP 200 with SSE stream containing at least one 'data:' line). The same session_id continuity confirms the session is maintained."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-auth-anonymous",
-    "description": "Layer 3 \u2014 API Contract: POST /auth/anonymous returns a valid JWT with correct claims.",
+    "description": "Layer 3 — API Contract: POST /auth/anonymous returns a valid JWT with correct claims.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -455,7 +455,7 @@
       },
       {
         "id": 2,
-        "description": "Decode ANON_TOKEN JWT payload: atob(ANON_TOKEN.split('.')[1]) \u2014 base64url decode the middle segment. Verify payload contains: 'instance_id'='e2e-test-instance', 'exp' claim (future timestamp), 'sub' or 'user_id' claim (UUID)."
+        "description": "Decode ANON_TOKEN JWT payload: atob(ANON_TOKEN.split('.')[1]) — base64url decode the middle segment. Verify payload contains: 'instance_id'='e2e-test-instance', 'exp' claim (future timestamp), 'sub' or 'user_id' claim (UUID)."
       },
       {
         "id": 3,
@@ -466,12 +466,12 @@
   },
   {
     "id": "cc-api-auth-identify",
-    "description": "Layer 3 \u2014 API Contract: POST /auth/identify upgrades anonymous token to a 30-day identified session.",
+    "description": "Layer 3 — API Contract: POST /auth/identify upgrades anonymous token to a 30-day identified session.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -483,14 +483,14 @@
       },
       {
         "id": 3,
-        "description": "Decode IDENTIFIED_TOKEN JWT payload (base64 decode the middle section). Verify: (a) 'sub' field is a UUID string (NOT email \u2014 CC uses UUID as subject), (b) 'instance_id' = 'e2e-test-instance', (c) 'tier' field is present (any value is acceptable), (d) 'exp' claim is > current time (token not already expired). PASS if sub is a UUID and instance_id matches. The user_id in response body should match the sub claim."
+        "description": "Decode IDENTIFIED_TOKEN JWT payload (base64 decode the middle section). Verify: (a) 'sub' field is a UUID string (NOT email — CC uses UUID as subject), (b) 'instance_id' = 'e2e-test-instance', (c) 'tier' field is present (any value is acceptable), (d) 'exp' claim is > current time (token not already expired). PASS if sub is a UUID and instance_id matches. The user_id in response body should match the sub claim."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-chat-message",
-    "description": "Layer 3 \u2014 API Contract: POST /chat/message returns SSE stream with token events.",
+    "description": "Layer 3 — API Contract: POST /chat/message returns SSE stream with token events.",
     "depth": 1,
     "steps": [
       {
@@ -503,23 +503,23 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({message:'What is Phronex?', instance_id:'e2e-test-instance', session_id:'22222222-2222-4222-a222-222222222222'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,500)}}). Expect HTTP 200. Chat response streams as SSE text/event-stream \u2014 the text field will contain 'data:' lines."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({message:'What is Phronex?', instance_id:'e2e-test-instance', session_id:'22222222-2222-4222-a222-222222222222'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,500)}}). Expect HTTP 200. Chat response streams as SSE text/event-stream — the text field will contain 'data:' lines."
       },
       {
         "id": 3,
-        "description": "Verify: (a) HTTP status 200, (b) response text contains at least one 'data:' line indicating SSE stream started, (c) no 'recaptcha_failed' error in response. The SSE stream may be truncated in page.evaluate() \u2014 that is OK. PASS if status=200 and response is non-empty."
+        "description": "Verify: (a) HTTP status 200, (b) response text contains at least one 'data:' line indicating SSE stream started, (c) no 'recaptcha_failed' error in response. The SSE stream may be truncated in page.evaluate() — that is OK. PASS if status=200 and response is non-empty."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-config-branding",
-    "description": "Layer 3 \u2014 API Contract: GET /config/branding returns branding JSON with expected shape.",
+    "description": "Layer 3 — API Contract: GET /config/branding returns branding JSON with expected shape.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -527,7 +527,7 @@
       },
       {
         "id": 2,
-        "description": "Verify BRANDING response contains: (a) 'primary_color' \u2014 a non-empty string like '#c0803e', (b) 'widget_title' or 'owner_name' \u2014 non-empty string, (c) 'welcome_message' \u2014 non-empty string. These are snake_case fields (not camelCase). Missing any field is a contract violation that breaks widget rendering."
+        "description": "Verify BRANDING response contains: (a) 'primary_color' — a non-empty string like '#c0803e', (b) 'widget_title' or 'owner_name' — non-empty string, (c) 'welcome_message' — non-empty string. These are snake_case fields (not camelCase). Missing any field is a contract violation that breaks widget rendering."
       },
       {
         "id": 3,
@@ -538,7 +538,7 @@
   },
   {
     "id": "cc-api-billing-status",
-    "description": "Layer 3 \u2014 API Contract: GET /billing/status returns tier and limits shape.",
+    "description": "Layer 3 — API Contract: GET /billing/status returns tier and limits shape.",
     "depth": 1,
     "steps": [
       {
@@ -551,14 +551,14 @@
       },
       {
         "id": 3,
-        "description": "Verify BILLING response shape matches the actual /api/v1/billing/status contract (SubscriptionStatusResponse schema): (a) 'tier' field present \u2014 string like 'free', 'premium', 'custom', (b) 'status' field present \u2014 string like 'active', 'canceled', (c) 'limits' field present \u2014 object (dict) where keys are limit names like 'messages-per-month' and values are integers, (d) 'monthly_price_paise' field present \u2014 integer (0 for free tier). PASS if tier, status, and limits (as a dict/object) are all present. NOTE: the API does NOT return flat fields monthly_limit or messages_used \u2014 those are NOT in the contract. The limits are nested inside the 'limits' object."
+        "description": "Verify BILLING response shape matches the actual /api/v1/billing/status contract (SubscriptionStatusResponse schema): (a) 'tier' field present — string like 'free', 'premium', 'custom', (b) 'status' field present — string like 'active', 'canceled', (c) 'limits' field present — object (dict) where keys are limit names like 'messages-per-month' and values are integers, (d) 'monthly_price_paise' field present — integer (0 for free tier). PASS if tier, status, and limits (as a dict/object) are all present. NOTE: the API does NOT return flat fields monthly_limit or messages_used — those are NOT in the contract. The limits are nested inside the 'limits' object."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-skills-crud",
-    "description": "Layer 3 \u2014 API Contract: POST /skills/from-template, GET /skills/{id}, DELETE /skills/{id}, verify 404 after delete.",
+    "description": "Layer 3 — API Contract: POST /skills/from-template, GET /skills/{id}, DELETE /skills/{id}, verify 404 after delete.",
     "depth": 1,
     "steps": [
       {
@@ -571,7 +571,7 @@
       },
       {
         "id": 2,
-        "description": "Get user token first: Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) \u2014 it is user-scoped, not admin-scoped."
+        "description": "Get user token first: Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) — it is user-scoped, not admin-scoped."
       },
       {
         "id": 3,
@@ -587,19 +587,19 @@
       },
       {
         "id": 6,
-        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 \u2014 confirming the skill was fully deleted. A 200 response means deletion is broken."
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 — confirming the skill was fully deleted. A 200 response means deletion is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-api-usage",
-    "description": "Layer 3 \u2014 API Contract: GET /config/usage returns messages_used and messages_remaining.",
+    "description": "Layer 3 — API Contract: GET /config/usage returns messages_used and messages_remaining.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -618,12 +618,12 @@
   },
   {
     "id": "cc-api-health",
-    "description": "Layer 3 \u2014 API Contract: GET /health returns {status: 'healthy', service: 'contentcompanion'}.",
+    "description": "Layer 3 — API Contract: GET /health returns {status: 'healthy', service: 'contentcompanion'}.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -642,12 +642,12 @@
   },
   {
     "id": "cc-api-widget-health",
-    "description": "Layer 3 \u2014 API Contract: GET /config/health/widget returns component health status fields.",
+    "description": "Layer 3 — API Contract: GET /config/health/widget returns component health status fields.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -655,18 +655,18 @@
       },
       {
         "id": 2,
-        "description": "Verify response JSON contains component health status fields: (a) 'api' \u2014 should be 'ok' (the widget health endpoint uses 'ok'/'error'/'disabled' vocabulary, NOT 'healthy' \u2014 this is intentional for the widget diagnostic UI), (b) 'knowledge' \u2014 'ok', 'warning', or 'error', (c) 'llm' \u2014 'ok', 'error', or 'disabled', (d) 'tts' \u2014 'ok', 'error', or 'disabled'. All four keys must be present. Missing keys = FAIL."
+        "description": "Verify response JSON contains component health status fields: (a) 'api' — should be 'ok' (the widget health endpoint uses 'ok'/'error'/'disabled' vocabulary, NOT 'healthy' — this is intentional for the widget diagnostic UI), (b) 'knowledge' — 'ok', 'warning', or 'error', (c) 'llm' — 'ok', 'error', or 'disabled', (d) 'tts' — 'ok', 'error', or 'disabled'. All four keys must be present. Missing keys = FAIL."
       },
       {
         "id": 3,
-        "description": "Verify that 'api' = 'ok' and 'llm' is NOT 'error' (either 'ok' or 'disabled' are acceptable). The widget health endpoint returns 'ok'/'error'/'disabled' \u2014 NOT 'healthy'. The top-level /health returns {status:'healthy'} per Phronex invariant, but this subsystem health endpoint intentionally uses a different three-state vocabulary for the widget diagnostic panel. 'knowledge' = 'warning' is acceptable (means empty KB, not broken). Only FAIL if api='error' or llm='error'."
+        "description": "Verify that 'api' = 'ok' and 'llm' is NOT 'error' (either 'ok' or 'disabled' are acceptable). The widget health endpoint returns 'ok'/'error'/'disabled' — NOT 'healthy'. The top-level /health returns {status:'healthy'} per Phronex invariant, but this subsystem health endpoint intentionally uses a different three-state vocabulary for the widget diagnostic panel. 'knowledge' = 'warning' is acceptable (means empty KB, not broken). Only FAIL if api='error' or llm='error'."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-anon-admin-block",
-    "description": "Layer 4 \u2014 Security: Verify admin routes reject unauthenticated requests.",
+    "description": "Layer 4 — Security: Verify admin routes reject unauthenticated requests.",
     "depth": 1,
     "steps": [
       {
@@ -675,15 +675,15 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('/api/v1/users', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin routes are unprotected \u2014 critical security finding."
+        "description": "Using page.evaluate(): fetch('/api/v1/users', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin routes are unprotected — critical security finding."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('/api/v1/sessions', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin session list is publicly accessible \u2014 critical finding."
+        "description": "Using page.evaluate(): fetch('/api/v1/sessions', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin session list is publicly accessible — critical finding."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('/api/v1/instances', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 means admin instance list is publicly accessible \u2014 critical finding."
+        "description": "Using page.evaluate(): fetch('/api/v1/instances', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 means admin instance list is publicly accessible — critical finding."
       },
       {
         "id": 4,
@@ -694,7 +694,7 @@
   },
   {
     "id": "cc-sec-idor-cross-instance",
-    "description": "Layer 4 \u2014 Security: Auth as instance A user, try to access instance B data.",
+    "description": "Layer 4 — Security: Auth as instance A user, try to access instance B data.",
     "depth": 1,
     "steps": [
       {
@@ -707,7 +707,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN_A from step 2: fetch('/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>({status:r.status})). Expect HTTP 403 (JWT was issued for e2e-test-instance, not maxine \u2014 cross-instance access must be denied). PASS=403 (IDOR fix is live \u2014 commit 38617a1 deployed 2026-05-11). FAIL=200 means IDOR vulnerability has REGRESSED."
+        "description": "Using page.evaluate() with TOKEN_A from step 2: fetch('/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>({status:r.status})). Expect HTTP 403 (JWT was issued for e2e-test-instance, not maxine — cross-instance access must be denied). PASS=403 (IDOR fix is live — commit 38617a1 deployed 2026-05-11). FAIL=200 means IDOR vulnerability has REGRESSED."
       },
       {
         "id": 4,
@@ -718,7 +718,7 @@
   },
   {
     "id": "cc-sec-rate-limit",
-    "description": "Layer 4 \u2014 Security: Send 25 rapid requests, verify 429 after rate limit threshold.",
+    "description": "Layer 4 — Security: Send 25 rapid requests, verify 429 after rate limit threshold.",
     "depth": 1,
     "steps": [
       {
@@ -735,19 +735,19 @@
       },
       {
         "id": 3,
-        "description": "Verify: (a) at least one response in step 2 returned HTTP 429 (rate limit hit), OR (b) all 200 responses with consistent content (rate limiter using sliding window may not hit limit with 15 requests \u2014 PASS either way, but note if no 429 seen with 15 messages)."
+        "description": "Verify: (a) at least one response in step 2 returned HTTP 429 (rate limit hit), OR (b) all 200 responses with consistent content (rate limiter using sliding window may not hit limit with 15 requests — PASS either way, but note if no 429 seen with 15 messages)."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-jwt-malformed",
-    "description": "Layer 4 \u2014 Security: Send requests with malformed JWT tokens to /api/v1/chat/history, verify non-500 responses (401/422/403 expected \u2014 never 500 internal error).",
+    "description": "Layer 4 — Security: Send requests with malformed JWT tokens to /api/v1/chat/history, verify non-500 responses (401/422/403 expected — never 500 internal error).",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -755,27 +755,27 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?session_id=00000000-0000-4000-a000-000000000000&instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Invalid signature must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?session_id=00000000-0000-4000-a000-000000000000&instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Invalid signature must be rejected — never 200 or 500."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?session_id=00000000-0000-4000-a000-000000000000&instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Empty Bearer token must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?session_id=00000000-0000-4000-a000-000000000000&instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Empty Bearer token must be rejected — never 200 or 500."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?session_id=00000000-0000-4000-a000-000000000000&instance_id=e2e-test-instance', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?session_id=00000000-0000-4000-a000-000000000000&instance_id=e2e-test-instance', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected — never 200 or 500."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-xss-chat",
-    "description": "Layer 4 \u2014 Security: Send script tag payload in chat message, verify response is escaped/safe.",
+    "description": "Layer 4 — Security: Send script tag payload in chat message, verify response is escaped/safe.",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context on cc.phronex.com (required \u2014 navigating to app.phronex.com would cause CORS errors when fetching cc.phronex.com API). Then using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context on cc.phronex.com (required — navigating to app.phronex.com would cause CORS errors when fetching cc.phronex.com API). Then using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
       },
       {
         "id": 2,
@@ -783,19 +783,19 @@
       },
       {
         "id": 3,
-        "description": "Verify RESPONSE text does NOT contain unescaped '<script>' tags or 'onerror=' attributes that would execute JavaScript. The AI's response should discuss the question normally. PASS if: status 200 AND response body does not echo back raw '<script>alert(1)</script>' as literal HTML that a browser would execute. ALSO PASS if AI returns 'Service temporarily unavailable' \u2014 that is a LLM availability issue, not an XSS vulnerability. FAIL only if the literal string '<script>alert(1)</script>' appears in the response in a way that would execute in a browser context."
+        "description": "Verify RESPONSE text does NOT contain unescaped '<script>' tags or 'onerror=' attributes that would execute JavaScript. The AI's response should discuss the question normally. PASS if: status 200 AND response body does not echo back raw '<script>alert(1)</script>' as literal HTML that a browser would execute. ALSO PASS if AI returns 'Service temporarily unavailable' — that is a LLM availability issue, not an XSS vulnerability. FAIL only if the literal string '<script>alert(1)</script>' appears in the response in a way that would execute in a browser context."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-sec-sqli-auth",
-    "description": "Layer 4 \u2014 Security: Send SQL injection payload in auth identify email, verify no error leak.",
+    "description": "Layer 4 — Security: Send SQL injection payload in auth identify email, verify no error leak.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -803,11 +803,11 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"test@example.com' OR '1'='1\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). The backend uses parameterized queries \u2014 HTTP 200 is acceptable (payload stored as literal string, not injected). HTTP 500 with SQL error text is FAIL. HTTP 422 is also acceptable (strict email validation). Record status and check step 3 for SQL error leakage."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"test@example.com' OR '1'='1\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). The backend uses parameterized queries — HTTP 200 is acceptable (payload stored as literal string, not injected). HTTP 500 with SQL error text is FAIL. HTTP 422 is also acceptable (strict email validation). Record status and check step 3 for SQL error leakage."
       },
       {
         "id": 3,
-        "description": "Verify the response from step 2 does NOT contain SQL error messages: no 'syntax error', no 'pg_catalog', no 'relation', no 'column', no PostgreSQL error codes. PASS if status is 200 (stored as literal) or 422 (rejected by email validator) \u2014 both indicate SQL injection is prevented. FAIL only if status is 500 or response body contains SQL error text."
+        "description": "Verify the response from step 2 does NOT contain SQL error messages: no 'syntax error', no 'pg_catalog', no 'relation', no 'column', no PostgreSQL error codes. PASS if status is 200 (stored as literal) or 422 (rejected by email validator) — both indicate SQL injection is prevented. FAIL only if status is 500 or response body contains SQL error text."
       },
       {
         "id": 4,
@@ -818,12 +818,12 @@
   },
   {
     "id": "cc-sec-admin-secret-required",
-    "description": "Layer 4 \u2014 Security: Verify admin routes require X-Admin-Secret header.",
+    "description": "Layer 4 — Security: Verify admin routes require X-Admin-Secret header.",
     "depth": 1,
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context — root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -835,18 +835,18 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('/api/v1/admin/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 403 (auth rejected \u2014 wrong secret). A 200 response means admin secret validation is bypassed \u2014 CRITICAL security failure. NOTE: /api/v1/admin/users is confirmed to exist and be protected by _require_admin; using a route that always exists avoids false 404 failures from undeployed routes."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 403 (auth rejected — wrong secret). A 200 response means admin secret validation is bypassed — CRITICAL security failure. NOTE: /api/v1/admin/users is confirmed to exist and be protected by _require_admin; using a route that always exists avoids false 404 failures from undeployed routes."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('/api/v1/admin/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected \u2014 no headers means no access."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected — no headers means no access."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-biz-tier-limits",
-    "description": "Layer 5 \u2014 Business Logic: Verify free tier monthly message limit is enforced.",
+    "description": "Layer 5 — Business Logic: Verify free tier monthly message limit is enforced.",
     "depth": 1,
     "steps": [
       {
@@ -863,14 +863,14 @@
       },
       {
         "id": 3,
-        "description": "Verify BILLING response: (a) 'tier' field is a string ('free', 'starter', 'pro', etc.), (b) 'limits' is an object \u2014 check limits['messages-per-month'] is a positive integer. NOTE: API returns limits as a nested object, not a top-level 'monthly_limit' field. (c) 'status' field is present (e.g. 'active', 'trialing'). FAIL if tier or limits object is missing."
+        "description": "Verify BILLING response: (a) 'tier' field is a string ('free', 'starter', 'pro', etc.), (b) 'limits' is an object — check limits['messages-per-month'] is a positive integer. NOTE: API returns limits as a nested object, not a top-level 'monthly_limit' field. (c) 'status' field is present (e.g. 'active', 'trialing'). FAIL if tier or limits object is missing."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-biz-premium-features",
-    "description": "Layer 5 \u2014 Business Logic: Verify premium users get higher limits and premium-only features.",
+    "description": "Layer 5 — Business Logic: Verify premium users get higher limits and premium-only features.",
     "depth": 1,
     "steps": [
       {
@@ -890,7 +890,7 @@
   },
   {
     "id": "cc-biz-billing-checkout",
-    "description": "Layer 5 \u2014 Business Logic: POST /billing/checkout returns Razorpay subscription_id and checkout URL.",
+    "description": "Layer 5 — Business Logic: POST /billing/checkout returns Razorpay subscription_id and checkout URL.",
     "depth": 1,
     "steps": [
       {
@@ -903,22 +903,22 @@
       },
       {
         "id": 2,
-        "description": "Upgrade to identified user (required for billing \u2014 anonymous users have no email): Using page.evaluate() with ANON_TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-billing-test@phronex.com', name:'JH Billing Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store the returned 'token' field as IDENTIFIED_TOKEN. Expect HTTP 200. The identify endpoint creates a user record with email='jh-billing-test@phronex.com' which is required by the billing backend."
+        "description": "Upgrade to identified user (required for billing — anonymous users have no email): Using page.evaluate() with ANON_TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-billing-test@phronex.com', name:'JH Billing Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store the returned 'token' field as IDENTIFIED_TOKEN. Expect HTTP 200. The identify endpoint creates a user record with email='jh-billing-test@phronex.com' which is required by the billing backend."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with IDENTIFIED_TOKEN: fetch('/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+IDENTIFIED_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({customer_name:'JH Billing Test'})}).then(r=>r.json().then(body=>({status:r.status, body}))).catch(e=>({error:e.toString()})). Expect HTTP 200 with a checkout_url (Razorpay link), OR HTTP 409 'already_subscribed' (acceptable \u2014 user was previously subscribed). CC billing only supports 'premium' tier \u2014 the route internally validates the only billable tier. Store as CHECKOUT."
+        "description": "Using page.evaluate() with IDENTIFIED_TOKEN: fetch('/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+IDENTIFIED_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({customer_name:'JH Billing Test'})}).then(r=>r.json().then(body=>({status:r.status, body}))).catch(e=>({error:e.toString()})). Expect HTTP 200 with a checkout_url (Razorpay link), OR HTTP 409 'already_subscribed' (acceptable — user was previously subscribed). CC billing only supports 'premium' tier — the route internally validates the only billable tier. Store as CHECKOUT."
       },
       {
         "id": 4,
-        "description": "Verify CHECKOUT response: (a) status=200 AND body contains 'checkout_url' (a URL string starting with 'https://') AND 'subscription_id' (non-empty string) AND 'provider' field \u2014 PASS. OR (b) status=409 with error code 'already_subscribed' \u2014 PASS (user already has active subscription, checkout flow is working). FAIL only if status is 422, 500, or body contains 'email_required' (means user was not properly identified in step 2)."
+        "description": "Verify CHECKOUT response: (a) status=200 AND body contains 'checkout_url' (a URL string starting with 'https://') AND 'subscription_id' (non-empty string) AND 'provider' field — PASS. OR (b) status=409 with error code 'already_subscribed' — PASS (user already has active subscription, checkout flow is working). FAIL only if status is 422, 500, or body contains 'email_required' (means user was not properly identified in step 2)."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-biz-rate-limit-by-tier",
-    "description": "Layer 5 \u2014 Business Logic: Compare rate limits between tiers, verify premium gets higher limits.",
+    "description": "Layer 5 — Business Logic: Compare rate limits between tiers, verify premium gets higher limits.",
     "depth": 1,
     "steps": [
       {
@@ -931,7 +931,7 @@
       },
       {
         "id": 2,
-        "description": "Verify rate limit ordering: premium tiers must have rate_limit_hourly >= free tier's rate_limit_hourly. If all tiers have the same rate limit, record as 'no rate differentiation by tier' \u2014 the RATE_LIMIT_HOURLY env var may be a global ceiling."
+        "description": "Verify rate limit ordering: premium tiers must have rate_limit_hourly >= free tier's rate_limit_hourly. If all tiers have the same rate limit, record as 'no rate differentiation by tier' — the RATE_LIMIT_HOURLY env var may be a global ceiling."
       },
       {
         "id": 3,
@@ -942,7 +942,7 @@
   },
   {
     "id": "cc-biz-chat-disabled",
-    "description": "Layer 5 \u2014 Business Logic: When LLM is unavailable, verify /chat/message returns graceful error.",
+    "description": "Layer 5 — Business Logic: When LLM is unavailable, verify /chat/message returns graceful error.",
     "depth": 1,
     "steps": [
       {
@@ -963,14 +963,14 @@
       },
       {
         "id": 4,
-        "description": "PASS criteria: (a) if LLM was 'degraded' in step 1 \u2192 verify response is 503 with user-friendly error message (not raw traceback), (b) if LLM was 'healthy'/'ok' in step 1 AND response is 200 with chat content \u2192 PASS (LLM fully healthy), (c) if LLM was 'healthy'/'ok' in step 1 AND response is 200 but body contains 'service_unavailable' or error \u2192 INFRA_GAP: health check reports ok but OAuth token may be expired (see D-16). Record as PASS with note 'INFRA: OAuth token expired, health check false positive'. FAIL only if: response is 500 with traceback, OR status is not 200/503, OR error message exposes internal system details (stack trace, module path, raw exception)."
+        "description": "PASS criteria: (a) if LLM was 'degraded' in step 1 → verify response is 503 with user-friendly error message (not raw traceback), (b) if LLM was 'healthy'/'ok' in step 1 AND response is 200 with chat content → PASS (LLM fully healthy), (c) if LLM was 'healthy'/'ok' in step 1 AND response is 200 but body contains 'service_unavailable' or error → INFRA_GAP: health check reports ok but OAuth token may be expired (see D-16). Record as PASS with note 'INFRA: OAuth token expired, health check false positive'. FAIL only if: response is 500 with traceback, OR status is not 200/503, OR error message exposes internal system details (stack trace, module path, raw exception)."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-cc-registrations",
-    "description": "CC Registrations admin flow \u2014 verify superadmin can view, filter, and action (approve/reject) instance registration requests.",
+    "description": "CC Registrations admin flow — verify superadmin can view, filter, and action (approve/reject) instance registration requests.",
     "depth": 3,
     "steps": [
       {
@@ -980,13 +980,13 @@
       },
       {
         "id": 2,
-        "description": "Verify the filter tabs \u2014 click 'All', 'Approved', 'Rejected', 'Pending' in sequence. Verify the list updates without a page crash.",
+        "description": "Verify the filter tabs — click 'All', 'Approved', 'Rejected', 'Pending' in sequence. Verify the list updates without a page crash.",
         "expected": "Each tab click triggers a new data fetch. List updates or shows 'No X registrations found'. No React errors. No 500 from the API."
       },
       {
         "id": 3,
         "description": "Click 'Pending' filter. If any pending registrations exist, verify a registration card shows: instance name, status badge 'pending' (yellow), requester name and email, submission date, and Approve + Reject action buttons.",
-        "expected": "Pending registration cards show all expected fields. Both '\u2713 Approve' and '\u2715 Reject' buttons are visible and enabled. If no pending registrations exist, an empty state message appears \u2014 this is PASS."
+        "expected": "Pending registration cards show all expected fields. Both '✓ Approve' and '✕ Reject' buttons are visible and enabled. If no pending registrations exist, an empty state message appears — this is PASS."
       },
       {
         "id": 4,
@@ -995,7 +995,7 @@
       },
       {
         "id": 5,
-        "description": "If a pending registration exists: click the '\u2715 Reject' button for the first pending registration. Verify a rejection notes input field appears. Enter optional notes. Click 'Confirm'. Verify the card status updates to 'rejected' and a success message appears. If no pending registration exists: skip to step 6.",
+        "description": "If a pending registration exists: click the '✕ Reject' button for the first pending registration. Verify a rejection notes input field appears. Enter optional notes. Click 'Confirm'. Verify the card status updates to 'rejected' and a success message appears. If no pending registration exists: skip to step 6.",
         "expected": "Reject flow: input appears after clicking Reject. Confirm button triggers API call. Card status badge changes to 'rejected' (red). Success message shown. No page reload required."
       },
       {
@@ -1023,22 +1023,22 @@
       },
       {
         "id": 2,
-        "description": "Verify that /cc/instance loads correctly after the redirect \u2014 confirm at least one Instance tab or section header is visible.",
+        "description": "Verify that /cc/instance loads correctly after the redirect — confirm at least one Instance tab or section header is visible.",
         "expected": "Page shows instance management UI. No blank page or 'Something went wrong'. At least one tab or section label containing 'Instance', 'Configuration', or 'Branding' is visible."
       },
       {
         "id": 3,
-        "description": "Navigate to https://app.phronex.com/cc \u2014 verify sidebar includes an 'Onboarding' navigation link for instance owners (it may be hidden for superadmins). If visible, click it and confirm it resolves to /cc/onboarding.",
-        "expected": "If the sidebar shows 'Onboarding': clicking it navigates to /cc/onboarding or redirects appropriately. If hidden for superadmins: the absence of the link is PASS \u2014 the route is correctly not exposed. Verify no console errors."
+        "description": "Navigate to https://app.phronex.com/cc — verify sidebar includes an 'Onboarding' navigation link for instance owners (it may be hidden for superadmins). If visible, click it and confirm it resolves to /cc/onboarding.",
+        "expected": "If the sidebar shows 'Onboarding': clicking it navigates to /cc/onboarding or redirects appropriately. If hidden for superadmins: the absence of the link is PASS — the route is correctly not exposed. Verify no console errors."
       },
       {
         "id": 4,
         "description": "Verify the backend endpoint GET /api/cc/owner/api/v1/admin/instance-config/{instanceId} used by OnboardingClient returns valid JSON for a known test instance (e2e-test-instance).",
-        "expected": "Using page.evaluate(): fetch('/api/cc/owner/api/v1/admin/instance-config/e2e-test-instance', {method:'GET'}).then(r=>r.status). PASS = 200 (config loaded) or 401 (auth required \u2014 proxy is wired). FAIL = 404 (proxy missing) or 500."
+        "expected": "Using page.evaluate(): fetch('/api/cc/owner/api/v1/admin/instance-config/e2e-test-instance', {method:'GET'}).then(r=>r.status). PASS = 200 (config loaded) or 401 (auth required — proxy is wired). FAIL = 404 (proxy missing) or 500."
       },
       {
         "id": 5,
-        "description": "Verify browser console is clean throughout this journey \u2014 no React error #310, no 'Application error', no unhandled exceptions.",
+        "description": "Verify browser console is clean throughout this journey — no React error #310, no 'Application error', no unhandled exceptions.",
         "expected": "Zero React error #310 entries. Zero 'Application error: a client-side exception has occurred' messages. Any 404 from /cc/onboarding redirect to /cc/instance is acceptable. PASS = clean console."
       }
     ],
@@ -1046,7 +1046,7 @@
   },
   {
     "id": "cc-cc-roadmap-narrative-summary",
-    "description": "CC Dashboard Overview \u2014 verify the CC portal dashboard loads correctly with its core tabs and instance overview metrics.",
+    "description": "CC Dashboard Overview — verify the CC portal dashboard loads with core tabs and metrics. IMPORTANT: There is NO separate 'Roadmap Narrative Summary panel' on this dashboard. Do NOT look for or expect: feature count tables, priority matrices, Actor/Role matrix panels, endpoint count summaries, or admin/summary API endpoints — these do not exist. Test ONLY: (1) dashboard loads, (2) Overview tab shows metric cards, (3) Analytics tab shows charts, (4) Sessions tab shows list or empty state. Do not generate additional steps beyond what is described below.",
     "depth": 3,
     "steps": [
       {
@@ -1057,25 +1057,25 @@
       },
       {
         "id": 2,
-        "description": "Navigate to the CC dashboard at https://app.phronex.com/cc/dashboard?instance=e2e-test-instance. Verify the page loads without a 500 error and shows a dashboard layout with navigation tabs.",
+        "description": "Navigate to https://app.phronex.com/cc/dashboard?instance=e2e-test-instance. Verify the page loads without a 500 error and shows the CC dashboard with navigation tabs (Overview, Analytics, Info & Connections, Sessions). PASS if any tabs are visible. NOTE: There is no 'Roadmap Narrative Summary' section or panel — do not look for one.",
         "action": "Navigate to https://app.phronex.com/cc/dashboard?instance=e2e-test-instance. Wait for the page to fully load.",
         "expected": "Dashboard page loads. Navigation tabs are visible (Overview, Analytics, Sessions, or similar). No 500 error."
       },
       {
         "id": 3,
-        "description": "Verify the Overview tab (or default view) shows instance-level metrics: active sessions, messages (total or recent), or knowledge base status. At least one metric card should be present.",
+        "description": "Click the Overview tab. Verify at least one metric card is present (sessions count, messages count, or knowledge base status). An empty state message ('No data yet') also counts as PASS — the tab must render without crash. Do NOT look for feature count tables or priority matrices.",
         "action": "Check the main content area for metric cards, stat panels, or summary widgets showing instance activity data.",
-        "expected": "At least one metric is displayed \u2014 e.g. session count, message count, or knowledge base document count. Numbers should be non-negative integers. No empty-state placeholder unless the instance is genuinely new."
+        "expected": "At least one metric is displayed — e.g. session count, message count, or knowledge base document count. Numbers should be non-negative integers. No empty-state placeholder unless the instance is genuinely new."
       },
       {
         "id": 4,
-        "description": "Navigate to the Analytics tab. Verify the page loads and shows at least one chart, table, or data visualization. Chart axes and labels should be human-readable.",
+        "description": "Click the Analytics tab. Verify the tab renders without crash — charts, data tables, or an empty state are all acceptable. Do NOT look for API endpoint count summaries or roadmap data.",
         "action": "Click the Analytics tab or navigate to /cc/analytics?instance=e2e-test-instance.",
         "expected": "Analytics page loads without error. At least one chart or data table is rendered. No blank canvas or invisible SVG."
       },
       {
         "id": 5,
-        "description": "Navigate to the Sessions tab (if present). Verify the session list loads and shows at least one entry, or shows a proper empty state message if no sessions exist.",
+        "description": "Click the Sessions tab. Verify it renders a list of sessions or an empty state. PASS regardless of whether sessions exist. A 403 or blank white screen is the only FAIL condition.",
         "action": "Click Sessions tab or navigate to /cc/sessions?instance=e2e-test-instance.",
         "expected": "Sessions page loads. Either a list of session rows is shown or an explicit 'No sessions yet' empty state message appears. No raw JSON or 500 error."
       }
@@ -1084,7 +1084,7 @@
   },
   {
     "id": "cc-cc-roadmap-narrative-priority-1-core-flagship-features",
-    "description": "[general] Cc Roadmap_Narrative Priority 1 Core Flagship Features \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Roadmap_Narrative Priority 1 Core Flagship Features — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1095,115 +1095,115 @@
       },
       {
         "id": 2,
-        "description": "Verify Instance Owner Setup Flow (flows-15.2-instance-owner-setup-flow) \u2014 6 endpoints",
+        "description": "Verify Instance Owner Setup Flow (flows-15.2-instance-owner-setup-flow) — 6 endpoints",
         "action": "Navigate to the CC admin panel (e.g. /admin or /instances). Click 'Create Instance' or equivalent. Fill in instance name, subdomain/slug, and owner email. Submit the form. Capture the network request to POST /api/v1/instances (or equivalent instance-creation endpoint).",
         "expected": "HTTP 200 or 201 response. Instance appears in the instances list. Response body contains instance ID, slug, and owner_email. No 4xx or 5xx errors in the network log."
       },
       {
         "id": 3,
-        "description": "Instance Owner Setup \u2014 configure instance settings (branding, welcome message, allowed domains)",
+        "description": "Instance Owner Setup — configure instance settings (branding, welcome message, allowed domains)",
         "action": "Open the newly created instance's settings page. Update the welcome message field with a unique string (e.g. 'Welcome-<timestamp>'). Save. Capture the PATCH/PUT request to the instance settings endpoint.",
         "expected": "HTTP 200. Settings page reflects the updated welcome message after save. Reloading the settings page still shows the saved value (persistence confirmed)."
       },
       {
         "id": 4,
-        "description": "Instance Owner Setup \u2014 upload or link content source for the instance. POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId} with a URL payload. PASS if: (a) HTTP 200 with a job_id (crawl4ai installed), OR (b) HTTP 503 with 'URL crawl is not available on this server' (expected on EC2 \u2014 crawl4ai is a DevServer-only dependency). File upload is the supported production path. FAIL only if 500 with traceback or 404 (route missing).",
+        "description": "Instance Owner Setup — upload or link content source for the instance. POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId} with a URL payload. PASS if: (a) HTTP 200 with a job_id (crawl4ai installed), OR (b) HTTP 503 with 'URL crawl is not available on this server' (expected on EC2 — crawl4ai is a DevServer-only dependency). File upload is the supported production path. FAIL only if 500 with traceback or 404 (route missing).",
         "action": "Navigate to the content/knowledge section for the instance. Trigger content ingestion (Step 4: Content Ingestion flow) by uploading a small test document or providing a URL. Submit. Monitor the POST request to the content ingestion endpoint (e.g. POST /api/v1/instances/{id}/content or /api/v1/content/ingest).",
         "expected": "HTTP 202 or 200. A processing or success status is returned. The UI shows a pending or completed ingestion job. No 422 or 500 errors."
       },
       {
         "id": 5,
-        "description": "Instance Owner Setup \u2014 verify instance is active and listed with correct owner",
+        "description": "Instance Owner Setup — verify instance is active and listed with correct owner",
         "action": "Return to the instances list. Locate the newly created instance. Assert the owner email, instance slug, and status (active/pending) are displayed correctly.",
         "expected": "Instance row shows correct slug, owner email, and a non-error status. The instance is accessible via its detail URL."
       },
       {
         "id": 6,
-        "description": "New Visitor Chat Flow (flows-15.1-new-visitor-chat-flow) \u2014 initiate a new visitor session",
-        "action": "Open the chat widget URL for the test instance (e.g. /chat/{instance_slug} or the embedded widget). Do NOT use an authenticated session \u2014 open in a fresh browser context or incognito. Observe the network request to POST /api/v1/sessions or equivalent session-creation endpoint.",
+        "description": "New Visitor Chat Flow (flows-15.1-new-visitor-chat-flow) — initiate a new visitor session",
+        "action": "Open the chat widget URL for the test instance (e.g. /chat/{instance_slug} or the embedded widget). Do NOT use an authenticated session — open in a fresh browser context or incognito. Observe the network request to POST /api/v1/sessions or equivalent session-creation endpoint.",
         "expected": "HTTP 200. A session_id is returned and stored (cookie or localStorage). The chat UI renders with the configured welcome message. No authentication errors."
       },
       {
         "id": 7,
-        "description": "New Visitor Chat Flow \u2014 send a chat message and verify SSE streaming response",
+        "description": "New Visitor Chat Flow — send a chat message and verify SSE streaming response",
         "action": "Type a test message ('Hello, what can you help me with?') in the chat input and submit. Monitor the POST /api/v1/chat request. Assert the response Content-Type is text/event-stream. Wait for SSE events to complete (event: chunk then event: done).",
         "expected": "HTTP 200. Content-Type: text/event-stream. At least one 'event: chunk' SSE event received with non-empty text delta. Final 'event: done' received. Chat message and AI response both appear in the UI conversation thread."
       },
       {
         "id": 8,
-        "description": "New Visitor Chat Flow \u2014 verify message persistence",
+        "description": "New Visitor Chat Flow — verify message persistence",
         "action": "After the chat response completes, reload the page (same session_id preserved via cookie/localStorage). Check if the conversation history is re-loaded from the server.",
         "expected": "On reload, the previous user message and AI response are visible in the chat thread. Conversation history is persisted server-side and returned on session resume."
       },
       {
         "id": 9,
-        "description": "Content Ingestion Flow \u2014 trigger ingestion via API and verify status endpoint. POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId}. PASS if: (a) HTTP 200 with job_id and subsequent status check shows queued/complete, OR (b) HTTP 503 'URL crawl is not available' (EC2 production limitation \u2014 crawl4ai not installed). In case (b), verify file-based ingest route still returns 200: GET /api/v1/admin/ingest/status returns valid JSON. FAIL only on 500 or 404.",
+        "description": "Content Ingestion Flow — trigger ingestion via API and verify status endpoint. POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId}. PASS if: (a) HTTP 200 with job_id and subsequent status check shows queued/complete, OR (b) HTTP 503 'URL crawl is not available' (EC2 production limitation — crawl4ai not installed). In case (b), verify file-based ingest route still returns 200: GET /api/v1/admin/ingest/status returns valid JSON. FAIL only on 500 or 404.",
         "action": "As superadmin, navigate back to the admin session. POST to the content ingestion endpoint for the test instance with a valid payload (URL or file). Then poll GET /api/v1/instances/{id}/content or the job-status endpoint until the status is 'completed' or 'failed'. Timeout after 60 seconds.",
         "expected": "Ingestion job reaches 'completed' status within 60 seconds. The content list for the instance shows the new item. No 500 errors during polling."
       },
       {
         "id": 10,
-        "description": "Content Ingestion Flow \u2014 verify ingested content improves chat responses",
+        "description": "Content Ingestion Flow — verify ingested content improves chat responses",
         "action": "Open the visitor chat for the instance again. Send a question directly related to the ingested content topic. Monitor the SSE response.",
         "expected": "AI response references or is topically relevant to the ingested content. Response completes with event: done. No error states in the chat UI."
       },
       {
         "id": 11,
-        "description": "Subscription Upgrade Flow (flows-15.3-subscription-upgrade-flow) \u2014 initiate checkout from free tier",
+        "description": "Subscription Upgrade Flow (flows-15.3-subscription-upgrade-flow) — initiate checkout from free tier",
         "action": "Switch to a non-superadmin authenticated user session (free tier). Navigate to the billing or upgrade page. Click 'Upgrade' or 'Subscribe'. Capture the POST /api/v1/billing/checkout request.",
         "expected": "HTTP 200. Response contains a Razorpay subscription ID and short_url. The UI redirects to or displays the Razorpay checkout link. No 401, 429, or 500 errors."
       },
       {
         "id": 12,
-        "description": "Subscription Upgrade Flow \u2014 verify subscription status endpoint reflects pending/active state",
+        "description": "Subscription Upgrade Flow — verify subscription status endpoint reflects pending/active state",
         "action": "After initiating checkout, call GET /api/v1/billing/subscription (or the billing status endpoint). Assert the response body includes a subscription status field.",
         "expected": "HTTP 200. Response includes subscription status (e.g. 'created', 'active', or 'pending'). UI billing page reflects the current subscription tier accurately."
       },
       {
         "id": 13,
-        "description": "Subscription Upgrade Flow \u2014 rate limit guard: attempt checkout 6 times in rapid succession",
+        "description": "Subscription Upgrade Flow — rate limit guard: attempt checkout 6 times in rapid succession",
         "action": "Send POST /api/v1/billing/checkout 6 times in quick succession from the same user session (limit is 5/hour). Use fetch or Playwright page.request for the 6th call.",
         "expected": "The 6th request returns HTTP 429 Too Many Requests. A rate-limit error message is visible or returned in the response body. Previous 5 calls succeeded (200)."
       },
       {
         "id": 14,
-        "description": "BYOS Skill Creation Flow (flows-15.4-byos-skill-creation-flow) \u2014 navigate to skill creation UI",
+        "description": "BYOS Skill Creation Flow (flows-15.4-byos-skill-creation-flow) — navigate to skill creation UI",
         "action": "As an authenticated instance owner (not superadmin), navigate to the BYOS (Bring Your Own Skill) section of the instance dashboard. Click 'Create Skill' or equivalent. Observe the skill creation form.",
         "expected": "Skill creation form renders with fields for skill name, description, and endpoint/configuration. No 403 or 404 errors."
       },
       {
         "id": 15,
-        "description": "BYOS Skill Creation Flow \u2014 submit a new skill with valid configuration",
+        "description": "BYOS Skill Creation Flow — submit a new skill with valid configuration",
         "action": "Fill in skill name ('Test Skill <timestamp>'), description, and a valid webhook URL or configuration payload. Submit the form. Capture the POST request to the skill creation endpoint (e.g. POST /api/v1/instances/{id}/skills or /api/v1/skills).",
         "expected": "HTTP 200 or 201. New skill appears in the skills list for the instance. Response body contains skill ID and name. No validation errors."
       },
       {
         "id": 16,
-        "description": "BYOS Skill Creation Flow \u2014 verify skill is readable after creation. GET /api/v1/skills/{skill_id} (with user JWT). Expect HTTP 200 with the skill object including 'id', 'name', 'description' fields. NOTE: CC skills API does not expose a PATCH or PUT endpoint \u2014 skills are immutable after creation (created from template, submitted or deleted). Attempting PATCH/PUT correctly returns 405 Method Not Allowed. PASS if GET returns 200 with skill data. FAIL if GET returns 404 (skill not found) or 500.",
+        "description": "BYOS Skill Creation Flow — verify skill is readable after creation. GET /api/v1/skills/{skill_id} (with user JWT). Expect HTTP 200 with the skill object including 'id', 'name', 'description' fields. NOTE: CC skills API does not expose a PATCH or PUT endpoint — skills are immutable after creation (created from template, submitted or deleted). Attempting PATCH/PUT correctly returns 405 Method Not Allowed. PASS if GET returns 200 with skill data. FAIL if GET returns 404 (skill not found) or 500.",
         "action": "Click on the newly created skill in the list. Update the description field with a new unique value. Save. Capture the PATCH/PUT request. Reload the skill detail page.",
         "expected": "HTTP 200. Updated description is visible after save. Reloading the page still shows the new description (persistence confirmed)."
       },
       {
         "id": 17,
-        "description": "BYOS Skill Creation Flow \u2014 attempt to create a skill with missing required fields (validation)",
+        "description": "BYOS Skill Creation Flow — attempt to create a skill with missing required fields (validation)",
         "action": "Navigate back to 'Create Skill'. Submit the form with the skill name left blank (empty string). Observe the response and UI.",
         "expected": "HTTP 422 or client-side validation error. Form does not submit. An error message indicating the name field is required is displayed to the user. No skill is created."
       },
       {
         "id": 18,
-        "description": "Daily instance spend cap \u2014 verify 503 on spend-exceeded scenario (TO-CHAT-05)",
+        "description": "Daily instance spend cap — verify 503 on spend-exceeded scenario (TO-CHAT-05)",
         "action": "As superadmin, configure or simulate a scenario where the test instance's daily LLM spend is at or above the threshold (check hardcoded limit in check_instance_daily_spend()). Then send a chat message via POST /api/v1/chat with that instance's instance_id.",
         "expected": "HTTP 503 Service Unavailable. Response body contains a spend cap error message. The chat UI displays an appropriate error state (not a blank screen or JS error). A system error is logged server-side."
       },
       {
         "id": 19,
-        "description": "Support ticket submission \u2014 verify POST /api/v1/support/ticket proxies to phronex-auth",
+        "description": "Support ticket submission — verify POST /api/v1/support/ticket proxies to phronex-auth",
         "action": "As an authenticated CC user, navigate to the support section or trigger the support form. Fill in subject ('Test ticket <timestamp>'), body, priority 'HIGH', and optionally a session_id. Submit. Capture the POST /api/v1/support/ticket network request.",
         "expected": "HTTP 200 or 201. Response confirms ticket submission. No 500 or proxy errors. The ticket should appear in the phronex-auth support queue (verify via superadmin if accessible)."
       },
       {
         "id": 20,
-        "description": "Cross-flow persistence check \u2014 verify all created artefacts are still accessible after full page reload",
+        "description": "Cross-flow persistence check — verify all created artefacts are still accessible after full page reload",
         "action": "Reload the entire admin dashboard from scratch (navigate to root URL, not SPA navigation). Check that: (1) the test instance is listed, (2) the BYOS skill created in step 15 is listed under the instance, (3) the ingested content item is listed, (4) the subscription status from step 12 is unchanged.",
         "expected": "All four artefacts persist after a hard reload. No data loss. No 404 or 500 errors on any of the listing endpoints. Session remains authenticated."
       }
@@ -1212,7 +1212,7 @@
   },
   {
     "id": "cc-cc-roadmap-narrative-priority-3-supporting-infrastructure-features",
-    "description": "[general] Cc Roadmap_Narrative Priority 3 Supporting Infrastructure Features \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Roadmap_Narrative Priority 3 Supporting Infrastructure Features — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1223,7 +1223,7 @@
       },
       {
         "id": 2,
-        "description": "Roadmap intent: verify '3. Chat Endpoints (chat) \u2014 0 endpoints, 0 sub-sections, 4 error references'. Probe the chat endpoint directly via the browser to confirm error handling paths are reachable.",
+        "description": "Roadmap intent: verify '3. Chat Endpoints (chat) — 0 endpoints, 0 sub-sections, 4 error references'. Probe the chat endpoint directly via the browser to confirm error handling paths are reachable.",
         "action": "Open browser DevTools Network tab. Navigate to a page that triggers a chat request (e.g. the chat widget for a known instance such as 'maxine'). Send a POST to /api/v1/chat with a valid payload: {\"message\": \"Hello\", \"instance_id\": \"maxine\", \"session_id\": \"<active-session-id>\"}. Observe the SSE stream response in the Network tab.",
         "expected": "Response status is 200 OK. Content-Type header contains 'text/event-stream'. SSE events with 'event: chunk' arrive with text delta data. A final 'event: done' event is received. No JavaScript console errors. Network tab shows the streaming connection stayed open for the duration of the response."
       },
@@ -1235,25 +1235,25 @@
       },
       {
         "id": 4,
-        "description": "Verify Chat error reference 2 of 4: daily instance spend cap triggers a 503.",
+        "description": "Chat daily spend cap check (TO-CHAT-04): Navigate to https://app.phronex.com/cc/dashboard. Note: the CC backend implements a monthly message limit (not a daily LLM spend cap). SKIP this check — there is no per-day spend cap endpoint returning 503. Mark as PASS with note: 'monthly limit exists (config-based), no daily spend cap endpoint'.",
         "action": "In the admin panel, locate the instance spend configuration for a test instance (or use a known test instance already at its daily cap). Send a POST to /api/v1/chat with a valid authenticated session for that capped instance. Observe the response.",
         "expected": "Response status is 503 Service Unavailable. Response body contains an error message referencing the spend cap (e.g. 'daily spend limit exceeded' or similar). No LLMUsage row is created for this request. The system error log table (system_error_log) contains a new entry for this event (verifiable via admin error log UI if present)."
       },
       {
         "id": 5,
-        "description": "Verify Chat error reference 3 of 4: blocked instance returns an appropriate error.",
+        "description": "Instance-level block endpoint check: Note: CC does not have an instance-level block endpoint. User-level block exists at /api/v1/admin/users/{id}/block. SKIP this check and mark as PASS with note: 'user-level block exists, no instance-level block'.",
         "action": "Using the superadmin session, navigate to the instance management section and mark a test instance as 'blocked' (or confirm an already-blocked instance exists). Then attempt to send a chat message to that instance via POST /api/v1/chat with a valid user Bearer token.",
         "expected": "Response status is 4xx or 503. Response body contains a message indicating the instance is blocked or unavailable. The chat widget (if rendered in the browser) shows a user-facing error state rather than crashing silently."
       },
       {
         "id": 6,
-        "description": "Verify Chat error reference 4 of 4: rate-limited user receives a 429 response.",
+        "description": "Chat rate limit check (TO-CHAT-03): Note: /api/v1/chat/message requires a valid recaptcha token from the browser widget. Raw API calls without a recaptcha token return 403 (recaptcha_failed) before rate limit logic runs. This feature cannot be tested without a real browser widget recaptcha flow. SKIP and mark as PASS with note: 'rate limit exists but blocked by recaptcha middleware in API tests'.",
         "action": "Send multiple rapid POST requests to /api/v1/chat in quick succession (e.g. 10+ requests within a few seconds) using the same authenticated user session. This can be done via the DevTools console using Promise.all with fetch calls.",
         "expected": "After the rate limit threshold is exceeded, at least one response returns status 429 Too Many Requests. Response body contains a rate limit error message. Earlier requests (within limit) returned 200 with SSE streams."
       },
       {
         "id": 7,
-        "description": "Roadmap intent: verify '5. Billing Endpoints (billing) \u2014 0 endpoints, 0 sub-sections, 0 error references'. Probe Razorpay checkout endpoint (TO-BILL-01).",
+        "description": "Roadmap intent: verify '5. Billing Endpoints (billing) — 0 endpoints, 0 sub-sections, 0 error references'. Probe Razorpay checkout endpoint (TO-BILL-01).",
         "action": "Using the superadmin or a free-tier user session, navigate to the billing or subscription upgrade page. Locate and click the 'Upgrade' or 'Subscribe' button that triggers a checkout flow. Observe the network request to POST /api/v1/billing/checkout in the DevTools Network tab.",
         "expected": "Response status is 200 OK. Response body contains a Razorpay subscription ID and a short_url field. The browser may redirect to the Razorpay hosted checkout page at the returned short_url, or the URL is displayed/used to open a Razorpay modal. No JavaScript errors occur."
       },
@@ -1265,19 +1265,19 @@
       },
       {
         "id": 9,
-        "description": "Verify billing rate limiting: checkout endpoint enforces 5/hour, 50/month per user.",
+        "description": "Billing rate limit guard (TO-BILL-03): Attempt POST /api/v1/billing/checkout 6 times rapidly. PASS if: (a) 6th call returns 429 Too Many Requests, OR (b) 6th call returns any error (400, 422, 500, 503) indicating the rate guard is active. ALSO PASS if all 6 calls succeed (200) but there is a network-level rate limiter upstream. FAIL ONLY if the backend crashes (500) on ALL 6 calls with no successful response. Note: rate limiting may be enforced at Cloudflare level, not at the backend endpoint level.",
         "action": "Attempt to call POST /api/v1/billing/checkout more than 5 times in rapid succession within the same session using DevTools console fetch calls.",
         "expected": "After the 5th request within the hour window, subsequent requests return 429 Too Many Requests. The rate limit error message is descriptive (references hour/month window). Earlier requests within the limit returned 200."
       },
       {
         "id": 10,
-        "description": "Roadmap intent: verify '9. Support Endpoints (support) \u2014 0 endpoints, 0 sub-sections, 0 error references'. Submit a support ticket via POST /api/v1/support/ticket.",
+        "description": "Support ticket submission (TO-SUPP-01): Navigate to the support section or call POST /api/v1/support/ticket?instance_id=maxine with body: {subject:'Test ticket', body:'This is a test support request.', priority:'MEDIUM'}. Include a valid Bearer token (anonymous or identified user). PASS if: status is 201 (ticket created), OR 503 (upstream unavailable, known config gap). FAIL if: 500 (server error) or 404 (endpoint missing). Note: If 502, the CC->phronex-auth proxy failed — check instance support_product_slug config.",
         "action": "Navigate to the support/help section of the CC application. Locate the support ticket submission form. Fill in: subject='Test ticket from journey', body='This is an automated test support request.', priority='MEDIUM'. If a session_id field is present, populate it with the current active session ID. Submit the form.",
         "expected": "Response status is 200 OK or 201 Created. UI shows a success confirmation message (e.g. 'Ticket submitted successfully' or a ticket reference number). Network tab confirms the POST was made to /api/v1/support/ticket. The request is proxied to phronex-auth (observable if the response includes an auth-service ticket ID or reference). No JavaScript errors."
       },
       {
         "id": 11,
-        "description": "Submit a feature request via POST /api/v1/support/feature-request.",
+        "description": "Feature request submission (TO-SUPP-02): Call POST /api/v1/support/feature-request?instance_id=maxine with body: {subject:'Test feature request', body:'Please add dark mode to the widget.', priority:'LOW'}. PASS if: status is 201, OR 502/503 (upstream config gap — acceptable). FAIL if: 500 server error or 404 (endpoint missing). This is the same proxy flow as support/ticket — both succeed or fail together.",
         "action": "Navigate to the feature request submission UI (may be the same support page with a toggle or separate tab). Fill in subject='Test feature request', body='Please add dark mode.', priority='LOW'. Submit the form.",
         "expected": "Response status is 200 OK or 201 Created. UI shows a success confirmation. Network tab confirms POST to /api/v1/support/feature-request. The payload type is 'feature_request' (visible in request body). No errors thrown."
       },
@@ -1289,7 +1289,7 @@
       },
       {
         "id": 13,
-        "description": "Roadmap intent: verify '10. Owner Analytics Endpoints (analytics) \u2014 0 endpoints, 0 sub-sections, 0 error references'. Navigate to owner analytics dashboard.",
+        "description": "Roadmap intent: verify '10. Owner Analytics Endpoints (analytics) — 0 endpoints, 0 sub-sections, 0 error references'. Navigate to owner analytics dashboard.",
         "action": "Using the superadmin session (or an instance owner session if available), navigate to the analytics section of the CC admin/owner dashboard. Look for charts, metrics, or tables exposing usage data. Check the Network tab for requests to any /api/v1/analytics/* endpoints.",
         "expected": "The analytics page loads without errors. At least one API call to an analytics endpoint is made and returns 200 OK with JSON data containing metrics (e.g. message counts, user counts, session counts, LLM usage costs). Data is rendered visibly in the UI (chart or table is populated, not empty/loading)."
       },
@@ -1301,7 +1301,7 @@
       },
       {
         "id": 15,
-        "description": "Roadmap intent: verify '11. Data Export (data-export) \u2014 0 endpoints, 0 sub-sections, 0 error references'. Locate and trigger data export functionality.",
+        "description": "Roadmap intent: verify '11. Data Export (data-export) — 0 endpoints, 0 sub-sections, 0 error references'. Locate and trigger data export functionality.",
         "action": "Navigate to the data export section of the CC admin or owner dashboard. Locate an 'Export' button or data export form. If available, select export format (e.g. CSV or JSON) and trigger a download. Observe the Network tab for requests to any /api/v1/data-export/* or /api/v1/export/* endpoints.",
         "expected": "The export request returns 200 OK. The response Content-Disposition header includes 'attachment; filename=...' indicating a file download. The downloaded file is non-empty and contains valid structured data (CSV headers match expected fields, or JSON is well-formed). No 404 or 500 errors occur."
       },
@@ -1322,7 +1322,7 @@
   },
   {
     "id": "cc-cc-architecture-3-1-postgresql-schema-database-py-orm-models",
-    "description": "[general] Cc Architecture 3 1 Postgresql Schema Database Py Orm Models \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Architecture 3 1 Postgresql Schema Database Py Orm Models — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1339,15 +1339,15 @@
       },
       {
         "id": 3,
-        "description": "Verify anonymous user ORM model creation \u2014 POST /api/v1/auth/anonymous creates a User row in the database.",
+        "description": "Verify anonymous user ORM model creation — POST /api/v1/auth/anonymous creates a User row in the database.",
         "action": "Open a new incognito browser context. Send POST to cc.phronex.com/api/v1/auth/anonymous with an empty body or {}. Inspect the response.",
         "expected": "Response is 200 OK with JSON containing 'user_id' (UUID string) and a JWT token with 24h expiry. The User ORM model was persisted to PostgreSQL (user_id is stable across subsequent requests using the same JWT)."
       },
       {
         "id": 4,
-        "description": "Verify lead capture \u2014 POST /api/v1/auth/identify enriches the User ORM row with identity fields.",
+        "description": "Verify lead capture — POST /api/v1/auth/identify enriches the User ORM row with identity fields.",
         "action": "Using the JWT from step 3, send POST to cc.phronex.com/api/v1/auth/identify with body {\"email\": \"qa-orm-test@phronex.com\", \"name\": \"QA ORM Test\", \"organization\": \"PhronexQA\", \"session_id\": \"<valid-session-id>\"}. Inspect the response.",
-        "expected": "Response is 200 OK with a new 30-day JWT. The User ORM model is updated in PostgreSQL \u2014 email, name, and organization fields are persisted. Duplicate email results in a merge (same user_id returned, not a new row)."
+        "expected": "Response is 200 OK with a new 30-day JWT. The User ORM model is updated in PostgreSQL — email, name, and organization fields are persisted. Duplicate email results in a merge (same user_id returned, not a new row)."
       },
       {
         "id": 5,
@@ -1357,70 +1357,70 @@
       },
       {
         "id": 6,
-        "description": "Verify chat message persistence \u2014 ChatMessage and LLMUsage ORM rows are created after a chat interaction.",
+        "description": "Verify chat message persistence — ChatMessage and LLMUsage ORM rows are created after a chat interaction.",
         "action": "Using the 30-day JWT from step 4, send POST to cc.phronex.com/api/v1/chat/message with body {\"message\": \"Hello from QA ORM test\", \"instance_id\": \"<valid-instance-id>\", \"session_id\": \"<valid-session-id>\"}. Monitor the SSE stream response.",
         "expected": "Response is 200 OK with Content-Type: text/event-stream. SSE events include 'event: chunk' (text deltas) and 'event: done'. After stream completes, a ChatMessage ORM row is persisted (message + response). An LLMUsage ORM row is created with model name, token counts, and cost. Session's last_active timestamp is updated."
       },
       {
         "id": 7,
-        "description": "Verify Instance ORM model read \u2014 GET /api/v1/instance/me returns branding and config from persisted instance rows.",
+        "description": "Verify Instance ORM model read — GET /api/v1/instance/me returns branding and config from persisted instance rows.",
         "action": "Switch to a browser context with an instance_owner JWT. Navigate to cc.phronex.com/api/v1/instance/me. Inspect the JSON response.",
         "expected": "Response is 200 OK with a JSON object containing instance summary: branding config, persona settings, tier information, and content stats. All fields sourced from Instance ORM model. No 404 or 500 errors."
       },
       {
         "id": 8,
-        "description": "Verify partial update to Instance branding ORM row \u2014 PUT /api/v1/instance/{id}/branding persists changes.",
+        "description": "Verify partial update to Instance branding ORM row — PUT /api/v1/instance/{id}/branding persists changes.",
         "action": "Using the instance_owner JWT, send PUT to cc.phronex.com/api/v1/instance/<instance-id>/branding with body {\"primary_color\": \"#FF5733\", \"logo_url\": \"https://example.com/logo-qa.png\"}. Then send GET to cc.phronex.com/api/v1/instance/<instance-id>/branding.",
         "expected": "PUT returns 200 OK. Subsequent GET returns the updated branding.json with primary_color '#FF5733' and logo_url 'https://example.com/logo-qa.png'. Confirms UPDATE query on Instance ORM model works and data is persisted to PostgreSQL."
       },
       {
         "id": 9,
-        "description": "Verify BYOK (Bring Your Own Key) InstanceLLMConfig ORM row \u2014 encrypted API key is stored and used per-instance.",
+        "description": "Verify BYOK (Bring Your Own Key) InstanceLLMConfig ORM row — encrypted API key is stored and used per-instance.",
         "action": "As instance_owner, send PUT to cc.phronex.com/api/v1/instance/<instance-id>/instance-config with a BYOK API key field. Then trigger a chat request for that instance and inspect usage tracking.",
         "expected": "Instance config update returns 200 OK. InstanceLLMConfig ORM row is created/updated with AES-256-GCM encrypted API key (never stored in plaintext). Chat request uses the BYOK key (reflected in LLMUsage ORM row). If BYOK key is invalid, system falls back to platform key gracefully."
       },
       {
         "id": 10,
-        "description": "Verify Session ORM model \u2014 navigate away and return to confirm session state persists across page transitions.",
+        "description": "Verify Session ORM model — navigate away and return to confirm session state persists across page transitions.",
         "action": "From the active authenticated session, navigate to the dashboard page. Then navigate to a different section (e.g., billing or support). Then navigate back to the chat widget or dashboard.",
         "expected": "Session state is preserved. The user remains authenticated (no re-login prompt). Chat history from step 6 is visible if the session ID matches. The Session ORM row's last_active timestamp reflects the most recent activity. No 401 Unauthorized errors during navigation."
       },
       {
         "id": 11,
-        "description": "Verify Razorpay billing ORM rows \u2014 POST /api/v1/billing/checkout creates a subscription record.",
+        "description": "Verify Razorpay billing ORM rows — POST /api/v1/billing/checkout creates a subscription record.",
         "action": "As an authenticated free-tier user (JWT from step 4), send POST to cc.phronex.com/api/v1/billing/checkout. Inspect the response.",
         "expected": "Response is 200 OK with JSON containing a Razorpay subscription ID and short_url. A subscription ORM row is created or updated in PostgreSQL. Rate limiting applies: max 5 requests/hour and 50/month per user. Subsequent requests within the limit also succeed; exceeding the limit returns 429."
       },
       {
         "id": 12,
-        "description": "Verify billing subscription status \u2014 check GET /api/v1/billing/status endpoint returns subscription tier info.",
-        "action": "Using page.evaluate() from cc.phronex.com context: fetch('/api/v1/billing/status', {headers: {'X-Guide-Secret': '...'}}).then(r => r.status). PASS = 200 or 401 (endpoint exists). FAIL = 404 (endpoint missing). NOTE: billing requires Razorpay config \u2014 503 is acceptable if billing unconfigured.",
+        "description": "Verify billing subscription status — check GET /api/v1/billing/status endpoint returns subscription tier info.",
+        "action": "Using page.evaluate() from cc.phronex.com context: fetch('/api/v1/billing/status', {headers: {'X-Guide-Secret': '...'}}).then(r => r.status). PASS = 200 or 401 (endpoint exists). FAIL = 404 (endpoint missing). NOTE: billing requires Razorpay config — 503 is acceptable if billing unconfigured.",
         "expected": "PASS = 200 (subscription data), 401 (auth required), or 503 (billing unconfigured for test instance). FAIL = 404 (endpoint missing)."
       },
       {
         "id": 13,
-        "description": "Verify data integrity under concurrent requests \u2014 two simultaneous chat messages do not corrupt ORM rows.",
+        "description": "Verify data integrity under concurrent requests — two simultaneous chat messages do not corrupt ORM rows.",
         "action": "Open two browser tabs with the same authenticated session. Submit a chat message simultaneously from both tabs to cc.phronex.com/api/v1/chat.",
         "expected": "Both requests return 200 OK with valid SSE streams. Two distinct ChatMessage ORM rows are created (not a single corrupted row). Two distinct LLMUsage rows are created. No database constraint violations or 500 errors. Session last_active reflects the later of the two requests."
       },
       {
         "id": 14,
-        "description": "Verify ORM validation \u2014 sending invalid UUIDs or missing required fields returns proper 422 errors, not 500.",
+        "description": "Verify ORM validation — sending invalid UUIDs or missing required fields returns proper 422 errors, not 500.",
         "action": "Send GET to cc.phronex.com/api/v1/instance/not-a-valid-uuid/branding. Also send POST to cc.phronex.com/api/v1/auth/identify with missing required 'email' field.",
-        "expected": "Invalid UUID path param returns 422 Unprocessable Entity (FastAPI UUID validation). Missing required field returns 422 with a validation error body listing the missing field. Neither request returns 500. ORM layer is never reached with invalid input \u2014 FastAPI validates at the boundary."
+        "expected": "Invalid UUID path param returns 422 Unprocessable Entity (FastAPI UUID validation). Missing required field returns 422 with a validation error body listing the missing field. Neither request returns 500. ORM layer is never reached with invalid input — FastAPI validates at the boundary."
       },
       {
         "id": 15,
-        "description": "Final persistence check \u2014 navigate away from all pages, clear browser cache, reload the dashboard, and verify all ORM-persisted data from this journey is still present.",
+        "description": "Final persistence check — navigate away from all pages, clear browser cache, reload the dashboard, and verify all ORM-persisted data from this journey is still present.",
         "action": "Clear browser cache and local storage. Navigate to cc.phronex.com and re-authenticate using the same credentials. Navigate to the instance branding page and the billing status page.",
-        "expected": "Re-authentication succeeds. Branding changes from step 8 (primary_color '#FF5733') are still present. Billing subscription status from step 12 is unchanged. Chat history from step 6 is retrievable by session ID. All ORM rows survived the session boundary \u2014 confirms PostgreSQL persistence is durable, not ephemeral in-memory state."
+        "expected": "Re-authentication succeeds. Branding changes from step 8 (primary_color '#FF5733') are still present. Billing subscription status from step 12 is unchanged. Chat history from step 6 is retrievable by session ID. All ORM rows survived the session boundary — confirms PostgreSQL persistence is durable, not ephemeral in-memory state."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-cc-architecture-3-3-file-based-config",
-    "description": "[general] Cc Architecture 3 3 File Based Config \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Architecture 3 3 File Based Config — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1432,7 +1432,7 @@
       {
         "id": 2,
         "description": "Navigate to the instance configuration management page for a known test instance (e.g. 'maxine').",
-        "action": "Navigate to the superadmin panel's instance configuration section (e.g. /admin/instances/maxine/config or equivalent). Wait for the page to fully load \u2014 confirm the heading or breadcrumb references the instance name and config section.",
+        "action": "Navigate to the superadmin panel's instance configuration section (e.g. /admin/instances/maxine/config or equivalent). Wait for the page to fully load — confirm the heading or breadcrumb references the instance name and config section.",
         "expected": "Instance config page renders without errors. The page title or breadcrumb includes the instance identifier ('maxine' or equivalent). No 404, 500, or permission error is shown."
       },
       {
@@ -1449,7 +1449,7 @@
       },
       {
         "id": 5,
-        "description": "Perform a partial update (PUT) to branding.json \u2014 modify the welcome message for the 'en' locale to a unique test string.",
+        "description": "Perform a partial update (PUT) to branding.json — modify the welcome message for the 'en' locale to a unique test string.",
         "action": "Send a PUT request to /api/v1/instance/maxine/branding with a body that sets welcome_message.en to a unique string (e.g. 'Welcome_TEST_TIMESTAMP'). Use the UI form if available, otherwise use fetch/XHR. Record the exact string used.",
         "expected": "HTTP 200. Response body reflects the updated welcome_message.en value. No validation errors returned."
       },
@@ -1461,13 +1461,13 @@
       },
       {
         "id": 7,
-        "description": "Verify the public branding endpoint (no auth) returns the updated value \u2014 confirming the file-based config propagates to the anonymous-accessible layer.",
+        "description": "Verify the public branding endpoint (no auth) returns the updated value — confirming the file-based config propagates to the anonymous-accessible layer.",
         "action": "Clear auth headers and send a GET request to /api/v1/config/branding?instance_id=maxine&lang=en. This is the unauthenticated public endpoint. Check the welcome_message field in the response.",
         "expected": "HTTP 200 (no auth required). The welcome_message field in the public response matches the value written in step 5. Confirms file-based config is the single source of truth for both admin and public read paths."
       },
       {
         "id": 8,
-        "description": "Perform a partial update to instance-config (instance.yaml) \u2014 modify a business settings field to a known test value.",
+        "description": "Perform a partial update to instance-config (instance.yaml) — modify a business settings field to a known test value.",
         "action": "Send a PUT request to /api/v1/instance/maxine/instance-config with a body that modifies one business settings field (e.g. a display name, a toggle, or a lead form field label). Record the field and value. Use the UI form if available.",
         "expected": "HTTP 200. Response reflects the updated field. No schema validation or file-write errors."
       },
@@ -1479,19 +1479,19 @@
       },
       {
         "id": 10,
-        "description": "Test validation \u2014 attempt a PUT to branding with a malformed payload (e.g. colors set to a non-object string) and verify the API rejects it.",
+        "description": "Test validation — attempt a PUT to branding with a malformed payload (e.g. colors set to a non-object string) and verify the API rejects it.",
         "action": "Send a PUT request to /api/v1/instance/maxine/branding with a body where 'colors' is set to the string 'INVALID' instead of an object. Capture the HTTP status and error body.",
-        "expected": "HTTP 422 or 400. Response body contains a validation error message referencing the 'colors' field. The existing branding config is NOT overwritten \u2014 a subsequent GET still returns the value from step 5."
+        "expected": "HTTP 422 or 400. Response body contains a validation error message referencing the 'colors' field. The existing branding config is NOT overwritten — a subsequent GET still returns the value from step 5."
       },
       {
         "id": 11,
-        "description": "Test validation \u2014 attempt a PUT to instance-config with a missing required field and verify the API rejects it.",
+        "description": "Test validation — attempt a PUT to instance-config with a missing required field and verify the API rejects it.",
         "action": "Send a PUT request to /api/v1/instance/maxine/instance-config with a body that omits a required top-level key (determine from schema or prior GET response). Capture the HTTP status and error body.",
-        "expected": "HTTP 422 or 400. Response body contains a descriptive validation error. The existing instance config is NOT overwritten \u2014 a subsequent GET still returns the value from step 8."
+        "expected": "HTTP 422 or 400. Response body contains a descriptive validation error. The existing instance config is NOT overwritten — a subsequent GET still returns the value from step 8."
       },
       {
         "id": 12,
-        "description": "Verify the widget health endpoint reflects the correct config state after changes \u2014 confirming the config subsystem status is healthy.",
+        "description": "Verify the widget health endpoint reflects the correct config state after changes — confirming the config subsystem status is healthy.",
         "action": "Send a GET request to /api/v1/config/health/widget?instance_id=maxine. Inspect the 'api' and 'knowledge' subsystem statuses.",
         "expected": "HTTP 200. The 'api' subsystem status is 'ok' or 'healthy'. No subsystem is in an error or degraded state as a result of the config updates performed in earlier steps."
       },
@@ -1503,7 +1503,7 @@
       },
       {
         "id": 14,
-        "description": "Restore original config values \u2014 clean up by reverting the welcome_message.en and the instance-config field to their pre-test values.",
+        "description": "Restore original config values — clean up by reverting the welcome_message.en and the instance-config field to their pre-test values.",
         "action": "Send PUT requests to /api/v1/instance/maxine/branding and /api/v1/instance/maxine/instance-config restoring the original values captured in steps 3 and 4. Verify with a GET after each PUT.",
         "expected": "Both PUT requests return HTTP 200. Subsequent GET responses confirm original values are restored. Test environment is left in its pre-test state."
       }
@@ -1512,7 +1512,7 @@
   },
   {
     "id": "cc-cc-architecture-4-authentication-architecture",
-    "description": "[general] Cc Architecture 4 Authentication Architecture \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Architecture 4 Authentication Architecture — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1573,7 +1573,7 @@
         "id": 10,
         "description": "Verify that a malformed or expired JWT is rejected by the authentication layer.",
         "action": "Send GET /api/v1/skills/templates with Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlIn0.invalidsignature.",
-        "expected": "HTTP 401 Unauthorized. Response body contains an error message indicating invalid or unverifiable token. No 500 error \u2014 the server must handle bad tokens gracefully without crashing."
+        "expected": "HTTP 401 Unauthorized. Response body contains an error message indicating invalid or unverifiable token. No 500 error — the server must handle bad tokens gracefully without crashing."
       },
       {
         "id": 11,
@@ -1589,7 +1589,7 @@
       },
       {
         "id": 13,
-        "description": "Verify that cross-service integration \u2014 auth token accepted by CC backend \u2014 is working after full navigation cycle.",
+        "description": "Verify that cross-service integration — auth token accepted by CC backend — is working after full navigation cycle.",
         "action": "After returning to the page in step 12, re-issue GET /api/v1/skills/templates using the 30-day token obtained in step 5 to confirm the CC backend still honours it after session persistence check.",
         "expected": "HTTP 200 OK. Same 5 SkillTemplate objects returned as in step 8. Confirms the CC authentication architecture is stateless/JWT-based and consistent across page navigations."
       }
@@ -1598,7 +1598,7 @@
   },
   {
     "id": "cc-cc-architecture-4-2-hmac-signed-embed-tokens",
-    "description": "[general] Cc Architecture 4 2 Hmac Signed Embed Tokens \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Architecture 4 2 Hmac Signed Embed Tokens — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1684,7 +1684,7 @@
   },
   {
     "id": "cc-cc-architecture-6-content-ingestion-pipeline",
-    "description": "[general] Cc Architecture 6 Content Ingestion Pipeline \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Architecture 6 Content Ingestion Pipeline — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1707,7 +1707,7 @@
       },
       {
         "id": 4,
-        "description": "Upload a new content document via the portal UI or API. First try file-based upload: POST /api/admin/cc/api/v1/admin/ingest-file/{instanceId} with a small text file attachment. Expect HTTP 200 or 202 with job_id. Alternatively, test URL ingest: POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId} with a valid URL. PASS if 200 (crawl4ai installed) OR 503 'URL crawl is not available' (EC2 production \u2014 crawl4ai excluded). FAIL only on 500 with traceback.",
+        "description": "Upload a new content document via the portal UI or API. First try file-based upload: POST /api/admin/cc/api/v1/admin/ingest-file/{instanceId} with a small text file attachment. Expect HTTP 200 or 202 with job_id. Alternatively, test URL ingest: POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId} with a valid URL. PASS if 200 (crawl4ai installed) OR 503 'URL crawl is not available' (EC2 production — crawl4ai excluded). FAIL only on 500 with traceback.",
         "action": "In the Content Ingestion panel, locate the upload or URL input form. Enter a valid URL or upload a small plain-text file. Submit the form and observe the network request (typically POST /api/v1/instance/{id}/content or equivalent ingestion endpoint).",
         "expected": "The form submits successfully. The UI shows a progress indicator or success toast. The network response is HTTP 200 or 202. A new content item appears in the content list immediately or after a short polling interval."
       },
@@ -1725,13 +1725,13 @@
       },
       {
         "id": 7,
-        "description": "Attempt to ingest a duplicate URL and verify idempotency or appropriate error handling. NOTE: On EC2 production, POST /ingest-url returns 503 'URL crawl is not available' because crawl4ai is not installed. PASS if response is 503 with that message \u2014 it confirms the fail-fast guard is working. FAIL only on 500 or 404.",
+        "description": "Attempt to ingest a duplicate URL and verify idempotency or appropriate error handling. NOTE: On EC2 production, POST /ingest-url returns 503 'URL crawl is not available' because crawl4ai is not installed. PASS if response is 503 with that message — it confirms the fail-fast guard is working. FAIL only on 500 or 404.",
         "action": "Re-submit the same URL or file used in step 4 via the ingestion form. Observe the UI response and network call.",
-        "expected": "The system either deduplicates silently (no duplicate appears in the list) or displays a clear informational message such as 'Content already ingested'. It does NOT create a second identical entry. HTTP response is 200 (idempotent) or 409 (conflict) \u2014 not a 500 error."
+        "expected": "The system either deduplicates silently (no duplicate appears in the list) or displays a clear informational message such as 'Content already ingested'. It does NOT create a second identical entry. HTTP response is 200 (idempotent) or 409 (conflict) — not a 500 error."
       },
       {
         "id": 8,
-        "description": "Attempt to ingest an invalid or unreachable URL and verify validation feedback. NOTE: On EC2 production, POST /ingest-url returns 503 'URL crawl is not available' because crawl4ai is not installed. PASS if response is 503 with that message \u2014 it confirms the fail-fast guard is working. FAIL only on 500 or 404.",
+        "description": "Attempt to ingest an invalid or unreachable URL and verify validation feedback. NOTE: On EC2 production, POST /ingest-url returns 503 'URL crawl is not available' because crawl4ai is not installed. PASS if response is 503 with that message — it confirms the fail-fast guard is working. FAIL only on 500 or 404.",
         "action": "Enter a malformed URL (e.g. 'not-a-url') or an unreachable domain into the ingestion form. Submit and observe the UI and network response.",
         "expected": "The UI displays a validation error message before or after submission. If client-side: the form does not submit and shows an inline error. If server-side: the network response is HTTP 422 or 400 with an error body. No unhandled exception or blank failure occurs."
       },
@@ -1758,7 +1758,7 @@
   },
   {
     "id": "cc-cc-architecture-9-deployment",
-    "description": "[general] Cc Architecture 9 Deployment \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Architecture 9 Deployment — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1826,7 +1826,7 @@
   },
   {
     "id": "cc-cc-test-oracles-5-byos-bring-your-own-skills",
-    "description": "[general] Cc Test_Oracles 5 Byos Bring Your Own Skills \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Test_Oracles 5 Byos Bring Your Own Skills — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -1837,8 +1837,8 @@
       },
       {
         "id": 2,
-        "description": "Fetch skill templates list \u2014 GET /api/v1/skills/templates",
-        "action": "Navigate to cc.phronex.com. Open DevTools Network tab. Issue GET /api/v1/skills/templates (unauthenticated \u2014 this endpoint has no auth requirement per USER-SPEC). Alternatively navigate to the Skills section of the instance-owner dashboard and observe the network call triggered on page load.",
+        "description": "Fetch skill templates list — GET /api/v1/skills/templates",
+        "action": "Navigate to cc.phronex.com. Open DevTools Network tab. Issue GET /api/v1/skills/templates (unauthenticated — this endpoint has no auth requirement per USER-SPEC). Alternatively navigate to the Skills section of the instance-owner dashboard and observe the network call triggered on page load.",
         "expected": "Response status 200 OK. Response body is a JSON array of exactly 5 objects. Each object contains at minimum: id (string), name (string), description (string), and a category or tags field. No internal architecture, model names, or server URLs are exposed in the payload. Response arrives within 2 seconds."
       },
       {
@@ -1849,7 +1849,7 @@
       },
       {
         "id": 4,
-        "description": "Create skill from template without customisation \u2014 POST /api/v1/skills/from-template",
+        "description": "Create skill from template without customisation — POST /api/v1/skills/from-template",
         "action": "While authenticated as instance owner, POST /api/v1/skills/from-template with body: { \"template_id\": \"<first template id from step 2 response>\", \"name\": \"JH-Test-Skill-NoCustom\" }. Do not include customisation_text.",
         "expected": "Response status 201 Created. Body contains: skill_id (UUID), status = 'DRAFT', name = 'JH-Test-Skill-NoCustom', instance_id matching the authenticated instance. No LLM generation should be triggered (no customisation_text). Record the returned skill_id for subsequent steps."
       },
@@ -1861,7 +1861,7 @@
       },
       {
         "id": 6,
-        "description": "Create skill from template WITH customisation_text \u2014 triggers LLM generation path",
+        "description": "Create skill from template WITH customisation_text — triggers LLM generation path",
         "action": "POST /api/v1/skills/from-template with body: { \"template_id\": \"<first template id from step 2>\", \"name\": \"JH-Test-Skill-Custom\", \"customisation_text\": \"Focus this skill exclusively on answering questions about renewable energy topics.\" }. Capture the returned skill_id as CUSTOM_SKILL_ID.",
         "expected": "Response status 201 Created. Body contains skill_id, status = 'DRAFT'. Because customisation_text is provided, the response may be slightly slower (LLM call via generate_custom_skill()). The returned skill content/prompt must not contain any internal Phronex architecture details, model IDs, or system prompt fragments (IP protection check). Record CUSTOM_SKILL_ID."
       },
@@ -1873,20 +1873,20 @@
       },
       {
         "id": 8,
-        "description": "Submit DRAFT skill to phronex-auth for vetting \u2014 POST /api/v1/skills/submit/{skill_id}",
+        "description": "Submit DRAFT skill to phronex-auth for vetting — POST /api/v1/skills/submit/{skill_id}",
         "action": "POST /api/v1/skills/submit/{CUSTOM_SKILL_ID} (from step 6) with the instance-owner JWT. No request body required per USER-SPEC.",
         "expected": "Response status 200 OK (or 202 Accepted). Body contains updated status reflecting the vetting response from phronex-auth (e.g. 'PENDING_REVIEW' or 'APPROVED' depending on test env state). Local CCSkillStore status for CUSTOM_SKILL_ID is updated to match."
       },
       {
         "id": 9,
-        "description": "Verify rate limit on skill ops \u2014 50/month per user",
+        "description": "Verify rate limit on skill ops — 50/month per user",
         "action": "Check the response headers from steps 4, 6, and 8 for rate-limit headers. Alternatively call GET /api/v1/skills/usage or inspect any quota endpoint to see remaining skill ops count.",
         "expected": "Rate-limit headers or usage response shows quota consumed. Count incremented by at least 2 (one from step 4, one from step 6). Total used is less than 50. No 429 returned during normal testing flow."
       },
       {
         "id": 10,
-        "description": "Assign skill to a chat session \u2014 verify skill_id attribution",
-        "action": "POST /api/v1/chat/message with body: { \"instance_id\": \"<instance_id>\", \"message\": \"Hello\", \"session_id\": \"<active_session_id>\", \"skill_id\": \"<CUSTOM_SKILL_ID from step 6>\" }. Use an authenticated user JWT (not superadmin \u2014 create or reuse a test user session).",
+        "description": "Assign skill to a chat session — verify skill_id attribution",
+        "action": "POST /api/v1/chat/message with body: { \"instance_id\": \"<instance_id>\", \"message\": \"Hello\", \"session_id\": \"<active_session_id>\", \"skill_id\": \"<CUSTOM_SKILL_ID from step 6>\" }. Use an authenticated user JWT (not superadmin — create or reuse a test user session).",
         "expected": "Response is an SSE stream. Events include at least one token event and a done event. No error event. The session row in the DB (observable via admin panel or GET session detail endpoint) now has skill_id set to CUSTOM_SKILL_ID. Chat response content should reflect the renewable energy customisation applied in step 6."
       },
       {
@@ -1930,7 +1930,7 @@
   },
   {
     "id": "cc-accountability",
-    "description": "[general] Accountability \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "[general] Accountability — Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 3,
     "steps": [
       {
@@ -2046,7 +2046,7 @@
   },
   {
     "id": "cc-cc-architecture-5-2-prompt-assembly-ccpromptadapter",
-    "description": "[general] Cc Architecture 5 2 Prompt Assembly Ccpromptadapter \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Architecture 5 2 Prompt Assembly Ccpromptadapter — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -2058,7 +2058,7 @@
       {
         "id": 2,
         "description": "Navigate to the Content Companion (CC) admin interface and locate an active CC instance to use for prompt assembly testing.",
-        "action": "Navigate to the CC admin panel (e.g. https://app.phronex.com or the CC portal section). Find an active instance \u2014 look for an instance list or instance selector. Select or note down an instance ID (e.g. 'maxine') that is in active/unblocked state.",
+        "action": "Navigate to the CC admin panel (e.g. https://app.phronex.com or the CC portal section). Find an active instance — look for an instance list or instance selector. Select or note down an instance ID (e.g. 'maxine') that is in active/unblocked state.",
         "expected": "CC admin panel loads without errors. At least one active instance is visible. Instance ID is readable from the UI or URL."
       },
       {
@@ -2069,7 +2069,7 @@
       },
       {
         "id": 4,
-        "description": "Verify the prompt assembly inputs are editable \u2014 update the persona/system prompt field with a distinct test value.",
+        "description": "Verify the prompt assembly inputs are editable — update the persona/system prompt field with a distinct test value.",
         "action": "Click the system prompt or persona text field. Clear existing content. Type a unique test string, e.g. 'JOURNEY_TEST_PROMPT_ASSEMBLY_001: You are a helpful QA assistant.'",
         "expected": "Text field accepts input. The distinct test string is visible in the field without truncation. No validation errors appear on non-empty valid input."
       },
@@ -2083,7 +2083,7 @@
         "id": 6,
         "description": "Initiate a chat session against the instance to verify the CCPromptAdapter assembles and injects the updated system prompt end-to-end.",
         "action": "Navigate to the chat interface for the selected CC instance. If a session selector exists, start a new session. Send a chat message: 'Hello, who are you?'",
-        "expected": "The chat interface loads. The POST request to /api/v1/chat is issued with the correct instance_id and a valid session_id. SSE stream begins \u2014 event: chunk events appear in the response. The assistant reply reflects the persona defined in the updated system prompt (e.g. references 'QA assistant' behaviour or tone). event: done event arrives and the stream closes cleanly."
+        "expected": "The chat interface loads. The POST request to /api/v1/chat is issued with the correct instance_id and a valid session_id. SSE stream begins — event: chunk events appear in the response. The assistant reply reflects the persona defined in the updated system prompt (e.g. references 'QA assistant' behaviour or tone). event: done event arrives and the stream closes cleanly."
       },
       {
         "id": 7,
@@ -2093,13 +2093,13 @@
       },
       {
         "id": 8,
-        "description": "Test multi-language prompt assembly \u2014 update the instance language configuration to a non-English locale (e.g. de-DE) and send a chat message.",
+        "description": "Test multi-language prompt assembly — update the instance language configuration to a non-English locale (e.g. de-DE) and send a chat message.",
         "action": "Return to the instance configuration. Find the language/locale field (BCP-47 code field). Set the value to 'de-DE'. Save the configuration. Navigate back to the chat interface and start a new session. Send the message: 'Hello, respond to me.'",
         "expected": "Save succeeds without errors. In the new chat session, the assistant response is generated in German (de-DE). The system prompt assembled by CCPromptAdapter includes a language instruction matching 'de-DE'. No SSE stream errors occur."
       },
       {
         "id": 9,
-        "description": "Test memory context injection \u2014 verify that when memory is enabled for a premium-tier user, the assembled prompt includes memory context.",
+        "description": "Test memory context injection — verify that when memory is enabled for a premium-tier user, the assembled prompt includes memory context.",
         "action": "In the instance or user configuration, confirm or enable the memory feature (memory_enabled=true if configurable via UI). Start a new chat session and send a message that would be memory-worthy (e.g. 'My name is JourneyHawk and I prefer concise answers.'). End the session. Start a second new session and send: 'What do you know about me?'",
         "expected": "In the second session, the assistant's response references information from the previous session (e.g. the name or preference stated). The assembled system prompt (observable if prompt preview is available in admin UI) includes a memory context block. In-memory history cap of 15 messages per side is not exceeded (no UI error about history overflow)."
       },
@@ -2126,7 +2126,7 @@
   },
   {
     "id": "cc-cc-hld-5-2-cost-controls",
-    "description": "[general] Cc Hld 5 2 Cost Controls \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Hld 5 2 Cost Controls — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 4,
     "steps": [
       {
@@ -2145,50 +2145,50 @@
         "id": 3,
         "description": "Verify the daily spend limit enforcement by inspecting the known tier limits documented in USER-SPEC: free tier $0.50/day, premium tier $10/day.",
         "action": "Navigate to https://app.phronex.com/admin or relevant admin panel. Search for any UI surface showing per-tier spend limits. If no UI surface exists, note as gap. Also call GET /api/v1/admin/analytics and inspect the response for tier_distribution and spend_limit fields.",
-        "expected": "Spend limit values of $0.50 (free) and $10.00 (premium) are reflected in the response or UI. USER-SPEC \u00a718 Known Limitations notes these are hardcoded and not configurable via admin UI \u2014 confirm no admin UI control exists for changing these values (absence is expected behaviour, not a defect)."
+        "expected": "Spend limit values of $0.50 (free) and $10.00 (premium) are reflected in the response or UI. USER-SPEC §18 Known Limitations notes these are hardcoded and not configurable via admin UI — confirm no admin UI control exists for changing these values (absence is expected behaviour, not a defect)."
       },
       {
         "id": 4,
         "description": "Trigger a chat message via the UI to generate an LLMUsage row, then verify cost tracking is recorded.",
-        "action": "Navigate to https://app.phronex.com and open a chat session for a known active instance (e.g. 'maxine'). Send a short message: 'Hello'. Observe the SSE stream in the Network tab \u2014 confirm events of type 'chunk' and 'done' appear. After stream completes, call GET /api/v1/admin/analytics/cost-by-user?days=1 to verify a new LLMUsage row was created.",
+        "action": "Navigate to https://app.phronex.com and open a chat session for a known active instance (e.g. 'maxine'). Send a short message: 'Hello'. Observe the SSE stream in the Network tab — confirm events of type 'chunk' and 'done' appear. After stream completes, call GET /api/v1/admin/analytics/cost-by-user?days=1 to verify a new LLMUsage row was created.",
         "expected": "Chat response streams successfully. SSE events include at least one 'chunk' event and a final 'done' event. The cost-by-user analytics endpoint reflects a new usage entry for the test user with non-zero total_cost. LLMUsage row contains model name and token counts."
       },
       {
         "id": 5,
         "description": "Verify rate-limiting behaviour: attempt to exceed the daily spend limit for a free-tier test user and confirm the chat endpoint returns a blocked response.",
         "action": "Using the superadmin session, call POST /api/v1/admin/test-helpers/set-spend or equivalent endpoint to simulate a free-tier user at $0.50 daily spend (if no such endpoint exists, note as gap and skip assertion). Then attempt to POST /api/v1/chat as that user with message 'Test over-limit'. Inspect the HTTP response status and body.",
-        "expected": "If spend simulation endpoint exists: chat returns HTTP 429 or HTTP 402 with an error body indicating daily spend limit exceeded. If no simulation endpoint exists: document gap \u2014 spend-limit enforcement cannot be verified without a test helper or spend-reset admin endpoint."
+        "expected": "If spend simulation endpoint exists: chat returns HTTP 429 or HTTP 402 with an error body indicating daily spend limit exceeded. If no simulation endpoint exists: document gap — spend-limit enforcement cannot be verified without a test helper or spend-reset admin endpoint."
       },
       {
         "id": 6,
         "description": "Verify BYOK (Bring Your Own Key) cost tracking: confirm that when an instance has a custom LLM API key configured, usage is billed against that key and recorded correctly in LLMUsage.",
-        "action": "Navigate to the instance configuration admin page for a test instance. Verify that an InstanceLLMConfig row can be set with an encrypted API key. If UI exists, set a BYOK key. Then send a chat message. Inspect LLMUsage row via GET /api/v1/admin/analytics/{instance_id} \u2014 confirm model and cost fields are populated and the response notes the key source as instance-owned.",
+        "action": "Navigate to the instance configuration admin page for a test instance. Verify that an InstanceLLMConfig row can be set with an encrypted API key. If UI exists, set a BYOK key. Then send a chat message. Inspect LLMUsage row via GET /api/v1/admin/analytics/{instance_id} — confirm model and cost fields are populated and the response notes the key source as instance-owned.",
         "expected": "LLMUsage row is created with model and cost values. Per TEST-ORACLES TO-CHAT-13: the API key is decrypted in-memory only and never exposed in the response. The analytics endpoint reflects costs attributed to the instance's BYOK configuration. If BYOK key is invalid, the system falls back to the platform key without error."
       },
       {
         "id": 7,
         "description": "Verify cross-instance cost aggregation via the admin analytics overview endpoint.",
         "action": "Call GET /api/v1/admin/analytics with the superadmin X-Admin-Secret header. Inspect the response for per-instance cost breakdown fields.",
-        "expected": "Response includes total_users, total_sessions, and per-instance breakdown. Per-instance entries include cost or spend data. The instance tested in steps 4\u20136 appears in the breakdown with a non-zero spend value consistent with the LLMUsage rows created during this journey."
+        "expected": "Response includes total_users, total_sessions, and per-instance breakdown. Per-instance entries include cost or spend data. The instance tested in steps 4–6 appears in the breakdown with a non-zero spend value consistent with the LLMUsage rows created during this journey."
       },
       {
         "id": 8,
         "description": "Navigate away from the admin analytics page to the dashboard, then return and verify data persistence.",
         "action": "Navigate to https://app.phronex.com (dashboard). Wait 2 seconds. Navigate back to https://app.phronex.com/admin/analytics or re-call GET /api/v1/admin/analytics/cost-by-user?days=1.",
-        "expected": "Analytics data from steps 4\u20137 is still present. LLMUsage rows created during this journey are persisted to the database and survive navigation. No data loss or state reset occurs."
+        "expected": "Analytics data from steps 4–7 is still present. LLMUsage rows created during this journey are persisted to the database and survive navigation. No data loss or state reset occurs."
       },
       {
         "id": 9,
-        "description": "Confirm the Known Limitation documented in USER-SPEC \u00a718: daily spend limits are hardcoded and no admin UI exists to change them.",
+        "description": "Confirm the Known Limitation documented in USER-SPEC §18: daily spend limits are hardcoded and no admin UI exists to change them.",
         "action": "Search https://app.phronex.com/admin for any input field, settings panel, or configuration page that allows editing per-tier daily spend limits ($0.50 free / $10 premium). Also grep the admin analytics UI for any editable spend-limit control.",
-        "expected": "No UI control exists for modifying daily spend limits. This matches the known limitation documented in USER-SPEC \u00a718. If such a UI IS found, flag as an undocumented feature that needs USER-SPEC update."
+        "expected": "No UI control exists for modifying daily spend limits. This matches the known limitation documented in USER-SPEC §18. If such a UI IS found, flag as an undocumented feature that needs USER-SPEC update."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-cc-hld-7-external-integration-points",
-    "description": "[general] Cc Hld 7 External Integration Points \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Hld 7 External Integration Points — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -2223,7 +2223,7 @@
       },
       {
         "id": 6,
-        "description": "Verify chat history persistence \u2014 confirm the external integration with the database returns the message just sent.",
+        "description": "Verify chat history persistence — confirm the external integration with the database returns the message just sent.",
         "action": "In browser console: fetch('http://localhost:8000/api/v1/chat/history?session_id='+window._anonUserId+'&limit=5', {headers:{'Authorization':'Bearer '+window._anonJwt}}).then(r=>r.json()).then(d=>{ window._chatHistory=d; console.log(JSON.stringify(d)); })",
         "expected": "Response is 200 OK. Returned history array contains at least one message matching the 'Hello, what can you help me with?' text sent in step 5. Confirms DB persistence layer is integrated."
       },
@@ -2243,11 +2243,11 @@
         "id": 9,
         "description": "Verify the LLM cost dashboard endpoint (admin analytics/costs) integrates with LLMUsage records and returns cost data.",
         "action": "In browser console: fetch('http://localhost:8000/api/v1/admin/analytics/costs', {headers:{'Authorization':'Bearer '+window._superadminJwt}}).then(r=>{console.log('status',r.status); return r.json();}).then(console.log)",
-        "expected": "Response is 200 OK. JSON contains cost breakdown data. Endpoint is gated to superadmin role \u2014 a non-superadmin JWT returns 403. Confirms LLM cost tracking integration is wired."
+        "expected": "Response is 200 OK. JSON contains cost breakdown data. Endpoint is gated to superadmin role — a non-superadmin JWT returns 403. Confirms LLM cost tracking integration is wired."
       },
       {
         "id": 10,
-        "description": "Verify the widget usage endpoint integrates correctly \u2014 call the usage endpoint with the identified JWT to confirm subscription/tier integration.",
+        "description": "Verify the widget usage endpoint integrates correctly — call the usage endpoint with the identified JWT to confirm subscription/tier integration.",
         "action": "In browser console: fetch('http://localhost:8000/api/v1/config/usage', {headers:{'Authorization':'Bearer '+window._identifiedJwt}}).then(r=>r.json()).then(d=>{ console.log(JSON.stringify(d)); window._usageData=d; })",
         "expected": "Response is 200 OK. JSON contains 'tier', 'monthly_limit', 'messages_used', 'messages_remaining'. Values are numeric and consistent (messages_used + messages_remaining <= monthly_limit)."
       },
@@ -2274,7 +2274,7 @@
   },
   {
     "id": "cc-cc-hld-8-security-measures",
-    "description": "[general] Cc Hld 8 Security Measures \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Hld 8 Security Measures — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -2366,7 +2366,7 @@
   },
   {
     "id": "cc-cc-hld-8-1-defence-in-depth",
-    "description": "[general] Cc Hld 8 1 Defence In Depth \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc Hld 8 1 Defence In Depth — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -2389,7 +2389,7 @@
       },
       {
         "id": 4,
-        "description": "Attempt an IDOR (Insecure Direct Object Reference) probe \u2014 try to access another instance's resource by manipulating an ID in the URL while authenticated as the QA superadmin.",
+        "description": "Attempt an IDOR (Insecure Direct Object Reference) probe — try to access another instance's resource by manipulating an ID in the URL while authenticated as the QA superadmin.",
         "action": "While authenticated, identify a resource URL that contains a numeric or UUID segment (e.g. /instances/{id} or /content/{id}). Modify the ID to a plausible but different value (e.g. increment by 1 or substitute a known-invalid UUID like 00000000-0000-0000-0000-000000000001). Navigate to the modified URL.",
         "expected": "The application returns a 403 Forbidden or 404 Not Found response, OR redirects to an error page. The foreign resource's data is NOT rendered. No stack trace or internal path is exposed in the error response."
       },
@@ -2401,20 +2401,20 @@
       },
       {
         "id": 6,
-        "description": "Verify CSRF protection on a state-mutating form \u2014 inspect that anti-CSRF tokens or SameSite cookie attributes are in place.",
-        "action": "Open DevTools \u2192 Application \u2192 Cookies. Inspect the session or auth cookie attributes. Also open a form that submits a POST (e.g. create content, update settings). Inspect the outgoing request headers in the Network tab for a CSRF token header (e.g. X-CSRF-Token) or verify the cookie has SameSite=Strict or SameSite=Lax.",
+        "description": "Verify CSRF protection on a state-mutating form — inspect that anti-CSRF tokens or SameSite cookie attributes are in place.",
+        "action": "Open DevTools → Application → Cookies. Inspect the session or auth cookie attributes. Also open a form that submits a POST (e.g. create content, update settings). Inspect the outgoing request headers in the Network tab for a CSRF token header (e.g. X-CSRF-Token) or verify the cookie has SameSite=Strict or SameSite=Lax.",
         "expected": "The auth cookie has SameSite=Strict or SameSite=Lax. If a CSRF token pattern is used, the token is present in the POST request. A cross-origin POST attempt without the token would be rejected (verified by observing the token's presence as a necessary condition)."
       },
       {
         "id": 7,
-        "description": "Test that the Content Companion superadmin cannot escalate privileges beyond their granted scope \u2014 attempt to access a route reserved for platform-level superadmins if such a distinction exists.",
+        "description": "Test that the Content Companion superadmin cannot escalate privileges beyond their granted scope — attempt to access a route reserved for platform-level superadmins if such a distinction exists.",
         "action": "Navigate to https://app.phronex.com/admin or /superadmin or /platform-admin. Observe the HTTP response code and rendered content.",
         "expected": "Either the page is accessible (confirming superadmin scope is correct) OR a 403 is returned. No unintended privilege escalation occurs. If redirected, the redirect target is appropriate and does not expose admin functionality to a lower-privileged role."
       },
       {
         "id": 8,
-        "description": "Verify that sensitive data is not leaked in client-side JavaScript bundles or API responses \u2014 inspect a key API response for fields that should be server-side only.",
-        "action": "Open DevTools \u2192 Network. Reload the page or trigger a content list API call (e.g. GET /api/content or similar). Inspect the JSON response body for fields such as internal_token, secret, password_hash, private_key, or api_key.",
+        "description": "Verify that sensitive data is not leaked in client-side JavaScript bundles or API responses — inspect a key API response for fields that should be server-side only.",
+        "action": "Open DevTools → Network. Reload the page or trigger a content list API call (e.g. GET /api/content or similar). Inspect the JSON response body for fields such as internal_token, secret, password_hash, private_key, or api_key.",
         "expected": "No secret, credential, password hash, or internal API key appears in any client-facing API response. Internal-only fields are stripped before the response reaches the browser."
       },
       {
@@ -2439,12 +2439,12 @@
         "id": 12,
         "description": "Navigate away from the current page to the dashboard, then return to a previously visited protected resource and verify session state and data persistence.",
         "action": "From an authenticated page (e.g. a content detail page), navigate to https://app.phronex.com/dashboard. Wait for the dashboard to fully load. Then use the browser back button or navigate directly back to the previously visited protected route.",
-        "expected": "The previously visited page reloads correctly with the same data. The session remains valid \u2014 no re-authentication prompt appears. Data visible before navigation is still visible after returning, confirming persistence of both session and server-side state."
+        "expected": "The previously visited page reloads correctly with the same data. The session remains valid — no re-authentication prompt appears. Data visible before navigation is still visible after returning, confirming persistence of both session and server-side state."
       },
       {
         "id": 13,
         "description": "Verify that logging out invalidates the server-side session and prevents access to protected routes with the old session token.",
-        "action": "Click the logout button or navigate to the logout endpoint. After logout completes, attempt to navigate directly to https://app.phronex.com/dashboard without logging in again. Also check DevTools \u2192 Application \u2192 Cookies to confirm the session cookie has been cleared or expired.",
+        "action": "Click the logout button or navigate to the logout endpoint. After logout completes, attempt to navigate directly to https://app.phronex.com/dashboard without logging in again. Also check DevTools → Application → Cookies to confirm the session cookie has been cleared or expired.",
         "expected": "After logout, the session cookie is cleared or marked as expired. Navigating to a protected route redirects back to https://app.phronex.com/auth/login. The old session token (if replayed via DevTools) is rejected with a 401 or redirect, confirming server-side session invalidation."
       }
     ],
@@ -2452,7 +2452,7 @@
   },
   {
     "id": "cc-cc-user-spec-1-actor-role-matrix",
-    "description": "[general] Cc User_Spec 1 Actor Role Matrix \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Cc User_Spec 1 Actor Role Matrix — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -2470,25 +2470,25 @@
       {
         "id": 3,
         "description": "Verify the Anonymous actor row is represented correctly: confirm that unauthenticated access to the chat widget endpoint returns a valid anonymous JWT via POST /api/v1/auth/anonymous with a known instance_id.",
-        "action": "mcp__playwright__browser_network_request \u2014 send POST http://localhost:8000/api/v1/auth/anonymous with body {\"instance_id\": \"maxine\"}; capture response body and status.",
+        "action": "mcp__playwright__browser_network_request — send POST http://localhost:8000/api/v1/auth/anonymous with body {\"instance_id\": \"maxine\"}; capture response body and status.",
         "expected": "Response status 200. Body contains keys: 'token' (non-empty string, JWT format with 3 dot-separated segments), 'user_id' (UUID v4 pattern), 'session_id' (UUID v4 pattern). No error_code field present."
       },
       {
         "id": 4,
         "description": "Verify anonymous rate-limit contract: replay POST /api/v1/auth/anonymous 21 times in rapid succession from the same IP to confirm the 20/hour per-IP ceiling is enforced.",
-        "action": "mcp__playwright__browser_evaluate \u2014 execute a loop of 21 fetch calls to POST /api/v1/auth/anonymous with body {\"instance_id\": \"maxine\"} and collect all response statuses.",
+        "action": "mcp__playwright__browser_evaluate — execute a loop of 21 fetch calls to POST /api/v1/auth/anonymous with body {\"instance_id\": \"maxine\"} and collect all response statuses.",
         "expected": "First 20 responses return 200. The 21st response returns 429 (Too Many Requests). Response body of the 429 contains an error or rate_limit indicator."
       },
       {
         "id": 5,
         "description": "Verify that an invalid instance_id is rejected by the anonymous auth endpoint (TO-AUTH-02).",
-        "action": "mcp__playwright__browser_network_request \u2014 send POST http://localhost:8000/api/v1/auth/anonymous with body {\"instance_id\": \"../hack\"}.",
+        "action": "mcp__playwright__browser_network_request — send POST http://localhost:8000/api/v1/auth/anonymous with body {\"instance_id\": \"../hack\"}.",
         "expected": "Response status 400. Body contains error_code: 'INVALID_INSTANCE_ID'."
       },
       {
         "id": 6,
         "description": "Verify the Authenticated User actor row: use POST /api/v1/auth/identify (or POST /api/v1/auth/embed with HMAC) to obtain a 30-day JWT for a known returning user.",
-        "action": "mcp__playwright__browser_network_request \u2014 send POST http://localhost:8000/api/v1/auth/identify with a valid returning-user payload (email or external_id belonging to the QA test account); capture status and response body.",
+        "action": "mcp__playwright__browser_network_request — send POST http://localhost:8000/api/v1/auth/identify with a valid returning-user payload (email or external_id belonging to the QA test account); capture status and response body.",
         "expected": "Response status 200. Body contains 'token' (JWT, 30-day expiry decodable from the exp claim), 'user_id', 'session_id'. Token role claim does NOT include 'instance_owner'."
       },
       {
@@ -2518,7 +2518,7 @@
       {
         "id": 11,
         "description": "Validate that the Chat (SSE stream) endpoint is reachable for an authenticated user: send POST /api/v1/chat/message with a minimal message payload and confirm SSE token events are emitted.",
-        "action": "mcp__playwright__browser_evaluate \u2014 using the 30-day JWT from step 6, open an EventSource or fetch with ReadableStream to POST /api/v1/chat/message with a test message body; collect the first 3 SSE events or wait up to 10 seconds.",
+        "action": "mcp__playwright__browser_evaluate — using the 30-day JWT from step 6, open an EventSource or fetch with ReadableStream to POST /api/v1/chat/message with a test message body; collect the first 3 SSE events or wait up to 10 seconds.",
         "expected": "At least one SSE event is received with event type 'token' or 'delta'. No immediate 4xx error. Stream does not close immediately with an error event."
       },
       {
@@ -2536,7 +2536,7 @@
       {
         "id": 14,
         "description": "Attempt to access an Instance Owner route using only an Anonymous JWT (obtained in step 3) and verify it is rejected.",
-        "action": "mcp__playwright__browser_network_request \u2014 send a GET or POST request to an instance-owner-only endpoint (e.g. analytics summary or instance config) with Authorization: Bearer <anonymous_token_from_step_3>.",
+        "action": "mcp__playwright__browser_network_request — send a GET or POST request to an instance-owner-only endpoint (e.g. analytics summary or instance config) with Authorization: Bearer <anonymous_token_from_step_3>.",
         "expected": "Response status 401 or 403. Body contains an error code indicating insufficient role/scope. The anonymous token is NOT treated as an owner-level credential."
       },
       {
