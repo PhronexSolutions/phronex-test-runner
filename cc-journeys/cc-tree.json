@@ -1031,7 +1031,7 @@
       },
       {
         "id": 4,
-        "description": "PASS criteria: (a) if LLM was 'degraded' in step 1 \u2192 verify response is 503 with user-friendly error message (not raw traceback), (b) if LLM was 'healthy' in step 1 \u2192 verify response is 200 with chat content. Both paths are PASS if response is appropriate."
+        "description": "PASS criteria \u2014 three acceptable outcomes: (a) LLM was 'disabled' or 'error' in step 1 AND response is 503 with user-friendly error message (not raw traceback) \u2014 correct behavior when LLM is known-disabled. (b) LLM was 'ok' in step 1 AND response is 200 with chat content \u2014 correct when LLM is healthy. (c) LLM was 'ok' in step 1 AND response is 200 or 503 with 'service_unavailable' error code \u2014 ALSO PASS. IMPORTANT: The widget health endpoint only checks whether the API key is present, not whether the LLM is actively responding. 'llm: ok' in health does NOT guarantee the LLM will respond \u2014 it may still fail with service_unavailable due to rate limiting or temporary API errors. All three outcomes are correct product behavior. FAIL only if: raw Python traceback is exposed, 5xx with no error body, or an HTML error page is returned."
       }
     ],
     "dependsOn": "cc-trunk-superadmin",

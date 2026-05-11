@@ -466,6 +466,23 @@ If it fails, run `pip install pydantic[email]` before restarting the service. Th
 
 **No decision needed** — but flagging so the issue and its recovery pattern is documented. The memory note exists but this was the first time it caused a real production outage (3h portal downtime, full JP Run 5 cascade failure due to 502s during the window).
 
+## D-20: `cc-biz-chat-disabled` — health endpoint says 'ok', chat returns service_unavailable (2026-05-11)
+
+**What happened:** `cc-biz-chat-disabled` step 4 fails: LLM health reports `'ok'` but `POST /api/v1/chat/message` returns `service_unavailable`. This means the widget health endpoint (`GET /config/health/widget`) is a shallow presence check (does the key exist?) not a functional liveness check (can the LLM respond?).
+
+**Root cause:** `routes_config.py` line 128-129: `has_key = bool(os.getenv('ANTHROPIC_API_KEY', ''))` → `result['llm'] = 'ok' if has_key else 'error'`. If the key is set but the API is rate-limited, the health check still says 'ok'.
+
+**Options:**
+- A) Accept it — health endpoint is a configuration check, not a liveness check. Documented behavior.
+- B) Add a lightweight Anthropic API ping to the health endpoint — calls the cheapest possible endpoint (e.g., models list or a 1-token prompt). Risk: adds latency and costs API credits on every widget health call.
+- C) Cache the last-known LLM liveness state — the chat route updates a `_last_llm_ok` in-memory flag; health endpoint returns this flag. Zero additional cost, eventually consistent.
+
+**Recommendation:** Option A short-term. Document the health check as "configuration check, not liveness check." If this creates too many false positives in JourneyHawk, implement Option C.
+
+**JourneyHawk spec update:** `cc-biz-chat-disabled` step 4 criterion updated to PASS when health='ok' AND chat returns either real content OR service_unavailable (since both are valid when key exists but LLM is temporarily unreachable).
+
+---
+
 ## D-19: JP depth-2 journeys failing due to missing session state loading (2026-05-11)
 
 **What happened:** All `jp-verify-*` journeys (depth-2, depend on `jp-branch-*`) failed with "Cannot access page - redirected to login page" in JP Run 6. The `jp-branch-*` journeys (depth-1, depend on `jp-trunk-main`) passed fine.

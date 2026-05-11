@@ -83,7 +83,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -239,7 +239,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -267,7 +267,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -295,7 +295,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -323,7 +323,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -351,7 +351,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -379,7 +379,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -407,7 +407,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
@@ -435,7 +435,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
       },
       {
         "id": 2,
