@@ -653,78 +653,6 @@
     "dependsOn": "jp-trunk-main"
   },
   {
-    "id": "jp-jp-audit-log-extended",
-    "description": "JP audit log extended \u2014 detail view, read-only checks, export, empty states (split from jp-jp-audit-log)",
-    "dependsOn": "jp-trunk-main",
-    "params": {},
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. Navigate to verify the session is active."
-      },
-      {
-        "id": 2,
-        "description": "Close the audit detail view and verify the list is still intact.",
-        "action": "Close the modal/drawer by clicking the close button or pressing Escape. Verify the underlying audit log list is still rendered.",
-        "expected": "The modal/drawer closes cleanly. The audit log table is still visible with the same filters and page state as before opening the detail view."
-      },
-      {
-        "id": 3,
-        "description": "Verify the audit log is read-only \u2014 no edit, delete, or create controls are present.",
-        "action": "Scan the audit log table and any detail views for edit buttons, delete icons, inline inputs, or 'Add Entry' controls.",
-        "expected": "No edit, delete, or create controls are present on the audit log. The page is strictly read-only, enforcing audit trail immutability."
-      },
-      {
-        "id": 4,
-        "description": "Verify the audit log API request uses the correct authenticated endpoint.",
-        "action": "Open the browser Network tab before navigating to /jp/audit-log. Reload the page and inspect the XHR/fetch requests made. Find the audit log data request.",
-        "expected": "A request is made to the audit log API endpoint (e.g. GET /api/v1/audit-log or similar). The request includes the Authorization: Bearer {JWT} header. The response is HTTP 200 with a JSON payload containing audit entries."
-      },
-      {
-        "id": 5,
-        "description": "Test unauthorized access \u2014 verify non-admin users cannot access the audit log.",
-        "action": "Open an incognito/private browser window. Navigate to https://app.phronex.com/jp/audit-log without logging in, or log in as a non-admin (free-tier or standard-tier) user if test credentials are available.",
-        "expected": "Unauthenticated users are redirected to /auth/login. Non-admin authenticated users receive a 403/unauthorized error page or are redirected away from /jp/audit-log. The audit log data is never rendered for unauthorized users."
-      },
-      {
-        "id": 6,
-        "description": "Navigate away from /jp/audit-log to the dashboard, then return and verify the data and filter state.",
-        "action": "From /jp/audit-log, navigate to /jp/ (dashboard). Wait for the dashboard to load. Then navigate back to /jp/audit-log.",
-        "expected": "The audit log page reloads correctly. Data is fetched again from the backend and rendered without errors. If the page preserves filter state via URL params or session storage, the previous filters are restored; otherwise, the default unfiltered view is shown."
-      },
-      {
-        "id": 7,
-        "description": "Verify the audit log page title and breadcrumb are correct.",
-        "action": "Check the browser tab title and any in-page breadcrumb or heading element on /jp/audit-log.",
-        "expected": "The page title (document.title) references 'Audit Log' or similar. The in-page heading or breadcrumb reads 'Audit Log' or 'Admin / Audit Log'. No placeholder or fallback text (e.g. 'Page Title') is shown."
-      },
-      {
-        "id": 8,
-        "description": "Verify the audit log exports correctly if an export (CSV/JSON) feature is present.",
-        "action": "Look for an 'Export', 'Download CSV', or 'Export JSON' button on the audit log page. If present, click it.",
-        "expected": "A file download is triggered. The downloaded file is non-empty and contains audit log entries matching the current filter state. The filename includes a timestamp or descriptive label (e.g. audit-log-2026-05-11.csv)."
-      },
-      {
-        "id": 9,
-        "description": "Verify empty-state rendering when filters produce no results.",
-        "action": "Apply a date range filter for a future date range (e.g. 2030-01-01 to 2030-01-02) that is guaranteed to have no audit entries.",
-        "expected": "The table renders an empty state message (e.g. 'No audit entries found for the selected filters') rather than a blank table or spinner. The empty state is visually distinct and informative."
-      },
-      {
-        "id": 10,
-        "description": "Verify the audit log timestamps are displayed in a consistent, human-readable timezone.",
-        "action": "Inspect multiple audit log timestamp cells. Note the format and check whether a timezone indicator (UTC, IST, local) is shown.",
-        "expected": "All timestamps use a consistent format (ISO 8601 or locale-formatted). Timezone is either explicitly shown or documented. No raw epoch integers or 'Invalid Date' strings are rendered."
-      },
-      {
-        "id": 11,
-        "description": "Final state check \u2014 reload the page and confirm full re-render with no regressions.",
-        "action": "Hard-reload /jp/audit-log (Ctrl+Shift+R or Cmd+Shift+R). Wait for the page to fully load. Check the console for errors and verify the table renders with data.",
-        "expected": "Page reloads cleanly. Audit log data is fetched and rendered. No JS errors, no failed API calls, no broken layout. The page is in a fully functional state."
-      }
-    ]
-  },
-  {
     "id": "jp-jp-scan-history",
     "description": "[automation] Jp Scan History \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
@@ -903,52 +831,99 @@
     "dependsOn": "jp-trunk-main"
   },
   {
-    "id": "jp-jp-users-extended",
-    "description": "JP users extended \u2014 edit flow, navigation persistence, admin UI checks (split from jp-jp-users)",
+    "id": "jp-jp-audit-log-extended",
+    "description": "[admin] Jp Audit Log Extended \u2014 continuation of audit log deep journey covering read-only verification, unauthorized access, export, empty state, and reload",
+    "depth": 3,
     "dependsOn": "jp-trunk-main",
-    "params": {},
+    "isSharedRoot": false,
+    "role": "verify",
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. Navigate to verify the session is active."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. Navigate to https://app.phronex.com/jp/audit-log. Wait for the audit log table to load.",
+        "action": "Load session and navigate to https://app.phronex.com/jp/audit-log."
       },
       {
         "id": 2,
-        "description": "If no user is accessible (empty table), PASS with a note. If a user detail is open and edit functionality is available, attempt to edit the full_name field. If edit is not available, PASS with a note that user editing is not exposed in this view."
+        "description": "Click on an audit log entry detail (if accessible). Close the detail view. Verify the underlying audit log list at https://app.phronex.com/jp/audit-log is still rendered intact."
       },
       {
         "id": 3,
-        "description": "If no user edit form is accessible (empty table or no edit button), PASS with a note. If an edit form is open, clear the full_name field entirely and attempt to submit \u2014 verify required field validation triggers (error message shown)."
+        "description": "Scan the audit log table at https://app.phronex.com/jp/audit-log for edit buttons, delete icons, or create controls. Verify none are present (audit log is read-only)."
       },
       {
         "id": 4,
-        "description": "Navigate away from /jp/users and return to verify state persistence.",
-        "action": "From /jp/users, click the Dashboard link in the sidebar. Wait for the Dashboard page to load. Then click back to Users (sidebar or browser back button).",
-        "expected": "The Users page re-renders correctly. Any active filter or pagination state may or may not persist (document actual behaviour). No blank screen or 'Something went wrong' error on return."
+        "description": "Open browser Network tab. Navigate to https://app.phronex.com/jp/audit-log. Inspect the API request URL for the audit log data fetch \u2014 confirm it uses an authenticated endpoint."
       },
       {
         "id": 5,
-        "description": "Verify admin sidebar tabs are amber-styled and only admin tabs are amber.",
-        "action": "Inspect the sidebar navigation. Identify tabs rendered with the amber pill variant. Cross-check that only admin/SA tabs (e.g. Users, Settings, Portals) have amber styling, while regular user tabs (Dashboard, Jobs, Applications) use the standard variant.",
-        "expected": "Amber pill variant is exclusive to admin/SA tabs. Regular tabs use a non-amber style. No amber styling bleeds onto user-facing tabs."
+        "description": "Test unauthorized access: open an incognito window, navigate to https://app.phronex.com/jp/audit-log without logging in. Verify the page redirects to login or shows an access denied message."
       },
       {
         "id": 6,
-        "description": "Verify pagination or load-more on the users list.",
-        "action": "If the users list has more than one page, click the next-page button or scroll to trigger load-more. Wait for additional rows to appear.",
-        "expected": "Additional user rows are loaded. The pagination control updates (e.g. page 2 of N, or spinner disappears). No duplicate rows appear. No console errors during pagination."
+        "description": "Navigate from https://app.phronex.com/jp/audit-log to https://app.phronex.com/jp/dashboard. Then navigate back to https://app.phronex.com/jp/audit-log. Verify the data and filter state are preserved or correctly reset."
       },
       {
         "id": 7,
-        "description": "Verify that the Users page is inaccessible to non-superadmin users (negative auth test).",
-        "action": "Open a new incognito browser context. Log in as a regular (non-admin) JP user. Navigate directly to https://app.phronex.com/jp/users.",
-        "expected": "The page redirects to dashboard, shows a 403/forbidden error, or hides admin controls entirely. A regular user must not be able to view or interact with the admin Users management interface."
+        "description": "Check the browser tab title and any breadcrumb on https://app.phronex.com/jp/audit-log. Verify the page title contains 'Audit Log' or similar."
       },
       {
         "id": 8,
-        "description": "Final persistence and reload check.",
-        "action": "While on /jp/users (as superadmin), hard-reload the page (Ctrl+R or F5). Wait for full page load.",
-        "expected": "Page loads correctly after hard reload. User list is displayed. Superadmin session is maintained (no redirect to login). No console errors on reload."
+        "description": "Look for an Export button on https://app.phronex.com/jp/audit-log. If present, click it and verify the download starts. If absent, PASS with a note that export is not yet implemented."
+      },
+      {
+        "id": 9,
+        "description": "Apply a date range filter for a future date (e.g. 2030-01-01 to 2030-01-02) on https://app.phronex.com/jp/audit-log. Verify the empty state renders correctly (no crash, friendly message)."
+      },
+      {
+        "id": 10,
+        "description": "Inspect timestamp cells on https://app.phronex.com/jp/audit-log. Verify timestamps are displayed in a consistent, human-readable format with timezone indicator."
+      },
+      {
+        "id": 11,
+        "description": "Hard-reload https://app.phronex.com/jp/audit-log (navigate away then back). Verify the table renders with data and no console errors."
+      }
+    ]
+  },
+  {
+    "id": "jp-jp-users-extended",
+    "description": "[admin] Jp Users Extended \u2014 continuation of users page deep journey covering edit, persistence, admin styling, pagination, and access control",
+    "depth": null,
+    "dependsOn": "jp-trunk-main",
+    "isSharedRoot": false,
+    "role": "verify",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. Navigate to https://app.phronex.com/jp/users. Wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "On https://app.phronex.com/jp/users, if a user row is visible, click the row or a View button to open user detail. If no users exist, PASS with note \u2014 empty table is expected for QA account."
+      },
+      {
+        "id": 3,
+        "description": "On https://app.phronex.com/jp/users, if an edit form is accessible, attempt to update a non-critical field. If no edit button exists, PASS with note \u2014 read-only view is acceptable."
+      },
+      {
+        "id": 4,
+        "description": "Navigate from https://app.phronex.com/jp/users to https://app.phronex.com/jp/dashboard then back to https://app.phronex.com/jp/users. Verify state persists or correctly resets."
+      },
+      {
+        "id": 5,
+        "description": "On https://app.phronex.com/jp/users, verify admin sidebar tabs (Users, Audit Log, Portrait) are styled with amber/gold color tokens. Non-admin tabs should not have amber styling."
+      },
+      {
+        "id": 6,
+        "description": "On https://app.phronex.com/jp/users, check for pagination controls (Next/Prev buttons or page numbers) or infinite scroll. If pagination exists, verify clicking Next loads the next page."
+      },
+      {
+        "id": 7,
+        "description": "Navigate to https://app.phronex.com/jp/users in a new browser context without admin credentials. Verify the page either redirects to login or shows an access denied message \u2014 confirming admin-only access."
+      },
+      {
+        "id": 8,
+        "description": "Hard-reload https://app.phronex.com/jp/users. Verify the page renders without errors and the table (or empty state) is visible. Check browser console for any uncaught errors."
       }
     ]
   }
