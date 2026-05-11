@@ -340,3 +340,31 @@ generated journeys to fall back to heuristic (unmodified specs = zero enrichment
 - C) Accept the dark feature — button exists but is non-functional
 
 **Recommendation:** Option B short-term (remove false affordance), Option A mid-term. The button creating a silent 404 is a UX defect.
+
+---
+
+## D-15: EC2 portal deploy urgently needed — stale bundle causing 7/15 CC journey failures (2026-05-11)
+
+**What:** The EC2 production portal bundle has `localhost:8002` baked in as `NEXT_PUBLIC_AUTH_API_URL`. Every portal page load triggers `GET http://localhost:8002/billing/pending` → `ERR_CONNECTION_REFUSED`. This causes:
+
+1. `cc-trunk-superadmin`: FAIL (CC section hits `localhost:8002`, React error #310 crashes)
+2. 6+ downstream journeys: cascade failures from broken trunk session
+3. `cc-portal-sessions`: Shows 0 View buttons (stale bundle, View button added in recent commit)
+4. `cc-portal-users-management`: Shows "0 of N users" (source filter bug, fixed in portal commit 8e35075)
+
+**Commits pending EC2 portal deploy:**
+- `2272508` — polling timeout fix
+- `8ec3381` — lead form error handling  
+- `c2814fc` — KB stats URL fix (ContentClient.tsx)
+- `8e35075` — users source filter fix (approx commit)
+- Multiple other portal improvements from the last week
+
+**Additionally, CC backend commits pending EC2 deploy:**
+- `38617a1` — SECURITY: IDOR fix on /config/usage (HIGH PRIORITY — actively exploitable)
+- `344b274` — EmailStr validation fix
+- `07aa630` — KB stats endpoints (admin + owner)
+
+**Action needed:** `pnpm build` on DevServer → rsync `.next/` to EC2 → `sudo systemctl restart phronex-portal`. Then deploy CC: `git pull && pip install --no-deps && alembic upgrade head && systemctl restart contentcompanion`.
+
+**Note:** GitHub Actions free plan minutes are exhausted — deploy manually. The IDOR security fix (`38617a1`) should be prioritized.
+
