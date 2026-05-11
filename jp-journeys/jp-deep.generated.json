@@ -343,7 +343,7 @@
       {
         "id": 10,
         "description": "Delete the uploaded document. Locate the delete action (trash icon, context menu, or 'Remove' button) on the uploaded document row. Click the delete/remove control. IMPORTANT: If a browser confirm() dialog appears, use page.on('dialog', d => d.accept()) registered BEFORE clicking the delete button \u2014 never use browser_run_code for this. Alternatively, if the UI shows an inline 'Confirm Delete' button after clicking trash, click that button directly without any dialog handler. After the delete action resolves, verify the document row is no longer visible in the list.",
-        "action": "Click delete on the uploaded document and confirm the deletion dialog",
+        "action": "browser_snapshot to locate delete/trash icon on uploaded document row; register dialog handler via page.on before clicking; browser_click on trash/delete icon; browser_snapshot to verify document removed; DO NOT use browser_run_code for this step",
         "expected": "A confirmation prompt is shown before deletion (not instant delete). After confirmation, the document is removed from the list. A success toast or feedback message confirms deletion. The document does not reappear on list refresh."
       },
       {
