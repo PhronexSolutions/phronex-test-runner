@@ -171,13 +171,17 @@ check when `journey.get('runner') == 'db'`. No cost.
 
 ---
 
-## CC-03: ComC journey IDs appearing in CC Run 6 spec mutation (2026-05-11)
+## CC-03: ComC journey IDs appearing in CC Run 6 spec mutation — RESOLVED (2026-05-11)
 
 **What:** Run 6 log shows `comc-*` journey IDs in the CC-scoped mutated spec
 (`/tmp/jh-spec-mutated-*.json`). The strategist spec mutator is not filtering by product.
 These journeys all failed (CC app ≠ ComC), inflating failure stats.
 
-**Action needed:** Add `product_slug` filter to strategist spec mutation step.
+**Fixed:** Added product-slug prefix guard to `run_filter.py` — any journey ID that doesn't
+start with `{product_slug}-` is dropped with reason_code `PRODUCT_MISMATCH`. isSharedRoot
+trunks are exempt. Commit: `52381568` in phronex-common. Tests: 14 run_filter tests pass.
+
+**No decision needed.**
 
 ---
 
