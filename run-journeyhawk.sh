@@ -393,7 +393,7 @@ if [[ "${PRODUCT}" == "jp" ]] && [[ -n "${JP_TEST_CLEANUP_SDK_KEY:-}" ]]; then
 elif [[ "${PRODUCT}" == "cc" ]] && [[ -n "${CC_TEST_CLEANUP_SDK_KEY:-}" ]]; then
   CC_CLEANUP_URL="${PHRONEX_CC_TEST_URL:-https://cc.phronex.com}"
   echo "[0/3] Pre-run CC cleanup at ${CC_CLEANUP_URL}..."
-  for resource in conversations widgets; do
+  for resource in instances content-artifacts chat-sessions; do
     _RESP_BODY=$(mktemp)
     HTTP=$(curl -s -o "${_RESP_BODY}" -w "%{http_code}" \
       -X POST "${CC_CLEANUP_URL}/api/admin/test-cleanup/${resource}" \

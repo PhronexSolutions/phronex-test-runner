@@ -122,7 +122,88 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-*Last updated: 2026-05-07 (D-01 + D-02 + D-04 resolved; D-07 added during Run 15 and resolved same session; D-08 through D-13 added during autonomous Run 7 session)*
+*Last updated: 2026-05-11 (JP Run 7 overnight autonomous session added)*
+
+---
+
+## CC-06: CC cleanup endpoint 403 — production hostname guard blocks EC2 cleanup (2026-05-11)
+
+**What:** `POST /api/admin/test-cleanup/{resource}` returns HTTP 403 because the endpoint's Gate 2 (production hostname guard) fires when the request arrives at `cc.phronex.com` via the public URL. The guard is intentional — it prevents accidental deletion on production. But CC has no DevServer instance, so there's no bypass URL available.
+
+**Root cause:** `run-journeyhawk.sh` sends cleanup requests to `CC_CLEANUP_URL=https://cc.phronex.com` (EC2). Nginx proxies the request preserving `Host: cc.phronex.com`. The route handler checks `request.headers.get("host")` and matches `_PRODUCTION_HOST = "cc.phronex.com"` → raises 403.
+
+**Options:**
+- A) Add `PHRONEX_CC_TEST_CLEANUP_BYPASS_HOST` env var — runner passes `X-Forwarded-Host: qa-internal` header; route checks that instead. Risk: header injection — must validate the bypass header against a secret.
+- B) Run CC locally on DevServer (port 8000) for cleanup-only calls. Cleaner but adds infra complexity.
+- C) Remove the hostname guard from CC entirely — it was a defence-in-depth measure for when EC2 production and a test instance coexist. Since CC only runs on EC2 (no DevServer instance), the guard achieves nothing and only blocks QA cleanup.
+- D) Accept the 403 as a warning — cleanup is not critical for test correctness, only for DB hygiene. The 24h window filter already prevents data leakage between runs.
+
+**Recommendation:** Option C (remove the guard) or Option D (accept). The guard was designed for a DevServer/EC2 dual-environment setup that doesn't exist for CC. CC is EC2-only so the guard provides zero protection.
+
+**Decision needed:** Before next CC cleanup-reliant run.
+
+---
+
+## CC-01: EC2 deploy needed for IDOR fix + portal users filter (2026-05-11)
+
+**What:** Two commits need an EC2 deploy to go live:
+1. CC `38617a1` — IDOR fix on `/api/v1/config/usage` (security)
+2. Portal `8e35075` — source filter in CC users panel + anonymous users now visible
+
+**Action needed:** Run EC2 deploy for `contentcompanion` and `phronex-portal` at next opportunity.
+No Alembic migrations required — API-only change.
+
+---
+
+## CC-02: cc-data-* journeys evicted as Class 5 garbage (2026-05-11)
+
+**What:** 5 `cc-data-*` journeys (DB foreign key checks) were automatically evicted by the
+static spec garbage scanner as "no navigable URL in any step". These ARE legitimate tests
+but require direct PostgreSQL access, not a browser.
+
+**Options:**
+- A) Add `"runner": "db"` field — pre-flight filter skips them silently without eviction
+- B) Move to `cc-db-checks.json` separate spec for a future non-browser runner
+- C) Accept eviction — they were always SKIP journeys anyway (marked with "SKIP" in description)
+
+**Recommendation:** Option A is lowest effort. Modify `_is_garbage_journey()` to skip Class 5
+check when `journey.get('runner') == 'db'`. No cost.
+
+---
+
+## CC-03: ComC journey IDs appearing in CC Run 6 spec mutation (2026-05-11)
+
+**What:** Run 6 log shows `comc-*` journey IDs in the CC-scoped mutated spec
+(`/tmp/jh-spec-mutated-*.json`). The strategist spec mutator is not filtering by product.
+These journeys all failed (CC app ≠ ComC), inflating failure stats.
+
+**Action needed:** Add `product_slug` filter to strategist spec mutation step.
+
+---
+
+## CC-04: auth/identify accepts malformed emails — #960 (2026-05-11)
+
+**What:** phronex-auth `/auth/identify` accepts any string as email without validation.
+Fix: add `email: EmailStr` to request body Pydantic model.
+
+**Risk:** May break callers that pass non-RFC-5322 formats intentionally.
+Confirm no such callers exist before applying. Severity: LOW.
+
+---
+
+## CC-05: Sessions tab rows not clickable — #958 (2026-05-11)
+
+**What:** Sessions tab in CC portal shows rows but clicking does nothing. No drill-down
+navigation implemented. Needs portal scoping.
+
+**Action needed:** Add to next portal milestone backlog.
+
+---
+
+## JP-01 through JP-NN: Items from overnight JP Run 7 (2026-05-11)
+
+> Items below are added during the autonomous overnight JP JourneyHawk run.
+> Only cost implications or human-judgment items are logged here.
 
 ---
 
