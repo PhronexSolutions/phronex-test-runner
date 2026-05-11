@@ -979,6 +979,13 @@ except Exception as e:
     print(f"[1b2/3] Approved heuristics failed (non-fatal): {e}", file=sys.stderr)
 APPROVED_HEURISTICS_EOF
 
+# Step 1c: Second-pass URL substitution on MUTATED_SPEC.
+# The sed at line 318 only runs on the baseline spec.  Generated + enriched
+# journeys (step 0b-gen) and wiki-injected steps (step 1b) are added AFTER
+# that initial sed, so any localhost:3002 references they carry leak through.
+# This pass catches them.
+sed -i "s|http://localhost:3002|${PORTAL_URL}|g" "${MUTATED_SPEC}"
+
 # ── Pipeline funnel summary ──────────────────────────────────────────────────
 echo ""
 echo "============================================================"
