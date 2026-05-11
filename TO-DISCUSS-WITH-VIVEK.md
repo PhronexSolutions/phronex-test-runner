@@ -368,3 +368,34 @@ generated journeys to fall back to heuristic (unmodified specs = zero enrichment
 
 **Note:** GitHub Actions free plan minutes are exhausted — deploy manually. The IDOR security fix (`38617a1`) should be prioritized.
 
+
+---
+
+## D-16: CC AI "Service temporarily unavailable" — production LLM rate limit (2026-05-11)
+
+**What:** Journeys that chat with the Maxine widget receive "Service temporarily unavailable" instead of an AI response. This is not a code bug — it's a production infrastructure issue.
+
+**Root cause trace:**
+1. `routes_chat.py` line 1252 returns `"Service temporarily unavailable. Please try again."` on `LLMError`
+2. `LLMError` (from `phronex_common.llm.base`) is raised when Anthropic API calls fail after retries
+3. On EC2, CC uses either:
+   - Prepaid API credits (deplete over time → 429s)
+   - OAuth token injected by `refresh-ec2-oauth-key.sh` cron (runs every 4h)
+4. If the cron misses a rotation or the Claude Max subscription hits its rate limit, ALL CC chat calls fail
+
+**Affected journeys:** Any journey that calls the CC chat widget and expects an actual AI response:
+- `cc-deep-chat-lifecycle` (step: verify AI responds to "Hello")
+- `cc-sec-xss-chat` (step 3 already patched to PASS on this message)
+- `cc-biz-chat-close` (step: chat and then close)
+- `cc-e2e-widget-chat` (step: full E2E widget conversation)
+
+**Current mitigation in spec:** `cc-sec-xss-chat` step 3 now says `PASS if AI returns "Service temporarily unavailable"`. Other chat journeys still fail when this occurs.
+
+**Options:**
+- A) Accept it as infrastructure noise — journeys that depend on real AI response are inherently flaky when EC2 LLM is rate-limited. Mark them as `"flakiness": "infrastructure"` to exclude from BROKEN defect tracking.
+- B) Add a pre-flight AI availability check to `run-journeyhawk.sh` — if CC chat returns unavailable, skip all chat-dependent journeys with SKIP_INFRA verdict.
+- C) Ensure the `refresh-ec2-oauth-key.sh` cron is running reliably on DevServer. Check: `! /tmp/ec2-oauth-refresh.log` for last rotation timestamp.
+
+**Recommendation:** Option B + C. Pre-flight avoids false positives; cron reliability check ensures the OAuth rotation doesn't silently stop.
+
+**Check cron health:** `cat /tmp/ec2-oauth-refresh.log | tail -5` on DevServer.
