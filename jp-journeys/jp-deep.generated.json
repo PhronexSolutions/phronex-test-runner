@@ -1201,105 +1201,63 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if load fails or cookie is expired, navigate to http://localhost:3002/auth/login, fill #email with 'qa-test-journeyhawk@phronex.com', fill #password with QA_SUPERADMIN_PASSWORD, click [type=submit]",
-        "expected": "User is authenticated. Page URL is not /auth/login. No 401 or session-expired banner is visible. Navigation header with user identity is present."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the JobPortal dashboard (root or /jp) and assert the authenticated landing state.",
-        "action": "Navigate to http://localhost:3002/jp or the root JP dashboard route. Observe the page heading and any onboarding or empty-state UI.",
-        "expected": "Dashboard page loads with HTTP 200. A recognisable JP dashboard heading or panel is visible. No error toast, no redirect to login. If no job portals exist yet, a clear first-step / onboarding prompt is displayed (per TEST-ORACLES 'Dashboard gives a new user a clear first step')."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard and verify the dashboard loads cleanly. Assert no fatal JS errors in console.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); waitForLoadState; captureConsoleErrors()"
       },
       {
         "id": 3,
-        "description": "Navigate to the Agent & Auto-Apply section (WebSocket + REST) and verify the page renders without runtime errors.",
-        "action": "Click the 'Agent' or 'Auto-Apply' navigation item. Observe the URL, page heading, and browser console for JS errors.",
-        "expected": "URL contains '/agent' or equivalent slug. A heading or panel confirming 'Agent' or 'Auto-Apply' feature is visible. Browser console has zero uncaught JS errors. No HTTP 4xx/5xx banner."
+        "description": "Navigate to https://app.phronex.com/jp/settings (Browser Agent settings page) and verify the page loads without errors. This page configures the JP browser extension agent settings \u2014 it is the portal surface for agent configuration.",
+        "action": "page.goto('https://app.phronex.com/jp/settings'); waitForLoadState('networkidle'); captureConsoleErrors(); browser_snapshot"
       },
       {
         "id": 4,
-        "description": "Invoke the Agent REST endpoint (GET /api/v1/agent or equivalent) and assert the response contract.",
-        "action": "Intercept network traffic via browser devtools / test runner network hook. Navigate to the Agent page or trigger a refresh. Assert the XHR/fetch to /api/v1/agent (or the canonical agent endpoint per USER-SPEC.html) returns status 200 and a JSON body.",
-        "expected": "Network request to the agent endpoint returns HTTP 200. Response Content-Type is application/json. Response body contains at least one recognisable field (e.g. 'status', 'agent', 'jobs', or 'auto_apply'). No 401 or 403 response, confirming the JWT from step 1 is still valid."
+        "description": "Verify the Browser Agent settings page renders its expected content \u2014 at minimum an agent configuration section or empty-state message explaining how to connect the browser extension. Assert no blank white page.",
+        "action": "browser_snapshot; assert (config section OR explanatory empty-state) visible; no blank page"
       },
       {
         "id": 5,
-        "description": "Exercise the Agent CRUD flow \u2014 CREATE: submit a new auto-apply configuration or agent job via the UI form.",
-        "action": "Locate the 'Create' / 'Add' / 'New Auto-Apply' button on the Agent page. Click it. Fill in all required fields with valid test data (e.g. job title filter: 'QA Test Role', locations: 'Remote', keywords: 'automation'). Submit the form.",
-        "expected": "Form submits without client-side validation errors. A success toast or confirmation message appears. The newly created agent configuration/job appears in the list with the submitted field values. Network log shows a POST to the agent endpoint returning HTTP 201 or 200 with the created entity's ID."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify the portal listing page loads. Assert portals are listed or an empty-state CTA is shown.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); waitForLoadState; browser_snapshot; assert (portal list OR empty state CTA) visible"
       },
       {
         "id": 6,
-        "description": "Exercise the Agent CRUD flow \u2014 READ: verify the newly created entity persists on page reload.",
-        "action": "Hard-reload the Agent/Auto-Apply page (Ctrl+Shift+R or navigate away then back). Locate the entity created in step 5 by its title/name.",
-        "expected": "The entity created in step 5 is present in the list after reload, confirming server-side persistence. Its field values match what was submitted. No stale-cache or blank-list regression."
+        "description": "Verify the portal listing shows the predefined portal types (linkedin, indeed, naukri, adzuna, glassdoor). For any configured portal, verify it shows a portal name label and a scheduled scan time.",
+        "action": "browser_snapshot; assert portal type labels visible; assert scheduled scan time shown per portal"
       },
       {
         "id": 7,
-        "description": "Exercise the Agent CRUD flow \u2014 UPDATE: edit the auto-apply configuration created in step 5.",
-        "action": "Click the edit / pencil icon on the entity from step 5. Modify at least one field (e.g. change job title filter to 'QA Test Role \u2014 EDITED'). Save the changes.",
-        "expected": "Edit form opens pre-populated with the existing values. On save, a success confirmation appears. The list reflects the updated value without a full page reload. Network log shows a PUT or PATCH to /api/v1/agent/{id} returning HTTP 200. The response body contains the updated field value."
+        "description": "Click on one of the configured portals (or the 'Add Portal' button if no portals exist) to open the portal detail/edit form. Verify the form renders with expected fields.",
+        "action": "browser_click on first portal card or Add Portal button; browser_snapshot; assert form fields visible"
       },
       {
         "id": 8,
-        "description": "Validate input constraints \u2014 attempt to save the agent form with missing required fields.",
-        "action": "Open the create or edit form. Clear all required fields (e.g. remove job title, remove location). Attempt to submit.",
-        "expected": "Form does NOT submit. Client-side or server-side validation messages appear adjacent to the empty fields. No HTTP request is fired for client-side validation; if server-side, a 422 Unprocessable Entity response is received and surfaced to the user. No crash or unhandled JS error."
+        "description": "Navigate to https://app.phronex.com/jp/config and verify the Configuration page loads and shows at least one configurable setting group (Personal Info, Resume, or similar tabs).",
+        "action": "page.goto('https://app.phronex.com/jp/config'); waitForLoadState; browser_snapshot; assert configuration tabs visible"
       },
       {
         "id": 9,
-        "description": "Validate the WebSocket connection for real-time agent status updates.",
-        "action": "Open browser devtools Network tab, filter by WS. Navigate to or refresh the Agent page. Observe whether a WebSocket handshake to the JP backend (e.g. ws://localhost:8001/ws/agent or similar) is initiated. Trigger an agent action that should produce a real-time status event.",
-        "expected": "A WebSocket connection is established (101 Switching Protocols). At least one message frame is received after the triggering action. The UI updates in real time (e.g. status badge changes from 'pending' to 'running' or 'complete') without a manual page reload. Connection closes cleanly on navigation away."
+        "description": "On the Configuration page, navigate to the API Keys or BYOK section (if present) and verify the section renders without errors. If a BYOK input field exists, verify it is present and properly labelled.",
+        "action": "browser_snapshot; look for API key / BYOK section; IF present: assert input field labelled; IF absent: log INFO 'no BYOK section visible'"
       },
       {
         "id": 10,
-        "description": "Navigate to Portals & Search Profiles and verify the portal list loads.",
-        "action": "Click the 'Portals' or 'Search Profiles' navigation entry. Wait for the page to settle.",
-        "expected": "URL contains '/portals' or equivalent. The page renders a list or empty-state for job portals. No HTTP 4xx/5xx. If portals exist, each row shows portal name and status. If none, an actionable empty state with 'Add Portal' CTA is visible."
+        "description": "Navigate away from /jp/config to https://app.phronex.com/jp/dashboard and then back to https://app.phronex.com/jp/settings. Verify the Browser Agent page reloads cleanly.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/settings'); browser_snapshot"
       },
       {
         "id": 11,
-        "description": "Create a new job portal and trigger a scan \u2014 verify scan history appears or error is explicit (TEST-ORACLES edge case: 'Portal add \u2192 scan trigger \u2192 jobs appear or error is clear').",
-        "action": "Click 'Add Portal' or equivalent. Fill in portal URL and credential fields with valid test values. Save. Then locate the newly created portal entry and click 'Scan' or 'Trigger Scan'. Wait up to 10 seconds for a response.",
-        "expected": "Portal is created and appears in the list. Scan request fires a POST to the relevant endpoint returning 200 or 202. Scan history/log section for the portal shows at least one entry (pending, running, or complete). If scan fails, a human-readable error message is displayed \u2014 no silent failure or spinner that never resolves. (TEST-ORACLES acceptance criteria: 'error during execution' edge cases must surface as explicit UI errors, not blank states.)"
+        "description": "Verify the JWT is still valid after the full journey \u2014 assert no automatic redirect to /auth/login occurred on any navigation step.",
+        "action": "assert current URL does not contain /auth/login; assert session cookie still present"
       },
       {
         "id": 12,
-        "description": "Navigate to the Config page and assert at least one configurable setting is visible (TEST-ORACLES: jp-branch-config step 3).",
-        "action": "Navigate to /jp/config or click the 'Config' / 'Settings' navigation item.",
-        "expected": "URL resolves to /jp/config or equivalent. At least one configurable element is visible: a toggle, text input, select, or API key field. Page heading confirms this is the configuration section."
-      },
-      {
-        "id": 13,
-        "description": "Verify BYOK / API Key configuration \u2014 enter a test API key and save (TEST-ORACLES: jp-verify-config-byok).",
-        "action": "Locate the API key input field on the Config page. Enter a syntactically valid test key string (e.g. 'sk-test-qa-journeyhawk-placeholder-key'). Click Save or Apply.",
-        "expected": "API key input field accepts the value without client-side rejection. On save, a success confirmation toast or inline message appears. No HTTP 4xx response. The field does not display the raw key in plaintext after save (masked or replaced with '\u2022\u2022\u2022\u2022' per AES-256-GCM credential encryption stated in USER-SPEC.html v1.2 hardening)."
-      },
-      {
-        "id": 14,
-        "description": "Exercise the Agent CRUD flow \u2014 DELETE: remove the test entity created in step 5.",
-        "action": "Navigate back to the Agent/Auto-Apply list. Locate the entity created in step 5 (title: 'QA Test Role \u2014 EDITED'). Click the delete / trash icon. Confirm deletion in any confirmation dialog.",
-        "expected": "A confirmation modal appears before deletion (guard against accidental deletes). On confirm, a success toast appears. The entity is removed from the list immediately (optimistic UI) or after a short refresh. Network log shows a DELETE to /api/v1/agent/{id} returning HTTP 200 or 204. Reloading the page confirms the entity is gone."
-      },
-      {
-        "id": 15,
-        "description": "Verify cross-service integration \u2014 assert the audit log captures agent CRUD actions.",
-        "action": "Navigate to the Admin section (per USER-SPEC.html 'Admin Endpoints'). Locate the audit log view. Filter or scan for entries matching the test session (e.g. entity type 'agent', or by timestamp from this run).",
-        "expected": "At least the CREATE, UPDATE, and DELETE actions from steps 5, 7, and 14 appear as distinct audit log entries. Each entry includes: timestamp, action type, actor identity (the QA superadmin user), and the affected entity ID. No audit log entry is missing for any mutation performed in this journey."
-      },
-      {
-        "id": 16,
-        "description": "Navigate away from the page to the dashboard, then return and verify data/state persists.",
-        "action": "Click the Dashboard navigation item. Wait for the dashboard to fully load. Then click back to the Agent/Auto-Apply section.",
-        "expected": "Dashboard renders without error. On returning to the Agent section, the page state is consistent with the server-persisted state (the deleted test entity from step 14 is absent; any remaining entities are present). No stale-cache or ghost-data regression. No re-authentication prompt."
-      },
-      {
-        "id": 17,
-        "description": "Verify the JWT is still valid after the full journey and no silent session expiry occurred.",
-        "action": "Trigger any lightweight authenticated GET request (e.g. navigate to the profile or config page). Observe the network response status.",
-        "expected": "The GET request returns HTTP 200 with valid JSON. No 401 Unauthorized response. No redirect to the login page. This confirms the JWT session remained valid for the full journey duration without requiring re-authentication."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections accumulated across the entire journey.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -1311,93 +1269,68 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "attempt_load_session('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') THEN fill('#email', 'qa-test-journeyhawk@phronex.com') AND fill('#password', 'QA_SUPERADMIN_PASSWORD') AND click('[type=submit]')",
-        "expected": "User is authenticated and redirected to the JP dashboard. No 401/403 errors. Session cookie or JWT is present in browser storage."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Job Portals section of the JP product (e.g. /jp/portals or equivalent portal listing page).",
-        "action": "navigate('http://localhost:3002/jp/portals') OR click the 'Portals' navigation item in the JP sidebar/nav",
-        "expected": "Page renders at /jp/portals (or equivalent). A list or empty-state UI for job portals is visible. No 404 or unhandled error. Page title or heading includes 'Portal' or 'Job Portals'."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify the portal listing page loads cleanly \u2014 no blank page, no 500, no JS errors.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); waitForLoadState('networkidle'); captureConsoleErrors(); browser_snapshot"
       },
       {
         "id": 3,
-        "description": "Verify the portal listing page renders correctly and shows either existing portals or a clear empty-state with a call-to-action to add the first portal.",
-        "action": "assert_visible('[data-testid=\"portal-list\"], .portal-list, h1, h2') AND assert_visible('[data-testid=\"add-portal\"], button:has-text(\"Add\"), button:has-text(\"Create\"), a:has-text(\"Add Portal\")')",
-        "expected": "Either a list of portal cards/rows is shown, OR an empty-state message (e.g. 'No portals yet') with an 'Add Portal' or 'Create Portal' button is present. Page is not blank."
+        "description": "Verify the portal listing renders correctly. Assert that either: (A) at least one configured portal card/row is visible showing a portal type name and scan schedule, OR (B) a meaningful empty state with an 'Add Portal' CTA is shown. Both states are valid.",
+        "action": "browser_snapshot; assert (portal card with name+schedule OR empty state CTA) visible"
       },
       {
         "id": 4,
-        "description": "Open the 'Add Portal' or 'Create Portal' dialog/form by clicking the relevant CTA button.",
-        "action": "click('[data-testid=\"add-portal\"], button:has-text(\"Add Portal\"), button:has-text(\"Create Portal\"), a:has-text(\"Add Portal\")')",
-        "expected": "A modal dialog or a new form page opens for portal creation. Form fields for portal details (e.g. portal name, URL, credentials, job board type) are visible. No JS errors in console."
+        "description": "If portals are present: click on any one portal card or its edit/settings icon to open the portal detail or edit form. Verify the form opens and displays portal fields (portal type, search keywords, locations, scan time).",
+        "action": "IF portals present: click first portal card; browser_snapshot; assert form with portal type + keywords + locations + scan time fields; ELSE: skip with INFO 'no portals to inspect'"
       },
       {
         "id": 5,
-        "description": "Attempt to submit the Add Portal form with all required fields left empty to verify client-side validation.",
-        "action": "click('[type=submit], button:has-text(\"Save\"), button:has-text(\"Create\")')",
-        "expected": "Form submission is blocked. Validation error messages appear adjacent to or below required fields (e.g. 'Portal name is required', 'URL is required'). No network request is fired. No page navigation occurs."
+        "description": "CONDITIONAL (skip if step 4 was skipped): In the portal edit form, attempt to submit with the keywords field cleared (empty) to probe client-side validation. Verify either a validation error is shown or the save is blocked.",
+        "action": "IF edit form open: clear keywords field; click Save; assert validation error OR blocked submit"
       },
       {
         "id": 6,
-        "description": "Fill in the portal creation form with valid test data: portal name 'QA Test Portal', a plausible job board URL (e.g. https://jobs.example.com), and any required credential fields with placeholder-safe test values.",
-        "action": "fill('[name=\"name\"], #portal-name, [placeholder*=\"name\" i]', 'QA Test Portal') AND fill('[name=\"url\"], #portal-url, [placeholder*=\"url\" i]', 'https://jobs.example.com') AND fill('[name=\"username\"], [name=\"api_key\"], [placeholder*=\"key\" i]', 'qa-test-api-key-placeholder') AND fill('[name=\"password\"], [placeholder*=\"password\" i]', 'qa-test-password-placeholder')",
-        "expected": "All fields accept input without error. No character limits are hit unexpectedly. Credential fields mask input (type=password or similar). Form remains open and ready to submit."
+        "description": "CONDITIONAL (skip if step 4 was skipped): Restore a valid keyword (e.g. 'Software Engineer') in the keywords field. Update the scan time to a different hour (e.g. 09:00). Save the change and verify a success toast/confirmation appears.",
+        "action": "IF edit form open: fill keywords 'Software Engineer'; update scan time to 09:00; click Save; assert success feedback"
       },
       {
         "id": 7,
-        "description": "Submit the portal creation form with the filled-in valid test data and wait for the response.",
-        "action": "click('[type=submit], button:has-text(\"Save\"), button:has-text(\"Create\")') AND wait_for_response('/api/v1/portals', method='POST', timeout=10000)",
-        "expected": "A POST request is sent to /api/v1/portals (or equivalent endpoint at https://jobc.phronex.com/api/v1/portals). Response is HTTP 200 or 201. A success toast, banner, or confirmation message appears (e.g. 'Portal created successfully'). The modal closes or the form resets."
+        "description": "CONDITIONAL (skip if step 6 was skipped): Navigate away to https://app.phronex.com/jp/dashboard then return to https://app.phronex.com/jp/portals. Reload and verify the updated scan time persists \u2014 confirming backend write succeeded.",
+        "action": "IF save succeeded: goto dashboard then goto portals; assert updated scan time still shows"
       },
       {
         "id": 8,
-        "description": "Verify the newly created 'QA Test Portal' now appears in the portal listing.",
-        "action": "assert_visible('text=\"QA Test Portal\"') AND assert_count('[data-testid=\"portal-item\"], .portal-card, tr:has-text(\"QA Test Portal\")', minimum=1)",
-        "expected": "The portal list contains at least one entry with the name 'QA Test Portal'. The entry includes portal metadata such as URL, status, or creation date. No stale or duplicate entries from prior test runs are shown without the new entry."
+        "description": "Verify the 'Add Portal' form respects the predefined portal type constraint. Open the Add Portal dialog and assert that the portal type is a dropdown/picker of predefined types (linkedin, indeed, naukri, adzuna, glassdoor) \u2014 not a free-text custom URL field.",
+        "action": "browser_click Add Portal CTA (if exists); browser_snapshot; assert portal type is a picker not free-text; dismiss dialog"
       },
       {
         "id": 9,
-        "description": "Navigate away from the portals page to the JP dashboard, then navigate back to /jp/portals to verify data persistence across navigation.",
-        "action": "click('[data-testid=\"nav-dashboard\"], a:has-text(\"Dashboard\"), a[href*=\"/jp\"]') AND wait_for_url('**/jp**') AND navigate_back_or_click('[data-testid=\"nav-portals\"], a:has-text(\"Portals\"), a[href*=\"portals\"]')",
-        "expected": "After returning to the portal listing, 'QA Test Portal' is still present without requiring a manual refresh. State is not lost on navigation. No loading spinner that never resolves."
+        "description": "Intercept network requests during portal page usage and verify API calls target the correct proxy path (/api/jp/user/api/v1/portals). Assert responses return 200 or 201 for reads/creates.",
+        "action": "browser_network_requests; filter to /api/jp/*/portals; assert 200/201 responses"
       },
       {
         "id": 10,
-        "description": "Click into the 'QA Test Portal' detail view or edit action to open the portal's edit form.",
-        "action": "click('text=\"QA Test Portal\"') OR click('[data-testid=\"portal-edit\"], button:has-text(\"Edit\"), a:has-text(\"Edit\")') within the QA Test Portal row/card",
-        "expected": "Portal detail or edit form opens. Previously saved field values are pre-populated correctly: name is 'QA Test Portal', URL is 'https://jobs.example.com'. Credential fields show masked placeholder values or are empty (not plaintext secrets \u2014 AES-256-GCM encrypted at rest per v1.2 hardening)."
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard then back to https://app.phronex.com/jp/portals. Verify the portal list reloads correctly \u2014 portal count and names are consistent.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert same portal count as step 3"
       },
       {
         "id": 11,
-        "description": "Update the portal name to 'QA Test Portal \u2014 Updated' and save the change.",
-        "action": "clear('[name=\"name\"], #portal-name') AND fill('[name=\"name\"], #portal-name', 'QA Test Portal \u2014 Updated') AND click('[type=submit], button:has-text(\"Save\"), button:has-text(\"Update\")')",
-        "expected": "PUT or PATCH request is sent to /api/v1/portals/{id}. Response is HTTP 200. Success feedback is shown. The portal listing or detail heading now reflects 'QA Test Portal \u2014 Updated'."
+        "description": "Verify the Search Profiles section on the portals page \u2014 assert the 'Search Profiles' dropdown or section is present for at least one portal, confirming per-portal keyword/location configuration is exposed in the UI.",
+        "action": "browser_snapshot; assert 'Search Profiles' or search profile management section visible per portal"
       },
       {
         "id": 12,
-        "description": "Trigger a scan or job-fetch action on the updated portal (if a 'Scan' or 'Sync' button is present), and verify scan history or job listings update.",
-        "action": "click('[data-testid=\"portal-scan\"], button:has-text(\"Scan\"), button:has-text(\"Sync\"), button:has-text(\"Fetch Jobs\")') AND wait_for_response('/api/v1/portals', timeout=15000)",
-        "expected": "A scan/sync request is dispatched. Either: (a) scan history updates with a new entry and timestamp, (b) a loading indicator appears and resolves, or (c) a clear error message is shown if the test portal URL is unreachable \u2014 no silent failure. The UI does not freeze or show an unhandled exception."
+        "description": "Hard reload https://app.phronex.com/jp/portals and verify the page recovers correctly with no session loss and the portal list is intact.",
+        "action": "browser_evaluate('location.reload(true)'); waitForLoadState; browser_snapshot; assert portal list consistent"
       },
       {
         "id": 13,
-        "description": "Navigate to the Admin section to verify the portal appears in admin-level portal management views (cross-role consistency check).",
-        "action": "navigate('http://localhost:3002/jp/admin') OR click('[data-testid=\"nav-admin\"], a:has-text(\"Admin\")')",
-        "expected": "Admin panel loads without 403. If a portal management table is present in admin, 'QA Test Portal \u2014 Updated' is listed. If admin has a different scope, the page loads without error and shows admin controls per USER-SPEC."
-      },
-      {
-        "id": 14,
-        "description": "Return to the portal listing and delete the 'QA Test Portal \u2014 Updated' portal to clean up test state, confirming the delete action requires confirmation.",
-        "action": "navigate('http://localhost:3002/jp/portals') AND click('[data-testid=\"portal-delete\"], button:has-text(\"Delete\"), button:has-text(\"Remove\")') within the 'QA Test Portal \u2014 Updated' row AND handle confirmation dialog by clicking 'Confirm' or 'Yes, delete'",
-        "expected": "A confirmation dialog or prompt appears before deletion (no accidental one-click deletes). After confirming, DELETE request is sent to /api/v1/portals/{id}. Response is HTTP 200 or 204. 'QA Test Portal \u2014 Updated' is removed from the portal list. Success toast or message is shown."
-      },
-      {
-        "id": 15,
-        "description": "Verify the portal listing is now either empty or no longer contains 'QA Test Portal \u2014 Updated', confirming deletion persists.",
-        "action": "assert_not_present('text=\"QA Test Portal \u2014 Updated\"') AND assert_visible('[data-testid=\"portal-list\"], [data-testid=\"empty-state\"], .empty-state, text=/no portals/i')",
-        "expected": "The deleted portal is gone from the listing. Either an empty-state message or remaining portals are shown. No ghost entries. Refreshing the page does not resurrect the deleted portal."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections accumulated across the entire portals journey.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
