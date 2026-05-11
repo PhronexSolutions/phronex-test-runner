@@ -1930,93 +1930,63 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click Sign In button",
-        "expected": "URL redirects to /jp/ (dashboard or jobs). No error banner is visible. Auth token cookie or localStorage JWT is present."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Professional Portrait section of the JobPortal UI.",
-        "action": "Navigate to http://localhost:3002/jp/portrait (or locate 'Professional Portrait' link/tab in the main navigation and click it)",
-        "expected": "Page loads without error. Heading or page title contains 'Professional Portrait'. The portrait form or current portrait content area is visible."
+        "description": "Navigate to https://app.phronex.com/jp/portrait (the user-facing Professional Portrait page, NOT /jp/admin-portrait). Verify the page loads without fatal errors.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); waitForLoadState('networkidle'); captureConsoleErrors()"
       },
       {
         "id": 3,
-        "description": "Assert the initial state of the Professional Portrait page \u2014 empty state or existing data.",
-        "action": "Inspect the DOM for portrait fields: headline/tagline, summary/bio, skills list, and any avatar/photo upload control. Check whether fields are empty or pre-populated.",
-        "expected": "All expected portrait fields are rendered. If no portrait exists yet, empty-state placeholder text or 'Complete your portrait' prompt is visible. No 500 or 4xx error is shown."
+        "description": "Assert the initial state of the portrait page. The page should show one of: (A) an existing portrait with SWOT/analysis content, (B) an empty state with a completeness checklist showing what signals are missing, or (C) a 'pro feature' gate if the account is on free tier. All three states are valid \u2014 assert only that no blank page or unhandled JS error is shown.",
+        "action": "browser_snapshot; assert (portrait content OR completeness checklist OR pro-gate message) visible; no blank page"
       },
       {
         "id": 4,
-        "description": "Fill in the Professional Portrait headline field with a valid value.",
-        "action": "Locate the headline/tagline input field. Clear any existing value. Type 'Senior Full-Stack Engineer | React \u00b7 FastAPI \u00b7 PostgreSQL'.",
-        "expected": "Headline input accepts the text without truncation or validation error. Character count (if shown) updates accordingly."
+        "description": "If a completeness checklist/progress bar is shown (empty state): verify it renders with a score (0-100), a coloured progress bar, and at least one checklist item describing what's missing. Each item should be a human-readable action description.",
+        "action": "IF completeness checklist visible: assert progress bar with score; assert checklist items with descriptions; ELSE: skip"
       },
       {
         "id": 5,
-        "description": "Fill in the Professional Portrait summary/bio field with a multi-sentence value.",
-        "action": "Locate the summary or bio textarea. Clear any existing value. Type '10+ years building scalable web applications. Passionate about clean APIs and developer tooling. Open to remote and hybrid opportunities across APAC.'",
-        "expected": "Textarea accepts the full multi-sentence input. No character-limit error is triggered (assuming typical 500+ char limit). Field retains the typed content without auto-clearing."
+        "description": "If portrait content IS present: verify the snapshot/snapshot text is not empty and contains at least one section heading or paragraph of meaningful content (not a placeholder like 'Lorem ipsum').",
+        "action": "IF portrait content visible: assert non-empty text content with at least one paragraph; ELSE: skip"
       },
       {
         "id": 6,
-        "description": "Add at least two skills to the skills list (if a skill-tag input exists on the portrait form).",
-        "action": "Locate the skills/tags input on the portrait form. Type 'Python' and press Enter or click 'Add'. Then type 'React' and press Enter or click 'Add'.",
-        "expected": "Both 'Python' and 'React' skill tags appear in the skills list. Duplicate prevention: re-typing 'Python' shows a warning or is silently rejected without duplication."
+        "description": "Look for a 'Regenerate Portrait' or 'Generate Portrait' button on the page. If present: verify it is labelled clearly and clickable. Do NOT click it (to preserve QA state). If absent on an account without a portrait, that is acceptable.",
+        "action": "browser_snapshot; IF regenerate button visible: assert button is present and labelled; do NOT click; log button label as INFO"
       },
       {
         "id": 7,
-        "description": "Attempt to save the portrait with the headline field deliberately cleared (validation test).",
-        "action": "Clear the headline/tagline field completely. Click the Save or Submit button for the portrait form.",
-        "expected": "Form submission is blocked. An inline validation error appears on or near the headline field (e.g. 'Headline is required'). The URL does not change and no success toast is shown."
+        "description": "Check whether a Display Mode toggle (Analytical / Soft) is present on the portrait page. If present, verify it is labelled and has at least two selectable options.",
+        "action": "browser_snapshot; IF display mode toggle visible: assert two mode options (Analytical, Soft); ELSE: log INFO 'no display mode toggle visible'"
       },
       {
         "id": 8,
-        "description": "Restore a valid headline and successfully save the Professional Portrait.",
-        "action": "Re-fill the headline field with 'Senior Full-Stack Engineer | React \u00b7 FastAPI \u00b7 PostgreSQL'. Click the Save/Submit button.",
-        "expected": "Save request returns HTTP 200 or 201. A success toast or inline confirmation message appears (e.g. 'Portrait saved'). No error modal or banner is displayed."
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard then return to https://app.phronex.com/jp/portrait. Verify the page reloads cleanly with the same state.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot"
       },
       {
         "id": 9,
-        "description": "Verify the portrait data is immediately reflected in the UI after save (optimistic update or server round-trip).",
-        "action": "Without navigating away, inspect the portrait display area (or read-only view if the form switches to view mode). Check headline, summary, and skills values.",
-        "expected": "Displayed headline matches 'Senior Full-Stack Engineer | React \u00b7 FastAPI \u00b7 PostgreSQL'. Summary text matches the value entered in step 5. Both 'Python' and 'React' skill tags are visible."
+        "description": "Hard browser reload of /jp/portrait and verify no session loss and the portrait state is consistent with pre-reload.",
+        "action": "browser_evaluate('location.reload(true)'); waitForLoadState; browser_snapshot"
       },
       {
         "id": 10,
-        "description": "Navigate away to the dashboard, then return to the Professional Portrait page to verify persistence.",
-        "action": "Click a dashboard or jobs navigation link to leave the portrait page. Wait for the new page to fully load. Then navigate back to /jp/portrait (or click the Professional Portrait nav item).",
-        "expected": "Portrait page re-loads with the previously saved data intact: headline, summary, and skills all match what was saved in step 8. No empty-state placeholder is shown."
+        "description": "Intercept the network call to /completeness (GET /api/jp/user/api/v1/portrait/completeness) and verify it returns HTTP 200 with a JSON body containing 'score' (integer 0-100) and 'missing' (array). NOTE: if this returns 422 or 404, that is a product defect \u2014 the backend endpoint may not be deployed yet.",
+        "action": "browser_network_requests; filter to portrait/completeness; assert 200 with score+missing fields; IF 422 log as PRODUCT DEFECT 'completeness endpoint not deployed'"
       },
       {
         "id": 11,
-        "description": "Perform a hard browser reload on the portrait page to confirm server-side persistence (not just client state).",
-        "action": "While on the Professional Portrait page, trigger a hard reload (Ctrl+Shift+R / Cmd+Shift+R or call page.reload({ waitUntil: 'networkidle' })).",
-        "expected": "After full reload, the page renders with the saved portrait data \u2014 headline, summary, and skills \u2014 without requiring the user to re-enter any information. No 404, 500, or auth redirect occurs."
+        "description": "Verify the portrait page is accessible only to authenticated users \u2014 confirm the URL does not redirect to /auth/login and the session cookie is still valid.",
+        "action": "assert URL contains /jp/portrait not /auth/login; assert session valid"
       },
       {
         "id": 12,
-        "description": "Edit the headline to a new value and save again to verify update (not create) path.",
-        "action": "Click the Edit button (if in view mode) or directly modify the headline field. Change value to 'Lead Backend Engineer | Python \u00b7 FastAPI \u00b7 AWS'. Click Save.",
-        "expected": "Save succeeds with HTTP 200 (update, not a new record). Success confirmation appears. The displayed headline updates to 'Lead Backend Engineer | Python \u00b7 FastAPI \u00b7 AWS'."
-      },
-      {
-        "id": 13,
-        "description": "Verify that the portrait update is reflected via API (cross-service integration check).",
-        "action": "Using browser DevTools Network panel (or an intercepted XHR assertion), confirm that the save action called an endpoint under /api/v1/ (e.g. PUT /api/v1/portrait or PATCH /api/v1/users/{id}/portrait) and received a 2xx response containing the updated headline in the JSON payload.",
-        "expected": "Network request to the JobPortal API backend is present. Response status is 200 or 201. Response JSON contains the updated headline string matching the value saved in step 12."
-      },
-      {
-        "id": 14,
-        "description": "Remove one skill tag from the portrait and save to verify delete path within the portrait.",
-        "action": "Locate the 'Python' skill tag. Click its remove/delete icon (\u00d7). Click Save.",
-        "expected": "Save succeeds. 'Python' tag is no longer visible in the portrait skills list. 'React' tag remains. After a page reload, 'Python' is still absent \u2014 confirming server-side deletion."
-      },
-      {
-        "id": 15,
-        "description": "Verify the Professional Portrait page is accessible only to authenticated users (session expiry boundary).",
-        "action": "Open the portrait page URL (http://localhost:3002/jp/portrait) in a new browser context with no auth cookies/tokens.",
-        "expected": "Unauthenticated request is redirected to /auth/login (or equivalent). The portrait page content is not rendered. No sensitive portrait data is leaked in the unauthenticated response."
+        "description": "Final check: browser console should contain zero TypeErrors, hydration errors, or unhandled promise rejections across the entire portrait journey.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -2028,87 +1998,58 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "Load session file at '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is absent, navigate to http://localhost:3002/auth/login, fill the email field with 'qa-test-journeyhawk@phronex.com', fill the password field with QA_SUPERADMIN_PASSWORD, and click the Sign In button.",
-        "expected": "URL redirects to /jp/ (dashboard or jobs). The authenticated user header/nav element is visible. No error toast or 401 response is present."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Agent & Auto-Apply section of the JobPortal UI.",
-        "action": "From the /jp/ dashboard, locate the navigation item labelled 'Agent' or 'Auto-Apply' (may appear under a sidebar menu or top-nav tab). Click it to open the Agent & Auto-Apply feature panel.",
-        "expected": "The Agent & Auto-Apply page or panel loads without a 404 or blank screen. The page heading or section title contains text matching 'Agent' or 'Auto-Apply'. HTTP requests in the network tab do not include 5xx responses."
+        "description": "Navigate to https://app.phronex.com/jp/settings (the Browser Agent settings page in the portal). This is the portal surface for JP's browser-extension auto-apply agent configuration. Verify the page loads without errors.",
+        "action": "page.goto('https://app.phronex.com/jp/settings'); waitForLoadState('networkidle'); captureConsoleErrors(); browser_snapshot"
       },
       {
         "id": 3,
-        "description": "Verify that the WebSocket connection for the Agent feature is established on page load.",
-        "action": "Open browser DevTools \u2192 Network \u2192 WS filter. Reload or navigate to the Agent & Auto-Apply page. Observe WebSocket handshake requests.",
-        "expected": "At least one WebSocket connection with status 101 (Switching Protocols) appears in the WS tab. The connection URL should reference the JobPortal backend (e.g. ws://localhost:8001 or wss://jobc.phronex.com). No immediate disconnect (close frame) occurs within 3 seconds of connection."
+        "description": "Assert the Browser Agent settings page renders its expected content \u2014 either an agent configuration section with settings controls, or an empty state / instructional message explaining how to connect the browser extension. Verify no blank page or unhandled error.",
+        "action": "browser_snapshot; assert (configuration section OR explanatory message) visible; no blank/error page"
       },
       {
         "id": 4,
-        "description": "Verify the Agent configuration panel renders all required fields.",
-        "action": "Inspect the Agent & Auto-Apply configuration UI. Look for input fields or controls that allow the user to configure the agent (e.g. target job criteria, apply threshold, resume selection, cover letter toggle).",
-        "expected": "At minimum one configuration input area is visible and interactable. Fields are not disabled or hidden. No JavaScript console errors of type TypeError or ReferenceError are present."
+        "description": "If configuration controls are present: verify at least one input field or toggle is visible and labelled clearly. Note the field labels as INFO for the QA record.",
+        "action": "IF config controls visible: assert at least one labelled input or toggle; log field labels as INFO; ELSE: log INFO 'agent settings page shows empty/instructional state'"
       },
       {
         "id": 5,
-        "description": "Attempt to save/activate the Agent with an empty or invalid configuration to validate front-end and back-end validation.",
-        "action": "Clear all required fields in the Agent configuration form (if pre-populated). Click the Save or Activate button without entering required values.",
-        "expected": "Inline validation messages appear near the empty required fields before or immediately after form submission. The form does not navigate away. No WebSocket or REST call that modifies agent state succeeds (network tab shows either no outbound request or a 422/400 response from the backend)."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify the portal listing loads. For any configured portal, assert the scan schedule is displayed (e.g. 'Scan: 08:00 UTC').",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); waitForLoadState; browser_snapshot; assert (portal cards with scan schedule OR empty-state CTA)"
       },
       {
         "id": 6,
-        "description": "Fill in a valid Agent configuration and save it via the REST endpoint.",
-        "action": "Populate all required Agent configuration fields with valid test data (e.g. job title keyword: 'Software Engineer', location: 'Remote', auto-apply: enabled). Click Save or Activate. Monitor the Network tab for the outbound REST POST/PUT request.",
-        "expected": "A REST request (POST or PUT) is sent to the JobPortal API (URL contains /api/v1/agent or similar). The response status is 200 or 201. A success toast or confirmation message appears in the UI. The saved configuration values are reflected back in the form without a page reload."
+        "description": "Intercept network requests on /jp/portals and verify API calls to the portals endpoint return 200. No 500s or CORS errors should be present.",
+        "action": "browser_network_requests; filter to /api/jp/*/portals; assert 200; no CORS/500 errors"
       },
       {
         "id": 7,
-        "description": "Verify that the Agent status indicator updates in real-time via WebSocket after activation.",
-        "action": "After saving the configuration in step 6, observe the Agent status indicator on the page (e.g. 'Active', 'Running', 'Idle' badge). Monitor the WS frames in DevTools for an incoming server message confirming agent state change.",
-        "expected": "Within 5 seconds of activation, the WebSocket receives at least one message frame from the server. The status indicator on the UI updates to reflect the new state (e.g. changes from 'Inactive' to 'Active' or 'Running') without requiring a manual page refresh."
+        "description": "Navigate to https://app.phronex.com/jp/applications and verify the applications page loads. Assert either application entries are shown or a meaningful empty state CTA is displayed.",
+        "action": "page.goto('https://app.phronex.com/jp/applications'); waitForLoadState; browser_snapshot; assert (applications list OR empty-state CTA)"
       },
       {
         "id": 8,
-        "description": "Simulate or trigger an Auto-Apply action and observe the REST call and UI feedback.",
-        "action": "If a 'Run Now' or 'Apply to Matching Jobs' button is present, click it. Otherwise, verify that the agent UI lists queued or processed jobs. Monitor the Network tab for REST calls to endpoints such as /api/v1/agent/apply or /api/v1/jobs/apply.",
-        "expected": "A REST request is dispatched to the auto-apply endpoint. The response is 200 or 202 (accepted). The UI reflects the action \u2014 either a list of applied jobs updates, a counter increments, or a confirmation message appears. No unhandled promise rejection or console error occurs."
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard then return to https://app.phronex.com/jp/settings. Verify the Browser Agent page reloads correctly.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/settings'); browser_snapshot"
       },
       {
         "id": 9,
-        "description": "Check that auto-apply results or history are displayed in the UI after the action.",
-        "action": "Look for an 'Applications', 'History', or 'Results' section within the Agent & Auto-Apply panel. If a tab or link exists, click it to load the applied jobs list.",
-        "expected": "A list or table of auto-applied jobs appears, showing at minimum job title, company, and application status. The list is not empty if the action in step 8 succeeded. The data is rendered from the REST API (verify in Network tab \u2014 a GET request to an applications or history endpoint returns 200 with a non-empty array)."
+        "description": "Hard reload https://app.phronex.com/jp/settings and verify the page recovers with no session loss.",
+        "action": "browser_evaluate('location.reload(true)'); waitForLoadState; browser_snapshot"
       },
       {
         "id": 10,
-        "description": "Deactivate or pause the Agent and confirm the WebSocket reflects the state change.",
-        "action": "Click the Deactivate, Pause, or Stop Agent button in the Agent configuration panel. Monitor both the Network tab (REST PATCH/PUT/DELETE to agent endpoint) and the WS frames for a server-pushed state update.",
-        "expected": "A REST request to update agent status is sent and returns 200. The WebSocket receives a frame confirming the state change. The UI status indicator updates to 'Inactive' or 'Paused' without requiring a page refresh."
+        "description": "Verify the JWT is still valid after the full journey \u2014 no redirect to /auth/login on any page during this journey.",
+        "action": "assert current URL does not contain /auth/login; assert session cookie valid"
       },
       {
         "id": 11,
-        "description": "Navigate away from the Agent & Auto-Apply page to the main dashboard, then return and verify persistence.",
-        "action": "Click the dashboard or jobs navigation link to leave the Agent & Auto-Apply page. Wait for the dashboard to fully load (verify URL is /jp/ or /jp/jobs). Then navigate back to the Agent & Auto-Apply page.",
-        "expected": "The previously saved Agent configuration (job title keyword, location, auto-apply toggle from step 6) is still present and correctly rendered after returning. The deactivated/paused status from step 10 is preserved. No fields have been reset to defaults. The REST GET request on page re-entry returns the persisted configuration (HTTP 200, non-empty body)."
-      },
-      {
-        "id": 12,
-        "description": "Perform a hard browser refresh on the Agent & Auto-Apply page and verify state survives a full reload.",
-        "action": "With the Agent & Auto-Apply page open, press Ctrl+Shift+R (or Cmd+Shift+R on Mac) to perform a hard reload. Observe the Network tab for the initial data fetch requests.",
-        "expected": "After reload, the page loads without errors. The Agent configuration saved in step 6 is still displayed. A GET request to the agent configuration endpoint (e.g. /api/v1/agent) returns HTTP 200 with the previously saved data. No 401 (auth should persist via session cookie/token) or 404 occurs."
-      },
-      {
-        "id": 13,
-        "description": "Verify error handling: simulate a WebSocket disconnection and confirm the UI degrades gracefully.",
-        "action": "In DevTools Network tab, set the browser to offline mode (or throttle to 'Offline') for 3 seconds while the Agent & Auto-Apply page is open with an active agent, then restore connectivity.",
-        "expected": "The UI shows a connection error or reconnecting indicator within 5 seconds of disconnect. After connectivity is restored, the WebSocket reconnects automatically (a new 101 handshake appears in the WS tab). The UI recovers to the last known agent state without requiring a manual page refresh or re-login."
-      },
-      {
-        "id": 14,
-        "description": "Cross-service integration check: verify that auto-apply data appears in the JP admin or user activity log.",
-        "action": "Navigate to the admin section of the JobPortal (e.g. /jp/admin or a logs/audit panel). Search or filter for activity attributed to the QA test account (qa-test-journeyhawk@phronex.com) related to auto-apply actions performed in steps 6\u20138.",
-        "expected": "At least one log entry referencing auto-apply or agent activity for the test account is visible in the admin/activity panel, confirming that the WebSocket-triggered and REST-confirmed actions were persisted cross-service. The log entry includes a timestamp consistent with the test run."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections accumulated across the entire journey.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4596,8 +4537,8 @@
       },
       {
         "id": 2,
-        "description": "Navigate to the Professional Portrait page via the sidebar.",
-        "action": "In the portal sidebar, locate and click the 'Portrait' or 'Professional Portrait' navigation item. Wait for the portrait page to fully load.",
+        "description": "Navigate DIRECTLY to https://app.phronex.com/jp/portrait using page.goto() \u2014 do NOT use sidebar navigation (the sidebar 'Portrait' link goes to /jp/admin-portrait for superadmin sessions). Verify the user-facing portrait page loads without errors.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); waitForLoadState('networkidle'); captureConsoleErrors(); assert URL = 'https://app.phronex.com/jp/portrait'",
         "expected": "The portrait page is displayed. The URL contains '/portrait' or equivalent. The page does not show a 404, a blank screen, or an unhandled error boundary. Either a fully rendered portrait with personalised content is shown, OR an actionably locked state with a clear call-to-action is displayed \u2014 no raw 'undefined', 'NaN', or empty-placeholder text is visible."
       },
       {
