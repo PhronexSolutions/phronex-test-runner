@@ -11,12 +11,12 @@
 #   DevServer services (this machine):
 #     - command-centre    → /opt/command-centre/.env
 #
-# Designed to run as a cron job every 4 hours so services never go dark
+# Designed to run as a cron job every 20 minutes so services never go dark
 # when prepaid API credits are exhausted. Claude Code auto-refreshes its own
 # OAuth token internally; this script just syncs the latest token to each service.
 #
 # Cron entry (installed automatically on first run):
-#   0 */4 * * * /home/ouroborous/code/phronex-test-runner/refresh-ec2-oauth-key.sh >> /tmp/ec2-oauth-refresh.log 2>&1
+#   */20 * * * * /home/ouroborous/code/phronex-test-runner/refresh-ec2-oauth-key.sh >> /tmp/ec2-oauth-refresh.log 2>&1
 #
 # RULES:
 #   1. One shared health check: all three EC2 services use the same prepaid key.
@@ -49,9 +49,9 @@ echo "=== EC2 OAuth Key Refresh === $(date '+%Y-%m-%d %H:%M:%S IST')"
 echo ""
 
 # ── Step 0: Install cron if not already present ────────────────────────────
-CRON_ENTRY="0 */4 * * * ${SCRIPT_DIR}/refresh-ec2-oauth-key.sh >> ${LOG_FILE} 2>&1"
+CRON_ENTRY="*/20 * * * * ${SCRIPT_DIR}/refresh-ec2-oauth-key.sh >> ${LOG_FILE} 2>&1"
 if ! crontab -l 2>/dev/null | grep -qF "refresh-ec2-oauth-key.sh"; then
-  echo "[0/5] Installing cron job (every 4 hours)..."
+  echo "[0/5] Installing cron job (every 20 minutes)..."
   (crontab -l 2>/dev/null; echo "$CRON_ENTRY") | crontab -
   echo "   Cron installed: $CRON_ENTRY"
 else
@@ -207,7 +207,7 @@ fi
 echo ""
 echo "✅ Done. All services refreshed via OAuth token."
 echo "   Token expires: $EXPIRY"
-echo "   Next auto-refresh: within 4 hours via cron"
+echo "   Next auto-refresh: within 20 minutes via cron"
 echo ""
 echo "   To restore EC2 permanent prepaid key after topping up credits:"
 echo "   1. Go to console.anthropic.com/settings/billing → add credits"
