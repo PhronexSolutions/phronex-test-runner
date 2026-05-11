@@ -35,22 +35,21 @@
 
 ---
 
-## D-03: ComC trunk saves superadmin session — no QA-specific non-admin user provisioned
+## D-03: ComC non-admin QA user — RESOLVED (2026-05-11)
 
-**Context:** The trunk journey `comc-trunk-superadmin` logs in as the Phronex superadmin (`qa-test-journeyhawk@phronex.com` with full admin access). This is the ONLY account provisioned for ComC. All leaf journeys inherit superadmin state.
+**Status:** RESOLVED — `qa-comc-user@phronex.com` provisioned and verified.
 
-**Impact:** We cannot test:
-- Regular ComC org-user flows (non-admin access)
-- Role-based access control (e.g. is a Sales rep blocked from Strategy features?)
-- Org isolation (two orgs shouldn't see each other's initiatives)
+**Account details:**
+- `account_id`: `b679edd0-f3a8-4718-b91e-62d592c17058`
+- `is_superadmin`: false, `rate_limit_exempt`: true, `is_active`: true
+- Grant: `command-centre` / `e2e-test-instance-comc` / role=`member` / tier=`standard`
+- Grant ID: `8794433e-f616-4c42-89a9-85efd1ed1a0f`
+- Credentials: `QA_COMC_USER_EMAIL` + `QA_COMC_USER_PASSWORD` in `.qa.env`
+- Login verified: `POST /auth/login` returns valid token (2026-05-11)
 
-**Options:**
-1. **Create a non-admin ComC test account** via phronex-auth's admin console — provision a second test user with `command-centre` premium grant but `is_superadmin = false`.
-2. **Accept superadmin-only for now** — we're still verifying features exist and render correctly. Role-based testing is a v2 concern.
+**RBAC journeys enabled:** Can now test non-admin access flows (member cannot access admin-only routes, feature gating, org isolation). Add `comc-rbac-member` journeys in next ComC run.
 
-**Recommendation:** Option 2 for now; create Option 1 account before Run 3 so it's ready when feature correctness is confirmed.
-
-**Decision needed by:** Before Run 3.
+**No further action needed.**
 
 ---
 
