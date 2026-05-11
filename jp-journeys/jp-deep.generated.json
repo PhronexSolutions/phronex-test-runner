@@ -294,9 +294,9 @@
       },
       {
         "id": 2,
-        "description": "Navigate to the Documents section via the sidebar. Locate the 'Documents' pill/tab in the JPLayoutClient sidebar navigation and click it.",
-        "action": "Click the 'Documents' sidebar nav item",
-        "expected": "URL changes to /jp/documents. Page heading or breadcrumb containing 'Documents' is visible. No 404 or error boundary is rendered."
+        "description": "Navigate directly to https://app.phronex.com/jp/documents. NOTE: The QA account is a superadmin \u2014 the admin sidebar shows Overview/Users/Security/Audit Log/Portrait only. Documents is in the user-facing nav; access via direct URL. Wait for network idle.",
+        "action": "browser_navigate to https://app.phronex.com/jp/documents; waitForLoadState('networkidle')",
+        "expected": "Page loads at /jp/documents without redirect to login. The documents page content is visible."
       },
       {
         "id": 3,
