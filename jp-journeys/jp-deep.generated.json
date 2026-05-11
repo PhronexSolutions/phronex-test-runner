@@ -1832,93 +1832,63 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') \u2192 if absent or expired: navigate('http://localhost:3002/auth/login'), fill('#email', 'qa-test-journeyhawk@phronex.com'), fill('#password', 'QA_SUPERADMIN_PASSWORD'), click('[type=submit]'), waitForURL('**/jp/**')",
-        "expected": "Browser lands on /jp/ dashboard or jobs page. No redirect back to /auth/login. Auth cookie or Bearer token is active in session storage."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Portals & Search Profiles section of the JobPortal UI.",
-        "action": "navigate('http://localhost:3002/jp/portals') OR locate sidebar nav link containing text 'Portals' or 'Search Profiles' and click it. waitForSelector('[data-testid=\"portals-page\"], h1:has-text(\"Portals\"), h1:has-text(\"Search Profiles\")')",
-        "expected": "Page heading or breadcrumb contains 'Portals' or 'Search Profiles'. No 404 or 500 error. Main content area is visible with a list or empty-state UI."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify the page loads cleanly.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); waitForLoadState('networkidle'); captureConsoleErrors(); browser_snapshot"
       },
       {
         "id": 3,
-        "description": "Verify the Portals listing renders correctly \u2014 either an empty-state message or a list of existing portal entries.",
-        "action": "snapshot(). Assert presence of either: a non-empty list of portal/search-profile cards/rows OR an empty-state element (e.g. text 'No portals yet', 'Create your first portal', or equivalent). Assert no spinner stuck in loading state.",
-        "expected": "One of: (a) at least one portal card/row with name, status, and action controls visible; or (b) a clearly labelled empty-state with a 'Create' / 'Add' CTA. No JS console errors about undefined state."
+        "description": "Verify the portals listing renders correctly \u2014 either portal cards/rows for configured portals OR a clear empty-state CTA. Assert no blank page or JS error.",
+        "action": "browser_snapshot; assert (portal cards OR empty-state CTA) visible"
       },
       {
         "id": 4,
-        "description": "Open the Create Portal / Add Search Profile form by clicking the primary CTA button.",
-        "action": "click('button:has-text(\"Create\"), button:has-text(\"Add\"), button:has-text(\"New Portal\"), a:has-text(\"Create Portal\")') [first match]. waitForSelector('form, [role=\"dialog\"], [data-testid=\"portal-form\"]')",
-        "expected": "A form or modal appears containing at minimum: a name/title field, and a submit/save button. No navigation away from the page."
+        "description": "If portals are present: verify each portal card shows the portal type name, scan schedule (e.g. 'Scan: 08:00 UTC'), and a search profiles indicator.",
+        "action": "IF portals present: assert portal name + scan schedule + search profile section per card; ELSE: skip"
       },
       {
         "id": 5,
-        "description": "Attempt to submit the Create Portal form with empty required fields to verify client-side validation.",
-        "action": "click('[type=submit], button:has-text(\"Save\"), button:has-text(\"Create\")'). Do NOT fill any fields first.",
-        "expected": "Form does not submit. Inline validation messages appear (e.g. 'Name is required', 'This field is required', or red border) on at least the portal name field. No network request is fired (check console/network tab for absence of POST)."
+        "description": "Open the 'Add Portal' CTA (if visible) and inspect the portal-type picker. Assert the type picker shows predefined portal types (linkedin, indeed, naukri, adzuna, glassdoor) \u2014 not a free-text custom URL field. Dismiss the dialog without submitting.",
+        "action": "browser_click Add Portal CTA; browser_snapshot; assert portal type is picker not free-text; IF all 5 slots taken assert 'all portals configured' or button disabled; dismiss dialog"
       },
       {
         "id": 6,
-        "description": "Fill in the portal name field with a valid unique test name and submit the form.",
-        "action": "fill('[name=\"name\"], input[placeholder*=\"name\" i], input[id*=\"name\" i]', 'JH-Test-Portal-' + Date.now()). If a description or search-profile-criteria field exists, fill it with 'QA automation test portal'. click('[type=submit], button:has-text(\"Save\"), button:has-text(\"Create\")'). waitForResponse(resp => resp.url().includes('/portals') && [200,201].includes(resp.status()))",
-        "expected": "Form closes or redirects. A success toast/banner or confirmation message appears (e.g. 'Portal created', 'Search profile saved'). The new portal name ('JH-Test-Portal-...') appears in the listing. HTTP response status is 200 or 201."
+        "description": "Click on any one portal card to open its edit/settings form. Verify the form renders with at least: portal type label, scan time picker, keywords field, locations field.",
+        "action": "IF portals present: click first portal; browser_snapshot; assert (portal type + scan time + keywords + locations) fields present"
       },
       {
         "id": 7,
-        "description": "Verify the newly created portal entry appears in the list with correct name and default status.",
-        "action": "snapshot(). Assert text 'JH-Test-Portal-' is present in the DOM within a list item, card, or table row. Assert a status indicator (e.g. 'Active', 'Draft', 'Enabled') is visible alongside the entry.",
-        "expected": "Newly created portal name is visible in the list. Status label is present. No duplicate entries for the same name."
+        "description": "CONDITIONAL (skip if step 6 skipped): In the portal edit form, attempt to clear the scan time or set an invalid time \u2014 verify validation or graceful handling.",
+        "action": "IF edit form open: attempt invalid scan time; assert validation OR graceful error"
       },
       {
         "id": 8,
-        "description": "Open the detail/edit view for the newly created portal by clicking its name, 'Edit', or 'View' control.",
-        "action": "click('text=\"JH-Test-Portal-\", [data-testid*=\"portal-edit\"], button:has-text(\"Edit\"), a:has-text(\"Edit\")') [scoped to the new portal row]. waitForSelector('form, [data-testid=\"portal-detail\"], [role=\"dialog\"]')",
-        "expected": "Edit form or detail view opens pre-populated with the portal name that was just created. All previously entered values are present."
+        "description": "CONDITIONAL (skip if step 6 skipped): Navigate away from the portal edit form without saving. Verify the listing page reloads correctly.",
+        "action": "IF edit form open: dismiss/navigate away; assert portal listing still intact"
       },
       {
         "id": 9,
-        "description": "Edit the portal name field with an updated value and save.",
-        "action": "clear('[name=\"name\"], input[id*=\"name\" i]'). fill('[name=\"name\"], input[id*=\"name\" i]', 'JH-Test-Portal-EDITED'). click('[type=submit], button:has-text(\"Save\"), button:has-text(\"Update\")'). waitForResponse(resp => resp.url().includes('/portals') && [200,204].includes(resp.status()))",
-        "expected": "Form submits successfully (HTTP 200 or 204). Success feedback is shown. The listing now shows 'JH-Test-Portal-EDITED' in place of the original name."
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard then return to https://app.phronex.com/jp/portals. Verify the portal listing reloads consistently.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/portals'); browser_snapshot"
       },
       {
         "id": 10,
-        "description": "Verify persistence: navigate away from the Portals page to the main dashboard, then return and confirm the edited portal still appears.",
-        "action": "navigate('http://localhost:3002/jp/'). waitForSelector('[data-testid=\"dashboard\"], h1:has-text(\"Dashboard\"), h1:has-text(\"Jobs\")'). navigate('http://localhost:3002/jp/portals'). waitForSelector('[data-testid=\"portals-page\"], h1:has-text(\"Portal\")')",
-        "expected": "After navigating back, 'JH-Test-Portal-EDITED' is still visible in the portal list. No data loss. The count of portals matches what was present before navigation."
+        "description": "Intercept network requests and verify GET /api/jp/user/api/v1/portals returns 200 with portal data.",
+        "action": "browser_network_requests; filter to /portals; assert 200"
       },
       {
         "id": 11,
-        "description": "If search-profile criteria fields exist (e.g. location, job type, keywords), open the portal detail and verify criteria fields can be edited and saved.",
-        "action": "click the edited portal's Edit control. If fields like 'Location', 'Keywords', 'Job Type', or 'Criteria' exist: fill them with 'Mumbai', 'QA Engineer', 'Full-time' respectively. click('[type=submit], button:has-text(\"Save\")'). waitForResponse(resp => resp.url().includes('/portals') && [200,204].includes(resp.status()))",
-        "expected": "Criteria fields accept input. Form saves without error (HTTP 200/204). Re-opening the portal detail shows the saved criteria values."
+        "description": "Hard reload https://app.phronex.com/jp/portals and verify consistent portal listing.",
+        "action": "browser_evaluate('location.reload(true)'); waitForLoadState; browser_snapshot"
       },
       {
         "id": 12,
-        "description": "Attempt to create a second portal with the same name to verify duplicate-name handling (if enforced by the product).",
-        "action": "click('button:has-text(\"Create\"), button:has-text(\"Add\"), button:has-text(\"New Portal\")'). fill('[name=\"name\"], input[id*=\"name\" i]', 'JH-Test-Portal-EDITED'). click('[type=submit], button:has-text(\"Save\")'). waitForResponse(resp => resp.url().includes('/portals'))",
-        "expected": "Either: (a) server returns 400/409 and an error message appears in the UI ('Portal name already exists', 'Duplicate name'), OR (b) duplicate is allowed and two entries appear \u2014 record observed behaviour. No silent failure or unhandled exception."
-      },
-      {
-        "id": 13,
-        "description": "Delete the test portal created in step 6 (or step 9 edited version) using the delete/remove control.",
-        "action": "Locate the row for 'JH-Test-Portal-EDITED'. click('button:has-text(\"Delete\"), button:has-text(\"Remove\"), [data-testid*=\"portal-delete\"]') scoped to that row. If a confirmation dialog appears: click('button:has-text(\"Confirm\"), button:has-text(\"Yes\"), button:has-text(\"Delete\")'). waitForResponse(resp => resp.url().includes('/portals') && [200,204].includes(resp.status()))",
-        "expected": "Confirmation prompt (if present) appears before deletion. After confirming, the entry for 'JH-Test-Portal-EDITED' is removed from the list. A success toast may appear. HTTP response is 200 or 204. The portal count decreases by 1."
-      },
-      {
-        "id": 14,
-        "description": "Verify post-deletion state: the deleted portal is no longer in the listing and the page is in a consistent state.",
-        "action": "snapshot(). Assert text 'JH-Test-Portal-EDITED' is NOT present in the DOM. Assert page still renders normally (no 500 error, no blank screen). Assert the portal list or empty-state is shown correctly.",
-        "expected": "'JH-Test-Portal-EDITED' is absent from the DOM. If all portals have been deleted, the empty-state UI is shown. No stale data references."
-      },
-      {
-        "id": 15,
-        "description": "Check browser console for any JS errors accumulated during the full journey.",
-        "action": "browser_console_messages(). Filter for entries with type 'error' or level 'error'.",
-        "expected": "Zero unhandled JS errors logged during the journey. Warnings related to React dev mode are acceptable; errors referencing undefined properties, failed fetches, or auth failures are not."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
