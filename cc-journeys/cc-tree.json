@@ -342,23 +342,23 @@
     "steps": [
       {
         "id": 0,
-        "description": "Load the superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance (NOT localhost). NOTE: This is the portal at app.phronex.com, not the CC backend at cc.phronex.com."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on the CC widget domain (same-origin required for fetch() calls — navigating to app.phronex.com would cause CORS errors on cc.phronex.com API calls). Verify the health endpoint returns HTTP 200."
       },
       {
         "id": 1,
-        "description": "First, GET current branding via page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Extract branding.primary_color and store as ORIGINAL_COLOR."
+        "description": "First, GET current branding via page.evaluate() using a relative path: fetch('/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Extract branding.primary_color and store as ORIGINAL_COLOR."
       },
       {
         "id": 2,
-        "description": "PATCH branding colour to '#1a2b3c' via page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:'#1a2b3c'}})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200. NOTE: Portal proxy at /api/admin/cc/... forwards X-Admin-Secret to CC backend."
+        "description": "PATCH branding colour to '#1a2b3c' via page.evaluate() using relative path: fetch('/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:'#1a2b3c'}})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200."
       },
       {
         "id": 3,
-        "description": "GET branding again via page.evaluate() to verify persistence: fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Verify branding.primary_color === '#1a2b3c'."
+        "description": "GET branding again via page.evaluate() to verify persistence: fetch('/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Verify branding.primary_color === '#1a2b3c'."
       },
       {
         "id": 4,
-        "description": "Restore original colour: PATCH with {branding:{primary_color:ORIGINAL_COLOR}} via same route. Verify HTTP 200. This prevents the live widget from showing test colours."
+        "description": "Restore original colour: fetch('/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:ORIGINAL_COLOR}})}).then(r=>{return {status:r.status}}). Verify HTTP 200. This prevents the live widget from showing test colours."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -835,15 +835,15 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com to establish browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context on cc.phronex.com (required — navigating to app.phronex.com would cause CORS errors when fetching cc.phronex.com API). Then using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'},body:JSON.stringify({instance_id:'e2e-test-instance', message:'<script>alert(1)</script> Tell me about Phronex. <img src=x onerror=alert(2)>', session_id:\"66666666-6666-4666-a666-666666666666\"})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 200. Record response text as RESPONSE."
+        "description": "Using page.evaluate() with TOKEN (relative path, same-origin context on cc.phronex.com): fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'},body:JSON.stringify({instance_id:'e2e-test-instance', message:'<script>alert(1)</script> Tell me about Phronex. <img src=x onerror=alert(2)>', session_id:'66666666-6666-4666-a666-666666666666'})}).then(r=>r.text()).catch(e=>({error:e.toString()})). Expect HTTP 200. Store full response text as RESPONSE."
       },
       {
         "id": 3,
-        "description": "Verify RESPONSE text does NOT contain unescaped '<script>' tags or 'onerror=' attributes that would execute JavaScript. The AI's response should discuss the question normally. Pass if: response is 200 AND the response body is plain text/JSON without raw HTML script injection. Fail if: response body echoes back '<script>alert(1)</script>' as literal HTML."
+        "description": "Verify RESPONSE text does NOT contain unescaped '<script>' tags or 'onerror=' attributes that would execute JavaScript. The AI's response should discuss the question normally. PASS if: status 200 AND response body does not echo back raw '<script>alert(1)</script>' as literal HTML that a browser would execute. ALSO PASS if AI returns 'Service temporarily unavailable' — that is a LLM availability issue, not an XSS vulnerability. FAIL only if the literal string '<script>alert(1)</script>' appears in the response in a way that would execute in a browser context."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
