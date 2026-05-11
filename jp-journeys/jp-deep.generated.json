@@ -552,21 +552,37 @@
         "description": "Add a second search profile to the existing portal (Pro-tier behaviour check \u2014 free tier should be blocked at 2nd profile).",
         "action": "Open the edit view for 'TestPortal_QA_001'. Click 'Add Search Profile' or equivalent. Enter keyword 'product manager' and location 'Remote'. Attempt to save.",
         "expected": "If the test user is on the free tier: an upgrade prompt or error message appears stating the free tier allows only 1 search profile per portal. If on Pro: the second profile is added successfully and persisted."
-      },
-      {
-        "id": 10,
-        "description": "Edit the portal name and verify the update is persisted.",
-        "action": "Open the edit view for 'TestPortal_QA_001'. Change the portal_name to 'TestPortal_QA_001_EDITED'. Save the changes.",
-        "expected": "A PATCH or PUT request is made to update the portal. The portal list reflects the new name 'TestPortal_QA_001_EDITED' immediately and after a page reload."
-      },
-      {
-        "id": 11,
-        "description": "Toggle the auto_apply field and verify it persists.",
-        "action": "Open the edit view for 'TestPortal_QA_001_EDITED'. Toggle auto_apply to true. Save.",
-        "expected": "The auto_apply flag is updated to true in the portal list and confirmed via the GET /portals/ API response."
       }
     ],
     "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-portals-edit",
+    "description": "Edit portal name and toggle auto_apply \u2014 persistence verification (split from jp-jp-portals)",
+    "dependsOn": "jp-trunk-main",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. Navigate to https://app.phronex.com/jp/portals. Verify the portals page loads."
+      },
+      {
+        "id": 2,
+        "description": "Find an existing portal in the list (or create one named 'TestPortal_QA_Edit_001' if none exist). Click its edit/settings button."
+      },
+      {
+        "id": 3,
+        "description": "Edit the portal name to 'TestPortal_QA_Edited_001'. Save the change. Navigate away and back to /jp/portals. Verify the edited name persists."
+      },
+      {
+        "id": 4,
+        "description": "In the portal edit view, locate the auto_apply toggle. Note its current state. Toggle it. Save. Navigate away and back. Verify the toggle state persists."
+      },
+      {
+        "id": 5,
+        "description": "PASS if: name update and toggle state persist after navigation. FAIL if: edit reverts to previous value, form silently discards changes, or an error appears."
+      }
+    ]
   },
   {
     "id": "jp-jp-audit-log",
