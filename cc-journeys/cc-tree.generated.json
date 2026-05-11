@@ -962,321 +962,137 @@
   },
   {
     "id": "cc-cc-registrations",
-    "description": "[general] Cc Registrations \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "CC Registrations admin flow \u2014 verify superadmin can view, filter, and action (approve/reject) instance registration requests.",
     "depth": 3,
+    "dependsOn": "cc-trunk-superadmin",
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate and log in if session expired.",
-        "action": "Load session storage from file '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. If session is expired or file missing, navigate to http://localhost:3002 and log in with superadmin credentials, then save new session state.",
-        "expected": "Session is active. User is authenticated as superadmin. No redirect to login page."
+        "description": "Load saved superadmin session and navigate to https://app.phronex.com/cc/registrations.",
+        "expected": "Page loads. Status filter tabs visible: Pending, Approved, Rejected, All. Registration cards shown or an empty state message."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/cc/registrations. Verify the page loads without errors.",
-        "action": "Navigate to http://localhost:3002/cc/registrations. Wait for network idle. Check for absence of 'Something went wrong', blank page, or console errors.",
-        "expected": "Page loads successfully. Registrations list or empty state is visible. No JavaScript console errors. HTTP status 200."
+        "description": "Verify the filter tabs \u2014 click 'All', 'Approved', 'Rejected', 'Pending' in sequence. Verify the list updates without a page crash.",
+        "expected": "Each tab click triggers a new data fetch. List updates or shows 'No X registrations found'. No React errors. No 500 from the API."
       },
       {
         "id": 3,
-        "description": "Verify the registrations page structure and key UI elements are present.",
-        "action": "Check for presence of: page heading containing 'Registrations' or similar title, a table or list container for registration entries, and any action buttons (e.g. 'Add', 'New Registration', 'Invite'). Capture screenshot.",
-        "expected": "Page heading is visible. Primary content area (table or list) renders. At least one actionable control (button or link) is present."
+        "description": "Click 'Pending' filter. If any pending registrations exist, verify a registration card shows: instance name, status badge 'pending' (yellow), requester name and email, submission date, and Approve + Reject action buttons.",
+        "expected": "Pending registration cards show all expected fields. Both '\u2713 Approve' and '\u2715 Reject' buttons are visible and enabled. If no pending registrations exist, an empty state message appears \u2014 this is PASS."
       },
       {
         "id": 4,
-        "description": "Verify column headers or field labels match expected schema for CC registrations.",
-        "action": "Inspect table headers or field labels visible on the page. Check for columns/fields such as: Instance name, Owner/Email, Plan/Tier, Status, Created date, Actions.",
-        "expected": "Expected column headers are present and correctly labelled. No placeholder text like 'undefined' or '[object Object]' is visible."
+        "description": "Click 'Approved' filter. Verify approved registration cards show status badge 'approved' (green) and no action buttons (approved items should not have approve/reject).",
+        "expected": "Approved cards show green status badge. No 'Approve' or 'Reject' buttons visible for approved items."
       },
       {
         "id": 5,
-        "description": "Test search or filter functionality if present on the registrations page.",
-        "action": "If a search input exists, type a partial known instance name or email into it. Wait for the list to update (debounce ~400ms). If no search exists, skip and note absence.",
-        "expected": "If search present: list filters to show only matching entries, no full-page reload occurs. If absent: document that search UI is missing for future coverage."
+        "description": "If a pending registration exists: click the '\u2715 Reject' button for the first pending registration. Verify a rejection notes input field appears. Enter optional notes. Click 'Confirm'. Verify the card status updates to 'rejected' and a success message appears. If no pending registration exists: skip to step 6.",
+        "expected": "Reject flow: input appears after clicking Reject. Confirm button triggers API call. Card status badge changes to 'rejected' (red). Success message shown. No page reload required."
       },
       {
         "id": 6,
-        "description": "Test pagination or infinite scroll if registrations list is paginated.",
-        "action": "If pagination controls (Next, Previous, page numbers) are present, click 'Next' page. If infinite scroll, scroll to bottom of list. Wait for new records to load.",
-        "expected": "Additional records load correctly. Page indicator updates (e.g. 'Page 2 of N'). Previously visible records are no longer shown (pagination) or remain visible above (infinite scroll). No duplicate entries."
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard then return to https://app.phronex.com/cc/registrations. Verify the page reloads clean with the last-used filter.",
+        "expected": "Page loads fresh. Filter state may reset to 'Pending' (default). No stale data. No console errors."
       },
       {
         "id": 7,
-        "description": "Open a single registration detail view by clicking on a row or detail link.",
-        "action": "Click on the first registration entry in the list (row click, or a 'View' / 'Edit' button). Wait for navigation or modal to open.",
-        "expected": "Detail view opens \u2014 either a new page (URL changes to /cc/registrations/{id}) or an inline modal/drawer. Registration fields (instance name, owner email, plan, status, created date) are populated with real data, not placeholders."
-      },
-      {
-        "id": 8,
-        "description": "Verify all fields in the registration detail view display correct data types and formats.",
-        "action": "In the open detail view, inspect: email field contains '@', date fields are formatted (e.g. YYYY-MM-DD or locale equivalent), plan/tier is one of the known enum values (e.g. free, pro, enterprise), status field shows a recognisable value (active, inactive, pending).",
-        "expected": "All fields render with correctly typed data. No raw UUIDs exposed where human-readable names are expected. No 'null' or 'undefined' text visible."
-      },
-      {
-        "id": 9,
-        "description": "Test edit functionality on a registration if editable fields are present.",
-        "action": "In the detail view, look for an 'Edit' button or inline editable fields. If edit is available, click Edit, change a non-critical field (e.g. update a label or note field if present), click Save/Submit. If no edit is available, note the absence.",
-        "expected": "Edit form opens with pre-populated current values. After save, a success toast/notification appears. The updated value is reflected in the detail view without a full page reload."
-      },
-      {
-        "id": 10,
-        "description": "Test form validation on the edit/create form \u2014 required fields and format constraints.",
-        "action": "If an edit or create form is accessible: clear a required field (e.g. email or instance name), attempt to submit. Then enter an invalid email format and attempt to submit.",
-        "expected": "Submitting with empty required field shows inline validation error (e.g. 'This field is required') and does not submit. Submitting with invalid email shows format error. No network request is fired for invalid submissions."
-      },
-      {
-        "id": 11,
-        "description": "Verify that changes made in the registration detail are persisted \u2014 reload test.",
-        "action": "After successfully saving an edit in step 9 (if applicable), hard-reload the page (Ctrl+R / location.reload()). Re-navigate to the same registration detail.",
-        "expected": "The previously saved change is still present after reload. Data is fetched fresh from the backend, confirming persistence to the database."
-      },
-      {
-        "id": 12,
-        "description": "Test cross-service integration: verify that the registration's linked instance data is consistent with CC backend.",
-        "action": "Note the instance_id or instance name from the registration detail. Open the browser console and verify no failed API calls to /api/v1/admin/* endpoints. If a link to the CC instance config or analytics exists in the UI, click it.",
-        "expected": "No 404 or 500 errors on admin API calls. If instance link exists, it navigates correctly to the CC instance view for that registration. Instance name matches between registrations view and instance view."
-      },
-      {
-        "id": 13,
-        "description": "Test status change action on a registration (activate/deactivate/suspend) if available.",
-        "action": "If a status-change action (e.g. 'Deactivate', 'Suspend', 'Activate') is present in the detail view or list row actions, click it. Confirm any confirmation dialog that appears.",
-        "expected": "Confirmation dialog (if present) correctly names the registration being acted on. After confirmation, status field updates to the new value. A success notification is shown. The list view also reflects the updated status on return."
-      },
-      {
-        "id": 14,
-        "description": "Navigate away from /cc/registrations to the dashboard, then return and verify state persists.",
-        "action": "Navigate to http://localhost:3002/dashboard (or the CC home route). Wait for dashboard to load. Then navigate back to http://localhost:3002/cc/registrations.",
-        "expected": "Registrations page reloads without errors. List re-fetches and displays the same records as before navigation. Any status change made in step 13 is still reflected. No stale cache causes outdated data to appear."
-      },
-      {
-        "id": 15,
-        "description": "Verify no accessibility or rendering regressions \u2014 basic a11y check on registrations page.",
-        "action": "On the /cc/registrations page, check: all interactive buttons have accessible labels (aria-label or visible text), the page has a single h1, table (if present) has thead with th elements. Use browser console to check for any React key warnings.",
-        "expected": "No buttons with empty labels. Exactly one h1 on the page. Table structure is semantically correct. No React key prop warnings in console."
+        "description": "Verify the backend API GET /api/cc/owner/api/v1/admin/registrations?status=pending returns valid JSON with expected structure.",
+        "expected": "Using page.evaluate(): fetch('/api/cc/owner/api/v1/admin/registrations?status=pending').then(r=>r.status). PASS = 200 (list returned, may be empty). FAIL = 404 (route missing) or 500 (server error)."
       }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
+    ]
   },
   {
     "id": "cc-cc-owners",
-    "description": "[general] Cc Owners \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "CC Owners admin flow \u2014 superadmin can create, view, and remove instance owners. No edit functionality exists (owners are managed via the Admin user panel).",
     "depth": 3,
+    "dependsOn": "cc-trunk-superadmin",
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate and log in if session expired.",
-        "action": "Load session state from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. If session is invalid or expired, navigate to the login page and authenticate as superadmin.",
-        "expected": "Session is active. No redirect to login page occurs on subsequent navigation."
+        "description": "Load saved superadmin session and navigate to https://app.phronex.com/cc/owners.",
+        "expected": "Page loads. Either owner rows in a table, or 'No instance owners found' empty state. '+ Add Owner' button visible in header. No console errors."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/cc/owners. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors).",
-        "action": "Navigate to http://localhost:3002/cc/owners. Monitor browser console for errors. Inspect the DOM for any error boundary messages or blank content areas.",
-        "expected": "Page loads successfully. No console errors. Page title or heading contains 'Owners' or equivalent. At least one UI element (table, list, or empty state message) is visible."
+        "description": "Verify owner row structure: each row should show owner name (or email if no name), email, instance ID badge (copper-colored), creation date, 'Admin' link, and 'Remove' button.",
+        "expected": "If owners exist: table shows columns Owner, Instance, Created, Actions. Name/email in Owner cell, instance_id in mono copper badge, formatted date. Admin link navigates to admin panel. Remove button has red styling."
       },
       {
         "id": 3,
-        "description": "Verify the owners list renders correctly \u2014 either a populated table/list or a well-formed empty state.",
-        "action": "Inspect the main content area of /cc/owners. Check for a table or list component. If data exists, verify at least one row renders with owner name and identifier columns. If empty, verify an explicit empty state message is shown (e.g. 'No owners found') rather than a blank area.",
-        "expected": "Either a populated owners list with visible columns (name, email, or ID) OR a clear empty state UI element. No spinner stuck indefinitely."
+        "description": "Click '+ Add Owner'. Verify the creation form slides open with fields: Email (required), Password (required), Name (optional), Instance ID (required).",
+        "expected": "Form is visible with 4 fields in a 2-column grid. All fields have labels with asterisks for required. 'Create Owner' and 'Cancel' buttons are present."
       },
       {
         "id": 4,
-        "description": "Check that owner rows display expected fields \u2014 name, email, instance association, and any action controls.",
-        "action": "Locate the first owner row in the list. Inspect its cells/fields for: owner name (non-empty string), email address (valid format), associated instance ID or name, and action buttons (Edit, Delete, or View).",
-        "expected": "Each owner row shows at minimum a name and identifier. Action controls are present and visible. No '[object Object]' or undefined values rendered."
+        "description": "Submit the form with all fields empty. Verify validation error message 'Email, password, and instance ID are required.' appears.",
+        "expected": "Error message visible below the form. Form does not submit to the backend. Required fields may show browser native validation. Portal validation message is the primary check."
       },
       {
         "id": 5,
-        "description": "Trigger owner creation \u2014 open the create/add owner form and verify it renders all required fields.",
-        "action": "Click the 'Add Owner', 'New Owner', or equivalent CTA button. Wait for a modal, drawer, or new page to appear. Inspect the form for fields: name input, email input, instance selector or association field, and a submit button.",
-        "expected": "Create owner form opens without page errors. All expected fields are present and interactive. Submit button is visible but not in a loading state."
+        "description": "Fill in valid test data: email=qa-owner-test@phronex.com, password=TestPassword123!, name=QA Test Owner, instance_id=e2e-test-instance. Click 'Create Owner'.",
+        "expected": "Form submits. Success message 'Owner qa-owner-test@phronex.com created for instance e2e-test-instance.' A new row appears in the table. Form closes."
       },
       {
         "id": 6,
-        "description": "Submit the create owner form with invalid data \u2014 empty required fields \u2014 and verify validation errors are shown.",
-        "action": "Leave the name and email fields blank. Click the submit button. Observe the form response.",
-        "expected": "Form does not submit. Inline validation error messages appear next to required fields (e.g. 'Name is required', 'Email is required'). No network request is fired for invalid input."
+        "description": "Verify the new owner row shows correctly \u2014 email, instance badge 'e2e-test-instance', recent creation date. Click 'Admin' link next to the new owner.",
+        "expected": "Admin link navigates to /admin?search=qa-owner-test@phronex.com (URL-encoded). Admin panel opens with the user pre-searched."
       },
       {
         "id": 7,
-        "description": "Submit the create owner form with an invalid email format and verify the email validation error.",
-        "action": "Enter a valid name but type 'notanemail' into the email field. Click the submit button.",
-        "expected": "Form does not submit. An email format validation error is shown (e.g. 'Enter a valid email address'). Name field shows no error."
+        "description": "Return to https://app.phronex.com/cc/owners. Click 'Remove' next to the test owner created in step 5. Verify a confirmation dialog appears.",
+        "expected": "Browser confirm() dialog appears with message 'Remove owner privileges for qa-owner-test@phronex.com? The user account will still exist.' Confirming proceeds with deletion."
       },
       {
         "id": 8,
-        "description": "Submit the create owner form with valid data and verify the owner is created successfully.",
-        "action": "Fill in the name field with a unique test value (e.g. 'Test Owner QA-{timestamp}'). Fill in the email field with a unique valid email (e.g. 'qa-owner-{timestamp}@example.com'). Select an instance if required. Click the submit button.",
-        "expected": "Form submits successfully. A success toast or confirmation message appears. The modal/drawer closes (if applicable). The new owner appears in the owners list without a full page reload."
+        "description": "Confirm the deletion. Verify the owner row disappears from the list and a success message 'Owner privileges removed for qa-owner-test@phronex.com.' appears.",
+        "expected": "Row removed immediately (optimistic UI). Success message visible. No 404 error in console. Backend DELETE /api/cc/owner/api/v1/admin/owners/{user_id} returns 200."
       },
       {
         "id": 9,
-        "description": "Verify the newly created owner row reflects the submitted data accurately.",
-        "action": "Locate the newly created owner in the list by name or email. Inspect the row fields.",
-        "expected": "Row displays the exact name and email submitted. No truncation of full values. Instance association matches what was selected during creation."
+        "description": "Refresh the page and verify the deleted owner does not reappear \u2014 deletion persisted.",
+        "expected": "Owner row absent from the list after reload. No ghost reappearance."
       },
       {
         "id": 10,
-        "description": "Open the edit form for the newly created owner and verify it pre-populates with current values.",
-        "action": "Click the Edit button or action for the newly created owner row. Wait for the edit form/modal to open.",
-        "expected": "Edit form opens pre-populated with the owner's current name, email, and instance association. No fields are blank or showing placeholder values instead of real data."
-      },
-      {
-        "id": 11,
-        "description": "Update the owner's name and submit the edit form. Verify persistence.",
-        "action": "Clear the name field in the edit form and enter a new value (e.g. 'Updated Owner QA-{timestamp}'). Click the save/update button.",
-        "expected": "Edit form submits successfully. Success feedback is shown. The owners list reflects the updated name immediately. The old name is no longer visible for that row."
-      },
-      {
-        "id": 12,
-        "description": "Verify edit persistence across a page reload.",
-        "action": "Hard reload the page (Ctrl+Shift+R or navigate away and back to /cc/owners).",
-        "expected": "After reload, the updated owner name is still shown. Changes were persisted to the backend, not just local state."
-      },
-      {
-        "id": 13,
-        "description": "Attempt to delete the test owner \u2014 verify a confirmation prompt is shown before deletion.",
-        "action": "Click the Delete button or action for the updated test owner row.",
-        "expected": "A confirmation dialog, modal, or inline prompt appears asking the user to confirm deletion. The owner is NOT immediately deleted without confirmation."
-      },
-      {
-        "id": 14,
-        "description": "Confirm deletion and verify the owner is removed from the list.",
-        "action": "Click the confirm/yes button in the deletion confirmation dialog.",
-        "expected": "The owner row is removed from the list. A success toast or message confirms deletion. No error message appears. The list count decreases by one (or an empty state appears if this was the last owner)."
-      },
-      {
-        "id": 15,
-        "description": "Verify deletion persistence \u2014 the deleted owner does not reappear after navigation.",
-        "action": "Navigate to the dashboard (e.g. http://localhost:3002) then return to http://localhost:3002/cc/owners.",
-        "expected": "The previously deleted owner does not appear in the list. The list state reflects the deletion persistently."
-      },
-      {
-        "id": 16,
-        "description": "Navigate away from /cc/owners to the dashboard, then return and verify the data/state persists.",
-        "action": "Navigate to http://localhost:3002 or another portal page. Then navigate back to http://localhost:3002/cc/owners.",
-        "expected": "Owners list loads with the same data as before navigation. No blank state or loading error. Previously created/updated/deleted changes are reflected correctly."
-      },
-      {
-        "id": 17,
-        "description": "Verify the admin analytics endpoint is accessible from the superadmin session and returns expected structure.",
-        "action": "While authenticated as superadmin, use the browser fetch API or navigate to the analytics panel if available. If a UI analytics section is present on the owners page or linked from it, click through and verify the data loads. Otherwise confirm the session cookie is valid for API calls by checking network requests on page load.",
-        "expected": "Any analytics API calls made during page load return 200 OK. No 401 or 403 errors in the network tab for superadmin-authenticated requests."
-      },
-      {
-        "id": 18,
-        "description": "Verify that the /cc/owners page does not expose any cross-instance data leakage \u2014 owner list is scoped appropriately.",
-        "action": "Inspect the owners list for any owners belonging to unexpected instances. If instance filtering UI exists, verify toggling instances scopes the list correctly.",
-        "expected": "Owners list only shows owners relevant to the selected or accessible instance scope. No foreign instance owner data bleeds into the list."
-      },
-      {
-        "id": 19,
-        "description": "Verify page responsiveness and no layout breakage at a narrower viewport.",
-        "action": "Resize the browser window to 1024px width. Inspect the owners list layout.",
-        "expected": "Table or list does not overflow horizontally without a scrollbar. Action buttons remain accessible. No text is clipped or hidden behind other elements."
-      },
-      {
-        "id": 20,
-        "description": "Verify browser console is clean throughout the entire journey \u2014 no unhandled errors or warnings.",
-        "action": "Open browser DevTools console. Review all messages logged during the journey steps above.",
-        "expected": "No unhandled JavaScript errors. No React key warnings. No failed network requests (4xx/5xx) that were not expected by the test. No 'Warning: Each child in a list should have a unique key' or similar React warnings."
+        "description": "Verify browser console is clean throughout \u2014 no 404 errors (deletion must use user_id not row id), no unhandled exceptions.",
+        "expected": "Zero 404 errors from DELETE call. Zero unhandled React errors. The console may show autocomplete attribute warnings (acceptable). No cross-instance data visible."
       }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
+    ]
   },
   {
     "id": "cc-cc-onboarding",
-    "description": "[general] Cc Onboarding \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "description": "Superadmin onboarding redirect: verify /cc/onboarding correctly redirects superadmins to /cc/instance. Also verify the onboarding page is accessible to instance owners (non-superadmin CC users).",
     "depth": 3,
+    "dependsOn": "cc-trunk-superadmin",
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate and log in if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. If session is expired or file missing, navigate to http://localhost:3002/login, enter superadmin credentials, submit, and wait for redirect to dashboard.",
-        "expected": "Session is active. User is authenticated as superadmin. No login redirect occurs when navigating to protected routes."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. Navigate to https://app.phronex.com/cc/onboarding.",
+        "expected": "Superadmins are redirected to https://app.phronex.com/cc/instance (not shown the onboarding wizard). The redirect must complete without React error #310 or any unhandled exception. The /cc/instance page must load successfully. PASS = URL is https://app.phronex.com/cc/instance after redirect. FAIL = React error #310 or blank page."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/cc/onboarding. Verify the page loads without errors.",
-        "action": "Navigate to http://localhost:3002/cc/onboarding. Wait for network idle. Check for absence of error boundaries, blank page, or 'Something went wrong' text. Open browser console and assert no uncaught JS errors.",
-        "expected": "Page loads successfully. Page title or heading contains onboarding-related text. No console errors. HTTP status 200."
+        "description": "Verify that /cc/instance loads correctly after the redirect \u2014 confirm at least one Instance tab or section header is visible.",
+        "expected": "Page shows instance management UI. No blank page or 'Something went wrong'. At least one tab or section label containing 'Instance', 'Configuration', or 'Branding' is visible."
       },
       {
         "id": 3,
-        "description": "Verify onboarding page structure and required UI elements are present.",
-        "action": "Assert presence of: a page heading or title, at least one form or step indicator, any progress bar or step counter if multi-step, and a primary CTA button (e.g. 'Next', 'Get Started', 'Continue', 'Submit'). Take a screenshot for visual reference.",
-        "expected": "All structural UI elements are visible and rendered. No skeleton loaders remain after page load. CTA button is enabled or clearly indicates why it is disabled."
+        "description": "Navigate to https://app.phronex.com/cc \u2014 verify sidebar includes an 'Onboarding' navigation link for instance owners (it may be hidden for superadmins). If visible, click it and confirm it resolves to /cc/onboarding.",
+        "expected": "If the sidebar shows 'Onboarding': clicking it navigates to /cc/onboarding or redirects appropriately. If hidden for superadmins: the absence of the link is PASS \u2014 the route is correctly not exposed. Verify no console errors."
       },
       {
         "id": 4,
-        "description": "If onboarding is multi-step, verify step 1 fields and labels are rendered.",
-        "action": "Identify all form fields on the current visible step. For each field: assert the label text is present and non-empty, assert the input is interactable, and assert no pre-filled values exist that should not be there for a fresh onboarding session.",
-        "expected": "Fields render with correct labels. Inputs are in their default/empty state. No stale data from a previous incomplete onboarding session is pre-populated unless persistence is expected."
+        "description": "Verify the backend endpoint GET /api/cc/owner/api/v1/admin/instance-config/{instanceId} used by OnboardingClient returns valid JSON for a known test instance (e2e-test-instance).",
+        "expected": "Using page.evaluate(): fetch('/api/cc/owner/api/v1/admin/instance-config/e2e-test-instance', {method:'GET'}).then(r=>r.status). PASS = 200 (config loaded) or 401 (auth required \u2014 proxy is wired). FAIL = 404 (proxy missing) or 500."
       },
       {
         "id": 5,
-        "description": "Attempt to advance onboarding without filling required fields \u2014 verify validation.",
-        "action": "Click the primary CTA button (e.g. 'Next' or 'Submit') without filling any required fields. Wait for validation feedback.",
-        "expected": "Form does not advance. Inline validation errors appear on all required fields. Error messages are descriptive (not just 'Required'). No network request is fired for an incomplete form."
-      },
-      {
-        "id": 6,
-        "description": "Fill in all required fields on the first onboarding step with valid data.",
-        "action": "For each required field on step 1: type valid representative data (e.g. a realistic instance name, valid URL, valid email format as appropriate). For dropdowns/selects, choose a non-default option. For checkboxes marked required, check them.",
-        "expected": "Fields accept input without error. Validation error messages disappear as fields are filled. CTA button becomes enabled if it was disabled."
-      },
-      {
-        "id": 7,
-        "description": "Submit or advance step 1 and verify progression to step 2 (or completion if single-step).",
-        "action": "Click the primary CTA button. Wait for any loading spinner to resolve and for the next step or success state to render.",
-        "expected": "If multi-step: step indicator advances (e.g. step 2 of N is now active). Previous step fields are no longer visible or are clearly marked as completed. If single-step: a success message, redirect, or confirmation screen appears."
-      },
-      {
-        "id": 8,
-        "description": "If multi-step: fill required fields on subsequent steps and complete onboarding.",
-        "action": "Repeat the pattern of filling required fields and clicking CTA for each remaining step. On the final step, click the final submission button and wait for the completion state.",
-        "expected": "Each step advances without error. Final step produces a success indicator: a confirmation message, a redirect to the CC dashboard or home screen, or a visual completion state."
-      },
-      {
-        "id": 9,
-        "description": "Verify post-onboarding state \u2014 confirm the user is redirected or lands on the expected screen.",
-        "action": "After onboarding completion, assert the current URL is NOT /cc/onboarding (or is /cc/onboarding with a completed query param). Assert a dashboard, home, or next-step screen is visible. Assert the user's identity is still intact (e.g. avatar, email, or name visible in nav).",
-        "expected": "User lands on the expected post-onboarding destination. No re-prompt to complete onboarding again. Session remains authenticated."
-      },
-      {
-        "id": 10,
-        "description": "Navigate away from the post-onboarding screen to the dashboard, then attempt to navigate back to /cc/onboarding \u2014 verify completed onboarding is not re-shown.",
-        "action": "Navigate to http://localhost:3002/cc or the main dashboard. Then navigate back to http://localhost:3002/cc/onboarding.",
-        "expected": "Onboarding is not re-displayed from step 1. User is either redirected away from /cc/onboarding automatically, or the page shows a 'already completed' state, or it renders a read-only summary. The onboarding flow cannot be accidentally re-triggered."
-      },
-      {
-        "id": 11,
-        "description": "Verify persistence \u2014 reload the page mid-way if onboarding allows re-entry, and check state is preserved.",
-        "action": "If the product supports resumable onboarding: navigate to /cc/onboarding directly after completing step 1 in a prior session (simulate by refreshing mid-flow). Check if any previously entered data is pre-populated.",
-        "expected": "If resumable: data from completed steps is pre-filled or the user is landed on the correct resume step. If not resumable: the user is redirected to the completed state or dashboard without data loss from the completed steps."
-      },
-      {
-        "id": 12,
-        "description": "Navigate away from /cc/onboarding to the dashboard, then return and verify the data/state persists.",
-        "action": "From any onboarding step or completed state, navigate to http://localhost:3002/cc or the main dashboard. Then navigate back to http://localhost:3002/cc/onboarding.",
-        "expected": "The onboarding state persists across navigation. Completed steps remain marked as done. In-progress step retains previously entered values. No 'ghost' resets where the form reverts to empty."
-      },
-      {
-        "id": 13,
-        "description": "Check accessibility basics on the onboarding page.",
-        "action": "Tab through all form fields using keyboard only. Verify focus indicators are visible on each interactive element. Verify form can be submitted using Enter key on the focused CTA button.",
-        "expected": "All fields are keyboard-reachable in a logical order. Focus ring is visible. No focus traps outside of intentional modal dialogs. Keyboard submission triggers the same validation and progression as mouse click."
-      },
-      {
-        "id": 14,
-        "description": "Verify no network errors or unexpected API failures occurred throughout the journey.",
-        "action": "Review browser network log for any 4xx or 5xx responses that occurred during the onboarding flow. Flag any non-200 responses to static assets or API calls.",
-        "expected": "All API calls return 2xx responses. No 401 (session expired mid-flow), no 403 (permission denied), no 500 (server error). If any 4xx appears, it must correspond to an intentional validation rejection (e.g. 422 for invalid input) and a user-facing error message must be shown."
+        "description": "Verify browser console is clean throughout this journey \u2014 no React error #310, no 'Application error', no unhandled exceptions.",
+        "expected": "Zero React error #310 entries. Zero 'Application error: a client-side exception has occurred' messages. Any 404 from /cc/onboarding redirect to /cc/instance is acceptable. PASS = clean console."
       }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
+    ]
   },
   {
     "id": "cc-cc-roadmap-narrative-summary",

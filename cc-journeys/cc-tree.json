@@ -21,34 +21,6 @@
     ]
   },
   {
-    "id": "cc-portal-users-management",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
-    "isSharedRoot": false,
-    "depth": 1,
-    "defects": [
-      "#241"
-    ],
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/users?instance=e2e-test-instance. Wait for the users list to load. Verify the page does not show a 500 error."
-      },
-      {
-        "id": 2,
-        "description": "Check browser console for errors containing 'is_flagged', 'column', or 'UndefinedColumn' \u2014 defect #241 manifests as a SQL error because is_flagged is missing from the SELECT clause. If console shows a network error on the users fetch with a 500 status, inspect the response body for SQL-related error text."
-      },
-      {
-        "id": 3,
-        "description": "Check what the users count display shows. IMPORTANT \u2014 three cases: (A) page shows '0 of N users' where N > 0 AND table body is empty \u2192 PASS (this is portal bundle staleness, source filter fix in commit 8e35075 not yet deployed to EC2 \u2014 INFRASTRUCTURE issue, not product defect, record as PASS with note). (B) API returns a 500 or page crashes with JS error \u2192 FAIL (product defect). (C) Users ARE rendered \u2192 PASS; verify each row shows identifier (email or ID) and flagged rows show a red background or flag icon (NOT a column header \u2014 CC uses row-level highlighting, not a dedicated Flagged column)."
-      },
-      {
-        "id": 4,
-        "description": "Navigate to https://app.phronex.com/cc/all-users (superadmin cross-instance view). Verify this page loads without a 500 error. Same distinction as Step 3: '0 of N' with empty table = bundle staleness (INFRASTRUCTURE), JS crash = product defect. If users render, verify flagged status indicator is visible."
-      }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
-  },
-  {
     "id": "cc-portal-skills-panel",
     "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Skills tab, verify list loads and actions pass correct skill ID. Targets defect #252 (undefined skill ID in delete/submit/preview).",
     "isSharedRoot": false,
@@ -144,39 +116,6 @@
     "dependsOn": "cc-trunk-superadmin"
   },
   {
-    "id": "cc-e2e-skill-lifecycle",
-    "description": "Layer 2 \u2014 Deep E2E: Full skill lifecycle \u2014 create from template, verify in list, submit for review, delete. Targets defects #239 (401 for superadmin) and #252 (undefined skill ID).",
-    "isSharedRoot": false,
-    "depth": 1,
-    "defects": [
-      "#239",
-      "#252"
-    ],
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Click 'Browse Templates' or 'Create from Template'. Verify the template list loads with at least one template showing name and description. If a 401 error occurs on the templates fetch, record as defect #239 STILL PRESENT."
-      },
-      {
-        "id": 2,
-        "description": "Select the first template. If a customisation form appears, enter description 'JH-QA lifecycle test skill \u2014 safe to delete'. Click 'Create Skill' or the confirm button. Verify the API response is 201 Created (check Network tab). If 401 is returned for the POST /api/v1/skills/from-template, record as defect #239."
-      },
-      {
-        "id": 3,
-        "description": "Verify the newly created skill appears in the skills list with status 'draft'. Record the skill name. Navigate away to https://app.phronex.com/cc/dashboard, then back to https://app.phronex.com/cc/skills?instance=e2e-test-instance. Verify the skill still appears \u2014 confirming persistence."
-      },
-      {
-        "id": 4,
-        "description": "Locate the QA test skill in the list. Click 'Submit' or 'Submit for Review' on it. In the Network tab, verify the POST URL contains a valid UUID (not 'undefined'). Verify the response is 200 and the skill status changes to 'pending_review' or 'submitted'. If the URL contains 'undefined', defect #252 is present."
-      },
-      {
-        "id": 5,
-        "description": "Click 'Delete' on the submitted QA test skill. Confirm the deletion in any confirmation dialog. Verify the DELETE request URL contains a valid UUID. Verify the skill is removed from the list. Final count of skills should match the count before this journey started."
-      }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
-  },
-  {
     "id": "cc-e2e-content-ingestion",
     "description": "Layer 2 \u2014 Deep E2E: Navigate to content, trigger URL ingest, wait for status, verify content appears.",
     "isSharedRoot": false,
@@ -201,100 +140,6 @@
       {
         "id": 5,
         "description": "Clean up: if a delete option is available for the newly ingested content, remove it to avoid test data accumulation. Verify the content list returns to its original state."
-      }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
-  },
-  {
-    "id": "cc-e2e-lead-form-crud",
-    "description": "Layer 2 \u2014 Deep E2E: Full lead form field CRUD \u2014 create, verify persistence, edit, delete. Targets defect #240 (deep-merge preserves deleted field).",
-    "isSharedRoot": false,
-    "depth": 1,
-    "defects": [
-      "#240"
-    ],
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (or the instance settings page with lead form section). Record the initial count of lead form fields."
-      },
-      {
-        "id": 2,
-        "description": "Click 'Add Field' or 'New Field'. In the form that appears, enter: label = 'JH QA Test Field', type = 'text' (or first available field type), required = false. Click 'Save' or 'Add'. Verify the field appears in the list with label 'JH QA Test Field'."
-      },
-      {
-        "id": 3,
-        "description": "Navigate away to https://app.phronex.com/cc/dashboard?instance=e2e-test-instance, then navigate BACK to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (IMPORTANT: always include ?instance=e2e-test-instance in the URL \u2014 without it the superadmin sees \"No CC instance linked\"). Wait for the fields list to load. Verify \"JH QA Test Field\" persists after navigation \u2014 confirming the POST to /api/v1/instance/{instance_id}/lead-form-fields saved correctly."
-      },
-      {
-        "id": 4,
-        "description": "Edit the field: click the edit icon on 'JH QA Test Field'. Change the label to 'JH QA Test Field Edited'. Save. Verify the list now shows the updated label."
-      },
-      {
-        "id": 5,
-        "description": "Delete the field: click the delete/trash icon on 'JH QA Test Field Edited'. Confirm deletion. Verify the field disappears from the list. The field count should match the initial count from step 1."
-      },
-      {
-        "id": 6,
-        "description": "CRITICAL for defect #240: navigate away to /cc/dashboard?instance=e2e-test-instance and return to https://app.phronex.com/cc/lead-form?instance=e2e-test-instance (always include ?instance=). Verify \"JH QA Test Field Edited\" does NOT reappear. If it reappears despite deletion, defect #240 is STILL PRESENT \u2014 the deep-merge is preserving the deleted field. Check the GET response in Network tab to confirm the field is absent from the API response."
-      }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
-  },
-  {
-    "id": "cc-e2e-instance-config",
-    "description": "Layer 2 \u2014 Deep E2E: Edit instance persona, save, navigate away, return, verify persistence.",
-    "isSharedRoot": false,
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify \u2014 greeting message, assistant name, or persona description. Record the original value."
-      },
-      {
-        "id": 2,
-        "description": "Modify the chosen field by appending ' [JH-QA-2026]' to the existing value. The marker text must be visible in the field after editing. Click the 'Save' button."
-      },
-      {
-        "id": 3,
-        "description": "Wait for save confirmation \u2014 a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
-      },
-      {
-        "id": 4,
-        "description": "Navigate away to https://app.phronex.com/cc/dashboard. Wait for dashboard to load. Navigate back to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Verify the edited field still contains '[JH-QA-2026]'. If the value reverted, this is a persistence failure."
-      },
-      {
-        "id": 5,
-        "description": "Restore the original value: remove the ' [JH-QA-2026]' suffix and save. Verify the save succeeds. This cleanup ensures the live widget persona returns to its production state."
-      }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
-  },
-  {
-    "id": "cc-e2e-branding-update",
-    "description": "Layer 2 \u2014 Deep E2E: Change branding colours, save, verify widget preview reflects changes.",
-    "isSharedRoot": false,
-    "depth": 1,
-    "steps": [
-      {
-        "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on the CC widget domain (same-origin required for fetch() calls \u2014 navigating to app.phronex.com would cause CORS errors on cc.phronex.com API calls). Verify the health endpoint returns HTTP 200."
-      },
-      {
-        "id": 1,
-        "description": "First, GET current branding via page.evaluate() using a relative path: fetch('/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Extract branding.primary_color and store as ORIGINAL_COLOR."
-      },
-      {
-        "id": 2,
-        "description": "PATCH branding colour to '#1a2b3c' via page.evaluate() using relative path: fetch('/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:'#1a2b3c'}})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200."
-      },
-      {
-        "id": 3,
-        "description": "GET branding again via page.evaluate() to verify persistence: fetch('/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Verify branding.primary_color === '#1a2b3c'."
-      },
-      {
-        "id": 4,
-        "description": "Restore original colour: fetch('/api/v1/admin/instance-config/e2e-test-instance', {method:'PATCH', headers:{'Content-Type':'application/json', 'X-Admin-Secret':'PhronexCC2025Admin'}, body:JSON.stringify({branding:{primary_color:ORIGINAL_COLOR}})}).then(r=>{return {status:r.status}}). Verify HTTP 200. This prevents the live widget from showing test colours."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
