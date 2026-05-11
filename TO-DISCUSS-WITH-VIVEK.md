@@ -426,3 +426,42 @@ will continue to influence AI recommendations.
 explicitly set `signal=null` (bypass COALESCE with a CASE expression). No migration needed.
 
 **Spec updated:** jp-verify-jobs-save step 4 now tests the idempotent behavior (not toggle-off).
+
+---
+
+## D-17: `--no-deps` pip install silently drops Pydantic optional extras — email-validator pattern (2026-05-11)
+
+**What happened:** CC crashed on EC2 with `ImportError: email-validator is not installed` after deploying commit `344b274` (which added `EmailStr` to auth routes). The EC2 deploy uses `pip install -e /opt/contentcompanion --no-deps` to avoid the 15-25 minute full dep resolution that hangs the t3.small. But `--no-deps` means Pydantic optional extras (`pydantic[email]`) are never installed.
+
+**Root cause:** `EmailStr` requires `email-validator` (a Pydantic optional extra, not installed by default). When `pyproject.toml` declares `pydantic>=2.10.0` (not `pydantic[email]>=2.10.0`), the extra was never in the venv. `--no-deps` means the deploy doesn't catch this gap.
+
+**Fix applied this session:**
+1. Installed `email-validator` directly on EC2: `/opt/contentcompanion/.venv/bin/pip install email-validator`
+2. Updated `pyproject.toml` to `pydantic[email]>=2.10.0` (commit `379f70a`) so future `--no-deps` deploys include it
+
+**Risk pattern for future:** Any time a new Pydantic feature is used that requires an optional extra (e.g., `AnyUrl`, `SecretStr` validation modes, `Base64Str`), the same silent crash can occur on next deploy. The `--no-deps` workflow means the venv only has what was explicitly installed at setup time.
+
+**Recommendation:** Add a pre-deploy check to the CC deploy script:
+```bash
+/opt/contentcompanion/.venv/bin/python -c "from pydantic import EmailStr; print('pydantic[email] OK')"
+```
+If it fails, run `pip install pydantic[email]` before restarting the service. This is a canary check, not a full dep install.
+
+**Decision needed:** Should we add similar canary checks for other optional dependencies that are silent-import-time failures? Pattern to watch: any `from pydantic import X` where X is not in the base Pydantic install.
+
+---
+
+## D-18: Portal build race condition — `pnpm dev` + `pnpm build` collision causes incomplete routes-manifest.json (2026-05-11)
+
+**What happened:** Portal bundle deployed this session (BUILD_ID `l9quFgeFFuWmf0SEEe7g3`) caused EC2 portal to crash-loop with `TypeError: routesManifest.dataRoutes is not iterable`. Investigation showed the bad bundle's `routes-manifest.json` was **missing the `dataRoutes` key entirely** (returned `null`). Next.js's startup iterates `routesManifest.dataRoutes` and throws when it's not iterable.
+
+**Root cause:** `pnpm dev` (Turbopack) was running in the background on DevServer when `pnpm build` was executed. Both processes write to `.next/`. The dev server's partial writes corrupted the production build's `routes-manifest.json` — a known documented pitfall (see `feedback_pnpm_build_dev_collision.md` in memory).
+
+**Resolution this session:**
+1. EC2 portal restored from backup bundle (active ~3h on backup `B-zxWMgMrTW9xV6ApI2sm`)
+2. Dev server killed, clean `pnpm build` ran, verified `routes-manifest.json` has `dataRoutes: []`
+3. New clean bundle (BUILD_ID `QiNiHzGJFJyriibkwfZUY`) deployed and verified healthy
+
+**Missing mitigation:** The deploy workflow has no guard against this. Recommendation: add a pre-deploy validation step that runs `python3 -c "import json; d=json.load(open('.next/routes-manifest.json')); assert isinstance(d.get('dataRoutes'), list), 'CORRUPT: dataRoutes missing'"` before rsyncing to EC2. If it fails, abort and surface the error.
+
+**No decision needed** — but flagging so the issue and its recovery pattern is documented. The memory note exists but this was the first time it caused a real production outage (3h portal downtime, full JP Run 5 cascade failure due to 502s during the window).
