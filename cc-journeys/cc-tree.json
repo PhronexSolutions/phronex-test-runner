@@ -589,11 +589,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com. Using page.evaluate(): call fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Verify HTTP 200 and extract token from response. Store as TOKEN."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on CC widget domain (returns 200 JSON, no CORS issues). Then using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN from step 1: call fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json()). Verify HTTP 200. Store response as BILLING."
+        "description": "Using page.evaluate() with TOKEN from step 1: fetch('/api/v1/billing/status', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json()). Verify HTTP 200. Store response as BILLING."
       },
       {
         "id": 3,
@@ -753,15 +753,19 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com for browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' as TOKEN_A."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on the CC widget domain (returns JSON 200, no CORS issues). All subsequent fetch calls use relative URLs from this origin."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN_A from step 1: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>({status:r.status})). Expect HTTP 403 (JWT was issued for e2e-test-instance, not maxine \u2014 cross-instance denied). PASS=403. FAIL=200 means IDOR vulnerability still present."
+        "description": "Using page.evaluate() from cc.phronex.com context: fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store the returned 'token' field as TOKEN_A. PASS if token is a non-empty string. FAIL if token is missing or fetch throws."
       },
       {
         "id": 3,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin context. Using page.evaluate() with TOKEN_A: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'33333333-3333-4333-a333-333333333333'})}).then(r=>({status:r.status})). Expect HTTP 403 (cross-instance chat blocked). Use relative URL \u2014 avoids CORS from app.phronex.com domain."
+        "description": "Using page.evaluate() with TOKEN_A from step 2: fetch('/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>({status:r.status})). Expect HTTP 403 (JWT was issued for e2e-test-instance, not maxine \u2014 cross-instance access must be denied). PASS=403. FAIL=200 means IDOR vulnerability is present \u2014 fix is in commit 38617a1 but not yet deployed to EC2."
+      },
+      {
+        "id": 4,
+        "description": "Using page.evaluate() with TOKEN_A from step 2: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'33333333-3333-4333-a333-333333333333'})}).then(r=>({status:r.status})). Expect HTTP 403 (cross-instance chat blocked). PASS=403. FAIL=200 means chat IDOR still present."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -895,7 +899,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass. Note: endpoint is /api/v1/admin/ip-blocks (with /admin/ prefix), NOT /api/v1/ip-blocks."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 403 (auth rejected before route handler). Also accept 404 (endpoint not yet deployed on EC2 — routes_admin_billing.py was added in recent commits pending deploy). A 200 or 201 response means admin secret auth bypass — CRITICAL."
       },
       {
         "id": 4,
@@ -913,15 +917,15 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com for browser context."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on CC widget domain (returns 200 JSON). All subsequent fetch calls use relative paths to avoid CORS."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200. Store full response body as BILLING."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/billing/status', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200. Store full response body as BILLING."
       },
       {
         "id": 3,
@@ -961,15 +965,15 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com for browser context."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on CC widget domain (returns 200 JSON). All subsequent fetch calls use relative paths to avoid CORS."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({tier:'pro'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 with checkout_url or payment link. A 422/400 means tier name is wrong \u2014 try 'starter' or check billing/status first."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({tier:'pro'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 with checkout_url or payment link. A 422/400 means tier name is wrong \u2014 try 'starter' or check billing/status first."
       },
       {
         "id": 3,

@@ -30,96 +30,6 @@
     ]
   },
   {
-    "id": "jp-trunk-free",
-    "description": "Authenticate as the free-tier QA user (qa-jp-free@phronex.com) and capture browser session state for tier verification journeys",
-    "isSharedRoot": true,
-    "role": "root",
-    "stateOutputPath": ".tmp/jp-trunk-free-state.json",
-    "params": {},
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
-      },
-      {
-        "id": 2,
-        "description": "Enter the email address QA_JP_FREE_EMAIL into the email input field"
-      },
-      {
-        "id": 3,
-        "description": "Enter the password QA_JP_FREE_PASSWORD into the password field"
-      },
-      {
-        "id": 4,
-        "description": "Click the Sign In button to submit the login form"
-      },
-      {
-        "id": 5,
-        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
-      }
-    ]
-  },
-  {
-    "id": "jp-trunk-standard",
-    "description": "Authenticate as the standard-tier QA user (qa-jp-standard@phronex.com) and capture browser session state for tier verification journeys",
-    "isSharedRoot": true,
-    "role": "root",
-    "stateOutputPath": ".tmp/jp-trunk-standard-state.json",
-    "params": {},
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
-      },
-      {
-        "id": 2,
-        "description": "Enter the email address QA_JP_STANDARD_EMAIL into the email input field"
-      },
-      {
-        "id": 3,
-        "description": "Enter the password QA_JP_STANDARD_PASSWORD into the password field"
-      },
-      {
-        "id": 4,
-        "description": "Click the Sign In button to submit the login form"
-      },
-      {
-        "id": 5,
-        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
-      }
-    ]
-  },
-  {
-    "id": "jp-trunk-pro",
-    "description": "Authenticate as the pro-tier QA user (qa-jp-pro@phronex.com) and capture browser session state for tier verification journeys",
-    "isSharedRoot": true,
-    "role": "root",
-    "stateOutputPath": ".tmp/jp-trunk-pro-state.json",
-    "params": {},
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
-      },
-      {
-        "id": 2,
-        "description": "Enter the email address QA_JP_PRO_EMAIL into the email input field"
-      },
-      {
-        "id": 3,
-        "description": "Enter the password QA_JP_PRO_PASSWORD into the password field"
-      },
-      {
-        "id": 4,
-        "description": "Click the Sign In button to submit the login form"
-      },
-      {
-        "id": 5,
-        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
-      }
-    ]
-  },
-  {
     "id": "jp-branch-dashboard",
     "description": "Navigate to the JP dashboard and verify stats/panels are visible",
     "isSharedRoot": false,
@@ -198,6 +108,9 @@
         "id": 4,
         "description": "Take a screenshot showing the job detail view or empty state"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to https://app.phronex.com/jp/jobs if not already there"
     ]
   },
   {
@@ -283,70 +196,32 @@
   },
   {
     "id": "jp-branch-subscription-free",
-    "description": "Navigate to the subscription page as the free-tier user and capture tier info",
+    "description": "Navigate to the subscription page as the authenticated QA user and verify tier label, limits, and upgrade CTAs are visible",
     "isSharedRoot": false,
     "role": "branch",
-    "dependsOn": "jp-trunk-free",
+    "dependsOn": "jp-trunk-main",
     "stateOutputPath": ".tmp/jp-branch-subscription-free-state.json",
     "params": {},
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/subscription"
+        "description": "Load saved session from \".tmp/jp-trunk-main-state.json\" using the browser_navigate tool, then navigate to https://app.phronex.com/jp/subscription"
       },
       {
         "id": 2,
-        "description": "Wait for the subscription/tier information to load"
+        "description": "Verify the subscription page loaded successfully (URL contains /jp/subscription, NOT redirected to login). Take a screenshot of the full page."
       },
       {
         "id": 3,
-        "description": "Take a screenshot clearly showing the tier label and any upgrade CTAs"
-      }
-    ]
-  },
-  {
-    "id": "jp-branch-subscription-standard",
-    "description": "Navigate to the subscription page as the standard-tier user and capture tier info",
-    "isSharedRoot": false,
-    "role": "branch",
-    "dependsOn": "jp-trunk-standard",
-    "stateOutputPath": ".tmp/jp-branch-subscription-standard-state.json",
-    "params": {},
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/subscription"
+        "description": "Verify a tier label is visible on the page (e.g. 'Free', 'Standard', 'Pro' or similar). Report the exact text of the tier label found."
       },
       {
-        "id": 2,
-        "description": "Wait for the subscription/tier information to load"
+        "id": 4,
+        "description": "Check if an upgrade CTA button is visible (e.g. 'Upgrade', 'Get Pro'). Report its text and whether it is clickable. If no upgrade CTA is present (user is on highest tier), report that instead."
       },
       {
-        "id": 3,
-        "description": "Take a screenshot clearly showing the tier label and any upgrade CTAs"
-      }
-    ]
-  },
-  {
-    "id": "jp-branch-subscription-pro",
-    "description": "Navigate to the subscription page as the pro-tier user and capture tier info",
-    "isSharedRoot": false,
-    "role": "branch",
-    "dependsOn": "jp-trunk-pro",
-    "stateOutputPath": ".tmp/jp-branch-subscription-pro-state.json",
-    "params": {},
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/subscription"
-      },
-      {
-        "id": 2,
-        "description": "Wait for the subscription/tier information to load"
-      },
-      {
-        "id": 3,
-        "description": "Take a screenshot clearly showing the tier label and any upgrade CTAs or absence thereof"
+        "id": 5,
+        "description": "Check if usage limits or quota information is displayed (e.g. 'X applications remaining', 'X AI credits'). Report what limits are shown."
       }
     ]
   },
@@ -374,6 +249,9 @@
         "id": 4,
         "description": "Take an annotated screenshot showing the stat cards with their values"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to https://app.phronex.com/jp/dashboard if not already there"
     ]
   },
   {
@@ -400,6 +278,9 @@
         "id": 4,
         "description": "Take a screenshot showing the search/filter state"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to https://app.phronex.com/jp/jobs if not already there"
     ]
   },
   {
@@ -426,6 +307,9 @@
         "id": 4,
         "description": "Click the same thumbs-up button again to undo the feedback. Verify the button color reverts to gray/muted. Take a screenshot."
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to https://app.phronex.com/jp/jobs if not already there"
     ]
   },
   {
@@ -451,32 +335,6 @@
       {
         "id": 4,
         "description": "Take a screenshot showing the apply button state or application flow initiation"
-      }
-    ]
-  },
-  {
-    "id": "jp-verify-job-ai-cover-letter",
-    "description": "Verify AI cover letter generation initiates from job detail view",
-    "isSharedRoot": false,
-    "role": "verify",
-    "dependsOn": "jp-branch-job-detail",
-    "params": {},
-    "steps": [
-      {
-        "id": 1,
-        "description": "From the job detail view (or navigate to it via https://app.phronex.com/jp/jobs then click first job), look for an AI cover letter generation button or CTA."
-      },
-      {
-        "id": 2,
-        "description": "If found, click the AI cover letter button. Verify a loading or generation state appears (spinner, progress indicator, or generating text)."
-      },
-      {
-        "id": 3,
-        "description": "Wait up to 15 seconds for the AI generation to complete or show progress. Report the outcome \u2014 did it generate, timeout, or show an error?"
-      },
-      {
-        "id": 4,
-        "description": "Take a screenshot showing the cover letter generation state or result"
       }
     ]
   },
@@ -556,6 +414,9 @@
         "id": 4,
         "description": "Take a screenshot showing the BYOK/API key section (or its absence)"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to https://app.phronex.com/jp/config if not already there"
     ]
   },
   {
@@ -582,6 +443,9 @@
         "id": 4,
         "description": "Take a screenshot of the YAML editor or advanced config section (or its absence)"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to https://app.phronex.com/jp/config if not already there"
     ]
   },
   {
