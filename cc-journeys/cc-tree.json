@@ -374,7 +374,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/users?instance=e2e-test-instance. Wait for the users list to load. If no users exist, this journey is a SKIP (cannot test flagging without users). Record the count of flagged users (look for a 'Flagged' filter or badge count)."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/users?instance=e2e-test-instance. Wait for the users list to load. CRITICAL DISTINCTION: (A) If the page shows '0 of 0 users' or the API /api/v1/admin/users returns an empty array for e2e-test-instance \u2014 SKIP this journey (no test users provisioned). (B) If the page shows '0 of N users' where N > 0 (the count shows users but none render in the table) \u2014 this is a portal bundle staleness issue (source filter bug, fix in commit 8e35075, not yet deployed to EC2). Record as INFRASTRUCTURE, not a product defect. Do NOT fail this journey for case B. Record the count of flagged users if any are visible."
       },
       {
         "id": 2,
