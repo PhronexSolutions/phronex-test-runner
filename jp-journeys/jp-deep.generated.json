@@ -50,7 +50,8 @@
         "description": "Take a screenshot of the full dashboard page"
       }
     ],
-    "dependsOn": "jp-trunk-main"
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-dashboard-state.json"
   },
   {
     "id": "jp-branch-jobs-list",
@@ -74,7 +75,8 @@
         "description": "Take a screenshot of the jobs list page"
       }
     ],
-    "dependsOn": "jp-trunk-main"
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-jobs-list-state.json"
   },
   {
     "id": "jp-branch-job-detail",
@@ -102,7 +104,8 @@
         "description": "Take a screenshot showing the job detail view or empty state"
       }
     ],
-    "dependsOn": "jp-branch-jobs-list"
+    "dependsOn": "jp-branch-jobs-list",
+    "stateOutputPath": ".tmp/jp-branch-job-detail-state.json"
   },
   {
     "id": "jp-branch-profile",
@@ -126,7 +129,8 @@
         "description": "Take a screenshot of the Personal Info tab"
       }
     ],
-    "dependsOn": "jp-trunk-main"
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-profile-state.json"
   },
   {
     "id": "jp-branch-documents",
@@ -150,7 +154,8 @@
         "description": "Take a screenshot of the documents page"
       }
     ],
-    "dependsOn": "jp-trunk-main"
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-documents-state.json"
   },
   {
     "id": "jp-branch-config",
@@ -174,7 +179,8 @@
         "description": "Take a screenshot of the config page"
       }
     ],
-    "dependsOn": "jp-trunk-main"
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-config-state.json"
   },
   {
     "id": "jp-branch-subscription-free",
@@ -251,7 +257,7 @@
       },
       {
         "id": 4,
-        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies — either showing filtered results or a meaningful empty state. Report the outcome."
+        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies \u2014 either showing filtered results or a meaningful empty state. Report the outcome."
       },
       {
         "id": 5,
@@ -262,7 +268,7 @@
   },
   {
     "id": "jp-verify-jobs-save",
-    "description": "Verify job thumbs-up feedback functionality — mark a job as good match, verify color changes, then undo",
+    "description": "Verify job thumbs-up feedback functionality \u2014 mark a job as good match, verify color changes, then undo",
     "depth": 1,
     "steps": [
       {
@@ -275,7 +281,7 @@
       },
       {
         "id": 3,
-        "description": "Look for thumbs-up (👍) and thumbs-down (👎) buttons on a job row. These are the feedback/save buttons. If no jobs are listed, report the empty state and end the test with a note."
+        "description": "Look for thumbs-up (\ud83d\udc4d) and thumbs-down (\ud83d\udc4e) buttons on a job row. These are the feedback/save buttons. If no jobs are listed, report the empty state and end the test with a note."
       },
       {
         "id": 4,
@@ -283,7 +289,7 @@
       },
       {
         "id": 5,
-        "description": "Click the same thumbs-up button again (second click on an already-active thumbs-up). OBSERVE the result: the JP backend uses COALESCE for feedback signals — a second identical click re-confirms the same signal. PASS if: (A) button stays green (idempotent re-confirm), or (B) button color stays unchanged. FAIL only if: the page crashes, a JS error appears, or the API returns a 4xx/5xx error. Note: \"toggle-off\" (going back to gray on second click) is NOT the current behavior — do not expect it. Take a screenshot showing final button state."
+        "description": "Click the same thumbs-up button again (second click on an already-active thumbs-up). OBSERVE the result: the JP backend uses COALESCE for feedback signals \u2014 a second identical click re-confirms the same signal. PASS if: (A) button stays green (idempotent re-confirm), or (B) button color stays unchanged. FAIL only if: the page crashes, a JS error appears, or the API returns a 4xx/5xx error. Note: \"toggle-off\" (going back to gray on second click) is NOT the current behavior \u2014 do not expect it. Take a screenshot showing final button state."
       }
     ],
     "dependsOn": "jp-branch-jobs-list"
@@ -303,7 +309,7 @@
       },
       {
         "id": 3,
-        "description": "If an Apply button exists, click it. Verify the application flow starts — a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
+        "description": "If an Apply button exists, click it. Verify the application flow starts \u2014 a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
       },
       {
         "id": 4,
@@ -331,7 +337,7 @@
       },
       {
         "id": 3,
-        "description": "The personal info is displayed as editable JSON in a textbox. Read the current JSON content. Find the 'location' field inside the 'basic' object and change its value to a unique test string like 'QA-City-YYYYMMDD-HHMM' using today's date and current time (e.g. 'QA-City-20260504-0730'). Make sure the resulting text is still valid JSON — only change the value string, not the structure. Click inside the textbox and carefully edit only that one field value."
+        "description": "The personal info is displayed as editable JSON in a textbox. Read the current JSON content. Find the 'location' field inside the 'basic' object and change its value to a unique test string like 'QA-City-YYYYMMDD-HHMM' using today's date and current time (e.g. 'QA-City-20260504-0730'). Make sure the resulting text is still valid JSON \u2014 only change the value string, not the structure. Click inside the textbox and carefully edit only that one field value."
       },
       {
         "id": 4,
@@ -458,7 +464,7 @@
   },
   {
     "id": "jp-biz-session-handling-revoked-token",
-    "description": "Session handling test: verify that signing out via the Auth.js signout endpoint correctly terminates the session and protected routes redirect to login. IMPORTANT: Auth.js v5 stores sessions in HttpOnly cookies — clearing localStorage/sessionStorage has NO effect on session validity. This journey tests actual signout, not storage clearing.",
+    "description": "Session handling test: verify that signing out via the Auth.js signout endpoint correctly terminates the session and protected routes redirect to login. IMPORTANT: Auth.js v5 stores sessions in HttpOnly cookies \u2014 clearing localStorage/sessionStorage has NO effect on session validity. This journey tests actual signout, not storage clearing.",
     "depth": 1,
     "steps": [
       {
@@ -471,15 +477,15 @@
       },
       {
         "id": 3,
-        "description": "Trigger signout by navigating to https://app.phronex.com/api/auth/signout or using the portal's sign-out button/link (look for a user avatar, account menu, or sign-out option in the navigation). If navigating directly to the signout URL, it may show a confirmation page — if so, confirm signout. Verify the session is terminated."
+        "description": "Trigger signout by navigating to https://app.phronex.com/api/auth/signout or using the portal's sign-out button/link (look for a user avatar, account menu, or sign-out option in the navigation). If navigating directly to the signout URL, it may show a confirmation page \u2014 if so, confirm signout. Verify the session is terminated."
       },
       {
         "id": 4,
-        "description": "After signout, navigate to https://app.phronex.com/jp/config — a protected page that requires auth. Observe the resulting page."
+        "description": "After signout, navigate to https://app.phronex.com/jp/config \u2014 a protected page that requires auth. Observe the resulting page."
       },
       {
         "id": 5,
-        "description": "Verify the outcome: PASS if the page redirects to https://app.phronex.com/auth/login (or shows a login form). Auth.js v5 uses HttpOnly cookies — clearing localStorage/sessionStorage does NOT revoke the session; only a proper signout call does. FAIL if: (a) the config page renders with user data visible despite signout, (b) a JavaScript error page or 500 appears, or (c) a blank white screen with no user-facing message is shown. Screenshot the result."
+        "description": "Verify the outcome: PASS if the page redirects to https://app.phronex.com/auth/login (or shows a login form). Auth.js v5 uses HttpOnly cookies \u2014 clearing localStorage/sessionStorage does NOT revoke the session; only a proper signout call does. FAIL if: (a) the config page renders with user data visible despite signout, (b) a JavaScript error page or 500 appears, or (c) a blank white screen with no user-facing message is shown. Screenshot the result."
       },
       {
         "id": 6,
@@ -490,7 +496,7 @@
   },
   {
     "id": "jp-jp-portals",
-    "description": "[integration] Jp Portals — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[integration] Jp Portals \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -538,12 +544,12 @@
       {
         "id": 8,
         "description": "Verify credentials are stored encrypted at rest (not shown in plaintext in the UI or API response).",
-        "action": "Inspect the portal row for 'TestPortal_QA_001'. Check whether credentials are masked (e.g. '••••••••' or '[encrypted]'). Also open browser DevTools Network tab and inspect the GET /portals/ response body for the credentials field.",
-        "expected": "Credentials are NOT shown in plaintext in the UI. API response does not return the raw credential value — it should be masked, omitted, or returned as an encrypted blob."
+        "action": "Inspect the portal row for 'TestPortal_QA_001'. Check whether credentials are masked (e.g. '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022' or '[encrypted]'). Also open browser DevTools Network tab and inspect the GET /portals/ response body for the credentials field.",
+        "expected": "Credentials are NOT shown in plaintext in the UI. API response does not return the raw credential value \u2014 it should be masked, omitted, or returned as an encrypted blob."
       },
       {
         "id": 9,
-        "description": "Add a second search profile to the existing portal (Pro-tier behaviour check — free tier should be blocked at 2nd profile).",
+        "description": "Add a second search profile to the existing portal (Pro-tier behaviour check \u2014 free tier should be blocked at 2nd profile).",
         "action": "Open the edit view for 'TestPortal_QA_001'. Click 'Add Search Profile' or equivalent. Enter keyword 'product manager' and location 'Remote'. Attempt to save.",
         "expected": "If the test user is on the free tier: an upgrade prompt or error message appears stating the free tier allows only 1 search profile per portal. If on Pro: the second profile is added successfully and persisted."
       },
@@ -563,58 +569,8 @@
     "dependsOn": "jp-trunk-main"
   },
   {
-    "id": "jp-jp-portals-extended",
-    "description": "[integration] Jp Portals Extended — Edge cases: portal limit UI, deletion, nav persistence, auth guard, admin controls, cross-service integration. Depends on jp-jp-portals completing core CRUD first.",
-    "depth": 3,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired, navigate to https://app.phronex.com and log in with superadmin credentials.",
-        "expected": "Session is active. User is authenticated as superadmin."
-      },
-      {
-        "id": 2,
-        "description": "Check if the portal limit UI is present. Count the current number of portals visible in the list. If already at 10 portals, attempt to click 'Add Portal' and verify it is disabled or shows a limit error. If fewer than 10 portals exist, check if the portal count is displayed anywhere (e.g. '1 of 10 portals used'). SKIP creating additional portals to hit the limit — that would require too many API calls. Instead, verify the limit is communicated in the UI (badge, tooltip, or count display). Report what limit UI is visible.",
-        "action": "Navigate to https://app.phronex.com/jp/portals. Count visible portals. Look for any '10 portal limit' indicator, capacity badge, or count display. If at exactly 10, try clicking Add Portal to confirm it is blocked.",
-        "expected": "PASS if: (A) a portal count or limit indicator is visible in the UI, or (B) the Add Portal button is disabled/blocked when at the limit. PASS also if fewer than 10 portals exist — the limit was not hit this run. Report what was found."
-      },
-      {
-        "id": 3,
-        "description": "Delete a portal and verify it is removed.",
-        "action": "Find the portal created by jp-jp-portals (named 'TestPortal_QA_001_EDITED' or similar). Click the delete/remove action for that portal. Confirm the deletion in any confirmation dialog.",
-        "expected": "A DELETE request is made to /portals/{id}. The portal is removed from the list immediately. After page reload, the portal is no longer present."
-      },
-      {
-        "id": 4,
-        "description": "Navigate away from /jp/portals to the dashboard, then return and verify data/state persists.",
-        "action": "Click the 'Dashboard' link in the sidebar. Verify the dashboard loads. Then navigate back to /jp/portals.",
-        "expected": "Navigation works without errors. Upon returning to /jp/portals, the portal list is consistent. No stale or blank state is shown."
-      },
-      {
-        "id": 5,
-        "description": "Verify the portals page is only accessible to authenticated users (session guard).",
-        "action": "Open a new incognito/private browser context (no session). Navigate directly to https://app.phronex.com/jp/portals.",
-        "expected": "The user is redirected to the login page or an authentication error is shown. The portals data is NOT visible to unauthenticated users."
-      },
-      {
-        "id": 6,
-        "description": "Verify admin/SA-only portal management controls are visible for superadmin but not regular users.",
-        "action": "With the superadmin session, confirm any amber-variant admin tabs or controls are visible on /jp/portals. Then load a regular user session and navigate to /jp/portals.",
-        "expected": "Admin/SA controls (amber sidebar pills) are visible only to superadmin. Regular users see only their own portals with no access to other users' data. Cross-user portal data is not leaking."
-      },
-      {
-        "id": 7,
-        "description": "Cross-service integration: verify that a portal's search profiles are reflected in the Jobs page job listing filters.",
-        "action": "Navigate to /jp/jobs. Check the filter options for portal or search profile.",
-        "expected": "The portal names and/or search profile keywords from the created portals appear as filter options in the Jobs page, confirming the portals configuration feeds the job scraping pipeline."
-      }
-    ],
-    "dependsOn": "jp-trunk-main"
-  },
-  {
     "id": "jp-jp-audit-log",
-    "description": "[admin] Jp Audit Log — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[admin] Jp Audit Log \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -631,7 +587,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the audit log table structure — headers and at least one data row are present.",
+        "description": "Verify the audit log table structure \u2014 headers and at least one data row are present.",
         "action": "Inspect the audit log table/list. Check for column headers such as 'Action', 'User', 'Timestamp', 'IP Address', or equivalent. Scroll to confirm at least one row of audit data is rendered.",
         "expected": "Table headers are present and match expected audit log columns (action type, actor, timestamp, resource). At least one audit log entry is displayed, indicating backend data is being fetched and rendered."
       },
@@ -649,21 +605,21 @@
       },
       {
         "id": 6,
-        "description": "Test date/time filter — filter audit log by a date range.",
+        "description": "Test date/time filter \u2014 filter audit log by a date range.",
         "action": "Locate the date range filter input (date picker or start/end date fields). Set the start date to 30 days ago and end date to today. Submit or apply the filter.",
         "expected": "The audit log table updates to show only entries within the selected date range. Entries outside the range are absent. A loading indicator is shown while fetching filtered results."
       },
       {
         "id": 7,
-        "description": "Test time period filter — the JP audit log provides period filter buttons (7d, 14d, 30d, 90d), NOT action-type or user/actor filters. Click a period filter button.",
-        "action": "Look for period filter buttons labeled '7d', '14d', '30d', '90d' (or similar). Click '30d' to filter to the last 30 days. NOTE: There is NO action-type filter dropdown and NO user/actor search input on this page — those do not exist in the current implementation. PASS if the period filter buttons are present and functional.",
+        "description": "Test time period filter \u2014 the JP audit log provides period filter buttons (7d, 14d, 30d, 90d), NOT action-type or user/actor filters. Click a period filter button.",
+        "action": "Look for period filter buttons labeled '7d', '14d', '30d', '90d' (or similar). Click '30d' to filter to the last 30 days. NOTE: There is NO action-type filter dropdown and NO user/actor search input on this page \u2014 those do not exist in the current implementation. PASS if the period filter buttons are present and functional.",
         "expected": "Period filter buttons are present (7d/14d/30d/90d). Clicking a button filters the audit log to that time window. The selected button shows active state. Table updates with entries from the selected period."
       },
       {
         "id": 8,
         "description": "Verify the filtered period updates the displayed entries. Click '7d' to show only the last 7 days.",
         "action": "Click the '7d' period filter button. Wait for the table to reload.",
-        "expected": "The audit log refreshes showing only entries from the last 7 days. Row count may decrease compared to '90d' view. PASS regardless of row count — the filter control working is what matters. There is no user/actor filter to test."
+        "expected": "The audit log refreshes showing only entries from the last 7 days. Row count may decrease compared to '90d' view. PASS regardless of row count \u2014 the filter control working is what matters. There is no user/actor filter to test."
       },
       {
         "id": 9,
@@ -685,7 +641,7 @@
       },
       {
         "id": 12,
-        "description": "Verify the audit log is read-only — no edit, delete, or create controls are present.",
+        "description": "Verify the audit log is read-only \u2014 no edit, delete, or create controls are present.",
         "action": "Scan the audit log table and any detail views for edit buttons, delete icons, inline inputs, or 'Add Entry' controls.",
         "expected": "No edit, delete, or create controls are present on the audit log. The page is strictly read-only, enforcing audit trail immutability."
       },
@@ -697,7 +653,7 @@
       },
       {
         "id": 14,
-        "description": "Test unauthorized access — verify non-admin users cannot access the audit log.",
+        "description": "Test unauthorized access \u2014 verify non-admin users cannot access the audit log.",
         "action": "Open an incognito/private browser window. Navigate to https://app.phronex.com/jp/audit-log without logging in, or log in as a non-admin (free-tier or standard-tier) user if test credentials are available.",
         "expected": "Unauthenticated users are redirected to /auth/login. Non-admin authenticated users receive a 403/unauthorized error page or are redirected away from /jp/audit-log. The audit log data is never rendered for unauthorized users."
       },
@@ -733,7 +689,7 @@
       },
       {
         "id": 20,
-        "description": "Final state check — reload the page and confirm full re-render with no regressions.",
+        "description": "Final state check \u2014 reload the page and confirm full re-render with no regressions.",
         "action": "Hard-reload /jp/audit-log (Ctrl+Shift+R or Cmd+Shift+R). Wait for the page to fully load. Check the console for errors and verify the table renders with data.",
         "expected": "Page reloads cleanly. Audit log data is fetched and rendered. No JS errors, no failed API calls, no broken layout. The page is in a fully functional state."
       }
@@ -742,7 +698,7 @@
   },
   {
     "id": "jp-jp-scan-history",
-    "description": "[automation] Jp Scan History — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[automation] Jp Scan History \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -767,7 +723,7 @@
         "id": 4,
         "description": "Check if scan history entries have clickable links to portal/profile context. Portal names and search profile entries may be plain text (not links) in the current implementation.",
         "action": "Inspect the first scan history row. Check if the portal name or search profile is a clickable link (anchor tag, button, or has a hover cursor). If clickable, click it and observe where it navigates.",
-        "expected": "PASS if: (A) portal name IS a clickable link and navigates to portal config, OR (B) portal name is plain text (not a link) — this is an acceptable implementation for a read-only history view. FAIL only if: clicking the element throws a JS error or navigates to an error page. Report what was found."
+        "expected": "PASS if: (A) portal name IS a clickable link and navigates to portal config, OR (B) portal name is plain text (not a link) \u2014 this is an acceptable implementation for a read-only history view. FAIL only if: clicking the element throws a JS error or navigates to an error page. Report what was found."
       },
       {
         "id": 5,
@@ -801,7 +757,7 @@
       },
       {
         "id": 10,
-        "description": "Check for failed scan entries and error details. NOTE: If all visible scans have 'OK' or success status, skip this step — there may be no failed entries in test data.",
+        "description": "Check for failed scan entries and error details. NOTE: If all visible scans have 'OK' or success status, skip this step \u2014 there may be no failed entries in test data.",
         "action": "Look for any scan history row with a 'Failed', 'Error', or non-OK status. If found, hover over the status badge or click a detail icon. If NO failed entries exist, report that and PASS this step.",
         "expected": "PASS if: (A) a failed entry exists AND shows an error reason/tooltip on hover/click, OR (B) no failed entries exist in the current scan history data (test data is all successful scans). FAIL only if: a failed entry is visible but shows no error information at all."
       },
@@ -815,58 +771,8 @@
     "dependsOn": "jp-trunk-main"
   },
   {
-    "id": "jp-jp-scan-history-extended",
-    "description": "[automation] Jp Scan History Extended — Admin scope, nav persistence, auth guard, empty state, responsive layout. Depends on jp-jp-scan-history completing core display and filter tests.",
-    "depth": 3,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter superadmin credentials, and verify redirect to dashboard.",
-        "expected": "Browser is authenticated as superadmin. Sidebar shows admin/SA amber tabs."
-      },
-      {
-        "id": 2,
-        "description": "Verify superadmin can view scan history for all users, not just their own.",
-        "action": "Navigate to https://app.phronex.com/jp/scan-history. As superadmin, check if there is a user selector or 'All Users' toggle on the scan history page. If present, select a non-superadmin user from the dropdown.",
-        "expected": "Scan history updates to show entries for the selected user. A label or header indicates the currently viewed user. Superadmin's own scan history is not mixed with the selected user's data."
-      },
-      {
-        "id": 3,
-        "description": "Navigate away from /jp/scan-history to the dashboard, then return and verify the data/state persists.",
-        "action": "Click the Dashboard link in the sidebar. Wait for the dashboard to load. Then click back to Scan History (or navigate to https://app.phronex.com/jp/scan-history).",
-        "expected": "Scan history page reloads and shows the same data as before navigation. Any active filters or pagination state may reset (acceptable) but the underlying data rows are consistent. No loading errors on return visit."
-      },
-      {
-        "id": 4,
-        "description": "Verify the scan history page is accessible from the sidebar navigation under the correct group.",
-        "action": "Inspect the sidebar navigation structure. Locate the 'Search' group or equivalent. Verify 'Scan History' is listed as a tab item.",
-        "expected": "'Scan History' appears in the sidebar under the correct group (e.g. Search). It is visible to superadmin. The active state highlights correctly when on the scan history page."
-      },
-      {
-        "id": 5,
-        "description": "Verify no cross-user data leakage in scan history API responses.",
-        "action": "Open browser DevTools Network tab. Navigate to /jp/scan-history and observe the API request made (e.g. GET /api/scan-history or equivalent). Inspect the response payload for user_id or owner fields.",
-        "expected": "All returned scan history records have a user_id or owner field matching the currently authenticated user (or the selected user if superadmin is impersonating). No records from other users appear in the response payload."
-      },
-      {
-        "id": 6,
-        "description": "Verify page behavior when scan history is empty for a new user.",
-        "action": "If possible, switch to a test user account with no scan history. Navigate to /jp/scan-history.",
-        "expected": "An empty state UI is shown (e.g. illustration + message like 'No scans yet. Configure a portal to start scanning.'). No errors. No broken layout. A CTA or link to portal configuration may be present."
-      },
-      {
-        "id": 7,
-        "description": "Verify responsive layout of scan history at mobile viewport width.",
-        "action": "Resize the browser viewport to 375px wide (mobile). Navigate to /jp/scan-history and inspect the layout.",
-        "expected": "The scan history table/list adapts to mobile width without horizontal overflow. Column headers and row data remain readable. No content is clipped or hidden behind other elements. Pagination or scroll controls remain usable."
-      }
-    ],
-    "dependsOn": "jp-trunk-main"
-  },
-  {
     "id": "jp-jp-admin-portrait",
-    "description": "[admin] Jp Admin Portrait — Discovery journey: navigate to /jp/admin-portrait and document what the page actually shows. NOTE: This page may be a user lookup interface (not a portrait management interface). Steps are observation-based to catalogue actual functionality.",
+    "description": "[admin] Jp Admin Portrait \u2014 Discovery journey: navigate to /jp/admin-portrait and document what the page actually shows. NOTE: This page may be a user lookup interface (not a portrait management interface). Steps are observation-based to catalogue actual functionality.",
     "depth": 3,
     "steps": [
       {
@@ -890,7 +796,7 @@
       {
         "id": 4,
         "description": "If portrait management controls are present (regenerate button, upload button): test the regenerate flow. If NOT present (page is a user lookup interface): search for a specific user and verify they appear in results.",
-        "action": "Branch based on what step 3 found: (A) If 'Regenerate' button exists — click it and observe the loading state. (B) If the page is a user lookup interface — find a search input, type a known user identifier, verify search results appear.",
+        "action": "Branch based on what step 3 found: (A) If 'Regenerate' button exists \u2014 click it and observe the loading state. (B) If the page is a user lookup interface \u2014 find a search input, type a known user identifier, verify search results appear.",
         "expected": "PASS if either branch completes without JS errors. Report which branch was taken and what happened."
       },
       {
@@ -907,7 +813,7 @@
       },
       {
         "id": 7,
-        "description": "Verify page navigation from admin-portrait works correctly — navigate to the dashboard and back.",
+        "description": "Verify page navigation from admin-portrait works correctly \u2014 navigate to the dashboard and back.",
         "action": "Click the 'Dashboard' sidebar link. Wait for the dashboard to load. Then navigate back to https://app.phronex.com/jp/admin-portrait.",
         "expected": "Dashboard loads without error. Returning to admin-portrait reloads the page correctly. No session loss or error on return navigation."
       },
@@ -922,7 +828,7 @@
   },
   {
     "id": "jp-jp-users",
-    "description": "[admin] Jp Users — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[admin] Jp Users \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
     "steps": [
       {
@@ -971,7 +877,7 @@
       },
       {
         "id": 10,
-        "description": "If no user edit form is accessible (empty table or no edit button), PASS with a note. If an edit form is open, clear the full_name field entirely and attempt to submit — verify required field validation triggers (error message shown)."
+        "description": "If no user edit form is accessible (empty table or no edit button), PASS with a note. If an edit form is open, clear the full_name field entirely and attempt to submit \u2014 verify required field validation triggers (error message shown)."
       },
       {
         "id": 11,

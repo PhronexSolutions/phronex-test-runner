@@ -144,23 +144,26 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-## CC-01: EC2 deploy needed for IDOR fix + portal users filter (2026-05-11) — ⚠️ SECURITY CONFIRMED LIVE
+## CC-01: EC2 deploy needed for IDOR fix (chat endpoint) — ⚠️ SECURITY CONFIRMED LIVE (2026-05-11)
 
-**What:** Two commits need an EC2 deploy to go live:
-1. CC `38617a1` — IDOR fix on `/api/v1/config/usage` (security)
-2. Portal `8e35075` — source filter in CC users panel + anonymous users now visible
+**Status update (CC Run 11, 2026-05-11):**
+- `/api/v1/config/usage` IDOR: ✅ CLOSED — step 3 passes (403 returned). The endpoint already had instance_id scope enforcement at lines 167-168 of routes_config.py.
+- `/api/v1/chat/message` IDOR: ❌ STILL LIVE ON EC2. CC Run 11 step 4 confirmed: anonymous token from `e2e-test-instance` can send chat messages to `maxine` instance (HTTP 200 returned, expected 403).
 
-**⚠️ IDOR CONFIRMED ACTIVELY EXPLOITABLE (Run 7 verified 2026-05-11 07:25 UTC):**
-JourneyHawk Run 7 journey `cc-sec-idor-cross-instance` confirmed: an anonymous token issued for
-`e2e-test-instance` returns HTTP 200 with real data (`tier`, `monthly_limit`, `messages_used`)
-when calling `/api/v1/config/usage?instance_id=maxine`. Cross-instance data is accessible to
-any user with a valid CC token — just change the `instance_id` query parameter.
+**Fix in git:** CC `e69b7f0` — added instance_id scope check to `_validate_chat_access()` in routes_chat.py. Raises 403 when token's instance_id ≠ request body's instance_id. Committed but NOT deployed to EC2.
 
-**Fix is in local repo only:** CC `38617a1` closes this with an IDOR guard at the endpoint.
-EC2 still running pre-fix code.
+**Portal commits also pending deploy:**
+- `de6d461` — Scan History moved from Settings → Search group in sidebar
+- Any other portal commits since last deploy
 
-**Action needed:** Deploy CC to EC2 ASAP. This is a live security vulnerability, not a deferred item.
-No Alembic migrations required — API-only change.
+**Action needed:** Deploy CC to EC2 ASAP. No Alembic migrations — API-only change.
+```bash
+# CC deploy (no migration)
+$PHRONEX_SSH ubuntu@43.204.79.39 "cd /opt/contentcompanion && git pull origin main && \
+  /opt/contentcompanion/.venv/bin/pip install -e /opt/contentcompanion --quiet --no-deps && \
+  sudo systemctl restart contentcompanion && sleep 3 && \
+  curl -sf http://localhost:8000/api/v1/health && echo 'CC deploy OK'"
+```
 
 ---
 
@@ -360,13 +363,15 @@ generated journeys to fall back to heuristic (unmodified specs = zero enrichment
 - Multiple other portal improvements from the last week
 
 **Additionally, CC backend commits pending EC2 deploy:**
-- `38617a1` — SECURITY: IDOR fix on /config/usage (HIGH PRIORITY — actively exploitable)
+- `e69b7f0` — SECURITY: IDOR fix on /chat/message (HIGH PRIORITY — actively exploitable; token from one instance can access another instance's AI)
 - `344b274` — EmailStr validation fix
 - `07aa630` — KB stats endpoints (admin + owner)
 
+Note: `38617a1` (config/usage IDOR) was already protected — routes_config.py lines 167-168 had the instance_id scope check. CC Run 11 confirmed step 3 passes (403 returned). The active security IDOR is only on the chat endpoint.
+
 **Action needed:** `pnpm build` on DevServer → rsync `.next/` to EC2 → `sudo systemctl restart phronex-portal`. Then deploy CC: `git pull && pip install --no-deps && alembic upgrade head && systemctl restart contentcompanion`.
 
-**Note:** GitHub Actions free plan minutes are exhausted — deploy manually. The IDOR security fix (`38617a1`) should be prioritized.
+**Note:** GitHub Actions free plan minutes are exhausted — deploy manually. The IDOR security fix (`e69b7f0`) should be prioritized.
 
 
 ---
