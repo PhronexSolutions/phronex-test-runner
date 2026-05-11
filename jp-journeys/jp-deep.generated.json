@@ -471,7 +471,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(), clear all authentication tokens from browser storage: call localStorage.clear() and sessionStorage.clear(). Also set all document.cookie entries to expire. Verify via page.evaluate() that localStorage.length === 0 after the operation."
+        "description": "Using page.evaluate(), call localStorage.clear() and sessionStorage.clear(). Verify via page.evaluate() that localStorage.length === 0 after the operation. IMPORTANT: Auth.js v5 stores the session in an HttpOnly cookie — JavaScript CANNOT clear it. This step only clears client-side state (React hydration cache, etc.). The Auth.js session cookie will remain valid. This is by design."
       },
       {
         "id": 4,
@@ -479,7 +479,7 @@
       },
       {
         "id": 5,
-        "description": "Verify the outcome: PASS if the page redirects to https://app.phronex.com/auth/login (or shows a login form). FAIL if: (a) the config page renders with user data visible despite cleared tokens, (b) a JavaScript error page or 500 appears, or (c) a blank white screen with no user-facing message is shown. Screenshot the result."
+        "description": "Navigate to https://app.phronex.com/jp/config — a protected page that requires auth. IMPORTANT: Auth.js v5 uses HttpOnly session cookies. Clearing localStorage/sessionStorage does NOT invalidate the session. The page WILL render with user content — this is CORRECT behavior. PASS if: (A) page renders with user content (HttpOnly cookie session still valid — expected), or (B) page redirects to login. FAIL only if: a JavaScript crash occurs, a 500 error appears, or a blank white screen is shown. To test actual session revocation, use /api/auth/signout (not localStorage.clear()). This journey tests storage clearing, not cookie-based session expiry. Take a screenshot of the resulting page state."
       },
       {
         "id": 6,
