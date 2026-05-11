@@ -35,19 +35,22 @@
 
 ---
 
-## D-03: ComC non-admin QA user — RESOLVED (2026-05-11)
+## D-03: Shared cross-product QA accounts — RESOLVED (2026-05-11)
 
-**Status:** RESOLVED — `qa-comc-user@phronex.com` provisioned and verified.
+**Status:** RESOLVED — all shared QA accounts provisioned, verified, and wired in `.qa.env`.
 
-**Account details:**
-- `account_id`: `b679edd0-f3a8-4718-b91e-62d592c17058`
-- `is_superadmin`: false, `rate_limit_exempt`: true, `is_active`: true
-- Grant: `command-centre` / `e2e-test-instance-comc` / role=`member` / tier=`standard`
-- Grant ID: `8794433e-f616-4c42-89a9-85efd1ed1a0f`
-- Credentials: `QA_COMC_USER_EMAIL` + `QA_COMC_USER_PASSWORD` in `.qa.env`
-- Login verified: `POST /auth/login` returns valid token (2026-05-11)
+**Decision:** QA accounts are shared resources across all products (not per-product duplicates). All accounts: `is_superadmin=false`, `rate_limit_exempt=true`.
 
-**RBAC journeys enabled:** Can now test non-admin access flows (member cannot access admin-only routes, feature gating, org isolation). Add `comc-rbac-member` journeys in next ComC run.
+| Account | Products + Role/Tier | Purpose |
+|---------|---------------------|---------|
+| `qa-owner@phronex.com` (`JHTest2026#Owner!`) | CC owner/premium · ComC owner/premium · JP owner/pro | Owner-level RBAC journeys |
+| `qa-user@phronex.com` (`JHTest2026#User!`) | CC member/free · ComC member/standard · JP member/free | Member-level RBAC journeys |
+| `qa-jp-free@phronex.com` | JP member/free | JP tier-gating (free tier UI) |
+| `qa-jp-standard@phronex.com` | JP member/standard | JP tier-gating (standard tier UI) |
+| `qa-jp-pro@phronex.com` | JP member/pro | JP tier-gating (pro tier UI) |
+| `qa-comc-user@phronex.com` (`JHTest2026#CComC!`) | ComC member/standard | ComC non-admin flows |
+
+**RBAC journeys:** Ready to run in next test pass. Add `comc-rbac-member`, `cc-rbac-member`, `jp-rbac-owner` journey specs for the next run.
 
 **No further action needed.**
 
