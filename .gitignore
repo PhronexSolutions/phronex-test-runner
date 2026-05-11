@@ -182,3 +182,7 @@ save_storage_state.js
 temp_*.js
 test-*.pdf
 test-*.txt
+# Auth session state files (contain live cookies — never commit)
+superadmin-session.json
+*-session.json
+*-state.json
