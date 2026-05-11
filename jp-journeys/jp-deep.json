@@ -476,32 +476,32 @@
   },
   {
     "id": "jp-biz-session-handling-revoked-token",
-    "description": "Session handling test: a user performs normal actions then the session token is invalidated (simulated by clearing storage) \u2014 verifies graceful redirect to login page, not a broken error page or silent failure. Tests that protected routes enforce auth on every navigation.",
+    "description": "Session handling test: verify that signing out via the Auth.js signout endpoint correctly terminates the session and protected routes redirect to login. IMPORTANT: Auth.js v5 stores sessions in HttpOnly cookies \u2014 clearing localStorage/sessionStorage has NO effect on session validity. This journey tests actual signout, not storage clearing.",
     "dependsOn": "jp-trunk-main",
     "steps": [
       {
         "id": 1,
-        "description": "Load saved session from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\" using the browser storage state tool. Navigate to https://app.phronex.com/jp/dashboard and verify the page loads with user content visible (not a login form)."
+        "description": "Load saved session from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\" using the browser storage state tool. Navigate to https://app.phronex.com/jp/dashboard and verify the page loads with user content visible (not a login form). Confirm the session is active."
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/jp/jobs. Verify the jobs list or empty state renders without error. This confirms the session is fully functional before token invalidation."
+        "description": "Navigate to https://app.phronex.com/jp/jobs. Verify the jobs list or empty state renders without error. This confirms the session is fully functional before signout."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(), clear all authentication tokens from browser storage: call localStorage.clear() and sessionStorage.clear(). Also set all document.cookie entries to expire. Verify via page.evaluate() that localStorage.length === 0 after the operation."
+        "description": "Trigger signout by navigating to https://app.phronex.com/api/auth/signout or using the portal's sign-out button/link (look for a user avatar, account menu, or sign-out option in the navigation). If navigating directly to the signout URL, it may show a confirmation page \u2014 if so, confirm signout. Verify the session is terminated."
       },
       {
         "id": 4,
-        "description": "Navigate to https://app.phronex.com/jp/config \u2014 a protected page that requires auth. Observe the resulting page."
+        "description": "After signout, navigate to https://app.phronex.com/jp/config \u2014 a protected page that requires auth. Observe the resulting page."
       },
       {
         "id": 5,
-        "description": "Verify the outcome: PASS if the page redirects to https://app.phronex.com/auth/login (or shows a login form). FAIL if: (a) the config page renders with user data visible despite cleared tokens, (b) a JavaScript error page or 500 appears, or (c) a blank white screen with no user-facing message is shown. Screenshot the result."
+        "description": "Verify the outcome: PASS if the page redirects to https://app.phronex.com/auth/login (or shows a login form). Auth.js v5 uses HttpOnly cookies \u2014 clearing localStorage/sessionStorage does NOT revoke the session; only a proper signout call does. FAIL if: (a) the config page renders with user data visible despite signout, (b) a JavaScript error page or 500 appears, or (c) a blank white screen with no user-facing message is shown. Screenshot the result."
       },
       {
         "id": 6,
-        "description": "Verify the login redirect URL does not expose sensitive data (user email, user ID, JWT fragments) in query parameters. Screenshot the login page URL bar to document the redirect behavior."
+        "description": "Verify the login redirect URL does not expose sensitive data (user email, user ID, JWT fragments) in query parameters. Screenshot the login page URL bar to document the redirect behavior. PASS if redirected cleanly to /auth/login with no sensitive data in the URL."
       }
     ]
   }

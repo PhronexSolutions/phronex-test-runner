@@ -1,0 +1,995 @@
+[
+  {
+    "id": "jp-trunk-main",
+    "description": "Authenticate as the main QA user (qa-test-journeyhawk@phronex.com) and capture browser session state for dependent journeys",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
+      },
+      {
+        "id": 2,
+        "description": "Enter the email address qa-test-journeyhawk@phronex.com into the email input field"
+      },
+      {
+        "id": 3,
+        "description": "Enter the password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 into the password field"
+      },
+      {
+        "id": 4,
+        "description": "Click the Sign In button to submit the login form"
+      },
+      {
+        "id": 5,
+        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
+      }
+    ],
+    "isSharedRoot": true,
+    "stateOutputPath": ".tmp/jp-trunk-main-state.json"
+  },
+  {
+    "id": "jp-branch-dashboard",
+    "description": "Navigate to the JP dashboard and verify stats/panels are visible",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/dashboard"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the dashboard page to fully load (no loading spinners visible)"
+      },
+      {
+        "id": 3,
+        "description": "Verify that stats cards or summary panels are visible on the page. Report the names/labels of any stats shown."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the full dashboard page"
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-branch-jobs-list",
+    "description": "Navigate to the JP jobs list and verify the list or empty state renders correctly",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the jobs page to fully load"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page renders either a list of job cards/rows OR a meaningful empty state. Report which state is shown and how many jobs are visible."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the jobs list page"
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-branch-job-detail",
+    "description": "Open the first job in the jobs list and verify the detail panel renders",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
+      },
+      {
+        "id": 2,
+        "description": "If jobs are listed, click on the first job card or row to open its detail view. If no jobs exist, navigate to https://app.phronex.com/jp/jobs and note the empty state."
+      },
+      {
+        "id": 3,
+        "description": "Verify the job detail panel or page opens and shows job title, company name, and description. Report whether the detail view opened or if the empty state was encountered."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the job detail view or empty state"
+      }
+    ],
+    "dependsOn": "jp-branch-jobs-list"
+  },
+  {
+    "id": "jp-branch-profile",
+    "description": "Navigate to the JP config page Personal Info tab and verify profile form fields are visible",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the config page to load, then click the 'Personal Info' tab to switch to the personal information form"
+      },
+      {
+        "id": 3,
+        "description": "Verify that personal info form fields are visible (e.g. name, email, phone, experience, skills, or similar). Report the field names that are present."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Personal Info tab"
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-branch-documents",
+    "description": "Navigate to the JP documents page and verify upload button or document list is visible",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/documents"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the documents page to fully load"
+      },
+      {
+        "id": 3,
+        "description": "Verify that an upload button/CTA OR a document list (even if empty) is visible. Report which is shown and whether any documents are listed."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the documents page"
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-branch-config",
+    "description": "Navigate to the JP config settings page and verify at least one configurable setting is visible",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the configuration settings page to load"
+      },
+      {
+        "id": 3,
+        "description": "Verify that at least one configurable setting is visible (toggles, inputs, selects, or API key fields). Report the settings available."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the config page"
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-branch-subscription-free",
+    "description": "Navigate to the subscription page as the authenticated QA user and verify tier label, limits, and upgrade CTAs are visible",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from \".tmp/jp-trunk-main-state.json\" using the browser_navigate tool, then navigate to https://app.phronex.com/jp/subscription"
+      },
+      {
+        "id": 2,
+        "description": "Verify the subscription page loaded successfully (URL contains /jp/subscription, NOT redirected to login). Take a screenshot of the full page."
+      },
+      {
+        "id": 3,
+        "description": "Verify a tier label is visible on the page (e.g. 'Free', 'Standard', 'Pro' or similar). Report the exact text of the tier label found."
+      },
+      {
+        "id": 4,
+        "description": "Check if an upgrade CTA button is visible (e.g. 'Upgrade', 'Get Pro'). Report its text and whether it is clickable. If no upgrade CTA is present (user is on highest tier), report that instead."
+      },
+      {
+        "id": 5,
+        "description": "Check if usage limits or quota information is displayed (e.g. 'X applications remaining', 'X AI credits'). Report what limits are shown."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-verify-dashboard-stats",
+    "description": "Verify dashboard stat cards show numeric values and no JS console errors",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/dashboard if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Verify that stat cards display numeric values (not placeholder text or empty). Report the labels and values of each stat card."
+      },
+      {
+        "id": 3,
+        "description": "Check the browser console for critical JavaScript errors that visibly break dashboard functionality (e.g. React crash, blank page, missing data). Ignore network errors from background health-checks (/api/auth/me, /billing/pending) that do not affect displayed content. PASS if the dashboard renders stat cards correctly even if background network requests show errors."
+      },
+      {
+        "id": 4,
+        "description": "Take an annotated screenshot showing the stat cards with their values"
+      }
+    ],
+    "dependsOn": "jp-branch-dashboard"
+  },
+  {
+    "id": "jp-verify-jobs-search",
+    "description": "Verify job search and filter functionality works or shows a meaningful empty state",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Look for a search input or filter controls on the jobs list page. Report whether they are present."
+      },
+      {
+        "id": 3,
+        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies \u2014 either showing filtered results or a meaningful empty state. Report the outcome."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the search/filter state"
+      }
+    ],
+    "dependsOn": "jp-branch-jobs-list"
+  },
+  {
+    "id": "jp-verify-jobs-save",
+    "description": "Verify job thumbs-up feedback functionality \u2014 mark a job as good match, verify color changes, then undo",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Look for thumbs-up (\ud83d\udc4d) and thumbs-down (\ud83d\udc4e) buttons on a job row. These are the feedback/save buttons. If no jobs are listed, report the empty state and end the test with a note."
+      },
+      {
+        "id": 3,
+        "description": "Click the thumbs-up button on the first job. Verify the button color changes from gray/muted to green (indicating the job is marked as a good match). The change is a color shift, not a popup or toast."
+      },
+      {
+        "id": 4,
+        "description": "Click the same thumbs-up button again to undo the feedback. Verify the button color reverts to gray/muted. Take a screenshot."
+      }
+    ],
+    "dependsOn": "jp-branch-jobs-list"
+  },
+  {
+    "id": "jp-verify-job-apply",
+    "description": "Verify the job apply flow starts correctly from the job detail view",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "From the job detail view (or navigate to it via https://app.phronex.com/jp/jobs then click first job), look for an Apply button or CTA."
+      },
+      {
+        "id": 2,
+        "description": "If an Apply button exists, click it. Verify the application flow starts \u2014 a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
+      },
+      {
+        "id": 3,
+        "description": "If no jobs exist or no Apply button is present, report the state and PASS with a note that the feature could not be tested due to empty data."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the apply button state or application flow initiation"
+      }
+    ],
+    "dependsOn": "jp-branch-job-detail"
+  },
+  {
+    "id": "jp-verify-profile-update",
+    "description": "Verify personal info form updates persist after save and navigation",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there. Click the 'Personal Info' tab button to switch to the personal information editor. This tab contains a JSON text editor (a single large textbox), not individual form fields."
+      },
+      {
+        "id": 2,
+        "description": "The personal info is displayed as editable JSON in a textbox. Read the current JSON content. Find the 'location' field inside the 'basic' object and change its value to a unique test string like 'QA-City-YYYYMMDD-HHMM' using today's date and current time (e.g. 'QA-City-20260504-0730'). Make sure the resulting text is still valid JSON \u2014 only change the value string, not the structure. Click inside the textbox and carefully edit only that one field value."
+      },
+      {
+        "id": 3,
+        "description": "Click the 'Save' button below the JSON textbox. Wait 2-3 seconds and look for a success confirmation message (text saying 'Configuration saved successfully' or similar). If a success message appears, this step passes. Take a snapshot showing the confirmation."
+      },
+      {
+        "id": 4,
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard. Wait for the dashboard to load. Then navigate back to https://app.phronex.com/jp/config and click the 'Personal Info' tab. Read the JSON in the textbox and verify the 'location' field inside 'basic' still contains your QA-City test value from step 2. If the value persisted, this step passes. Take a screenshot showing the persisted value."
+      }
+    ],
+    "dependsOn": "jp-branch-profile"
+  },
+  {
+    "id": "jp-verify-documents-upload",
+    "description": "Verify document upload: upload test-resume.pdf, verify it appears, then delete it",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/documents if not already there. Note the current document count."
+      },
+      {
+        "id": 2,
+        "description": "Click the Upload button or file upload CTA. Use the file input to upload the file at './fixtures/test-resume.pdf' (relative to the test runner working directory)."
+      },
+      {
+        "id": 3,
+        "description": "Wait up to 10 seconds for the upload to complete. Verify a document named 'test-resume' or 'test-resume.pdf' now appears in the list. The document count should have increased by 1."
+      },
+      {
+        "id": 4,
+        "description": "Find and delete the just-uploaded 'test-resume.pdf' to clean up test data. Confirm it is removed from the list. PASS if the full upload-verify-delete cycle works. Take a screenshot."
+      }
+    ],
+    "dependsOn": "jp-branch-documents"
+  },
+  {
+    "id": "jp-verify-config-byok",
+    "description": "Verify BYOK or API key input field is present in config settings",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Look for a BYOK (Bring Your Own Key) section or any API key input field in the config page. Report whether it is present and what label it uses."
+      },
+      {
+        "id": 3,
+        "description": "Do NOT submit or change any API key. Only verify the field is present and labeled correctly."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the BYOK/API key section (or its absence)"
+      }
+    ],
+    "dependsOn": "jp-branch-config"
+  },
+  {
+    "id": "jp-verify-config-yaml",
+    "description": "Verify YAML editor or advanced config section renders without errors",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
+      },
+      {
+        "id": 2,
+        "description": "Look for a YAML editor, advanced config section, or raw configuration view. Report whether it is present."
+      },
+      {
+        "id": 3,
+        "description": "If a YAML editor is present, verify it renders without JavaScript errors and shows some content or placeholder. Report the contents."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the YAML editor or advanced config section (or its absence)"
+      }
+    ],
+    "dependsOn": "jp-branch-config"
+  },
+  {
+    "id": "jp-verify-portrait-regen",
+    "description": "Verify portrait page state and regeneration initiation for the main QA user",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/portrait"
+      },
+      {
+        "id": 2,
+        "description": "Check the current portrait state. If no portrait exists, verify a locked screen with clear instructions is shown. Report what the locked state says."
+      },
+      {
+        "id": 3,
+        "description": "If a portrait card exists, look for a Regenerate button. Click it and verify the regeneration process initiates (loading state, progress indicator, or confirmation message appears)."
+      },
+      {
+        "id": 4,
+        "description": "Report the overall outcome: was the portrait locked or accessible? Did regeneration initiate successfully? Take a screenshot showing the portrait page state."
+      }
+    ],
+    "dependsOn": "jp-branch-profile"
+  },
+  {
+    "id": "jp-biz-session-handling-revoked-token",
+    "description": "Session handling test: a user performs normal actions then the session token is invalidated (simulated by clearing storage) \u2014 verifies graceful redirect to login page, not a broken error page or silent failure. Tests that protected routes enforce auth on every navigation.",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\" using the browser storage state tool. Navigate to https://app.phronex.com/jp/dashboard and verify the page loads with user content visible (not a login form)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/jobs. Verify the jobs list or empty state renders without error. This confirms the session is fully functional before token invalidation."
+      },
+      {
+        "id": 3,
+        "description": "Using page.evaluate(), clear all authentication tokens from browser storage: call localStorage.clear() and sessionStorage.clear(). Also set all document.cookie entries to expire. Verify via page.evaluate() that localStorage.length === 0 after the operation."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/jp/config \u2014 a protected page that requires auth. Observe the resulting page."
+      },
+      {
+        "id": 5,
+        "description": "Verify the outcome: PASS if the page redirects to https://app.phronex.com/auth/login (or shows a login form). FAIL if: (a) the config page renders with user data visible despite cleared tokens, (b) a JavaScript error page or 500 appears, or (c) a blank white screen with no user-facing message is shown. Screenshot the result."
+      },
+      {
+        "id": 6,
+        "description": "Verify the login redirect URL does not expose sensitive data (user email, user ID, JWT fragments) in query parameters. Screenshot the login page URL bar to document the redirect behavior."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-portals",
+    "description": "[integration] Jp Portals \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
+        "action": "Load storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired, navigate to http://localhost:3002 and log in with superadmin credentials, then save the session.",
+        "expected": "Session is active. User is authenticated as superadmin. No redirect to login page."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/portals. Verify the page loads without errors.",
+        "action": "Navigate to http://localhost:3002/jp/portals. Wait for the page to fully load (networkidle). Check for absence of 'Something went wrong', blank page, or unhandled console errors.",
+        "expected": "Page loads successfully. The portals list or empty state is visible. No console errors. Page title or heading reflects 'Portals' or 'Search Profiles'."
+      },
+      {
+        "id": 3,
+        "description": "Verify the portals page renders the correct UI structure including list/table and action controls.",
+        "action": "Inspect the DOM for a portals list or table container, an 'Add Portal' or equivalent CTA button, and any existing portal rows. Confirm the sidebar pill group for 'Search' is active and 'Jobs' sub-item is visible.",
+        "expected": "Portal list container is present. 'Add Portal' button is visible and enabled. Sidebar navigation shows the correct active state."
+      },
+      {
+        "id": 4,
+        "description": "Open the Add Portal form.",
+        "action": "Click the 'Add Portal' (or equivalent) button. Wait for a modal or inline form to appear.",
+        "expected": "A form appears with fields for portal_name, credentials, auto_apply toggle, and at least one search profile input. Form is visible and interactive."
+      },
+      {
+        "id": 5,
+        "description": "Attempt to submit the Add Portal form with all fields empty (validation check).",
+        "action": "Click the form's submit button without filling in any fields.",
+        "expected": "Form submission is blocked. Validation error messages appear on required fields (at minimum portal_name and credentials). No network request is made or an appropriate 400 response is shown."
+      },
+      {
+        "id": 6,
+        "description": "Fill in the Add Portal form with valid data and submit.",
+        "action": "Enter a unique portal_name (e.g. 'TestPortal_QA_001'), enter placeholder credentials (e.g. 'test-credential-value'), set auto_apply to false, enter a keyword (e.g. 'software engineer') and location (e.g. 'Bangalore') for the first search profile. Click submit.",
+        "expected": "Form submits successfully. A POST /portals/ request is made. The new portal appears in the portals list with the correct name, credential masked/encrypted indicator, auto_apply status, and the search profile keyword/location. A success toast or confirmation is shown."
+      },
+      {
+        "id": 7,
+        "description": "Verify the newly created portal is persisted by refreshing the page.",
+        "action": "Reload the page (F5 / navigate to http://localhost:3002/jp/portals again). Wait for the list to load.",
+        "expected": "The newly created portal 'TestPortal_QA_001' is still present in the list after reload, confirming server-side persistence."
+      },
+      {
+        "id": 8,
+        "description": "Verify credentials are stored encrypted at rest (not shown in plaintext in the UI or API response).",
+        "action": "Inspect the portal row for 'TestPortal_QA_001'. Check whether credentials are masked (e.g. '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022' or '[encrypted]'). Also open browser DevTools Network tab and inspect the GET /portals/ response body for the credentials field.",
+        "expected": "Credentials are NOT shown in plaintext in the UI. API response does not return the raw credential value \u2014 it should be masked, omitted, or returned as an encrypted blob."
+      },
+      {
+        "id": 9,
+        "description": "Add a second search profile to the existing portal (Pro-tier behaviour check \u2014 free tier should be blocked at 2nd profile).",
+        "action": "Open the edit view for 'TestPortal_QA_001'. Click 'Add Search Profile' or equivalent. Enter keyword 'product manager' and location 'Remote'. Attempt to save.",
+        "expected": "If the test user is on the free tier: an upgrade prompt or error message appears stating the free tier allows only 1 search profile per portal. If on Pro: the second profile is added successfully and persisted."
+      },
+      {
+        "id": 10,
+        "description": "Edit the portal name and verify the update is persisted.",
+        "action": "Open the edit view for 'TestPortal_QA_001'. Change the portal_name to 'TestPortal_QA_001_EDITED'. Save the changes.",
+        "expected": "A PATCH or PUT request is made to update the portal. The portal list reflects the new name 'TestPortal_QA_001_EDITED' immediately and after a page reload."
+      },
+      {
+        "id": 11,
+        "description": "Toggle the auto_apply field and verify it persists.",
+        "action": "Open the edit view for 'TestPortal_QA_001_EDITED'. Toggle auto_apply to true. Save.",
+        "expected": "The auto_apply flag is updated to true in the portal list and confirmed via the GET /portals/ API response."
+      },
+      {
+        "id": 12,
+        "description": "Check if the portal limit UI is present. Count the current number of portals visible in the list. If already at 10 portals, attempt to click 'Add Portal' and verify it is disabled or shows a limit error. If fewer than 10 portals exist, check if the portal count is displayed anywhere (e.g. '1 of 10 portals used'). SKIP the creation of additional portals to hit the limit — that would require too many API calls. Instead, verify the limit is communicated in the UI (badge, tooltip, or count display). Report what limit UI is visible.",
+        "action": "Count visible portals. Look for any '10 portal limit' indicator, capacity badge, or count display. If at exactly 10, try clicking Add Portal to confirm it is blocked.",
+        "expected": "PASS if: (A) a portal count or limit indicator is visible in the UI, or (B) the Add Portal button is disabled/blocked when at the limit. PASS also if fewer than 10 portals exist but the test can verify the next portal was successfully created in step 6 — the limit was not hit this run. Report what was found."
+      },
+      {
+        "id": 13,
+        "description": "Delete a portal and verify it is removed.",
+        "action": "Find a portal in the list (e.g. one created during the 11-portal limit test). Click the delete/remove action for that portal. Confirm the deletion in any confirmation dialog.",
+        "expected": "A DELETE request is made to /portals/{id}. The portal is removed from the list immediately. After page reload, the portal is no longer present."
+      },
+      {
+        "id": 14,
+        "description": "Navigate away from /jp/portals to the dashboard, then return and verify data/state persists.",
+        "action": "Click the 'Dashboard' link in the sidebar. Verify the dashboard loads. Then click 'Jobs' or navigate back to /jp/portals.",
+        "expected": "Navigation works without errors. Upon returning to /jp/portals, all previously created/edited portals are still listed correctly. No stale or blank state is shown."
+      },
+      {
+        "id": 15,
+        "description": "Verify the portals page is only accessible to authenticated users (session guard).",
+        "action": "Open a new incognito/private browser context (no session). Navigate directly to http://localhost:3002/jp/portals.",
+        "expected": "The user is redirected to the login page or an authentication error is shown. The portals data is NOT visible to unauthenticated users."
+      },
+      {
+        "id": 16,
+        "description": "Verify admin/SA-only portal management controls are visible for superadmin but not regular users.",
+        "action": "With the superadmin session, confirm any amber-variant admin tabs or controls are visible on /jp/portals. Then load a regular user session and navigate to /jp/portals.",
+        "expected": "Admin/SA controls (amber sidebar pills) are visible only to superadmin. Regular users see only their own portals with no access to other users' data. Cross-user portal data is not leaking."
+      },
+      {
+        "id": 17,
+        "description": "Cross-service integration: verify that a portal's search profiles are reflected in the Jobs page job listing filters.",
+        "action": "Navigate to /jp/jobs. Check the filter options for portal or search profile.",
+        "expected": "The portal names and/or search profile keywords from the created portals appear as filter options in the Jobs page, confirming the portals configuration feeds the job scraping pipeline."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-audit-log",
+    "description": "[admin] Jp Audit Log \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or the file is missing, navigate to http://localhost:3002/auth/login, enter superadmin credentials, and submit the Sign In form.",
+        "expected": "Session is active. The browser holds a valid JWT cookie/localStorage token. No redirect to /auth/login occurs on subsequent navigations."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/audit-log. Verify the page loads without errors.",
+        "action": "Navigate to http://localhost:3002/jp/audit-log. Wait for the main content container to be visible. Open the browser console and check for errors.",
+        "expected": "Page renders with a visible audit log table or list. No 'Something went wrong' message. No uncaught JS errors or failed network requests (4xx/5xx) in the console."
+      },
+      {
+        "id": 3,
+        "description": "Verify the audit log table structure \u2014 headers and at least one data row are present.",
+        "action": "Inspect the audit log table/list. Check for column headers such as 'Action', 'User', 'Timestamp', 'IP Address', or equivalent. Scroll to confirm at least one row of audit data is rendered.",
+        "expected": "Table headers are present and match expected audit log columns (action type, actor, timestamp, resource). At least one audit log entry is displayed, indicating backend data is being fetched and rendered."
+      },
+      {
+        "id": 4,
+        "description": "Verify pagination or infinite scroll controls are present and functional.",
+        "action": "Check for pagination controls (page numbers, next/prev buttons) or an infinite scroll sentinel at the bottom of the list. If pagination exists, click 'Next' or page 2.",
+        "expected": "Pagination controls are visible. Clicking 'Next' or page 2 loads a new set of audit entries without a full page reload. The URL or page indicator updates to reflect the new page."
+      },
+      {
+        "id": 5,
+        "description": "Verify audit log entries display correct metadata fields.",
+        "action": "Inspect the first visible audit log row. Confirm it displays: an action label (e.g. 'LOGIN', 'UPDATE', 'DELETE'), an actor identifier (user email or ID), a timestamp (ISO or human-readable), and optionally an IP address or resource reference.",
+        "expected": "Each audit row renders all required metadata fields. No field shows 'undefined', 'null', or is visually empty where data is expected."
+      },
+      {
+        "id": 6,
+        "description": "Test date/time filter \u2014 filter audit log by a date range.",
+        "action": "Locate the date range filter input (date picker or start/end date fields). Set the start date to 30 days ago and end date to today. Submit or apply the filter.",
+        "expected": "The audit log table updates to show only entries within the selected date range. Entries outside the range are absent. A loading indicator is shown while fetching filtered results."
+      },
+      {
+        "id": 7,
+        "description": "Test action-type filter \u2014 filter by a specific action category.",
+        "action": "Locate the action type filter (dropdown or checkbox group). Select a specific action type (e.g. 'LOGIN' or 'UPDATE'). Apply the filter.",
+        "expected": "The table updates to show only audit entries matching the selected action type. The filter selection remains visible/active in the UI. Row count decreases or stays the same compared to unfiltered view."
+      },
+      {
+        "id": 8,
+        "description": "Test user/actor filter \u2014 search or filter by a specific user.",
+        "action": "Locate the user search or actor filter field. Type a known user email or username (e.g. the superadmin email used to log in). Submit the filter.",
+        "expected": "The table filters to show only audit entries attributed to the specified user. Other users' entries are not shown. The filter input retains the typed value."
+      },
+      {
+        "id": 9,
+        "description": "Clear all filters and verify the full unfiltered audit log is restored.",
+        "action": "Click 'Clear Filters', 'Reset', or manually clear all filter inputs (date range, action type, user). Confirm the table reloads.",
+        "expected": "All filters are cleared. The audit log table reverts to the full unfiltered dataset. Pagination resets to page 1 if applicable."
+      },
+      {
+        "id": 10,
+        "description": "Click into a specific audit log entry to view its detail (if a detail view or modal exists).",
+        "action": "Click on an audit log row or a 'View Details' / 'Expand' button on the first entry. Wait for a modal, drawer, or detail page to appear.",
+        "expected": "A detail view opens showing the full audit entry: action, actor, timestamp, IP address, resource affected, and any payload diff or metadata. No JS errors occur on open."
+      },
+      {
+        "id": 11,
+        "description": "Close the audit detail view and verify the list is still intact.",
+        "action": "Close the modal/drawer by clicking the close button or pressing Escape. Verify the underlying audit log list is still rendered.",
+        "expected": "The modal/drawer closes cleanly. The audit log table is still visible with the same filters and page state as before opening the detail view."
+      },
+      {
+        "id": 12,
+        "description": "Verify the audit log is read-only \u2014 no edit, delete, or create controls are present.",
+        "action": "Scan the audit log table and any detail views for edit buttons, delete icons, inline inputs, or 'Add Entry' controls.",
+        "expected": "No edit, delete, or create controls are present on the audit log. The page is strictly read-only, enforcing audit trail immutability."
+      },
+      {
+        "id": 13,
+        "description": "Verify the audit log API request uses the correct authenticated endpoint.",
+        "action": "Open the browser Network tab before navigating to /jp/audit-log. Reload the page and inspect the XHR/fetch requests made. Find the audit log data request.",
+        "expected": "A request is made to the audit log API endpoint (e.g. GET /api/v1/audit-log or similar). The request includes the Authorization: Bearer {JWT} header. The response is HTTP 200 with a JSON payload containing audit entries."
+      },
+      {
+        "id": 14,
+        "description": "Test unauthorized access \u2014 verify non-admin users cannot access the audit log.",
+        "action": "Open an incognito/private browser window. Navigate to http://localhost:3002/jp/audit-log without logging in, or log in as a non-admin (free-tier or standard-tier) user if test credentials are available.",
+        "expected": "Unauthenticated users are redirected to /auth/login. Non-admin authenticated users receive a 403/unauthorized error page or are redirected away from /jp/audit-log. The audit log data is never rendered for unauthorized users."
+      },
+      {
+        "id": 15,
+        "description": "Navigate away from /jp/audit-log to the dashboard, then return and verify the data and filter state.",
+        "action": "From /jp/audit-log, navigate to /jp/ (dashboard). Wait for the dashboard to load. Then navigate back to /jp/audit-log.",
+        "expected": "The audit log page reloads correctly. Data is fetched again from the backend and rendered without errors. If the page preserves filter state via URL params or session storage, the previous filters are restored; otherwise, the default unfiltered view is shown."
+      },
+      {
+        "id": 16,
+        "description": "Verify the audit log page title and breadcrumb are correct.",
+        "action": "Check the browser tab title and any in-page breadcrumb or heading element on /jp/audit-log.",
+        "expected": "The page title (document.title) references 'Audit Log' or similar. The in-page heading or breadcrumb reads 'Audit Log' or 'Admin / Audit Log'. No placeholder or fallback text (e.g. 'Page Title') is shown."
+      },
+      {
+        "id": 17,
+        "description": "Verify the audit log exports correctly if an export (CSV/JSON) feature is present.",
+        "action": "Look for an 'Export', 'Download CSV', or 'Export JSON' button on the audit log page. If present, click it.",
+        "expected": "A file download is triggered. The downloaded file is non-empty and contains audit log entries matching the current filter state. The filename includes a timestamp or descriptive label (e.g. audit-log-2026-05-11.csv)."
+      },
+      {
+        "id": 18,
+        "description": "Verify empty-state rendering when filters produce no results.",
+        "action": "Apply a date range filter for a future date range (e.g. 2030-01-01 to 2030-01-02) that is guaranteed to have no audit entries.",
+        "expected": "The table renders an empty state message (e.g. 'No audit entries found for the selected filters') rather than a blank table or spinner. The empty state is visually distinct and informative."
+      },
+      {
+        "id": 19,
+        "description": "Verify the audit log timestamps are displayed in a consistent, human-readable timezone.",
+        "action": "Inspect multiple audit log timestamp cells. Note the format and check whether a timezone indicator (UTC, IST, local) is shown.",
+        "expected": "All timestamps use a consistent format (ISO 8601 or locale-formatted). Timezone is either explicitly shown or documented. No raw epoch integers or 'Invalid Date' strings are rendered."
+      },
+      {
+        "id": 20,
+        "description": "Final state check \u2014 reload the page and confirm full re-render with no regressions.",
+        "action": "Hard-reload /jp/audit-log (Ctrl+Shift+R or Cmd+Shift+R). Wait for the page to fully load. Check the console for errors and verify the table renders with data.",
+        "expected": "Page reloads cleanly. Audit log data is fetched and rendered. No JS errors, no failed API calls, no broken layout. The page is in a fully functional state."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-scan-history",
+    "description": "[automation] Jp Scan History \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to http://localhost:3002/login, enter superadmin credentials, and verify redirect to dashboard.",
+        "expected": "Browser is authenticated as superadmin. Dashboard loads without errors. Sidebar is visible with admin/SA amber tabs present."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/scan-history. Verify the page loads without errors.",
+        "action": "Navigate to http://localhost:3002/jp/scan-history. Wait for the main content area to be visible. Check browser console for errors or failed network requests. Verify no 'Something went wrong' or blank page state.",
+        "expected": "Page renders scan history content. No console errors. No network requests return 4xx or 5xx. Page title or heading contains 'Scan History' or equivalent label."
+      },
+      {
+        "id": 3,
+        "description": "Verify scan history table or list is rendered with expected columns.",
+        "action": "Inspect the scan history page for a table or list component. Check for columns or fields such as: scan date/time, portal name, search profile, jobs found count, status, and actions.",
+        "expected": "At least one data row is visible OR an empty state message is shown (e.g. 'No scan history yet'). Column headers match expected schema: date, portal, profile, jobs found, status. No layout overflow or broken grid."
+      },
+      {
+        "id": 4,
+        "description": "Verify scan history entries link to correct portal and search profile context.",
+        "action": "If scan history rows are present, click the portal name or profile link in the first row. Observe navigation target or modal content.",
+        "expected": "Clicking the portal or profile link navigates to the relevant portal config page or opens a detail panel. The portal name in the detail matches the value shown in the scan history row."
+      },
+      {
+        "id": 5,
+        "description": "Verify date/time display formatting and timezone consistency.",
+        "action": "Inspect the date/time values in scan history rows. Note the format displayed (e.g. 'YYYY-MM-DD HH:MM' or relative time). Compare against the browser's local timezone.",
+        "expected": "Dates are displayed in a consistent, human-readable format. No epoch timestamps or raw ISO strings visible to the user. Relative times (e.g. '2 hours ago') are plausible relative to current time."
+      },
+      {
+        "id": 6,
+        "description": "Verify pagination or infinite scroll if more than one page of results exists.",
+        "action": "Scroll to the bottom of the scan history list. If a pagination control exists, click 'Next' or page 2. If infinite scroll, scroll until new rows load or an end-of-list message appears.",
+        "expected": "Additional rows load correctly on next page or scroll. Page indicator updates (e.g. 'Page 2 of 5'). No duplicate rows appear. Network request for additional data completes with 200."
+      },
+      {
+        "id": 7,
+        "description": "Verify filtering by portal name if a filter control is present.",
+        "action": "Locate a filter or search input on the scan history page. Select or type a specific portal name. Wait for the list to update.",
+        "expected": "Scan history list updates to show only entries matching the selected portal. Entries for other portals are not shown. Clearing the filter restores the full list."
+      },
+      {
+        "id": 8,
+        "description": "Verify filtering by date range if a date picker is present.",
+        "action": "If a date range picker exists, set a start date to 7 days ago and end date to today. Apply the filter.",
+        "expected": "Only scan history entries within the selected date range are displayed. Entries outside the range are excluded. The date picker reflects the selected values correctly."
+      },
+      {
+        "id": 9,
+        "description": "Verify scan status badges or indicators are visually distinct.",
+        "action": "Inspect status values shown in the scan history rows (e.g. 'Success', 'Failed', 'Partial'). Check that each status has a visually distinct badge color or icon.",
+        "expected": "Status badges use distinct colors (e.g. green for success, red for failed, amber for partial). Status labels are readable against their background. No status shows as undefined or empty."
+      },
+      {
+        "id": 10,
+        "description": "Verify that failed scan entries show an error reason or tooltip.",
+        "action": "If any scan history row has a 'Failed' or error status, hover over the status badge or click a detail/info icon associated with that row.",
+        "expected": "A tooltip, modal, or inline message displays the failure reason (e.g. 'Login failed', 'Portal timeout', 'Rate limited'). The error message is human-readable and non-empty."
+      },
+      {
+        "id": 11,
+        "description": "Verify jobs-found count links to the jobs list filtered by that scan.",
+        "action": "Click the jobs found count or link in a scan history row (if it is a hyperlink or button).",
+        "expected": "Navigation goes to /jp/jobs or equivalent, pre-filtered to jobs discovered in that specific scan. The jobs list shows only matching entries. A filter chip or breadcrumb indicates the scan context."
+      },
+      {
+        "id": 12,
+        "description": "Verify superadmin can view scan history for all users, not just their own.",
+        "action": "As superadmin, check if there is a user selector or 'All Users' toggle on the scan history page. If present, select a non-superadmin user from the dropdown.",
+        "expected": "Scan history updates to show entries for the selected user. A label or header indicates the currently viewed user. Superadmin's own scan history is not mixed with the selected user's data."
+      },
+      {
+        "id": 13,
+        "description": "Navigate away from /jp/scan-history to the dashboard, then return and verify the data/state persists.",
+        "action": "Click the Dashboard link in the sidebar. Wait for the dashboard to load. Then click back to Scan History (or navigate to http://localhost:3002/jp/scan-history).",
+        "expected": "Scan history page reloads and shows the same data as before navigation. Any active filters or pagination state may reset (acceptable) but the underlying data rows are consistent. No loading errors on return visit."
+      },
+      {
+        "id": 14,
+        "description": "Verify the scan history page is accessible from the sidebar navigation under the correct group.",
+        "action": "Inspect the sidebar navigation structure. Locate the 'Search' group or equivalent. Verify 'Scan History' is listed as a tab item.",
+        "expected": "'Scan History' appears in the sidebar under the correct group (e.g. Search). It is visible to superadmin. The active state highlights correctly when on the scan history page."
+      },
+      {
+        "id": 15,
+        "description": "Verify no cross-user data leakage in scan history API responses.",
+        "action": "Open browser DevTools Network tab. Navigate to /jp/scan-history and observe the API request made (e.g. GET /api/scan-history or equivalent). Inspect the response payload for user_id or owner fields.",
+        "expected": "All returned scan history records have a user_id or owner field matching the currently authenticated user (or the selected user if superadmin is impersonating). No records from other users appear in the response payload."
+      },
+      {
+        "id": 16,
+        "description": "Verify page behavior when scan history is empty for a new user.",
+        "action": "If possible, switch to a test user account with no scan history. Navigate to /jp/scan-history.",
+        "expected": "An empty state UI is shown (e.g. illustration + message like 'No scans yet. Configure a portal to start scanning.'). No errors. No broken layout. A CTA or link to portal configuration may be present."
+      },
+      {
+        "id": 17,
+        "description": "Verify responsive layout of scan history at mobile viewport width.",
+        "action": "Resize the browser viewport to 375px wide (mobile). Navigate to /jp/scan-history and inspect the layout.",
+        "expected": "The scan history table/list adapts to mobile width without horizontal overflow. Column headers and row data remain readable. No content is clipped or hidden behind other elements. Pagination or scroll controls remain usable."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-admin-portrait",
+    "description": "[admin] Jp Admin Portrait \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If loading fails or session cookie is expired (HTTP 401 on /api/v1/auth/me), navigate to http://localhost:3002/login, enter superadmin credentials, submit, and wait for redirect to dashboard.",
+        "expected": "Browser is authenticated as superadmin. Sidebar shows amber-variant admin/SA tabs. No 401 errors in network log."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/admin-portrait. Verify the page loads without errors.",
+        "action": "Navigate to http://localhost:3002/jp/admin-portrait. Wait for network idle. Check browser console for errors. Check page body for text 'Something went wrong', 'Error', or blank content.",
+        "expected": "Page renders without JS exceptions, no blank body, no error boundary fallback. HTTP status 200. Page title or heading references 'Portrait' or 'Admin Portrait'."
+      },
+      {
+        "id": 3,
+        "description": "Assert the portrait/avatar section is visible on the admin portrait page.",
+        "action": "Query DOM for portrait or avatar container element (e.g. img[alt*='portrait'], img[alt*='avatar'], or a section with heading containing 'Portrait'). Assert element is visible in viewport.",
+        "expected": "Portrait/avatar section is present and visible. Image src is non-empty or a placeholder is rendered. No broken image icon."
+      },
+      {
+        "id": 4,
+        "description": "Assert regeneration or upload action is accessible.",
+        "action": "Locate a button or link with text matching 'Regenerate', 'Upload', 'Change Photo', or similar within the portrait section. Assert the element is visible and not disabled.",
+        "expected": "At least one portrait action control (regenerate or upload) is visible and interactive. Button is not in a disabled or loading state."
+      },
+      {
+        "id": 5,
+        "description": "Trigger the portrait regeneration action and observe the loading state.",
+        "action": "Click the 'Regenerate' button (or equivalent). Observe the UI immediately after click for a loading spinner, skeleton, or disabled state on the button.",
+        "expected": "Button enters a loading/disabled state within 300ms of click. A spinner or progress indicator is shown. No JS exceptions thrown."
+      },
+      {
+        "id": 6,
+        "description": "Wait for regeneration to complete and assert the new portrait is displayed.",
+        "action": "Wait up to 15 seconds for the loading state to resolve (button re-enables or spinner disappears). Assert the portrait image src has changed from its pre-regeneration value, or a success toast/notification appears.",
+        "expected": "Portrait image updates (new src or updated timestamp param). A success message or toast is displayed. No error banner or failure state visible."
+      },
+      {
+        "id": 7,
+        "description": "Test portrait upload flow \u2014 select a valid image file.",
+        "action": "Locate the file input or upload button. Use the file chooser to select a valid JPEG or PNG image (\u22645MB). Wait for upload progress to complete.",
+        "expected": "Upload initiates without error. Progress indicator (if present) reaches 100%. Portrait preview updates to reflect the uploaded image."
+      },
+      {
+        "id": 8,
+        "description": "Test portrait upload validation \u2014 attempt to upload an invalid file type.",
+        "action": "Locate the file input. Attempt to upload a .txt or .pdf file. Submit if a separate submit action is required.",
+        "expected": "An inline validation error or toast message rejects the upload with a user-readable message (e.g. 'Only image files are accepted'). Portrait does not change. No JS exception in console."
+      },
+      {
+        "id": 9,
+        "description": "Test portrait upload validation \u2014 attempt to upload an oversized image.",
+        "action": "Attempt to upload an image file larger than the documented limit (e.g. >5MB). Submit if required.",
+        "expected": "A validation error is shown indicating the file is too large. Upload is rejected. Portrait remains unchanged. No unhandled exception."
+      },
+      {
+        "id": 10,
+        "description": "Verify admin-only visibility gate \u2014 confirm non-admin users cannot access this page.",
+        "action": "Open a new browser context (or logout and login as a regular non-admin user). Navigate directly to http://localhost:3002/jp/admin-portrait.",
+        "expected": "Non-admin user is redirected away (to dashboard or /unauthorized) or receives a 403/401 response. The admin portrait page content is not rendered for non-admin users."
+      },
+      {
+        "id": 11,
+        "description": "Return to superadmin session. Navigate away from /jp/admin-portrait to the dashboard.",
+        "action": "Restore superadmin session. Click the 'Dashboard' link in the sidebar. Wait for dashboard page to load fully.",
+        "expected": "Dashboard page loads. URL changes to /jp/dashboard or equivalent. No errors. Previously uploaded/regenerated portrait state is not lost from the DB (will verify in next step)."
+      },
+      {
+        "id": 12,
+        "description": "Navigate back to /jp/admin-portrait and verify data/state persists.",
+        "action": "Click the admin portrait link in the sidebar or navigate directly to http://localhost:3002/jp/admin-portrait. Wait for page load.",
+        "expected": "Portrait section shows the same image that was set/regenerated in steps 6-7. No reload spinner lasting more than 3 seconds. Portrait src matches the previously confirmed value."
+      },
+      {
+        "id": 13,
+        "description": "Hard reload the admin portrait page and verify persistence survives a full page refresh.",
+        "action": "Press Ctrl+Shift+R (or equivalent hard reload) on http://localhost:3002/jp/admin-portrait. Wait for network idle.",
+        "expected": "Portrait image loads correctly after hard reload. Same portrait as before reload is displayed. No flash of broken image. No 404 on the portrait asset URL."
+      },
+      {
+        "id": 14,
+        "description": "Verify the portrait asset URL resolves and returns a valid image.",
+        "action": "Inspect the src attribute of the portrait <img> element. Make a direct GET request to that URL (via fetch in browser console or network tab). Assert HTTP 200 with Content-Type image/*.",
+        "expected": "Portrait asset URL returns HTTP 200 with a valid image Content-Type. No redirect chain longer than 1 hop. Asset is not a broken placeholder."
+      },
+      {
+        "id": 15,
+        "description": "Check browser console and network tab for errors after all portrait interactions.",
+        "action": "Review browser console logs and network request log accumulated across all prior steps. Flag any 4xx/5xx responses, uncaught JS errors, or failed asset loads.",
+        "expected": "Zero uncaught JS exceptions. Zero 5xx API responses. Any 4xx responses are accounted for by deliberate invalid-input test steps (steps 8-9). No portrait asset fails to load."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-users",
+    "description": "[admin] Jp Users \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session cookie is expired or missing, navigate to http://localhost:3002/login, fill email with superadmin credentials, fill password, click Sign In, and wait for redirect to dashboard.",
+        "expected": "User is authenticated. Dashboard URL is active (e.g. /dashboard or /jp/users). No login redirect occurs on protected routes."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/jp/users and verify page load.",
+        "action": "Navigate to http://localhost:3002/jp/users. Wait for the page to fully load (network idle). Check for absence of 'Something went wrong', blank white screen, or unhandled error boundaries. Open browser console and assert zero uncaught JavaScript errors.",
+        "expected": "Page renders the JP Users admin table or list. Page title or heading contains 'Users'. No console errors. HTTP status 200."
+      },
+      {
+        "id": 3,
+        "description": "Verify the Users table renders with expected columns.",
+        "action": "Inspect the rendered table or list on /jp/users. Assert that columns or fields for at minimum: user ID or email, full name, registration date, and account status are visible.",
+        "expected": "Table has at least one header row with recognisable user columns. If no users exist, an empty-state message is shown (not a blank screen or error)."
+      },
+      {
+        "id": 4,
+        "description": "Verify superadmin-only UI elements are visible.",
+        "action": "Confirm that admin/SA controls (amber pill labels, admin action buttons such as Delete, Suspend, or Impersonate) are visible to the current superadmin session. These should NOT be visible to regular users (this step asserts the positive case for superadmin).",
+        "expected": "Admin action controls are present in the UI. Amber visual variant applied to admin tabs as described in sidebar structure."
+      },
+      {
+        "id": 5,
+        "description": "Search or filter users by email.",
+        "action": "Locate the search or filter input on /jp/users. Type a partial email string (e.g. 'test') into the filter. Wait for the list to update.",
+        "expected": "The user list filters to show only rows whose email contains the search string. If no match, an empty-state message is shown. The filter is applied without a full page reload."
+      },
+      {
+        "id": 6,
+        "description": "Clear the search filter and verify full list restores.",
+        "action": "Clear the search/filter input (select all and delete, or click a clear button if present). Wait for list to update.",
+        "expected": "The full user list is restored. Row count matches pre-filter state (or the total shown in a count badge updates accordingly)."
+      },
+      {
+        "id": 7,
+        "description": "Open a user detail view or modal.",
+        "action": "Click on the first user row or a 'View' / 'Edit' action button. Wait for a detail panel, modal, or navigation to a user detail page.",
+        "expected": "User detail view opens. Fields displayed include at minimum: email, full_name, registration date, terms_accepted_at (or a flag indicating T&C acceptance), and account status. No errors or blank panels."
+      },
+      {
+        "id": 8,
+        "description": "Verify T&C acceptance status is surfaced in user detail.",
+        "action": "In the open user detail view, locate the field or label corresponding to T&C acceptance (terms_accepted_at or equivalent). Note whether it is null/empty or has a timestamp.",
+        "expected": "T&C acceptance field is present and readable. If the user has accepted T&C, a timestamp or 'Accepted' badge is shown. If not accepted, a 'Not accepted' or null state is shown. No raw database internals are exposed."
+      },
+      {
+        "id": 9,
+        "description": "Attempt to edit user full_name (if edit is supported).",
+        "action": "If an Edit button or inline edit is available, click it. Change the full_name field to a new value (e.g. append ' Updated'). Click Save or submit.",
+        "expected": "Save succeeds with a success toast or confirmation. The updated full_name is immediately reflected in the detail view and in the list row without a full page reload."
+      },
+      {
+        "id": 10,
+        "description": "Validate required field enforcement on user edit form.",
+        "action": "Open the edit form for any user. Clear the full_name field entirely. Attempt to submit the form.",
+        "expected": "Form submission is blocked. An inline validation error appears on the full_name field (e.g. 'Name is required'). No network request is fired for the invalid submission."
+      },
+      {
+        "id": 11,
+        "description": "Navigate away from /jp/users and return to verify state persistence.",
+        "action": "From /jp/users, click the Dashboard link in the sidebar. Wait for the Dashboard page to load. Then click back to Users (sidebar or browser back button).",
+        "expected": "The Users page re-renders correctly. Any active filter or pagination state may or may not persist (document actual behaviour). No blank screen or 'Something went wrong' error on return."
+      },
+      {
+        "id": 12,
+        "description": "Verify admin sidebar tabs are amber-styled and only admin tabs are amber.",
+        "action": "Inspect the sidebar navigation. Identify tabs rendered with the amber pill variant. Cross-check that only admin/SA tabs (e.g. Users, Settings, Portals) have amber styling, while regular user tabs (Dashboard, Jobs, Applications) use the standard variant.",
+        "expected": "Amber pill variant is exclusive to admin/SA tabs. Regular tabs use a non-amber style. No amber styling bleeds onto user-facing tabs."
+      },
+      {
+        "id": 13,
+        "description": "Verify pagination or load-more on the users list.",
+        "action": "If the users list has more than one page, click the next-page button or scroll to trigger load-more. Wait for additional rows to appear.",
+        "expected": "Additional user rows are loaded. The pagination control updates (e.g. page 2 of N, or spinner disappears). No duplicate rows appear. No console errors during pagination."
+      },
+      {
+        "id": 14,
+        "description": "Verify that the Users page is inaccessible to non-superadmin users (negative auth test).",
+        "action": "Open a new incognito browser context. Log in as a regular (non-admin) JP user. Navigate directly to http://localhost:3002/jp/users.",
+        "expected": "The page redirects to dashboard, shows a 403/forbidden error, or hides admin controls entirely. A regular user must not be able to view or interact with the admin Users management interface."
+      },
+      {
+        "id": 15,
+        "description": "Final persistence and reload check.",
+        "action": "While on /jp/users (as superadmin), hard-reload the page (Ctrl+R or F5). Wait for full page load.",
+        "expected": "Page loads correctly after hard reload. User list is displayed. Superadmin session is maintained (no redirect to login). No console errors on reload."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  }
+]
