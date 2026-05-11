@@ -477,3 +477,35 @@ If it fails, run `pip install pydantic[email]` before restarting the service. Th
 **Remaining question:** Should `jp-branch-*` journeys save their own intermediate state (like a `jp-branch-jobs-list-state.json`) for proper chain inheritance? Currently the trunk state is used end-to-end. This is a spec design decision — no code change needed either way, just a question of whether intermediate states add value for test isolation.
 
 **No decision needed** — current fix works. Flagging for awareness.
+
+---
+
+## JP-04: Scan History sidebar navigation not discoverable (2026-05-11)
+
+**Found in:** JP Run 7, jp-jp-scan-history step 14.
+
+**What the tester found:** "Scan History is not accessible from a 'Search' group in sidebar navigation. It's currently accessible as an admin-only feature through the admin panel navigation structure, but no direct 'Scan History' link is visible in the main JP navigation dropdown."
+
+**Impact:** Users who know the URL `/jp/scan-history` can access it. Users who don't know the URL cannot discover it — there's no sidebar link in the primary navigation under a logical group like "Search". This is a feature discoverability gap, not a broken feature.
+
+**Options:**
+- **A (fix — recommended):** Add "Scan History" as a sub-item under the "Search" sidebar group (same group as "Portals"). This is additive and consistent with the admin tab pattern.
+- **B (accept):** Document that Scan History is an advanced/power feature only reachable via direct URL. Add it to the URL reference in docs.
+
+**Decision needed:** A (implement) or B (accept as-is). If A, note it for the next JP milestone.
+
+---
+
+## JP-05: jp-jp-portals steps 12-17 timing out (2026-05-11)
+
+**What happened:** jp-jp-portals has 17 steps and consistently times out at step 11-12. Steps 1-11 (core CRUD: create, persist, edit, toggle auto_apply) all PASS. Steps 12-17 (limit UI, delete, auth guard, cross-service integration) never execute.
+
+**Root cause:** 17-step journey with real DOM mutations (modal open, form submit, page reload, edit, toggle) takes 4-5+ minutes. Runner timeout is ~5 minutes per journey. The CRUD steps are too interaction-heavy to finish in time.
+
+**Resolution this session:** Split jp-jp-portals into:
+- `jp-jp-portals` (steps 1-11 = core CRUD + persistence) — fits in time budget
+- `jp-jp-portals-extended` (steps 12-17 = edge cases) — independent 7-step journey
+
+Same split applied to jp-jp-scan-history → `jp-jp-scan-history-extended`.
+
+**No decision needed** — fix committed `4d5131c`. Noting for awareness that this pattern (long CRUD-heavy journeys hitting timeout) may recur as more features are added.
