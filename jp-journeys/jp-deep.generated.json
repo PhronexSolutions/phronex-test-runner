@@ -458,32 +458,32 @@
   },
   {
     "id": "jp-biz-session-handling-revoked-token",
-    "description": "Session handling test: a user performs normal actions then the session token is invalidated (simulated by clearing storage) — verifies graceful redirect to login page, not a broken error page or silent failure. Tests that protected routes enforce auth on every navigation.",
+    "description": "Session handling test: verify that signing out via the Auth.js signout endpoint correctly terminates the session and protected routes redirect to login. IMPORTANT: Auth.js v5 stores sessions in HttpOnly cookies — clearing localStorage/sessionStorage has NO effect on session validity. This journey tests actual signout, not storage clearing.",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Load saved session from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\" using the browser storage state tool. Navigate to https://app.phronex.com/jp/dashboard and verify the page loads with user content visible (not a login form)."
+        "description": "Load saved session from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\" using the browser storage state tool. Navigate to https://app.phronex.com/jp/dashboard and verify the page loads with user content visible (not a login form). Confirm the session is active."
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/jp/jobs. Verify the jobs list or empty state renders without error. This confirms the session is fully functional before token invalidation."
+        "description": "Navigate to https://app.phronex.com/jp/jobs. Verify the jobs list or empty state renders without error. This confirms the session is fully functional before signout."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(), call localStorage.clear() and sessionStorage.clear(). Verify via page.evaluate() that localStorage.length === 0 after the operation. IMPORTANT: Auth.js v5 stores the session in an HttpOnly cookie — JavaScript CANNOT clear it. This step only clears client-side state (React hydration cache, etc.). The Auth.js session cookie will remain valid. This is by design."
+        "description": "Trigger signout by navigating to https://app.phronex.com/api/auth/signout or using the portal's sign-out button/link (look for a user avatar, account menu, or sign-out option in the navigation). If navigating directly to the signout URL, it may show a confirmation page — if so, confirm signout. Verify the session is terminated."
       },
       {
         "id": 4,
-        "description": "Navigate to https://app.phronex.com/jp/config — a protected page that requires auth. Observe the resulting page."
+        "description": "After signout, navigate to https://app.phronex.com/jp/config — a protected page that requires auth. Observe the resulting page."
       },
       {
         "id": 5,
-        "description": "Navigate to https://app.phronex.com/jp/config — a protected page that requires auth. IMPORTANT: Auth.js v5 uses HttpOnly session cookies. Clearing localStorage/sessionStorage does NOT invalidate the session. The page WILL render with user content — this is CORRECT behavior. PASS if: (A) page renders with user content (HttpOnly cookie session still valid — expected), or (B) page redirects to login. FAIL only if: a JavaScript crash occurs, a 500 error appears, or a blank white screen is shown. To test actual session revocation, use /api/auth/signout (not localStorage.clear()). This journey tests storage clearing, not cookie-based session expiry. Take a screenshot of the resulting page state."
+        "description": "Verify the outcome: PASS if the page redirects to https://app.phronex.com/auth/login (or shows a login form). Auth.js v5 uses HttpOnly cookies — clearing localStorage/sessionStorage does NOT revoke the session; only a proper signout call does. FAIL if: (a) the config page renders with user data visible despite signout, (b) a JavaScript error page or 500 appears, or (c) a blank white screen with no user-facing message is shown. Screenshot the result."
       },
       {
         "id": 6,
-        "description": "Verify the login redirect URL does not expose sensitive data (user email, user ID, JWT fragments) in query parameters. Screenshot the login page URL bar to document the redirect behavior."
+        "description": "Verify the login redirect URL does not expose sensitive data (user email, user ID, JWT fragments) in query parameters. Screenshot the login page URL bar to document the redirect behavior. PASS if redirected cleanly to /auth/login with no sensitive data in the URL."
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -558,39 +558,53 @@
         "description": "Toggle the auto_apply field and verify it persists.",
         "action": "Open the edit view for 'TestPortal_QA_001_EDITED'. Toggle auto_apply to true. Save.",
         "expected": "The auto_apply flag is updated to true in the portal list and confirmed via the GET /portals/ API response."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-portals-extended",
+    "description": "[integration] Jp Portals Extended — Edge cases: portal limit UI, deletion, nav persistence, auth guard, admin controls, cross-service integration. Depends on jp-jp-portals completing core CRUD first.",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired, navigate to https://app.phronex.com and log in with superadmin credentials.",
+        "expected": "Session is active. User is authenticated as superadmin."
       },
       {
-        "id": 12,
-        "description": "Check if the portal limit UI is present. Count the current number of portals visible in the list. If already at 10 portals, attempt to click 'Add Portal' and verify it is disabled or shows a limit error. If fewer than 10 portals exist, check if the portal count is displayed anywhere (e.g. '1 of 10 portals used'). SKIP the creation of additional portals to hit the limit — that would require too many API calls. Instead, verify the limit is communicated in the UI (badge, tooltip, or count display). Report what limit UI is visible.",
-        "action": "Count visible portals. Look for any '10 portal limit' indicator, capacity badge, or count display. If at exactly 10, try clicking Add Portal to confirm it is blocked.",
-        "expected": "PASS if: (A) a portal count or limit indicator is visible in the UI, or (B) the Add Portal button is disabled/blocked when at the limit. PASS also if fewer than 10 portals exist but the test can verify the next portal was successfully created in step 6 — the limit was not hit this run. Report what was found."
+        "id": 2,
+        "description": "Check if the portal limit UI is present. Count the current number of portals visible in the list. If already at 10 portals, attempt to click 'Add Portal' and verify it is disabled or shows a limit error. If fewer than 10 portals exist, check if the portal count is displayed anywhere (e.g. '1 of 10 portals used'). SKIP creating additional portals to hit the limit — that would require too many API calls. Instead, verify the limit is communicated in the UI (badge, tooltip, or count display). Report what limit UI is visible.",
+        "action": "Navigate to https://app.phronex.com/jp/portals. Count visible portals. Look for any '10 portal limit' indicator, capacity badge, or count display. If at exactly 10, try clicking Add Portal to confirm it is blocked.",
+        "expected": "PASS if: (A) a portal count or limit indicator is visible in the UI, or (B) the Add Portal button is disabled/blocked when at the limit. PASS also if fewer than 10 portals exist — the limit was not hit this run. Report what was found."
       },
       {
-        "id": 13,
+        "id": 3,
         "description": "Delete a portal and verify it is removed.",
-        "action": "Find a portal in the list (e.g. one created during the 11-portal limit test). Click the delete/remove action for that portal. Confirm the deletion in any confirmation dialog.",
+        "action": "Find the portal created by jp-jp-portals (named 'TestPortal_QA_001_EDITED' or similar). Click the delete/remove action for that portal. Confirm the deletion in any confirmation dialog.",
         "expected": "A DELETE request is made to /portals/{id}. The portal is removed from the list immediately. After page reload, the portal is no longer present."
       },
       {
-        "id": 14,
+        "id": 4,
         "description": "Navigate away from /jp/portals to the dashboard, then return and verify data/state persists.",
-        "action": "Click the 'Dashboard' link in the sidebar. Verify the dashboard loads. Then click 'Jobs' or navigate back to /jp/portals.",
-        "expected": "Navigation works without errors. Upon returning to /jp/portals, all previously created/edited portals are still listed correctly. No stale or blank state is shown."
+        "action": "Click the 'Dashboard' link in the sidebar. Verify the dashboard loads. Then navigate back to /jp/portals.",
+        "expected": "Navigation works without errors. Upon returning to /jp/portals, the portal list is consistent. No stale or blank state is shown."
       },
       {
-        "id": 15,
+        "id": 5,
         "description": "Verify the portals page is only accessible to authenticated users (session guard).",
         "action": "Open a new incognito/private browser context (no session). Navigate directly to https://app.phronex.com/jp/portals.",
         "expected": "The user is redirected to the login page or an authentication error is shown. The portals data is NOT visible to unauthenticated users."
       },
       {
-        "id": 16,
+        "id": 6,
         "description": "Verify admin/SA-only portal management controls are visible for superadmin but not regular users.",
         "action": "With the superadmin session, confirm any amber-variant admin tabs or controls are visible on /jp/portals. Then load a regular user session and navigate to /jp/portals.",
         "expected": "Admin/SA controls (amber sidebar pills) are visible only to superadmin. Regular users see only their own portals with no access to other users' data. Cross-user portal data is not leaking."
       },
       {
-        "id": 17,
+        "id": 7,
         "description": "Cross-service integration: verify that a portal's search profiles are reflected in the Jobs page job listing filters.",
         "action": "Navigate to /jp/jobs. Check the filter options for portal or search profile.",
         "expected": "The portal names and/or search profile keywords from the created portals appear as filter options in the Jobs page, confirming the portals configuration feeds the job scraping pipeline."
@@ -796,39 +810,53 @@
         "description": "Verify jobs-found count links to the jobs list filtered by that scan.",
         "action": "Click the jobs found count or link in a scan history row (if it is a hyperlink or button).",
         "expected": "Navigation goes to /jp/jobs or equivalent, pre-filtered to jobs discovered in that specific scan. The jobs list shows only matching entries. A filter chip or breadcrumb indicates the scan context."
+      }
+    ],
+    "dependsOn": "jp-trunk-main"
+  },
+  {
+    "id": "jp-jp-scan-history-extended",
+    "description": "[automation] Jp Scan History Extended — Admin scope, nav persistence, auth guard, empty state, responsive layout. Depends on jp-jp-scan-history completing core display and filter tests.",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter superadmin credentials, and verify redirect to dashboard.",
+        "expected": "Browser is authenticated as superadmin. Sidebar shows admin/SA amber tabs."
       },
       {
-        "id": 12,
+        "id": 2,
         "description": "Verify superadmin can view scan history for all users, not just their own.",
-        "action": "As superadmin, check if there is a user selector or 'All Users' toggle on the scan history page. If present, select a non-superadmin user from the dropdown.",
+        "action": "Navigate to https://app.phronex.com/jp/scan-history. As superadmin, check if there is a user selector or 'All Users' toggle on the scan history page. If present, select a non-superadmin user from the dropdown.",
         "expected": "Scan history updates to show entries for the selected user. A label or header indicates the currently viewed user. Superadmin's own scan history is not mixed with the selected user's data."
       },
       {
-        "id": 13,
+        "id": 3,
         "description": "Navigate away from /jp/scan-history to the dashboard, then return and verify the data/state persists.",
         "action": "Click the Dashboard link in the sidebar. Wait for the dashboard to load. Then click back to Scan History (or navigate to https://app.phronex.com/jp/scan-history).",
         "expected": "Scan history page reloads and shows the same data as before navigation. Any active filters or pagination state may reset (acceptable) but the underlying data rows are consistent. No loading errors on return visit."
       },
       {
-        "id": 14,
+        "id": 4,
         "description": "Verify the scan history page is accessible from the sidebar navigation under the correct group.",
         "action": "Inspect the sidebar navigation structure. Locate the 'Search' group or equivalent. Verify 'Scan History' is listed as a tab item.",
         "expected": "'Scan History' appears in the sidebar under the correct group (e.g. Search). It is visible to superadmin. The active state highlights correctly when on the scan history page."
       },
       {
-        "id": 15,
+        "id": 5,
         "description": "Verify no cross-user data leakage in scan history API responses.",
         "action": "Open browser DevTools Network tab. Navigate to /jp/scan-history and observe the API request made (e.g. GET /api/scan-history or equivalent). Inspect the response payload for user_id or owner fields.",
         "expected": "All returned scan history records have a user_id or owner field matching the currently authenticated user (or the selected user if superadmin is impersonating). No records from other users appear in the response payload."
       },
       {
-        "id": 16,
+        "id": 6,
         "description": "Verify page behavior when scan history is empty for a new user.",
         "action": "If possible, switch to a test user account with no scan history. Navigate to /jp/scan-history.",
         "expected": "An empty state UI is shown (e.g. illustration + message like 'No scans yet. Configure a portal to start scanning.'). No errors. No broken layout. A CTA or link to portal configuration may be present."
       },
       {
-        "id": 17,
+        "id": 7,
         "description": "Verify responsive layout of scan history at mobile viewport width.",
         "action": "Resize the browser viewport to 375px wide (mobile). Navigate to /jp/scan-history and inspect the layout.",
         "expected": "The scan history table/list adapts to mobile width without horizontal overflow. Column headers and row data remain readable. No content is clipped or hidden behind other elements. Pagination or scroll controls remain usable."
