@@ -1,0 +1,73 @@
+[
+  {
+    "id": "jp-trunk-owner",
+    "description": "RBAC trunk: portal login as JP owner/pro user (qa-owner@phronex.com). Saves session for owner-level boundary tests.",
+    "isSharedRoot": false,
+    "stateOutputPath": ".tmp/jp-trunk-owner-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "RBAC TRUNK FRESH LOGIN — DO NOT load any browser state file. Start fresh: use browser_tabs to close all tabs. Use browser_evaluate to wipe service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Navigate to https://app.phronex.com/auth/login?t=Date.now(). Fill email 'qa-owner@phronex.com' and password 'JHTest2026#Owner!'. Submit and wait for dashboard. Mark FAIL if redirected back to login or 500 error appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp or https://app.phronex.com/job-portal. Verify the JP section loads for this owner/pro account. Check the visible nav items — owner should have access to advanced features that free users don't (analytics, candidate insights, AI explainability). Record which JP sections are visible. Note: JP is B2C, so 'owner' means Vivek/admin-level — there may be no owner-specific portal routes (JP is user-centric not multi-tenant). If the portal shows the standard user JP dashboard, that is CORRECT — record this observation."
+      },
+      {
+        "id": 3,
+        "description": "Save browser session: Call browser_storage_state with filename '.tmp/jp-trunk-owner-state.json'. CRITICAL: verify file has > 0 cookies. If 0 cookies, use browser_run_code fallback: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('.tmp/jp-trunk-owner-state.json', JSON.stringify(state)); console.log('saved:', state.cookies.length). Mark FAIL if final file has 0 cookies."
+      }
+    ]
+  },
+  {
+    "id": "jp-rbac-owner-tier-features",
+    "description": "RBAC tier check: JP owner/pro user (qa-owner@phronex.com) can access pro-tier features that free users cannot.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "dependsOn": "jp-trunk-owner",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load owner session from .tmp/jp-trunk-owner-state.json. Navigate to https://app.phronex.com/jp/dashboard. Verify the dashboard loads. Look for pro-tier indicators: AI explainability score, match percentage, advanced filtering options, or 'Pro' badge. Compare with what a free user sees (qa-user has free tier on JP). PASS if at least one pro-tier feature is visible. Record what is shown."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/jobs or the jobs list page. Verify jobs list loads. Attempt to use the thumbs-up button on a job listing (toggle interest signal). PASS if: button is present and clickable, click sends POST to /api/jp/api/v1/jobs/{id}/feedback/signal, and returns 200. If backend has signal='clear' toggle (b385adc): click the same button again and verify signal is cleared (second click sends 'clear', returns 200). FAIL if thumbs feedback is completely absent or returns 422 (backend not yet deployed with b385adc fix)."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to https://app.phronex.com/jp/scan-history. Verify the scan history page loads showing previous job scans. Verify rows are visible (or an empty state if no scans yet). Owner/pro users have unlimited scans — verify no 'scan limit reached' banner. Click the first row (if rows exist) — verify it expands or navigates to scan detail. FAIL if: page returns 403, scan detail is inaccessible, or a pro-required gate appears for a pro-tier user."
+      },
+      {
+        "id": 4,
+        "description": "Attempt to access JP admin routes using the owner account. Using browser_network_request: GET https://app.phronex.com/api/jp/api/v1/admin/users. Expect HTTP 403 (owner/pro is still a regular user on JP — there are no owner-admin routes in JP's B2C model). PASS = 403 or 401. FAIL = 200 (would mean any JP user can list all users — critical RBAC defect). This tests that 'owner' tier does not accidentally grant admin privileges."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/jp/config or the JP settings/profile page. Verify the pro user can access their profile settings and update preferences. Attempt to change one field (e.g. job title or preferred locations). Verify the change is saved (page shows success confirmation or the field retains the new value after re-navigation). PASS if the edit form works end-to-end. FAIL if the settings page is inaccessible or save returns 4xx."
+      }
+    ]
+  },
+  {
+    "id": "jp-rbac-free-vs-pro-comparison",
+    "description": "RBAC tier comparison: verify free-tier JP user (qa-user@phronex.com) sees upgrade prompts where pro features are gated.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "dependsOn": "jp-trunk-main",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load the standard QA user session (qa-test-journeyhawk@phronex.com, free tier) from .tmp/jp-trunk-main-state.json. Navigate to https://app.phronex.com/jp/dashboard. Look for any pro-feature upgrade prompts or locked sections. Compare with what the owner/pro user sees (from jp-rbac-owner-tier-features). Record: are any sections locked with an upgrade CTA, or does the free tier silently show the same UI as pro (missing tier gating)?"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/scan-history. If this page is accessible for free users, check if there is a scan count limit shown (e.g., '2 of 3 scans used'). PASS if: (a) scan history shows with a usage limit indicator for free tier, or (b) free users can still access the page with full history but scan creation is limited. FAIL if: free and pro users see IDENTICAL scan history UI with no tier differentiation (suggests tier gating is missing from this feature)."
+      },
+      {
+        "id": 3,
+        "description": "Try accessing a feature that should be pro-only (e.g., AI explainability scores or advanced match analytics if they exist in the JP UI). Look for locked state indicators: grayed-out sections, lock icons, 'Upgrade to Pro' CTAs. PASS if any pro-only feature shows a visible upgrade gate for the free-tier user. FAIL if: free and pro users see IDENTICAL feature sets with no visible tier differentiation at all (would mean tier gating was never wired to the UI)."
+      }
+    ]
+  }
+]

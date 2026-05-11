@@ -1,0 +1,77 @@
+[
+  {
+    "id": "cc-trunk-member",
+    "description": "RBAC trunk: portal login as member/free CC user (qa-user@phronex.com). Saves session for member-level boundary tests.",
+    "isSharedRoot": false,
+    "stateOutputPath": ".tmp/cc-trunk-member-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "RBAC TRUNK FRESH LOGIN — DO NOT load any browser state file. This journey CREATES the member session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Navigate directly to https://app.phronex.com/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible. Fill email 'qa-user@phronex.com' and password 'JHTest2026#User!'. Submit and wait for the portal dashboard to load. Mark FAIL if redirected back to login (wrong credentials) or if a 500 error appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/cc. Verify the CC section loads. Check what nav items are visible to this member/free user — the sidebar should show limited items (Dashboard, Subscription) but NOT admin-only sections (Users, Admin, Instance Config). If the CC section is completely inaccessible (403 or redirect to /cc/upgrade), verify the error message is informative. Record which CC sections ARE and ARE NOT visible for a member/free user."
+      },
+      {
+        "id": 3,
+        "description": "Save browser session: Call browser_storage_state with filename '.tmp/cc-trunk-member-state.json' to save cookies and localStorage for downstream RBAC leaf journeys. CRITICAL: if the file saves with 0 cookies, use browser_run_code fallback: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('.tmp/cc-trunk-member-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length). Mark FAIL if final file has 0 cookies."
+      }
+    ]
+  },
+  {
+    "id": "cc-rbac-member-admin-blocked",
+    "description": "RBAC boundary: member/free user (qa-user@phronex.com) cannot access CC admin/owner portal routes — 403 or redirect expected.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "dependsOn": "cc-trunk-member",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load member session from .tmp/cc-trunk-member-state.json. Navigate to https://app.phronex.com/cc/users?instance=e2e-test-instance. This page manages CC users and is owner-only. PASS if: (a) page redirects to an access denied page or /cc/dashboard, or (b) page shows a 403 error, or (c) portal shows 'Upgrade required' prompt. FAIL if: the full Users management panel loads with user list and admin controls (this would be a missing RBAC guard)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/cc/settings?instance=e2e-test-instance. This is the instance settings page — owner-only config. PASS if: redirected away, 403, or 'Owner access required' message. FAIL if: instance settings form loads with LLM config, persona editor, or tier settings accessible (these are owner-only fields)."
+      },
+      {
+        "id": 3,
+        "description": "Using browser_network_request: GET https://app.phronex.com/api/cc/api/v1/admin/lead-form/submissions/export?instance_id=e2e-test-instance. Expect HTTP 403 (member cannot export admin data) or 401 (not owner-authenticated). FAIL if 200 is returned — member should never receive other users' lead form data. This tests the portal proxy's RBAC enforcement."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to https://app.phronex.com/cc/content?instance=e2e-test-instance. This is the knowledge base content management page. Determine if member/free users can VIEW content (read-only, acceptable) vs MODIFY content (add URLs, delete content — owner-only actions). PASS if: (a) page shows read-only content list with no edit/delete buttons, (b) 'Owner access required' for any write action, or (c) page is fully restricted. FAIL if: member can trigger URL ingestion, delete content entries, or modify the knowledge base."
+      },
+      {
+        "id": 5,
+        "description": "Verify the member user CAN access their own subscription page. Navigate to https://app.phronex.com/cc/subscription?instance=e2e-test-instance. PASS if: subscription page loads showing the current tier (free) with upgrade options. FAIL if: subscription page is inaccessible or returns a 403 (members must be able to see their own tier and upgrade). This tests that RBAC restriction on admin routes does not accidentally lock members out of self-service features."
+      }
+    ]
+  },
+  {
+    "id": "cc-rbac-member-api-blocked",
+    "description": "RBAC API boundary: member/free CC user cannot call owner-only CC backend API routes directly.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "dependsOn": "cc-trunk-member",
+    "steps": [
+      {
+        "id": 0,
+        "description": "CC-SPECIFIC CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context. Then get an anonymous token: using page.evaluate(), fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store ANON_TOKEN from the 'token' field."
+      },
+      {
+        "id": 1,
+        "description": "Using page.evaluate() with ANON_TOKEN from step 0: fetch('/api/v1/admin/lead-form/submissions/export?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.status). PASS = 403 (anonymous/visitor token rejected from admin route). FAIL = 200 (admin data returned without owner auth — IDOR defect). This tests the CC backend's own RBAC, independent of the portal proxy."
+      },
+      {
+        "id": 2,
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/users?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.status). PASS = 403 or 401. FAIL = 200 (user list returned to anonymous caller). Admin user listing with visitor credentials is a critical RBAC defect."
+      },
+      {
+        "id": 3,
+        "description": "Using page.evaluate(): fetch('/api/v1/analytics/by-skill?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.status). PASS = 403, 401, OR 404. The 404 is acceptable here — this route is a known dark feature (backend not yet implemented). FAIL = 200 with analytics data returned to an anonymous visitor. Record which status code was returned."
+      }
+    ]
+  }
+]

@@ -1,0 +1,107 @@
+[
+  {
+    "id": "cc-data-user-instance-fk",
+    "runner": "db",
+    "description": "DB integrity check: every user row has a valid instance_id that exists in the instances table (no orphaned users).",
+    "isSharedRoot": false,
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Connect to the CC PostgreSQL DB at the URL from PHRONEX_CC_DATABASE_URL env var. Run: SELECT COUNT(*) FROM users u WHERE NOT EXISTS (SELECT 1 FROM instances i WHERE i.id = u.instance_id). Expect count = 0. Any non-zero result means orphaned user rows exist — flag as defect (data integrity violation: foreign key not enforced at DB level)."
+      },
+      {
+        "id": 2,
+        "description": "Run: SELECT COUNT(*) FROM users WHERE instance_id IS NULL. Expect count = 0. A NULL instance_id means a user was created without being tied to any instance — this would cause NoneType errors on instance-scoped queries. Flag any non-zero result as a data integrity defect."
+      },
+      {
+        "id": 3,
+        "description": "Run: SELECT instance_id, COUNT(*) as user_count FROM users GROUP BY instance_id ORDER BY user_count DESC LIMIT 10. Verify the top instance has > 0 users and the instance_id values are valid UUIDs (not NULLs). This is a sanity check — if all users are on one instance that's acceptable for a single-tenant deployment, but if there are 0 rows total that indicates data loss. Report the top 3 (instance_id, count) pairs."
+      }
+    ]
+  },
+  {
+    "id": "cc-data-session-user-fk",
+    "runner": "db",
+    "description": "DB integrity check: every session row references a valid user_id (no orphaned sessions after user deletion).",
+    "isSharedRoot": false,
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Connect to the CC PostgreSQL DB. Run: SELECT COUNT(*) FROM sessions s WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = s.user_id). Expect count = 0. Orphaned sessions indicate a missing CASCADE on the user foreign key — would cause join errors on session lookups."
+      },
+      {
+        "id": 2,
+        "description": "Run: SELECT COUNT(*) FROM messages m WHERE NOT EXISTS (SELECT 1 FROM sessions s WHERE s.id = m.session_id). Expect count = 0. Orphaned messages (no parent session) would cause broken history queries. Non-zero count is a defect."
+      },
+      {
+        "id": 3,
+        "description": "Run: SELECT COUNT(*) FROM sessions WHERE user_id IS NULL OR instance_id IS NULL. Expect count = 0. Both columns are required for instance-scoped session queries. A NULL in either means the session was created incorrectly. Report any non-zero count."
+      }
+    ]
+  },
+  {
+    "id": "cc-data-subscription-user",
+    "runner": "db",
+    "description": "DB integrity check: subscription rows have valid instance references and no duplicate active subscriptions per instance.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Connect to the CC PostgreSQL DB. Run: SELECT COUNT(*) FROM subscriptions s WHERE NOT EXISTS (SELECT 1 FROM instance_owners io WHERE io.instance_id = s.instance_id). Expect count = 0. Orphaned subscription rows (no matching instance owner) would make the billing tier lookup fail silently, defaulting to free tier."
+      },
+      {
+        "id": 2,
+        "description": "Run: SELECT instance_id, COUNT(*) FROM subscriptions WHERE status = 'active' GROUP BY instance_id HAVING COUNT(*) > 1. Expect 0 rows. Multiple active subscriptions per instance is a billing logic defect — only one should be active at any time. Any rows returned are a defect."
+      },
+      {
+        "id": 3,
+        "description": "Run: SELECT COUNT(*) FROM subscriptions WHERE tier IS NULL OR tier NOT IN ('free', 'premium'). Expect count = 0. A NULL or unknown tier value in the subscriptions table would cause tier-gated feature checks to fail or throw KeyErrors. Report non-zero count."
+      }
+    ]
+  },
+  {
+    "id": "cc-data-llm-usage-session",
+    "runner": "db",
+    "description": "DB integrity check: llm_usage rows reference valid sessions, and total_cost is never negative.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Connect to the CC PostgreSQL DB. Run: SELECT COUNT(*) FROM llm_usage l WHERE NOT EXISTS (SELECT 1 FROM sessions s WHERE s.id = l.session_id). Expect count = 0. Orphaned llm_usage rows (no parent session) break cost aggregation queries and would cause the analytics dashboard to return incorrect totals."
+      },
+      {
+        "id": 2,
+        "description": "Run: SELECT COUNT(*) FROM llm_usage WHERE total_cost < 0. Expect count = 0. A negative cost value indicates a calculation bug in calculate_cost() — possibly a sign error or wrong token ordering. Report any non-zero count."
+      },
+      {
+        "id": 3,
+        "description": "Run: SELECT COUNT(*) FROM llm_usage WHERE input_tokens IS NULL OR output_tokens IS NULL OR total_tokens IS NULL. Expect count = 0. NULL token counts would cause the monthly cost aggregation and analytics metrics to be wrong. Report non-zero count."
+      }
+    ]
+  },
+  {
+    "id": "cc-data-tenant-isolation",
+    "runner": "db",
+    "description": "DB integrity check: no cross-instance data leaks — sessions, messages, and users are strictly scoped by instance_id.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Connect to the CC PostgreSQL DB. Run: SELECT s.id, s.instance_id, u.instance_id as user_instance FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.instance_id != u.instance_id LIMIT 5. Expect 0 rows. If a session's instance_id differs from its user's instance_id, this is a cross-tenant data leak — the session was created with the wrong instance context. Any result is a critical defect."
+      },
+      {
+        "id": 2,
+        "description": "Run: SELECT m.id, m.session_id, s.instance_id as session_instance FROM messages m JOIN sessions s ON m.session_id = s.id WHERE s.instance_id IS NULL LIMIT 5. Expect 0 rows. Messages under sessions with NULL instance_id would be unscoped — visible across all instances. Non-zero count is a critical defect."
+      },
+      {
+        "id": 3,
+        "description": "Run: SELECT COUNT(DISTINCT instance_id) as instance_count, COUNT(*) as session_count FROM sessions. Report the (instance_count, session_count) for awareness. Then verify: for the 'e2e-test-instance' instance_id specifically, run SELECT COUNT(*) FROM sessions WHERE instance_id = 'e2e-test-instance'. Expect > 0 (QA test sessions from prior runs). If count = 0, prior JH runs may not have been cleaning up or the QA instance_id has drifted — flag as a warning."
+      }
+    ]
+  }
+]

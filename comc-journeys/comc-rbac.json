@@ -1,0 +1,73 @@
+[
+  {
+    "id": "comc-trunk-member",
+    "description": "RBAC trunk: portal login as ComC member/standard user (qa-user@phronex.com). Saves session for member-level boundary tests.",
+    "isSharedRoot": false,
+    "stateOutputPath": ".tmp/comc-trunk-member-state.json",
+    "depth": 0,
+    "steps": [
+      {
+        "id": 1,
+        "description": "RBAC TRUNK FRESH LOGIN — DO NOT load any browser state file. Start fresh: use browser_tabs to close all tabs. Use browser_evaluate to wipe service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Navigate to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible. Fill email 'qa-user@phronex.com' and password 'JHTest2026#User!'. Submit and wait for the portal sidebar to appear. Mark FAIL if redirected back to login (wrong credentials or missing ComC grant) or if a 500 error appears."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre. Verify the ComC section loads for this member/standard user. Note: member/standard users have limited role vs CEO/owner. The portal should show ComC navigation but without CEO-level sections (Agents management, Audit, CEO-only strategy pillars). Record which top-level sections are visible. If the portal shows 403 or redirects away from /command-centre entirely, this is a defect — member/standard users with a valid ComC grant must have basic access."
+      },
+      {
+        "id": 3,
+        "description": "Save browser session: Call browser_storage_state with filename '.tmp/comc-trunk-member-state.json'. CRITICAL: verify file has > 0 cookies. Fallback if needed: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('.tmp/comc-trunk-member-state.json', JSON.stringify(state)); console.log('saved:', state.cookies.length). Mark FAIL if final file has 0 cookies."
+      }
+    ]
+  },
+  {
+    "id": "comc-rbac-member-ceo-blocked",
+    "description": "RBAC boundary: ComC member/standard user (qa-user@phronex.com) cannot access CEO-only routes — agents, audit, and governance endpoints must return 403.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "dependsOn": "comc-trunk-member",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load member session from .tmp/comc-trunk-member-state.json. Navigate to http://localhost:3002/command-centre/agents. This page (AI agents management) is CEO-only (require_ceo middleware). PASS if: page redirects to /command-centre/dashboard, shows 403, or shows 'CEO role required' message. FAIL if: the agents list page loads fully with agent controls (this member should NOT see the agents panel)."
+      },
+      {
+        "id": 2,
+        "description": "Using browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/agents. Expect HTTP 403 (require_ceo rejects member/standard role). PASS = 403 or 401. FAIL = 200 (CEO-gated resource returned to member — RBAC defect). This tests the portal proxy's RBAC enforcement for the agents endpoint specifically."
+      },
+      {
+        "id": 3,
+        "description": "Using browser_network_request: GET http://localhost:3002/api/admin/command-centre/api/v1/meetings/upcoming. This endpoint uses require_manager (not require_ceo). Expect HTTP 200 — member/standard users should be able to view meeting agendas (meetings are collaborative, not CEO-only). FAIL if 403 (member incorrectly blocked from meetings). This tests that RBAC restriction is selective, not a blanket block."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to http://localhost:3002/command-centre/strategy/initiatives. Verify whether member/standard users can VIEW initiatives (read-only browsing). PASS if: (a) page loads with initiative list in read-only view, or (b) page shows 'View-only access — contact your CEO to edit'. FAIL if: full CRUD controls are available to a member (create/edit/delete initiatives) without CEO role validation. Members should have read access at most."
+      },
+      {
+        "id": 5,
+        "description": "Attempt to create a new company contact as a member user. Navigate to http://localhost:3002/command-centre/revenue/contacts. Verify the page loads. If a 'New Contact' button is visible, click it. Determine if member/standard users can CREATE contacts. PASS if: (a) Create form opens and submission succeeds (standard/member CAN create contacts — this is likely expected), or (b) Create button is absent for member role (CEO-only creation). Record the actual behavior — this establishes ground truth for ComC RBAC on revenue data. FAIL if: page returns 403 entirely (members should have some ComC access)."
+      }
+    ]
+  },
+  {
+    "id": "comc-rbac-member-own-data-accessible",
+    "description": "RBAC positive test: ComC member/standard user can access their own department data and workspace features.",
+    "isSharedRoot": false,
+    "depth": 1,
+    "dependsOn": "comc-trunk-member",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load member session from .tmp/comc-trunk-member-state.json. Navigate to http://localhost:3002/command-centre/dashboard. Verify the dashboard loads with at least SOME visible content — stat cards, department health, or an informative empty state. FAIL if: page is blank or throws a JavaScript error. A member with a valid ComC grant must see a functional (if limited) dashboard."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/operations/meetings. Verify the meetings page loads and shows upcoming meetings OR an informative empty state. Member/standard users should be able to view meeting records. PASS if page loads without 403. FAIL if 403 or redirect occurs (meetings should be member-accessible)."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to http://localhost:3002/command-centre/config. Verify whether member users have access to config/settings. PASS if: (a) config page loads with settings they can view (org profile, their own user settings), or (b) config is CEO-only and shows an appropriate access denied message. FAIL if: config page crashes with a JavaScript error instead of a graceful access denial. The important distinction: graceful denial is PASS, crash is FAIL."
+      }
+    ]
+  }
+]
