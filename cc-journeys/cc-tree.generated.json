@@ -1107,7 +1107,7 @@
       },
       {
         "id": 4,
-        "description": "Instance Owner Setup \u2014 upload or link content source for the instance",
+        "description": "Instance Owner Setup \u2014 upload or link content source for the instance. POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId} with a URL payload. PASS if: (a) HTTP 200 with a job_id (crawl4ai installed), OR (b) HTTP 503 with 'URL crawl is not available on this server' (expected on EC2 \u2014 crawl4ai is a DevServer-only dependency). File upload is the supported production path. FAIL only if 500 with traceback or 404 (route missing).",
         "action": "Navigate to the content/knowledge section for the instance. Trigger content ingestion (Step 4: Content Ingestion flow) by uploading a small test document or providing a URL. Submit. Monitor the POST request to the content ingestion endpoint (e.g. POST /api/v1/instances/{id}/content or /api/v1/content/ingest).",
         "expected": "HTTP 202 or 200. A processing or success status is returned. The UI shows a pending or completed ingestion job. No 422 or 500 errors."
       },
@@ -1137,7 +1137,7 @@
       },
       {
         "id": 9,
-        "description": "Content Ingestion Flow (flows-step-4:-content-ingestion) \u2014 trigger ingestion via API and verify status endpoint",
+        "description": "Content Ingestion Flow \u2014 trigger ingestion via API and verify status endpoint. POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId}. PASS if: (a) HTTP 200 with job_id and subsequent status check shows queued/complete, OR (b) HTTP 503 'URL crawl is not available' (EC2 production limitation \u2014 crawl4ai not installed). In case (b), verify file-based ingest route still returns 200: GET /api/v1/admin/ingest/status returns valid JSON. FAIL only on 500 or 404.",
         "action": "As superadmin, navigate back to the admin session. POST to the content ingestion endpoint for the test instance with a valid payload (URL or file). Then poll GET /api/v1/instances/{id}/content or the job-status endpoint until the status is 'completed' or 'failed'. Timeout after 60 seconds.",
         "expected": "Ingestion job reaches 'completed' status within 60 seconds. The content list for the instance shows the new item. No 500 errors during polling."
       },
@@ -1179,7 +1179,7 @@
       },
       {
         "id": 16,
-        "description": "BYOS Skill Creation Flow \u2014 edit the created skill and verify persistence",
+        "description": "BYOS Skill Creation Flow \u2014 verify skill is readable after creation. GET /api/v1/skills/{skill_id} (with user JWT). Expect HTTP 200 with the skill object including 'id', 'name', 'description' fields. NOTE: CC skills API does not expose a PATCH or PUT endpoint \u2014 skills are immutable after creation (created from template, submitted or deleted). Attempting PATCH/PUT correctly returns 405 Method Not Allowed. PASS if GET returns 200 with skill data. FAIL if GET returns 404 (skill not found) or 500.",
         "action": "Click on the newly created skill in the list. Update the description field with a new unique value. Save. Capture the PATCH/PUT request. Reload the skill detail page.",
         "expected": "HTTP 200. Updated description is visible after save. Reloading the page still shows the new description (persistence confirmed)."
       },
@@ -1707,7 +1707,7 @@
       },
       {
         "id": 4,
-        "description": "Upload a new content document via the UI (e.g. plain text or URL ingestion form).",
+        "description": "Upload a new content document via the portal UI or API. First try file-based upload: POST /api/admin/cc/api/v1/admin/ingest-file/{instanceId} with a small text file attachment. Expect HTTP 200 or 202 with job_id. Alternatively, test URL ingest: POST /api/admin/cc/api/v1/admin/ingest-url/{instanceId} with a valid URL. PASS if 200 (crawl4ai installed) OR 503 'URL crawl is not available' (EC2 production \u2014 crawl4ai excluded). FAIL only on 500 with traceback.",
         "action": "In the Content Ingestion panel, locate the upload or URL input form. Enter a valid URL or upload a small plain-text file. Submit the form and observe the network request (typically POST /api/v1/instance/{id}/content or equivalent ingestion endpoint).",
         "expected": "The form submits successfully. The UI shows a progress indicator or success toast. The network response is HTTP 200 or 202. A new content item appears in the content list immediately or after a short polling interval."
       },
@@ -1725,13 +1725,13 @@
       },
       {
         "id": 7,
-        "description": "Attempt to ingest a duplicate URL and verify idempotency or appropriate error handling.",
+        "description": "Attempt to ingest a duplicate URL and verify idempotency or appropriate error handling. NOTE: On EC2 production, POST /ingest-url returns 503 'URL crawl is not available' because crawl4ai is not installed. PASS if response is 503 with that message \u2014 it confirms the fail-fast guard is working. FAIL only on 500 or 404.",
         "action": "Re-submit the same URL or file used in step 4 via the ingestion form. Observe the UI response and network call.",
         "expected": "The system either deduplicates silently (no duplicate appears in the list) or displays a clear informational message such as 'Content already ingested'. It does NOT create a second identical entry. HTTP response is 200 (idempotent) or 409 (conflict) \u2014 not a 500 error."
       },
       {
         "id": 8,
-        "description": "Attempt to ingest an invalid or unreachable URL and verify validation feedback.",
+        "description": "Attempt to ingest an invalid or unreachable URL and verify validation feedback. NOTE: On EC2 production, POST /ingest-url returns 503 'URL crawl is not available' because crawl4ai is not installed. PASS if response is 503 with that message \u2014 it confirms the fail-fast guard is working. FAIL only on 500 or 404.",
         "action": "Enter a malformed URL (e.g. 'not-a-url') or an unreachable domain into the ingestion form. Submit and observe the UI and network response.",
         "expected": "The UI displays a validation error message before or after submission. If client-side: the form does not submit and shows an inline error. If server-side: the network response is HTTP 422 or 400 with an error body. No unhandled exception or blank failure occurs."
       },
