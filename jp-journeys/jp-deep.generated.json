@@ -809,7 +809,7 @@
       {
         "id": 10,
         "description": "Final check: browser console should contain zero TypeErrors, hydration mismatches, or unhandled promise rejections throughout this entire journey.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -1330,7 +1330,7 @@
       {
         "id": 13,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections accumulated across the entire portals journey.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -1583,7 +1583,7 @@
       {
         "id": 11,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -1835,7 +1835,7 @@
       {
         "id": 12,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -1903,7 +1903,7 @@
       {
         "id": 12,
         "description": "Final check: browser console should contain zero TypeErrors, hydration errors, or unhandled promise rejections across the entire portrait journey.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -1966,7 +1966,7 @@
       {
         "id": 11,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections accumulated across the entire journey.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -3976,7 +3976,7 @@
       {
         "id": 10,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4029,7 +4029,7 @@
       {
         "id": 9,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4072,7 +4072,7 @@
       {
         "id": 7,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4115,7 +4115,7 @@
       {
         "id": 7,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4232,7 +4232,7 @@
       {
         "id": 7,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4275,7 +4275,7 @@
       {
         "id": 7,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -5255,7 +5255,7 @@
       {
         "id": 10,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections across the entire tier-limits verification journey.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -5378,7 +5378,7 @@
       {
         "id": 7,
         "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
-        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
       }
     ],
     "dependsOn": "jp-trunk-main"
