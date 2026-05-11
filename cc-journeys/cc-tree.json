@@ -342,7 +342,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on the CC widget domain (same-origin required for fetch() calls — navigating to app.phronex.com would cause CORS errors on cc.phronex.com API calls). Verify the health endpoint returns HTTP 200."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on the CC widget domain (same-origin required for fetch() calls \u2014 navigating to app.phronex.com would cause CORS errors on cc.phronex.com API calls). Verify the health endpoint returns HTTP 200."
       },
       {
         "id": 1,
@@ -447,7 +447,11 @@
         "description": "Verify GDPR data export response from step 2: (a) HTTP status 200, (b) content-type header contains 'zip' or 'octet-stream' (confirms it is a ZIP file, not an error), (c) no 500 or 4xx error. PASS if status=200 and content-type is a binary type. NOTE: Do NOT attempt to parse the response body as JSON \u2014 it is a binary ZIP archive."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All subsequent fetch() calls use relative paths to avoid CORS restrictions.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. The response contains 'token' field (not 'access_token'). Store token as VISITOR_TOKEN."
+    ]
   },
   {
     "id": "cc-e2e-widget-chat",
@@ -501,7 +505,11 @@
         "description": "Verify token works: using page.evaluate() with ANON_TOKEN: fetch('/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 (not 401). If 401 returned with a valid token, auth verifier may be misconfigured."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store 'token' field as ANON_TOKEN."
+    ]
   },
   {
     "id": "cc-api-auth-identify",
@@ -527,7 +535,11 @@
         "description": "Decode IDENTIFIED_TOKEN JWT payload (base64 decode the middle section). Verify: (a) 'sub' field is a UUID string (NOT email \u2014 CC uses UUID as subject), (b) 'instance_id' = 'e2e-test-instance', (c) 'tier' field is present (any value is acceptable), (d) 'exp' claim is > current time (token not already expired). PASS if sub is a UUID and instance_id matches. The user_id in response body should match the sub claim."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store the 'token' field as ANON_TOKEN."
+    ]
   },
   {
     "id": "cc-api-chat-message",
@@ -553,7 +565,11 @@
         "description": "Verify: (a) HTTP status 200, (b) response text contains at least one 'data:' line indicating SSE stream started, (c) no 'recaptcha_failed' error in response. The SSE stream may be truncated in page.evaluate() \u2014 that is OK. PASS if status=200 and response is non-empty."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All fetch() calls use relative paths to avoid CORS restrictions.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store token as TOKEN."
+    ]
   },
   {
     "id": "cc-api-config-branding",
@@ -579,7 +595,10 @@
         "description": "Verify 'primary_color' matches pattern '#[0-9a-fA-F]{6}' (valid 6-digit hex). An invalid colour breaks widget rendering on customer sites. Also verify 'powered_by' is a boolean."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+    ]
   },
   {
     "id": "cc-api-billing-status",
@@ -597,7 +616,7 @@
       },
       {
         "id": 3,
-        "description": "Verify BILLING response shape matches the actual /api/v1/billing/status contract: (a) 'tier' field present \u2014 string like 'free', 'premium', 'custom', (b) 'monthly_limit' field present \u2014 integer or null (null means unlimited), (c) 'messages_used' field present \u2014 integer count of messages sent this month, (d) 'messages_remaining' field present \u2014 integer or null. PASS if all 4 fields exist with correct types. FAIL if response has a 'limits' nested object instead \u2014 that would indicate wrong endpoint was called. NOTE: the flat shape {tier, monthly_limit, messages_used, messages_remaining} is the correct contract for this endpoint."
+        "description": "Verify BILLING response shape matches the actual /api/v1/billing/status contract (SubscriptionStatusResponse schema): (a) 'tier' field present \u2014 string like 'free', 'premium', 'custom', (b) 'status' field present \u2014 string like 'active', 'canceled', (c) 'limits' field present \u2014 object (dict) where keys are limit names like 'messages-per-month' and values are integers, (d) 'monthly_price_paise' field present \u2014 integer (0 for free tier). PASS if tier, status, and limits (as a dict/object) are all present. NOTE: the API does NOT return flat fields monthly_limit or messages_used \u2014 those are NOT in the contract. The limits are nested inside the 'limits' object."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -638,7 +657,10 @@
         "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 \u2014 confirming the skill was fully deleted. A 200 response means deletion is broken."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+    ]
   },
   {
     "id": "cc-api-usage",
@@ -664,7 +686,11 @@
         "description": "Verify USAGE response: (a) 'messages_used' is a non-negative integer, (b) 'messages_remaining' is a non-negative integer or null (null = unlimited), (c) 'monthly_limit' present if not unlimited. PASS if status=200 and messages_used >= 0."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as ANON_TOKEN."
+    ]
   },
   {
     "id": "cc-api-health",
@@ -690,7 +716,10 @@
         "description": "Using page.evaluate(): fetch('https://cc.phronex.com/health').then(r=>r.json()). Expect HTTP 200 with {status:'healthy'}. Both /health and /api/v1/health must return identical shape."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+    ]
   },
   {
     "id": "cc-api-widget-health",
@@ -716,7 +745,10 @@
         "description": "Verify that at least 'api' and 'llm' report 'healthy'. A degraded LLM status means Anthropic API is unreachable \u2014 this would explain defect #225 if present."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+    ]
   },
   {
     "id": "cc-sec-anon-admin-block",
@@ -794,7 +826,10 @@
         "description": "Verify: (a) at least one response in step 2 returned HTTP 429 (rate limit hit), OR (b) all 200 responses with consistent content (rate limiter using sliding window may not hit limit with 15 requests \u2014 PASS either way, but note if no 429 seen with 15 messages)."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+    ]
   },
   {
     "id": "cc-sec-jwt-malformed",
@@ -824,7 +859,10 @@
         "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected \u2014 never 200 or 500."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+    ]
   },
   {
     "id": "cc-sec-xss-chat",
@@ -835,7 +873,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context on cc.phronex.com (required — navigating to app.phronex.com would cause CORS errors when fetching cc.phronex.com API). Then using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context on cc.phronex.com (required \u2014 navigating to app.phronex.com would cause CORS errors when fetching cc.phronex.com API). Then using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
       },
       {
         "id": 2,
@@ -843,7 +881,7 @@
       },
       {
         "id": 3,
-        "description": "Verify RESPONSE text does NOT contain unescaped '<script>' tags or 'onerror=' attributes that would execute JavaScript. The AI's response should discuss the question normally. PASS if: status 200 AND response body does not echo back raw '<script>alert(1)</script>' as literal HTML that a browser would execute. ALSO PASS if AI returns 'Service temporarily unavailable' — that is a LLM availability issue, not an XSS vulnerability. FAIL only if the literal string '<script>alert(1)</script>' appears in the response in a way that would execute in a browser context."
+        "description": "Verify RESPONSE text does NOT contain unescaped '<script>' tags or 'onerror=' attributes that would execute JavaScript. The AI's response should discuss the question normally. PASS if: status 200 AND response body does not echo back raw '<script>alert(1)</script>' as literal HTML that a browser would execute. ALSO PASS if AI returns 'Service temporarily unavailable' \u2014 that is a LLM availability issue, not an XSS vulnerability. FAIL only if the literal string '<script>alert(1)</script>' appears in the response in a way that would execute in a browser context."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -876,7 +914,11 @@
         "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"'; DROP TABLE users; --\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect 422 or 400. Verify no SQL errors in response."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
+    ]
   },
   {
     "id": "cc-sec-admin-secret-required",
@@ -899,14 +941,17 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 403 (auth rejected before route handler). Also accept 404 (endpoint not yet deployed on EC2 — routes_admin_billing.py was added in recent commits pending deploy). A 200 or 201 response means admin secret auth bypass — CRITICAL."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 403 (auth rejected before route handler). Also accept 404 (endpoint not yet deployed on EC2 \u2014 routes_admin_billing.py was added in recent commits pending deploy). A 200 or 201 response means admin secret auth bypass \u2014 CRITICAL."
       },
       {
         "id": 4,
         "description": "Using page.evaluate(): fetch('/api/v1/admin/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected \u2014 no headers means no access."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+    ]
   },
   {
     "id": "cc-biz-tier-limits",
@@ -932,7 +977,11 @@
         "description": "Verify BILLING response: (a) 'tier' field is a string ('free', 'starter', 'pro', etc.), (b) 'limits' is an object \u2014 check limits['messages-per-month'] is a positive integer. NOTE: API returns limits as a nested object, not a top-level 'monthly_limit' field. (c) 'status' field is present (e.g. 'active', 'trialing'). FAIL if tier or limits object is missing."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on CC widget domain (returns 200 JSON). All subsequent fetch calls use relative paths to avoid CORS.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+    ]
   },
   {
     "id": "cc-biz-premium-features",
@@ -980,7 +1029,11 @@
         "description": "Verify checkout response: (a) HTTP 200, (b) response contains 'checkout_url' or 'payment_link' (a Razorpay URL), (c) no 500 error. If tier 'pro' returns 400, PASS with note 'tier name needs confirmation from billing/status'."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin context on CC widget domain (returns 200 JSON). All subsequent fetch calls use relative paths to avoid CORS.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+    ]
   },
   {
     "id": "cc-biz-rate-limit-by-tier",
@@ -1036,6 +1089,10 @@
         "description": "PASS criteria: (a) if LLM was 'degraded' in step 1 \u2192 verify response is 503 with user-friendly error message (not raw traceback), (b) if LLM was 'healthy' in step 1 \u2192 verify response is 200 with chat content. Both paths are PASS if response is appropriate."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All subsequent fetch() calls use relative paths to avoid CORS restrictions.",
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+    ]
   }
 ]
