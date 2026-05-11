@@ -486,11 +486,11 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store 'token' field as ANON_TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store 'token' field as ANON_TOKEN."
       },
       {
         "id": 2,
@@ -498,7 +498,7 @@
       },
       {
         "id": 3,
-        "description": "Verify token works: using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 (not 401). If 401 returned with a valid token, auth verifier may be misconfigured."
+        "description": "Verify token works: using page.evaluate() with ANON_TOKEN: fetch('/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 (not 401). If 401 returned with a valid token, auth verifier may be misconfigured."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -512,15 +512,15 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store the 'token' field as ANON_TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store the 'token' field as ANON_TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-qa-identify-test@example.com', name:'JH QA Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store the 'token' field as IDENTIFIED_TOKEN. NOTE: Field is 'token' not 'access_token'."
+        "description": "Using page.evaluate() with ANON_TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-qa-identify-test@example.com', name:'JH QA Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Response shape: {user_id, token}. Store the 'token' field as IDENTIFIED_TOKEN. NOTE: Field is 'token' not 'access_token'."
       },
       {
         "id": 3,
@@ -564,11 +564,11 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/branding?instance_id=e2e-test-instance').then(r=>{return r.json().then(body=>({status:r.status,body}))}). Expect HTTP 200. Store response as BRANDING."
+        "description": "Using page.evaluate(): fetch('/api/v1/config/branding?instance_id=e2e-test-instance').then(r=>{return r.json().then(body=>({status:r.status,body}))}). Expect HTTP 200. Store response as BRANDING."
       },
       {
         "id": 2,
@@ -649,15 +649,15 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as ANON_TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as ANON_TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with ANON_TOKEN: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.json()). Expect HTTP 200. Store as USAGE."
+        "description": "Using page.evaluate() with ANON_TOKEN: fetch('/api/v1/config/usage?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '+ANON_TOKEN}}).then(r=>r.json()). Expect HTTP 200. Store as USAGE."
       },
       {
         "id": 3,
@@ -675,11 +675,11 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/health').then(r=>r.json()). Expect HTTP 200 with valid JSON response."
+        "description": "Using page.evaluate(): fetch('/api/v1/health').then(r=>r.json()). Expect HTTP 200 with valid JSON response."
       },
       {
         "id": 2,
@@ -701,11 +701,11 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/health/widget?instance_id=e2e-test-instance').then(r=>r.json()). Expect HTTP 200 with valid JSON response."
+        "description": "Using page.evaluate(): fetch('/api/v1/config/health/widget?instance_id=e2e-test-instance').then(r=>r.json()). Expect HTTP 200 with valid JSON response."
       },
       {
         "id": 2,
@@ -779,11 +779,11 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: send 15 rapid POST requests to /api/v1/chat/message using Promise.all(). Each request: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'44444444-4444-4444-a444-444444444444'})}).then(r=>r.status). After all complete, check statuses. Expect at least one 429 response if rate limiting is enforced."
+        "description": "Using page.evaluate() with TOKEN: send 15 rapid POST requests to /api/v1/chat/message using Promise.all(). Each request: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'44444444-4444-4444-a444-444444444444'})}).then(r=>r.status). After all complete, check statuses. Expect at least one 429 response if rate limiting is enforced."
       },
       {
         "id": 3,
@@ -801,23 +801,23 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422 (not 500). 401=missing/invalid JWT, 422=validation error before auth. A 500 means JWT decoding throws unhandled exception. PASS on any non-500 response."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422 (not 500). 401=missing/invalid JWT, 422=validation error before auth. A 500 means JWT decoding throws unhandled exception. PASS on any non-500 response."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Invalid signature must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Invalid signature must be rejected \u2014 never 200 or 500."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Empty Bearer token must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Empty Bearer token must be rejected \u2014 never 200 or 500."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/chat/sessions', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected \u2014 never 200 or 500."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -835,7 +835,7 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'},body:JSON.stringify({instance_id:'e2e-test-instance', message:'<script>alert(1)</script> Tell me about Phronex. <img src=x onerror=alert(2)>', session_id:\"66666666-6666-4666-a666-666666666666\"})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 200. Record response text as RESPONSE."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'},body:JSON.stringify({instance_id:'e2e-test-instance', message:'<script>alert(1)</script> Tell me about Phronex. <img src=x onerror=alert(2)>', session_id:\"66666666-6666-4666-a666-666666666666\"})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 200. Record response text as RESPONSE."
       },
       {
         "id": 3,
@@ -853,15 +853,15 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token. Store as TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"test@example.com' OR '1'='1\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 422 or 400 (validation error). NOT 500 (which would indicate a SQL error leaked)."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"test@example.com' OR '1'='1\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect HTTP 422 or 400 (validation error). NOT 500 (which would indicate a SQL error leaked)."
       },
       {
         "id": 3,
@@ -869,7 +869,7 @@
       },
       {
         "id": 4,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"'; DROP TABLE users; --\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect 422 or 400. Verify no SQL errors in response."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:\"'; DROP TABLE users; --\", name:'SQLi Test', instance_id:'e2e-test-instance'})}).then(r=>{return {status:r.status, text:r.text()}}). Expect 422 or 400. Verify no SQL errors in response."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -883,23 +883,23 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for subsequent API calls via page.evaluate()."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin secret validation is broken."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin secret validation is broken."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instances', {headers:{'X-Admin-Secret':''}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Empty admin secret must be rejected."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/instances', {headers:{'X-Admin-Secret':''}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Empty admin secret must be rejected."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass. Note: endpoint is /api/v1/admin/ip-blocks (with /admin/ prefix), NOT /api/v1/ip-blocks."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass. Note: endpoint is /api/v1/admin/ip-blocks (with /admin/ prefix), NOT /api/v1/ip-blocks."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected \u2014 no headers means no access."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/keys', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. The /keys endpoint must be fully protected \u2014 no headers means no access."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -991,7 +991,7 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Expect HTTP 200. Store tiers config as CONFIG. NOTE: /admin/instance-config/{id} accepts X-Admin-Secret."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/instance-config/e2e-test-instance', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Expect HTTP 200. Store tiers config as CONFIG. NOTE: /admin/instance-config/{id} accepts X-Admin-Secret."
       },
       {
         "id": 2,
