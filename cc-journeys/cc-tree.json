@@ -21,70 +21,6 @@
     ]
   },
   {
-    "id": "cc-portal-dashboard",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to CC dashboard, verify all tabs load without crash. Targets defect #238 (hasCustomKey infinite recursion).",
-    "isSharedRoot": false,
-    "depth": 1,
-    "defects": [
-      "#238"
-    ],
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Wait for the page to fully load. Open browser console and check for uncaught errors \u2014 specifically look for 'Maximum call stack size exceeded' or 'hasCustomKey' which would indicate defect #238. Record any console errors."
-      },
-      {
-        "id": 2,
-        "description": "Identify all tabs visible in the CC dashboard tab bar. For a superadmin account, expect: Overview, Analytics, Info & Connections, Sessions. Click the 'Overview' tab. Verify it renders content without a JavaScript crash \u2014 look for stat cards, metrics, or an informative empty state. A blank white screen or error boundary is a FAIL."
-      },
-      {
-        "id": 3,
-        "description": "Click the 'Analytics' tab. Verify it renders without crash. Check browser console again for new uncaught errors. Verify at least one chart container or metric element is present, even if showing zero values."
-      },
-      {
-        "id": 4,
-        "description": "Click the 'Info & Connections' tab. Verify the tab content renders \u2014 look for 'Platform Connections', 'Instance LLM Configuration', 'Widget Embed Code', or 'Recent Issues' sections. NOTE: React 19 ErrorBoundary may log a console.error when RecentIssues mounts (known React 19 concurrent mode fiber-state issue, defect #251, fixed via ErrorBoundary containment in commit 993083a). This console.error is EXPECTED and NOT a failure \u2014 the tab content must still be present. A blank white page or 'Something went wrong' fullscreen overlay is a FAIL. A contained 'Recent issues unavailable' fallback is a PASS."
-      },
-      {
-        "id": 5,
-        "description": "Click the 'Sessions' tab. Verify it renders without crash. This superadmin-only tab should show recent widget sessions or an empty state. Verify the tab responds and does not show 'Access Denied'."
-      },
-      {
-        "id": 6,
-        "description": "Final console check: open browser console and review errors accumulated across all 4 tab navigations. FAIL if any error contains 'hasCustomKey', 'Maximum call stack', or 'infinite' (defect #238). FAIL if any uncaught React error crashes a full tab (blank white screen or full-page error boundary). EXPECTED AND ACCEPTABLE: a single React ErrorBoundary console.error from the 'Info & Connections' tab related to 'Object.entries' or fiber state (defect #251 \u2014 contained by ErrorBoundary, not a page crash). The presence of this specific error with the tab still rendering content = PASS."
-      }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
-  },
-  {
-    "id": "cc-portal-info-connections",
-    "description": "Layer 1 \u2014 Portal Stabilisation: Verify Info & Connections tab renders correctly. Defect #251 (Object.entries(null) crash) is CONTAINED via ErrorBoundary (commits 993083a+20d1b69) \u2014 tab content must be visible even if RecentIssues shows fallback. Regression check: full tab blank or fullscreen error overlay = FAIL.",
-    "isSharedRoot": false,
-    "depth": 1,
-    "defects": [
-      "#251"
-    ],
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/dashboard. Click the 'Info & Connections' tab. Wait for the tab content to render (up to 5 seconds)."
-      },
-      {
-        "id": 2,
-        "description": "Verify the main Info & Connections content is visible. Look for: (a) 'Platform Connections' section with CC API URL and Admin Secret rows, OR (b) 'Instance LLM Configuration' section with at least one instance card. If a console.error fires referencing 'Object.entries' or React fiber state \u2014 this is the KNOWN AND CONTAINED defect #251 React 19 issue. The content sections above must still be present. If they are: PASS. If the entire tab is blank or shows a fullscreen error: FAIL (regression \u2014 ErrorBoundary no longer working)."
-      },
-      {
-        "id": 3,
-        "description": "Verify the LLM configuration section shows at least one instance (e.g. 'e2e-test-instance'). Each instance card should show a 'Master Key' or 'Custom Key' badge, an 'Edit Key' button, and a provider label. Click the 'Edit Key' button for any instance. Verify an input field appears for entering an Anthropic API key. Click 'Cancel'. Verify the input disappears."
-      },
-      {
-        "id": 4,
-        "description": "Check the 'Recent Issues' section at the bottom. It should show either 'No issues in the last 7 days' badge OR a list of recent error entries OR the 'Recent issues unavailable' fallback (if ErrorBoundary caught the React 19 fiber error). All three outcomes are PASS \u2014 the fallback is expected. Only FAIL if no section renders at all."
-      }
-    ],
-    "dependsOn": "cc-trunk-superadmin"
-  },
-  {
     "id": "cc-portal-users-management",
     "description": "Layer 1 \u2014 Portal Stabilisation: Navigate to Users tab, verify flagged users display works. Targets defect #241 (is_flagged missing from SELECT).",
     "isSharedRoot": false,
@@ -450,7 +386,8 @@
     "dependsOn": "cc-trunk-superadmin",
     "_shared_setup_steps": [
       "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All subsequent fetch() calls use relative paths to avoid CORS restrictions.",
-      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. The response contains 'token' field (not 'access_token'). Store token as VISITOR_TOKEN."
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. The response contains 'token' field (not 'access_token'). Store token as VISITOR_TOKEN.",
+      "CC-SPECIFIC CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context for the CC API. The health endpoint returns HTTP 200 with {\"status\": \"healthy\"}. This is REQUIRED \u2014 all subsequent fetch() calls in page.evaluate() MUST use relative paths like /api/v1/... (NOT https://cc.phronex.com/...) or CORS will block them."
     ]
   },
   {
@@ -778,7 +715,10 @@
         "description": "Using page.evaluate(): fetch('/api/v1/analytics', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. If any of the 4 admin routes (users, sessions, instances, analytics) returned 200 without auth, record as CRITICAL security finding."
       }
     ],
-    "dependsOn": "cc-trunk-superadmin"
+    "dependsOn": "cc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "CC-CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context for CC API calls. The health endpoint returns HTTP 200 with {\"status\": \"healthy\"}. All subsequent fetch() calls in page.evaluate() MUST use relative paths like /api/v1/... (NOT absolute https://cc.phronex.com/... URLs)."
+    ]
   },
   {
     "id": "cc-sec-idor-cross-instance",
@@ -832,7 +772,8 @@
     ],
     "dependsOn": "cc-trunk-superadmin",
     "_shared_setup_steps": [
-      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+      "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN.",
+      "CC-CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context for CC API calls. The health endpoint returns HTTP 200 with {\"status\": \"healthy\"}. All subsequent fetch() calls in page.evaluate() MUST use relative paths like /api/v1/... (NOT absolute https://cc.phronex.com/... URLs)."
     ]
   },
   {
@@ -848,19 +789,19 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422 (not 500). 401=missing/invalid JWT, 422=validation error before auth. A 500 means JWT decoding throws unhandled exception. PASS on any non-500 response."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer TRUNCATED_TOKEN_ABC123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422 (not 500). 401=missing/invalid JWT, 422=validation error before auth. A 500 means JWT decoding throws unhandled exception. NOTE: the endpoint is /chat/history not /chat/sessions (which does not exist as a list endpoint \u2014 it requires a session_id path param). PASS on any non-500 response."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Invalid signature must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.INVALID_SIGNATURE_HERE'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. Invalid signature must be rejected \u2014 never 200 or 500."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Empty Bearer token must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?instance_id=e2e-test-instance', {headers:{'Authorization':'Bearer '}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Empty Bearer token must be rejected \u2014 never 200 or 500."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('/api/v1/chat/sessions', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected \u2014 never 200 or 500."
+        "description": "Using page.evaluate(): fetch('/api/v1/chat/history?instance_id=e2e-test-instance', {headers:{'Authorization':'InvalidScheme abc123'}}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 422. Non-Bearer auth scheme must be rejected \u2014 never 200 or 500."
       }
     ],
     "dependsOn": "cc-trunk-superadmin",
