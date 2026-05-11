@@ -432,15 +432,15 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. The response contains 'token' field (not 'access_token'). Store token as VISITOR_TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. The response contains 'token' field (not 'access_token'). Store token as VISITOR_TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('https://cc.phronex.com/api/v1/me/data-export', {headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}}).then(r=>{return {status:r.status, type:r.headers.get('content-type')||'unknown', size:r.headers.get('content-length')||'unknown'}}). Expect HTTP 200. NOTE: Response is a ZIP file (application/zip or application/octet-stream) \u2014 do NOT call .json() on it. PASS if status=200 and content-type contains 'zip' or 'octet-stream'."
+        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('/api/v1/me/data-export', {headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}}).then(r=>{return {status:r.status, type:r.headers.get('content-type')||'unknown', size:r.headers.get('content-length')||'unknown'}}). Expect HTTP 200. NOTE: Response is a ZIP file (application/zip or application/octet-stream) \u2014 do NOT call .json() on it. PASS if status=200 and content-type contains 'zip' or 'octet-stream'."
       },
       {
         "id": 3,
@@ -460,11 +460,11 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com to establish browser context. Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Extract token. Store as VISITOR_TOKEN."
+        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Extract token. Store as VISITOR_TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello, what can you help me with?', instance_id:'e2e-test-instance', session_id:'11111111-1111-4111-a111-111111111111'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,300)}}). Expect HTTP 200. Response is SSE stream (text/event-stream). PASS if status=200."
+        "description": "Using page.evaluate() with VISITOR_TOKEN: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+VISITOR_TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello, what can you help me with?', instance_id:'e2e-test-instance', session_id:'11111111-1111-4111-a111-111111111111'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,300)}}). Expect HTTP 200. Response is SSE stream (text/event-stream). PASS if status=200."
       },
       {
         "id": 3,
@@ -538,15 +538,15 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for page.evaluate() calls."
+        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store token as TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Store token as TOKEN."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({message:'What is Phronex?', instance_id:'e2e-test-instance', session_id:'22222222-2222-4222-a222-222222222222'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,500)}}). Expect HTTP 200. Chat response streams as SSE text/event-stream \u2014 the text field will contain 'data:' lines."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({message:'What is Phronex?', instance_id:'e2e-test-instance', session_id:'22222222-2222-4222-a222-222222222222'})}).then(async r=>{const text=await r.text(); return {status:r.status, text:text.slice(0,500)}}). Expect HTTP 200. Chat response streams as SSE text/event-stream \u2014 the text field will contain 'data:' lines."
       },
       {
         "id": 3,
@@ -611,31 +611,31 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context for API calls via page.evaluate()."
+        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/skills/templates', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Expect HTTP 200 with a JSON array. Verify at least one template exists. Record the first template's 'id' as TEMPLATE_ID."
+        "description": "Using page.evaluate(): fetch('/api/v1/skills/templates', {headers:{'X-Admin-Secret':'PhronexCC2025Admin'}}).then(r=>r.json()). Expect HTTP 200 with a JSON array. Verify at least one template exists. Record the first template's 'id' as TEMPLATE_ID."
       },
       {
         "id": 2,
-        "description": "Get user token first: Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) \u2014 it is user-scoped, not admin-scoped."
+        "description": "Get user token first: Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Extract token as USER_TOKEN. NOTE: /skills/from-template requires user JWT (not admin secret) \u2014 it is user-scoped, not admin-scoped."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with USER_TOKEN and TEMPLATE_ID: fetch('https://cc.phronex.com/api/v1/skills/from-template', {method:'POST', headers:{'Authorization':'Bearer '+USER_TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({template_id:TEMPLATE_ID, instance_id:'e2e-test-instance'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
+        "description": "Using page.evaluate() with USER_TOKEN and TEMPLATE_ID: fetch('/api/v1/skills/from-template', {method:'POST', headers:{'Authorization':'Bearer '+USER_TOKEN, 'Content-Type':'application/json', 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075'}, body:JSON.stringify({template_id:TEMPLATE_ID, instance_id:'e2e-test-instance'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 201. Store the returned skill 'id' as SKILL_ID."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>r.json()). Expect HTTP 200. Verify response contains 'id' matching SKILL_ID and 'instance_id' = 'e2e-test-instance'."
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>r.json()). Expect HTTP 200. Verify response contains 'id' matching SKILL_ID and 'instance_id' = 'e2e-test-instance'."
       },
       {
         "id": 5,
-        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {method:'DELETE', headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 204 (no content)."
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('/api/v1/skills/'+SKILL_ID, {method:'DELETE', headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 204 (no content)."
       },
       {
         "id": 6,
-        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('https://cc.phronex.com/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 \u2014 confirming the skill was fully deleted. A 200 response means deletion is broken."
+        "description": "Using page.evaluate() with USER_TOKEN and SKILL_ID: fetch('/api/v1/skills/'+SKILL_ID, {headers:{'Authorization':'Bearer '+USER_TOKEN}}).then(r=>{return {status:r.status}}). Expect HTTP 404 \u2014 confirming the skill was fully deleted. A 200 response means deletion is broken."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -1013,19 +1013,19 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com for browser context."
+        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/health/widget?instance_id=e2e-test-instance').then(r=>r.json()). Check 'llm' component status. If 'llm' is 'unavailable' or 'degraded', proceed to step 2. If 'healthy', note it and verify chat still works."
+        "description": "Using page.evaluate(): fetch('/api/v1/config/health/widget?instance_id=e2e-test-instance').then(r=>r.json()). Check 'llm' component status. If 'llm' is 'unavailable' or 'degraded', proceed to step 2. If 'healthy', note it and verify chat still works."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'55555555-5555-4555-a555-555555555555'})}).then(r=>r.json().then(body=>({status:r.status, body}))).then(result=>result). Expect HTTP 503 if LLM is disabled, or HTTP 200 if LLM is healthy. Record actual response."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'Hello', instance_id:'e2e-test-instance', session_id:'55555555-5555-4555-a555-555555555555'})}).then(r=>r.json().then(body=>({status:r.status, body}))).then(result=>result). Expect HTTP 503 if LLM is disabled, or HTTP 200 if LLM is healthy. Record actual response."
       },
       {
         "id": 4,
