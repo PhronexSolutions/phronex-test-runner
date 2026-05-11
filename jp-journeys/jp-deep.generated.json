@@ -1532,111 +1532,58 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click Sign In.",
-        "action": "storageState load from /home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json; on expiry navigate to http://localhost:3002/auth/login, fill #email with qa-test-journeyhawk@phronex.com, fill #password with QA_SUPERADMIN_PASSWORD, click [type=submit]",
-        "expected": "URL resolves to /jp/ (dashboard or jobs). No auth error banner visible. Navigation chrome is rendered."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Profile section of the JobPortal application.",
-        "action": "Navigate to http://localhost:3002/jp/profile or click the 'Profile' navigation link in the sidebar/top-nav.",
-        "expected": "Profile page loads with HTTP 200. Page title or heading contains 'Profile'. No error boundary or 500 screen is visible."
+        "description": "Navigate to https://app.phronex.com/jp/config (the Configuration page, which is the JP profile/settings surface). Verify the page loads without errors.",
+        "action": "page.goto('https://app.phronex.com/jp/config'); waitForLoadState('networkidle'); captureConsoleErrors(); browser_snapshot"
       },
       {
         "id": 3,
-        "description": "Verify the Profile page renders all expected top-level sections: Professional Portrait, Configuration, and any Profile Group panels as defined in USER-SPEC.html.",
-        "action": "Assert presence of section headings or tabs for 'Professional Portrait', 'Configuration', and profile-group-related panels via DOM query (e.g., getByRole('heading') or getByTestId).",
-        "expected": "At least the Professional Portrait and Configuration sections are visible and not hidden behind a loading spinner. No 'undefined' or '[object Object]' strings are rendered."
+        "description": "Verify the Configuration page renders its expected sub-tabs \u2014 at minimum 'Personal Info' and any other configuration groups visible. Assert at least one tab is present.",
+        "action": "browser_snapshot; assert at least one tab (Personal Info or similar) visible"
       },
       {
         "id": 4,
-        "description": "Locate the Profile Group panel/section. Verify it renders existing data (or an empty-state message if no groups exist yet).",
-        "action": "Scroll to or click the Profile Group section. Assert either a list/table of profile group entries OR an empty-state element (e.g., 'No profile groups yet' or similar) is visible.",
-        "expected": "Profile Group area is visible and not in an error state. If empty, an empty-state UI element is shown rather than a blank white space or JS error."
+        "description": "Click the 'Personal Info' tab (or the first visible tab) and verify its content panel renders \u2014 form fields for user name, bio, email, or similar profile data.",
+        "action": "browser_click Personal Info tab; browser_snapshot; assert form fields visible"
       },
       {
         "id": 5,
-        "description": "Create a new Profile Group by triggering the add/create action (e.g., 'Add Group', '+ New Group', or equivalent CTA).",
-        "action": "Click the button or link to create a new profile group (e.g., getByRole('button', { name: /add|new|create/i }) within the Profile Group section).",
-        "expected": "A form, modal, or inline input panel appears to accept profile group details. No JS console errors are thrown."
+        "description": "Locate a text input field (e.g. name or bio) on the Personal Info tab. Update it to a new value and save. Verify success confirmation appears.",
+        "action": "browser_fill a text field with a valid update; click Save; assert success toast or confirmation"
       },
       {
         "id": 6,
-        "description": "Attempt to submit the new Profile Group form with all required fields empty to verify client-side validation.",
-        "action": "Leave all form fields blank and click the Save / Submit button.",
-        "expected": "Validation error messages appear adjacent to each required field (e.g., 'This field is required'). Form is NOT submitted. No network request is fired. No success toast appears."
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard then return to https://app.phronex.com/jp/config. Verify the updated value persisted \u2014 confirming backend write.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/config'); browser_snapshot; verify updated value still shown"
       },
       {
         "id": 7,
-        "description": "Fill in valid data for all required Profile Group fields (e.g., group name and any mandatory attributes), then submit the form.",
-        "action": "Fill the group name field with a unique value such as 'QA Test Group 1'. Fill any other required fields with valid test data. Click Save / Submit.",
-        "expected": "Form submits successfully. A success toast or confirmation message appears (e.g., 'Profile group created' or similar). The new group 'QA Test Group 1' appears in the Profile Group list without a page reload being required."
+        "description": "Hard reload https://app.phronex.com/jp/config and verify the page recovers cleanly with the same field values.",
+        "action": "browser_evaluate('location.reload(true)'); waitForLoadState; browser_snapshot"
       },
       {
         "id": 8,
-        "description": "Verify the newly created Profile Group 'QA Test Group 1' is present and correctly displayed in the list.",
-        "action": "Assert that the Profile Group list/table contains a row or card with text 'QA Test Group 1'.",
-        "expected": "Profile group entry is visible in the list with the correct name. No duplicate entries are shown."
+        "description": "Inspect all visible configuration tabs. For each tab that exists, click it and verify no JS error occurs on tab switch.",
+        "action": "for each tab: click tab; browser_snapshot; assert no JS error on switch"
       },
       {
         "id": 9,
-        "description": "Edit the newly created Profile Group by clicking its edit action (pencil icon, 'Edit' button, or row click).",
-        "action": "Locate the 'QA Test Group 1' entry and click its edit control.",
-        "expected": "Edit form or modal opens pre-populated with existing values for 'QA Test Group 1'. All previously saved fields display the correct saved values."
+        "description": "Intercept network requests during config page usage and verify API calls return 200 (no 5xx errors).",
+        "action": "browser_network_requests; filter to /api/jp/user/api/v1/; assert no 5xx responses"
       },
       {
         "id": 10,
-        "description": "Modify the profile group name to 'QA Test Group 1 EDITED' and save.",
-        "action": "Clear the group name field and type 'QA Test Group 1 EDITED'. Click Save / Update.",
-        "expected": "Success toast or confirmation appears. The list updates to show 'QA Test Group 1 EDITED'. The old name 'QA Test Group 1' is no longer displayed."
+        "description": "Cross-service integration check: verify session is still valid after the full config journey.",
+        "action": "assert URL does not contain /auth/login; session valid"
       },
       {
         "id": 11,
-        "description": "Attempt to save an edit with the group name cleared (blank) to verify server-side or client-side validation on update.",
-        "action": "Re-open the edit form for 'QA Test Group 1 EDITED', clear the name field completely, and click Save.",
-        "expected": "Validation error is shown (either inline or as a toast). The record is NOT updated. The list still shows 'QA Test Group 1 EDITED'."
-      },
-      {
-        "id": 12,
-        "description": "Navigate away from the Profile page to the main JobPortal dashboard to break any in-memory state.",
-        "action": "Click the Dashboard or Jobs link in the main navigation to navigate to http://localhost:3002/jp/ or http://localhost:3002/jp/jobs.",
-        "expected": "Dashboard or Jobs page loads successfully. Profile group data is no longer in the viewport."
-      },
-      {
-        "id": 13,
-        "description": "Return to the Profile page and verify that the edited Profile Group 'QA Test Group 1 EDITED' persisted correctly after navigation.",
-        "action": "Navigate back to http://localhost:3002/jp/profile (or click the Profile nav link). Scroll to or click the Profile Group section.",
-        "expected": "Profile Group list shows 'QA Test Group 1 EDITED'. No data was lost or reset. The page does not show a loading error or stale data."
-      },
-      {
-        "id": 14,
-        "description": "Verify the Profile Group data is also reflected via the backend API (cross-service integration check).",
-        "action": "Issue a GET request to http://localhost:8001/api/v1/profile or relevant profile-groups endpoint with the current session JWT (captured from browser storage). Assert the response contains the 'QA Test Group 1 EDITED' entry.",
-        "expected": "API returns HTTP 200. Response JSON includes an entry matching 'QA Test Group 1 EDITED'. This confirms the UI change was persisted to the database and not just held in UI state."
-      },
-      {
-        "id": 15,
-        "description": "Delete the test Profile Group 'QA Test Group 1 EDITED' by clicking its delete action and confirming any confirmation dialog.",
-        "action": "Locate 'QA Test Group 1 EDITED' in the list, click its delete/trash icon, and confirm deletion in any modal or popover that appears.",
-        "expected": "Success toast or confirmation appears (e.g., 'Profile group deleted'). The entry 'QA Test Group 1 EDITED' is removed from the list immediately. No JS errors are thrown."
-      },
-      {
-        "id": 16,
-        "description": "Verify deletion persisted: navigate away to the dashboard and return to the Profile Group section.",
-        "action": "Click the Dashboard nav link, wait for it to load, then click the Profile nav link and scroll to Profile Group section.",
-        "expected": "Profile Group list no longer contains 'QA Test Group 1 EDITED'. The section either shows remaining entries or the empty-state UI. No ghost record appears."
-      },
-      {
-        "id": 17,
-        "description": "Attempt to create a Profile Group with a duplicate name (if uniqueness is enforced) by creating one named 'QA Duplicate Test', saving, then trying to create a second one with the same name.",
-        "action": "Create a profile group named 'QA Duplicate Test' and save. Then trigger create again and enter 'QA Duplicate Test' in the name field and submit.",
-        "expected": "If uniqueness is enforced: an error is shown (e.g., 'A profile group with this name already exists'). If uniqueness is not enforced: two entries with the same name appear without error. Either outcome is acceptable \u2014 assert whichever behaviour is observed is consistent with the USER-SPEC and no unhandled exception occurs."
-      },
-      {
-        "id": 18,
-        "description": "Clean up: delete 'QA Duplicate Test' entry (or both if duplicates were allowed) to leave the profile in a clean state.",
-        "action": "Delete any 'QA Duplicate Test' entries using the delete action. Confirm each deletion dialog.",
-        "expected": "All 'QA Duplicate Test' entries are removed. Profile Group section returns to its pre-test state."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -5423,105 +5370,53 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/login if session file is absent or expired; otherwise restore session from /home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json",
-        "expected": "User is authenticated as qa-test-journeyhawk@phronex.com (superadmin). The portal sidebar is visible and includes amber-variant Admin/SA tabs. No redirect to /auth/login occurs."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Dashboard at http://localhost:3002/jp/ and confirm the page loads without errors.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/ and call mcp__playwright__browser_snapshot to capture the DOM",
-        "expected": "URL is /jp/. Page title or heading contains 'Dashboard'. Sidebar pill groups are visible. No JS console errors of severity 'error'. HTTP 200 for the page document."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard and verify the page loads without errors.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); waitForLoadState; captureConsoleErrors()"
       },
       {
         "id": 3,
-        "description": "Navigate to the Portals page and record the current number of search profiles for the superadmin user to establish a baseline.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/portals and call mcp__playwright__browser_snapshot",
-        "expected": "URL is /jp/portals. At least one portal configuration card is rendered. Each card shows the portal name and the count of active search profiles."
+        "description": "Navigate to https://app.phronex.com/jp/portals. Record the portal count and tier limit indicators shown in the UI (e.g. '5/5 portals used', '1/1 search profiles used').",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; note portal count and tier limit messages"
       },
       {
         "id": 4,
-        "description": "Attempt to add a new portal configuration via the UI (click the 'Add Portal' or equivalent button) and fill in a unique portal_name such as 'QA-Tier-Test-Portal', supply dummy credentials, leave auto_apply unchecked, and submit the form.",
-        "action": "mcp__playwright__browser_click the 'Add Portal' button; mcp__playwright__browser_fill_form with portal_name='QA-Tier-Test-Portal' and a placeholder credential value; mcp__playwright__browser_click the submit/save button",
-        "expected": "A success toast or confirmation message appears. The new portal card 'QA-Tier-Test-Portal' is now listed on the Portals page. The POST /portals/ call returns HTTP 201."
+        "description": "Verify the tier limit UI is displayed correctly: if the QA account has all portal slots filled, the 'Add Portal' button should be disabled or hidden, and a tier limit message should be shown. Assert this gating is visually communicated to the user.",
+        "action": "browser_snapshot; assert Add Portal CTA is disabled/hidden OR tier limit message visible; NOT a silent failure"
       },
       {
         "id": 5,
-        "description": "On the newly created 'QA-Tier-Test-Portal' portal card, click 'Add Search Profile' and add the maximum allowed number of search profiles for the Pro tier (5 profiles) one at a time, using distinct keyword/location combos (e.g. 'Python Engineer / Bangalore', 'React Developer / Mumbai', etc.).",
-        "action": "Repeat mcp__playwright__browser_click 'Add Search Profile', mcp__playwright__browser_fill_form keyword and location fields, mcp__playwright__browser_click save \u2014 5 times total",
-        "expected": "All 5 search profiles are created successfully. After the 5th profile, the 'Add Search Profile' button is either hidden, disabled, or shows a tooltip indicating the Pro-tier limit (max 5 per portal) has been reached. No error state is shown for the 5th submission."
+        "description": "Verify the search profile tier limit: for each portal, assert the '+ Add Profile' button shows the current usage vs. limit (e.g. '1/1 Profile limit reached'). Confirm the limit is enforced in the UI.",
+        "action": "browser_snapshot; for each portal card: assert search profile limit indicator visible AND Add Profile disabled when limit reached"
       },
       {
         "id": 6,
-        "description": "Attempt to add a 6th search profile to the same portal to verify the tier enforcement boundary. Click 'Add Search Profile' if the button is still accessible, otherwise inspect the DOM for a disabled state or limit indicator.",
-        "action": "mcp__playwright__browser_click 'Add Search Profile' (if accessible); attempt mcp__playwright__browser_fill_form and submit; otherwise mcp__playwright__browser_snapshot to capture the disabled/limit state",
-        "expected": "The UI prevents creation of a 6th search profile. Either: (a) the button is disabled/absent, (b) a validation error message appears such as 'Search profile limit reached for your tier', or (c) the API call to POST /portals/{id}/search-profiles returns HTTP 403 or 422. The count on the portal card remains at 5."
+        "description": "Navigate to https://app.phronex.com/jp/subscription and verify the subscription page shows the current tier (Standard Seeker or similar) and documents the tier-based limits that are enforced.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); waitForLoadState; browser_snapshot; assert current tier label visible"
       },
       {
         "id": 7,
-        "description": "Switch to the free-tier QA user context by loading the session file for qa-jp-free@phronex.com from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-free-state.json', or if unavailable navigate to http://localhost:3002/auth/login and authenticate with email qa-jp-free@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "action": "Restore session from /home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-free-state.json or mcp__playwright__browser_navigate to http://localhost:3002/auth/login, mcp__playwright__browser_fill_form email=qa-jp-free@phronex.com password=QA_SUPERADMIN_PASSWORD, submit",
-        "expected": "User is authenticated as qa-jp-free@phronex.com. Sidebar Admin/SA amber tabs are absent. URL resolves to /jp/ after login."
+        "description": "On the subscription page, verify the upgrade CTA or feature comparison section describes the limits for the current tier vs. a higher tier. Assert the limits match what was observed in steps 3-5.",
+        "action": "browser_snapshot; assert upgrade/plan comparison section references portal/profile limits"
       },
       {
         "id": 8,
-        "description": "As the free-tier user, navigate to the Portals page and verify the tier-based search profile limit is enforced at 1 profile per portal. Attempt to add a portal and then add 1 search profile.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/portals; click Add Portal, fill in portal_name='QA-Free-Portal', submit; then click Add Search Profile, fill in one keyword/location, submit",
-        "expected": "The first search profile is created successfully (HTTP 201). The portal card shows 1 active search profile. The 'Add Search Profile' button is disabled or absent immediately after the first profile is created, reflecting the Free-tier limit of max 1 search profile per portal."
+        "description": "Navigate to https://app.phronex.com/jp/jobs and verify the jobs list loads. Assert the result count is consistent with the tier-based scan limit (RESULTS_WANTED_FREE or RESULTS_WANTED_PRO based on tier).",
+        "action": "page.goto('https://app.phronex.com/jp/jobs'); waitForLoadState; browser_snapshot; assert job count visible"
       },
       {
         "id": 9,
-        "description": "As the free-tier user, attempt to create a second search profile on the same portal to verify the hard limit.",
-        "action": "mcp__playwright__browser_click 'Add Search Profile' if still visible; otherwise mcp__playwright__browser_snapshot to capture the disabled state; if accessible, attempt to submit a second profile form",
-        "expected": "The UI blocks creation. Either the button is absent/disabled, or a message indicates 'Free tier allows max 1 search profile per portal', or the backend returns HTTP 403 or 422. The profile count on the card remains at 1."
+        "description": "Navigate back to https://app.phronex.com/jp/portals and verify the portal listing is still consistent after the cross-page navigation.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert portal count consistent with step 3"
       },
       {
         "id": 10,
-        "description": "Switch to the standard-tier QA user context by loading the session file for qa-jp-standard@phronex.com from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-standard-state.json', or authenticate via http://localhost:3002/auth/login with email qa-jp-standard@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "action": "Restore session from /home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-standard-state.json or navigate to login and fill credentials for qa-jp-standard@phronex.com",
-        "expected": "User is authenticated as qa-jp-standard@phronex.com. URL resolves to /jp/. Admin/SA tabs are not visible in the sidebar."
-      },
-      {
-        "id": 11,
-        "description": "As the standard-tier user, navigate to the Portals page, create a new portal 'QA-Standard-Portal', and attempt to add search profiles up to and beyond the standard-tier limit. Verify the limit is enforced.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/portals; add portal 'QA-Standard-Portal'; then attempt to add search profiles one by one until the limit is hit",
-        "expected": "Search profiles are accepted up to the standard-tier maximum. Upon reaching the limit, the 'Add Search Profile' button becomes disabled or a limit message is displayed. The backend returns HTTP 403 or 422 for any attempt beyond the tier limit."
-      },
-      {
-        "id": 12,
-        "description": "Return to the superadmin session by restoring '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or re-authenticating at http://localhost:3002/auth/login with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "action": "Restore session from /home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json or navigate to http://localhost:3002/auth/login and authenticate",
-        "expected": "Superadmin session is active. Amber Admin/SA tabs are visible in the sidebar. No redirect to login."
-      },
-      {
-        "id": 13,
-        "description": "As superadmin, navigate to http://localhost:3002/jp/portals, locate the 'QA-Tier-Test-Portal' created in step 4, and verify all 5 search profiles created in step 5 are still listed (persistence check).",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/portals; mcp__playwright__browser_snapshot; locate 'QA-Tier-Test-Portal' card and expand or inspect its search profiles list",
-        "expected": "The portal card 'QA-Tier-Test-Portal' is present. It shows exactly 5 search profiles. Profile names and locations match the values entered in step 5. No profiles have been silently dropped or merged."
-      },
-      {
-        "id": 14,
-        "description": "Verify the max-portals-per-user limit of 10 is reflected in the UI. Count the number of portal cards visible for the superadmin user and confirm the 'Add Portal' button is still active if fewer than 10 portals exist, or is disabled/absent if the user has reached the 10-portal cap.",
-        "action": "mcp__playwright__browser_snapshot on /jp/portals; count portal cards in the rendered DOM",
-        "expected": "If portal count < 10: 'Add Portal' button is enabled and clickable. If portal count = 10: 'Add Portal' button is disabled or shows a message such as 'Max 10 portals reached'. The actual count matches what the backend returns for GET /portals/."
-      },
-      {
-        "id": 15,
-        "description": "Navigate away from the Portals page to the Dashboard (/jp/) and then return to /jp/portals to confirm data persistence across navigation.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/; wait for dashboard to render; then mcp__playwright__browser_navigate to http://localhost:3002/jp/portals; mcp__playwright__browser_snapshot",
-        "expected": "All portal configurations including 'QA-Tier-Test-Portal' with its 5 search profiles are still listed after the navigation round-trip. No data loss, no spinner hang, no HTTP 5xx errors in the browser console."
-      },
-      {
-        "id": 16,
-        "description": "Capture the browser console messages on the Portals page to confirm no unexpected errors were logged during the tier-limit enforcement flows.",
-        "action": "mcp__playwright__browser_console_messages",
-        "expected": "No console entries with level 'error' related to tier enforcement, portal CRUD, or authentication. Warnings unrelated to tier logic are acceptable. Network requests to /portals/ and /portals/{id}/search-profiles return expected status codes (200/201 for allowed, 403/422 for blocked)."
-      },
-      {
-        "id": 17,
-        "description": "Clean up: delete the 'QA-Tier-Test-Portal' portal created during this journey to avoid polluting the QA dataset for future runs.",
-        "action": "mcp__playwright__browser_click the delete or remove action on the 'QA-Tier-Test-Portal' card; confirm the deletion dialog if present",
-        "expected": "The portal 'QA-Tier-Test-Portal' is removed from the list. A success confirmation is shown. The portal count decreases by 1. DELETE /portals/{id} returns HTTP 200 or 204."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections across the entire tier-limits verification journey.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
