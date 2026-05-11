@@ -612,7 +612,7 @@
       },
       {
         "id": 10,
-        "description": "Assert the health endpoint returns the correct shape to confirm the backend is reachable and correctly configured.",
+        "description": "Assert the JP backend health endpoint is reachable. Navigate to https://jobc.phronex.com/health and verify it returns HTTP 200 with a JSON body containing {\"status\": \"healthy\"}. NOTE: JP health lives at the root /health path \u2014 NOT at /api/v1/health and NOT through the portal proxy. Direct URL access only. PASS if: HTTP 200 and status=healthy. FAIL if: 404 or non-healthy response.",
         "action": "Send a fetch/XHR request to /api/v1/health (or the product's configured health path) from within the browser page context.",
         "expected": "Response status 200. JSON body is exactly {\"status\": \"healthy\"} \u2014 not {\"status\": \"ok\"} or any other variant. This confirms the Phronex health-endpoint invariant is met."
       },
