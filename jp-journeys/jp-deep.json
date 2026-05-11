@@ -205,7 +205,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved session from \".tmp/jp-trunk-main-state.json\" using the browser_navigate tool, then navigate to https://app.phronex.com/jp/subscription"
+        "description": "Navigate to https://app.phronex.com/jp/subscription. The session state from jp-trunk-main is automatically inherited by the runner. Do NOT attempt to manually load .tmp/jp-trunk-main-state.json via browser_navigate \u2014 the runner handles session injection via storageState. Simply verify the page loads at /jp/subscription (not /auth/login)."
       },
       {
         "id": 2,
