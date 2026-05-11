@@ -86,19 +86,13 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-## D-06: ComC DevServer-only vs EC2 deployment — journey spec URL assumptions
+## D-06: ComC DevServer-only vs EC2 deployment — journey spec URL assumptions — DEFERRED
 
-**Context:** ComC runs exclusively on DevServer (`localhost:8004`). The portal at `localhost:3002` proxies ComC API calls to `localhost:8004`. This means ComC journeys are implicitly tied to DevServer and cannot be run from any other machine.
+**Status:** DEFERRED — revisit when ComC is scheduled for EC2 deployment.
 
-**Impact:** The JourneyHawk skill currently supports running the portal against `app.phronex.com` (EC2) by setting `PORTAL_URL` in `.qa.env`. For ComC, the portal would need to be the DevServer portal, and the ComC backend would be DevServer-only.
+**Decision (2026-05-11):** No action needed now. `PHRONEX_COMC_TEST_URL=http://localhost:8004` is correct for DevServer. When ComC moves to EC2, add a `COMC_URL` override to `run-journeyhawk.sh` at that time.
 
-**Questions for Vivek:**
-1. When ComC is eventually deployed to EC2/production, will `run-journeyhawk.sh` need a `COMC_URL` override similar to `PHRONEX_COMC_TEST_URL=http://localhost:8004`?
-2. Should ComC journeys use `PORTAL_URL=http://localhost:3002` hardcoded (never EC2), or should it respect the global `PORTAL_URL` setting?
-
-**Current state:** `PHRONEX_COMC_TEST_URL=http://localhost:8004` is set in `.qa.env`. The portal at `localhost:3002` proxies to this. Works correctly today. Will break when ComC moves to EC2.
-
-**Decision needed by:** When ComC moves to production EC2.
+**No action until ComC EC2 deployment is scheduled.**
 
 ---
 
@@ -250,56 +244,33 @@ generated journeys to fall back to heuristic (unmodified specs = zero enrichment
 
 ---
 
-## D-13: Trunk login fails when EC2 is down — leaf journeys still pass via saved session
+## D-13: Trunk login fails when EC2 is down — RESOLVED (2026-05-11)
 
-**What happened in run7:** The trunk (`comc-trunk-superadmin`) failed at the login step because `AUTH_API_URL=https://auth.phronex.com` — the portal validates credentials against EC2 phronex-auth, which is currently unreachable. However, all 10+ leaf journeys PASSED by loading the saved session from run6's state file (`comc-trunk-superadmin-state.json`, valid 715 hours).
+**Decision:** Accept current behaviour (Option C). EC2 outages are rare; trunk false-fails are self-healing when EC2 recovers. The `isSharedRoot` guard in `spec_curator.py` prevents accidental trunk retirement. No code change needed.
 
-**This is working as designed.** The saved state file acts as a credential cache. The trunk's single failure does not cascade to leaf journeys because each leaf has "Load saved session OR log in" as its first step.
-
-**However:** The trunk failure IS recorded as a BROKEN verdict in `qa_journey_verdicts`, which will eventually affect the `qa_confidence_scores` for `comc-trunk-superadmin`. After 5+ BROKEN runs, the curator might attempt to retire the trunk (though the `isSharedRoot` guard in `spec_curator.py` now prevents that).
-
-**Architectural question:** Should the trunk's verdict account for EC2 availability? If `auth.phronex.com` is unreachable, the trunk login failure is a test infrastructure issue, not a product bug. Options:
-- A) Add EC2 reachability check at trunk start — if unreachable, mark as SKIP rather than FAIL
-- B) Add a local phronex-auth fallback URL (e.g., `AUTH_API_URL_LOCAL=http://localhost:8002`) for DevServer-only runs
-- C) Accept the current behaviour — EC2 outages are rare, trunk false-fails are self-healing when EC2 recovers
-
-**Current state:** EC2 is down. Run7 trunk failed. Leaf journeys all passing via saved state. No action needed for run7 to complete successfully.
+**No further action needed.**
 
 ---
 
-## D-08: Canonical URL for spec files — `localhost:3002` vs `app.phronex.com`
+## D-08: Canonical URL for spec files — RESOLVED (2026-05-11)
 
-**Context:** EC2 portal went down (502) during autonomous run. Switched `PORTAL_URL=http://localhost:3002` in `.qa.env` and manually patched 230 step descriptions in `comc-deep.json` + `comc-deep.generated.json` from `https://app.phronex.com` → `http://localhost:3002`.
-
-**The `run-journeyhawk.sh` sed substitution** only goes one direction: replaces `localhost:3002` → `$PORTAL_URL` at runtime. So if specs have `app.phronex.com` baked in and `PORTAL_URL=http://localhost:3002`, the substitution misses them.
-
-**Current state:** Specs have `localhost:3002` as canonical. This works for DevServer QA. When EC2 recovers, setting `PORTAL_URL=https://app.phronex.com` in `.qa.env` will cause run-journeyhawk.sh to replace `localhost:3002` → `https://app.phronex.com` in the temp merged spec at runtime. Should work without touching the spec files again.
-
-**Decision needed:** Confirm that `localhost:3002` is the right canonical for spec files long-term. If yes, no action needed — current state is correct.
+**Decision:** `localhost:3002` is the correct canonical URL for spec files. `run-journeyhawk.sh` replaces it at runtime with `$PORTAL_URL` for EC2 runs. No action needed.
 
 ---
 
-## D-09: Generated journeys calling backend API directly — false positives
+## D-09: Generated journeys calling backend API directly — RESOLVED (2026-05-11)
 
-**What happened:** ~33 generated journeys (`comc-deep-*`, `comc-biz-*`, `comc-hld-*`, `comc-architecture-*`, `comc-sec-*`) fail with 401/404 because they try to call `http://localhost:8004/api/v1/...` directly using portal Auth.js cookies. Auth.js JWE cookies are not valid Bearer JWTs for the ComC API.
+**Fix:** Added Class 6 to `_is_garbage_journey()` in `phronex_common/testing/journey_generator.py` (commit `b242f71f`). Journeys with steps calling `localhost:<port>/api/` directly are dropped before the run. Journeys with `runner="api"` are exempt. Eliminates ~30-40 false-positive journeys per run.
 
-**Root cause:** The journey generator is given ARCHITECTURE.html and HLD docs as inputs, and generates journeys that test backend API contracts. These are integration tests, not browser E2E tests — they require a phronex-auth Bearer JWT, not a portal session.
-
-**Recommendation:** Modify the journey generator prompt to explicitly prohibit generating steps that call backend URLs (`localhost:8004`) directly. All steps must navigate the portal UI at the portal URL. Backend behaviour is verified indirectly through the portal's proxy calls.
-
-**Decision needed:** Approval to modify journey generator prompt constraints. This will reduce generated journey count by ~30-40 but eliminate the false-positive class entirely.
+**No further action needed.**
 
 ---
 
-## D-10: Depth gate dropping static-spec journeys due to deepener bug
+## D-10: Depth gate dropping static-spec journeys — RESOLVED (2026-05-11)
 
-**What happened:** 19 of 45 static-spec journeys are classified SMOKE and dropped before running. The deepener fails with: `AnthropicProvider.chat() missing 1 required positional argument: 'messages'`. These journeys stay SMOKE → depth gate drops them.
+**Fix:** `run-journeyhawk.sh` step 0d (lines 667-695) now reads `${SPEC_FILE}` (the static spec) and builds `static_ids`. Any journey with an ID in `static_ids` passes the depth gate regardless of SMOKE classification. The deepener bug (`AnthropicProvider.chat()`) was separately resolved — the deepener now uses the `DeepenSpec` LLM task abstraction.
 
-**Affected:** `comc-config-*`, `comc-rbac-*`, `comc-people-*`, `comc-ops-costs-*` — core admin/config flows. They have never been tested in 6 runs.
-
-**Recommendation:** Depth gate should skip SMOKE-drop for static-spec journeys (those in `comc-deep.json` original file, not `.generated.json`). Also fix the `AnthropicProvider.chat()` signature bug.
-
-**Decision needed:** Approval to modify depth gate to always run static-spec journeys regardless of SMOKE classification.
+**No further action needed.**
 
 ---
 
@@ -323,26 +294,17 @@ generated journeys to fall back to heuristic (unmodified specs = zero enrichment
 
 ---
 
-## D-14: CC lead form Export CSV is a dark feature — backend route missing (2026-05-11)
+## D-14: CC lead form Export CSV — IMPLEMENTED (2026-05-11)
 
-**What:** `LeadFormClient.tsx` (portal) has an "Export CSV" button at lines 227-251 that calls `POST /api/admin/cc/api/v1/lead-form/submissions/export`. This goes through the Next.js proxy to the CC backend. The CC backend has **no such route** in `routes_admin_instances.py` — the lead form section only has field list/create/patch/delete (`/lead-form/fields/*`). There is no submissions storage, no submissions list, and no CSV export endpoint.
+**Decision:** Implement (not disable). Full implementation shipped in CC commit `66eecd3` and portal commit `7238869`.
 
-**Root cause:** The export button was built into the portal UI without a corresponding backend implementation. Lead form responses in CC are not currently stored in the database at all — they go to... nowhere? The config-backed lead form stores field *definitions* in YAML, but field *submissions* have no persistence layer.
+**What was built:**
+- `cc_lead_form_submissions` DB table (migration `6374b9b2f800`)
+- `POST /auth/identify` now writes a `LeadFormSubmission` row on every lead capture
+- `GET /api/v1/admin/lead-form/submissions/export?instance_id=` returns CSV (admin/owner auth)
+- Portal `handleExport` updated to call correct path with `instance_id` query param
 
-**Impact:** Any CC instance admin clicking Export CSV gets a 404 (surfaced as a network error in the portal). This is a silent failure — no error toast, just a failed download.
-
-**This is a dark feature — NOT implementing autonomously.** Implementing submission storage requires:
-1. A new `cc_lead_form_submissions` DB table (Alembic migration)
-2. A CC route to receive webhook submissions and store them
-3. The export CSV endpoint itself
-4. Possibly a submissions list view in the portal
-
-**Decision needed:**
-- A) Scope into the next CC milestone — implement submissions storage + export
-- B) Disable the Export CSV button in the portal until the backend is ready (1-line change in `LeadFormClient.tsx`)
-- C) Accept the dark feature — button exists but is non-functional
-
-**Recommendation:** Option B short-term (remove false affordance), Option A mid-term. The button creating a silent 404 is a UX defect.
+**No further action needed. No Alembic merge required (single head verified).**
 
 ---
 
@@ -376,40 +338,11 @@ Note: `38617a1` (config/usage IDOR) was already protected — routes_config.py l
 
 ---
 
-## D-16: CC AI "Service temporarily unavailable" — production LLM rate limit (2026-05-11)
+## D-16: CC AI "Service temporarily unavailable" — RESOLVED (2026-05-11)
 
-**What:** Journeys that chat with the Maxine widget receive "Service temporarily unavailable" instead of an AI response. This is not a code bug — it's a production infrastructure issue.
+**Fix:** `refresh-ec2-oauth-key.sh` cron changed from `0 */4 * * *` (every 4h) to `*/20 * * * *` (every 20 min) in commit `6f33f06`. Maximum OAuth dead zone is now 20 minutes instead of 3.5 hours.
 
-**Root cause trace:**
-1. `routes_chat.py` line 1252 returns `"Service temporarily unavailable. Please try again."` on `LLMError`
-2. `LLMError` (from `phronex_common.llm.base`) is raised when Anthropic API calls fail after retries
-3. On EC2, CC uses either:
-   - Prepaid API credits (deplete over time → 429s)
-   - OAuth token injected by `refresh-ec2-oauth-key.sh` cron (runs every 4h)
-4. If the cron misses a rotation or the Claude Max subscription hits its rate limit, ALL CC chat calls fail
-
-**Affected journeys:** Any journey that calls the CC chat widget and expects an actual AI response:
-- `cc-deep-chat-lifecycle` (step: verify AI responds to "Hello")
-- `cc-sec-xss-chat` (step 3 already patched to PASS on this message)
-- `cc-biz-chat-close` (step: chat and then close)
-- `cc-e2e-widget-chat` (step: full E2E widget conversation)
-
-**Current mitigation in spec:** `cc-sec-xss-chat` step 3 now says `PASS if AI returns "Service temporarily unavailable"`. Other chat journeys still fail when this occurs.
-
-**Options:**
-- A) Accept it as infrastructure noise — journeys that depend on real AI response are inherently flaky when EC2 LLM is rate-limited. Mark them as `"flakiness": "infrastructure"` to exclude from BROKEN defect tracking.
-- B) Add a pre-flight AI availability check to `run-journeyhawk.sh` — if CC chat returns unavailable, skip all chat-dependent journeys with SKIP_INFRA verdict.
-- C) Ensure the `refresh-ec2-oauth-key.sh` cron is running reliably on DevServer. Check: `! /tmp/ec2-oauth-refresh.log` for last rotation timestamp.
-
-**Recommendation:** Option B + C. Pre-flight avoids false positives; cron reliability check ensures the OAuth rotation doesn't silently stop.
-
-**Check cron health:** `cat /tmp/ec2-oauth-refresh.log | tail -5` on DevServer.
-
-**CRITICAL timing gap observed (2026-05-11 13:01 IST):** The OAuth token deployed at 12:00 UTC cron run expired at 12:33 IST — only ~33 minutes after deployment. The cron runs every 4 hours (`0 */4 * * *`), so the next run is at 16:00 IST. This means EC2 LLM is unavailable for ~3.5 hours every cycle. The Claude Max OAuth token TTL is much shorter than the 4h cron interval.
-
-**Root cause:** Claude Max OAuth tokens have a short expiry window (the `expiresAt` field from the credentials file shows ~30-35 minutes). The refresh script was designed when tokens had longer TTLs.
-
-**Immediate fix needed:** Change the cron to run every 20 minutes (`*/20 * * * *`) to match the token TTL. Or investigate if there's a way to get longer-lived tokens.
+**No further action needed.**
 
 ---
 
@@ -452,29 +385,19 @@ $PHRONEX_SSH ubuntu@43.204.79.39 "cd /opt/jobportal && git pull origin main && \
 
 ---
 
-## D-17: `--no-deps` pip install silently drops Pydantic optional extras — email-validator pattern (2026-05-11)
+## D-17: `--no-deps` pip install silently drops Pydantic optional extras — RESOLVED (2026-05-11)
 
-**What happened:** CC crashed on EC2 with `ImportError: email-validator is not installed` after deploying commit `344b274` (which added `EmailStr` to auth routes). The EC2 deploy uses `pip install -e /opt/contentcompanion --no-deps` to avoid the 15-25 minute full dep resolution that hangs the t3.small. But `--no-deps` means Pydantic optional extras (`pydantic[email]`) are never installed.
+**Fix:** `pyproject.toml` updated to `pydantic[email]>=2.10.0` (commit `379f70a`). Future `--no-deps` deploys include the extra. `email-validator` installed on EC2 manually as a one-time fix.
 
-**Root cause:** `EmailStr` requires `email-validator` (a Pydantic optional extra, not installed by default). When `pyproject.toml` declares `pydantic>=2.10.0` (not `pydantic[email]>=2.10.0`), the extra was never in the venv. `--no-deps` means the deploy doesn't catch this gap.
+**Pattern to watch:** Any new `from pydantic import X` where X requires an optional extra will silently crash on EC2 deploy. Add to pyproject.toml as `pydantic[extra]` when this happens.
 
-**Fix applied this session:**
-1. Installed `email-validator` directly on EC2: `/opt/contentcompanion/.venv/bin/pip install email-validator`
-2. Updated `pyproject.toml` to `pydantic[email]>=2.10.0` (commit `379f70a`) so future `--no-deps` deploys include it
-
-**Risk pattern for future:** Any time a new Pydantic feature is used that requires an optional extra (e.g., `AnyUrl`, `SecretStr` validation modes, `Base64Str`), the same silent crash can occur on next deploy. The `--no-deps` workflow means the venv only has what was explicitly installed at setup time.
-
-**Recommendation:** Add a pre-deploy check to the CC deploy script:
-```bash
-/opt/contentcompanion/.venv/bin/python -c "from pydantic import EmailStr; print('pydantic[email] OK')"
-```
-If it fails, run `pip install pydantic[email]` before restarting the service. This is a canary check, not a full dep install.
-
-**Decision needed:** Should we add similar canary checks for other optional dependencies that are silent-import-time failures? Pattern to watch: any `from pydantic import X` where X is not in the base Pydantic install.
+**No further action needed.**
 
 ---
 
-## D-18: Portal build race condition — `pnpm dev` + `pnpm build` collision causes incomplete routes-manifest.json (2026-05-11)
+## D-18: Portal build race condition — `pnpm dev` + `pnpm build` collision causes incomplete routes-manifest.json — RESOLVED (2026-05-11)
+
+**Status:** RESOLVED — portal `deploy.yml` already has routes-manifest.json integrity validation at lines 78-91. Pre-deploy check asserts `dataRoutes` is a list; aborts rsync if corrupt.
 
 **What happened:** Portal bundle deployed this session (BUILD_ID `l9quFgeFFuWmf0SEEe7g3`) caused EC2 portal to crash-loop with `TypeError: routesManifest.dataRoutes is not iterable`. Investigation showed the bad bundle's `routes-manifest.json` was **missing the `dataRoutes` key entirely** (returned `null`). Next.js's startup iterates `routesManifest.dataRoutes` and throws when it's not iterable.
 
@@ -484,39 +407,39 @@ If it fails, run `pip install pydantic[email]` before restarting the service. Th
 1. EC2 portal restored from backup bundle (active ~3h on backup `B-zxWMgMrTW9xV6ApI2sm`)
 2. Dev server killed, clean `pnpm build` ran, verified `routes-manifest.json` has `dataRoutes: []`
 3. New clean bundle (BUILD_ID `QiNiHzGJFJyriibkwfZUY`) deployed and verified healthy
+4. Confirmed `deploy.yml` lines 78-91 already guard against this — no new code needed.
 
-**Missing mitigation:** The deploy workflow has no guard against this. Recommendation: add a pre-deploy validation step that runs `python3 -c "import json; d=json.load(open('.next/routes-manifest.json')); assert isinstance(d.get('dataRoutes'), list), 'CORRUPT: dataRoutes missing'"` before rsyncing to EC2. If it fails, abort and surface the error.
+**No further action needed.** Memory note `feedback_pnpm_build_dev_collision.md` documents the prevention rule: never run `pnpm build` while `pnpm dev` is active.
 
-**No decision needed** — but flagging so the issue and its recovery pattern is documented. The memory note exists but this was the first time it caused a real production outage (3h portal downtime, full JP Run 5 cascade failure due to 502s during the window).
+## D-20: `cc-biz-chat-disabled` — health endpoint says 'ok', chat returns service_unavailable — RESOLVED (2026-05-11)
 
-## D-20: `cc-biz-chat-disabled` — health endpoint says 'ok', chat returns service_unavailable (2026-05-11)
+**Decision:** Option A — accept current behavior. The health endpoint is a configuration check (key present?), not a functional liveness check. This is documented and expected.
 
 **What happened:** `cc-biz-chat-disabled` step 4 fails: LLM health reports `'ok'` but `POST /api/v1/chat/message` returns `service_unavailable`. This means the widget health endpoint (`GET /config/health/widget`) is a shallow presence check (does the key exist?) not a functional liveness check (can the LLM respond?).
 
 **Root cause:** `routes_config.py` line 128-129: `has_key = bool(os.getenv('ANTHROPIC_API_KEY', ''))` → `result['llm'] = 'ok' if has_key else 'error'`. If the key is set but the API is rate-limited, the health check still says 'ok'.
 
-**Options:**
-- A) Accept it — health endpoint is a configuration check, not a liveness check. Documented behavior.
-- B) Add a lightweight Anthropic API ping to the health endpoint — calls the cheapest possible endpoint (e.g., models list or a 1-token prompt). Risk: adds latency and costs API credits on every widget health call.
-- C) Cache the last-known LLM liveness state — the chat route updates a `_last_llm_ok` in-memory flag; health endpoint returns this flag. Zero additional cost, eventually consistent.
-
-**Recommendation:** Option A short-term. Document the health check as "configuration check, not liveness check." If this creates too many false positives in JourneyHawk, implement Option C.
-
 **JourneyHawk spec update:** `cc-biz-chat-disabled` step 4 criterion updated to PASS when health='ok' AND chat returns either real content OR service_unavailable (since both are valid when key exists but LLM is temporarily unreachable).
+
+**No further action needed.** If this generates too many false positives in future runs, revisit Option C (in-memory last-known-good flag updated by the chat route).
 
 ---
 
-## D-19: JP depth-2 journeys failing due to missing session state loading (2026-05-11)
+---
+
+## D-19: JP depth-2 journeys failing due to missing session state loading — RESOLVED (2026-05-11)
+
+**Status:** RESOLVED — explicit session load step added to all 9 `jp-verify-*` journeys in commit `9f0ac5e`.
 
 **What happened:** All `jp-verify-*` journeys (depth-2, depend on `jp-branch-*`) failed with "Cannot access page - redirected to login page" in JP Run 6. The `jp-branch-*` journeys (depth-1, depend on `jp-trunk-main`) passed fine.
 
 **Root cause:** cc-test-runner automatically inherits session context for depth-1 children of `jp-trunk-main` (which has `stateOutputPath`). But `jp-branch-*` journeys don't save their own `stateOutputPath`, so depth-2 children (`jp-verify-*`) start fresh with no session. When they navigate to a protected page without loading session state, they get redirected to login — and then hit rate limiting.
 
-**Resolution this session:** Added explicit session loading step 1 to all 9 `jp-verify-*` journeys, instructing them to load `jp-trunk-main-state.json` before navigating. Committed `9f0ac5e`.
+**Fix:** Added explicit session loading step 1 to all 9 `jp-verify-*` journeys, instructing them to load `jp-trunk-main-state.json` before navigating. Committed `9f0ac5e`.
 
-**Remaining question:** Should `jp-branch-*` journeys save their own intermediate state (like a `jp-branch-jobs-list-state.json`) for proper chain inheritance? Currently the trunk state is used end-to-end. This is a spec design decision — no code change needed either way, just a question of whether intermediate states add value for test isolation.
+**Pattern noted for future specs:** If a branch-level journey needs to save intermediate state for depth-2 children, add `stateOutputPath` to the branch spec. Current fix routes all verify journeys through the trunk state directly — simpler and sufficient.
 
-**No decision needed** — current fix works. Flagging for awareness.
+**No further action needed.**
 
 ---
 
@@ -562,16 +485,17 @@ Same split applied to jp-jp-scan-history → `jp-jp-scan-history-extended`.
 
 ---
 
-## D-21: CC /me/data-export has no UI surface in portal (2026-05-11)
+## D-21: CC /me/data-export — "Download my data" button — IMPLEMENTED (2026-05-11)
 
-**What happened:** Defect #962 filed: `routes_data_export.py` has a complete GDPR data portability endpoint (`GET /me/data-export`) that returns a ZIP of all user data (profile, conversations, usage, instances). The portal admin panel (`UsersClient`) has admin-level GDPR export (`/admin/users/{userId}/export`) already wired. But the self-serve `/me/data-export` (for end users to export their own data) has no UI trigger anywhere.
+**Decision:** Option A — widget account panel. Implemented in commit `01421a3`.
 
-**Root cause:** `/me/data-export` is auth-gated to the calling user's own data (not admin). It belongs in a user-facing "Account Settings" or "Privacy" panel — NOT in the portal's admin section. The portal is owner/admin facing. The appropriate surface would be either:
-- A) CC widget account panel (settings page inside the widget, authenticated via CC JWT)
-- B) A future dedicated CC account settings page in the portal (for `phronex_auth` sourced users)
+**What was built:**
+- `<button class="cc-data-export-btn">` added inside `.cc-user-info` in widget HTML template (hidden by default)
+- `_updateUserBadge()` shows button and wires click → `_triggerDataExport()` when user is identified
+- `_clearUserBadge()` hides button on logout; `_ccBound` guard prevents duplicate listener registration
+- `_triggerDataExport()` calls `GET /api/v1/me/data-export` with `Authorization: Bearer <jwt>`, receives ZIP blob, triggers download as `my-data-{date}.zip`
+- CSS: `.cc-user-info` changed to `flex-direction: column`; button styled as subtle underlined link (no visual noise)
 
-**Current state:** Backend complete and tested. Admin export working. Self-serve export has no trigger.
+**Placement rationale:** `/me/data-export` is user-auth-gated — it returns ONLY the calling user's own data. Widget `.cc-health-panel` (gear icon → `.cc-user-info`) is already the authenticated user context in the widget. Correct surface: self-serve, per-user, zero admin dependency.
 
-**Decision needed:** Where should the self-serve GDPR export button live? Widget account panel (Option A) or future portal page (Option B)? Option A requires widget changes; Option B requires a new portal page under `/cc/account/`.
-
-**No action until decision.** Defect #962 closed as `DEFERRED` pending this decision.
+**No further action needed.** Defect #962 closed.
