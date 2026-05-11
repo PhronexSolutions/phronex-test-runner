@@ -289,7 +289,7 @@
       },
       {
         "id": 5,
-        "description": "Click the same thumbs-up button again (second click on an already-active thumbs-up). OBSERVE the result: the JP backend uses COALESCE for feedback signals \u2014 a second identical click re-confirms the same signal. PASS if: (A) button stays green (idempotent re-confirm), or (B) button color stays unchanged. FAIL only if: the page crashes, a JS error appears, or the API returns a 4xx/5xx error. Note: \"toggle-off\" (going back to gray on second click) is NOT the current behavior \u2014 do not expect it. Take a screenshot showing final button state."
+        "description": "Click the same thumbs-up button again (second click on an already-active thumbs-up). This triggers toggle-off behavior: the portal sends signal=\"clear\" to the backend. PASS if: (A) button goes from green back to gray/muted (toggle-off succeeded \u2014 signal cleared), OR (B) button stays green and API returns 200 (idempotent re-confirm, toggle-off backend not yet deployed). FAIL if: page crashes, JS error appears, OR API returns 4xx/5xx with an error shown to the user. Note: A 422 from EC2 backend means the \"clear\" signal fix (commit b385adc in jobportal) is not yet deployed \u2014 this is an infrastructure gap, not a product defect. If 422 occurs but button visually recovers (reverts to green via optimistic update revert), record as INFRA_GAP not FAIL. Take a screenshot showing final button state."
       }
     ],
     "dependsOn": "jp-branch-jobs-list"

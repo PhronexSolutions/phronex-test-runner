@@ -436,7 +436,19 @@ will continue to influence AI recommendations.
 `signal: Literal["up", "down", "clear"] | None` and in the upsert, when signal="clear",
 explicitly set `signal=null` (bypass COALESCE with a CASE expression). No migration needed.
 
-**Spec updated:** jp-verify-jobs-save step 4 now tests the idempotent behavior (not toggle-off).
+**Fix shipped (this session):**
+- Backend: `routes_jobs.py` accepts `signal: Literal["up", "down", "clear"]`. CASE expression bypasses COALESCE when `clear_signal=True`. Committed `b385adc` — NOT YET DEPLOYED to EC2.
+- Portal: `JobsClient.tsx` detects toggle-off and sends `"clear"` instead of same signal. Committed `42cf585` — NOT YET DEPLOYED to EC2.
+
+**JP Run 12 finding:** `jp-verify-jobs-save` step 5 got 422 from EC2 because `b385adc` not deployed. Portal correctly sends `"clear"` (toggle-off working in frontend), but EC2 backend rejects it. The spec step 5 has been updated to record 422 as INFRA_GAP not FAIL until deployment completes.
+
+**Action needed:** Deploy JP backend to EC2. No Alembic migration needed — signal column is VARCHAR, not an enum.
+```bash
+$PHRONEX_SSH ubuntu@43.204.79.39 "cd /opt/jobportal && git pull origin main && \
+  /opt/jobportal/.venv/bin/pip install -e /opt/jobportal --quiet --no-deps && \
+  sudo systemctl restart jobportal && sleep 3 && \
+  curl -sf http://localhost:8001/api/v1/health && echo 'JP deploy OK'"
+```
 
 ---
 
