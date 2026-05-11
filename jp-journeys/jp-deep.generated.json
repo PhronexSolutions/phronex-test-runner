@@ -460,13 +460,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
-        "action": "Load storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired, navigate to http://localhost:3002 and log in with superadmin credentials, then save the session.",
+        "action": "Load storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired, navigate to https://app.phronex.com and log in with superadmin credentials, then save the session.",
         "expected": "Session is active. User is authenticated as superadmin. No redirect to login page."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/portals. Verify the page loads without errors.",
-        "action": "Navigate to http://localhost:3002/jp/portals. Wait for the page to fully load (networkidle). Check for absence of 'Something went wrong', blank page, or unhandled console errors.",
+        "description": "Navigate to https://app.phronex.com/jp/portals. Verify the page loads without errors.",
+        "action": "Navigate to https://app.phronex.com/jp/portals. Wait for the page to fully load (networkidle). Check for absence of 'Something went wrong', blank page, or unhandled console errors.",
         "expected": "Page loads successfully. The portals list or empty state is visible. No console errors. Page title or heading reflects 'Portals' or 'Search Profiles'."
       },
       {
@@ -496,7 +496,7 @@
       {
         "id": 7,
         "description": "Verify the newly created portal is persisted by refreshing the page.",
-        "action": "Reload the page (F5 / navigate to http://localhost:3002/jp/portals again). Wait for the list to load.",
+        "action": "Reload the page (F5 / navigate to https://app.phronex.com/jp/portals again). Wait for the list to load.",
         "expected": "The newly created portal 'TestPortal_QA_001' is still present in the list after reload, confirming server-side persistence."
       },
       {
@@ -544,7 +544,7 @@
       {
         "id": 15,
         "description": "Verify the portals page is only accessible to authenticated users (session guard).",
-        "action": "Open a new incognito/private browser context (no session). Navigate directly to http://localhost:3002/jp/portals.",
+        "action": "Open a new incognito/private browser context (no session). Navigate directly to https://app.phronex.com/jp/portals.",
         "expected": "The user is redirected to the login page or an authentication error is shown. The portals data is NOT visible to unauthenticated users."
       },
       {
@@ -570,13 +570,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or the file is missing, navigate to http://localhost:3002/auth/login, enter superadmin credentials, and submit the Sign In form.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or the file is missing, navigate to https://app.phronex.com/auth/login, enter superadmin credentials, and submit the Sign In form.",
         "expected": "Session is active. The browser holds a valid JWT cookie/localStorage token. No redirect to /auth/login occurs on subsequent navigations."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/audit-log. Verify the page loads without errors.",
-        "action": "Navigate to http://localhost:3002/jp/audit-log. Wait for the main content container to be visible. Open the browser console and check for errors.",
+        "description": "Navigate to https://app.phronex.com/jp/audit-log. Verify the page loads without errors.",
+        "action": "Navigate to https://app.phronex.com/jp/audit-log. Wait for the main content container to be visible. Open the browser console and check for errors.",
         "expected": "Page renders with a visible audit log table or list. No 'Something went wrong' message. No uncaught JS errors or failed network requests (4xx/5xx) in the console."
       },
       {
@@ -648,7 +648,7 @@
       {
         "id": 14,
         "description": "Test unauthorized access \u2014 verify non-admin users cannot access the audit log.",
-        "action": "Open an incognito/private browser window. Navigate to http://localhost:3002/jp/audit-log without logging in, or log in as a non-admin (free-tier or standard-tier) user if test credentials are available.",
+        "action": "Open an incognito/private browser window. Navigate to https://app.phronex.com/jp/audit-log without logging in, or log in as a non-admin (free-tier or standard-tier) user if test credentials are available.",
         "expected": "Unauthenticated users are redirected to /auth/login. Non-admin authenticated users receive a 403/unauthorized error page or are redirected away from /jp/audit-log. The audit log data is never rendered for unauthorized users."
       },
       {
@@ -698,13 +698,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to http://localhost:3002/login, enter superadmin credentials, and verify redirect to dashboard.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/login, enter superadmin credentials, and verify redirect to dashboard.",
         "expected": "Browser is authenticated as superadmin. Dashboard loads without errors. Sidebar is visible with admin/SA amber tabs present."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/scan-history. Verify the page loads without errors.",
-        "action": "Navigate to http://localhost:3002/jp/scan-history. Wait for the main content area to be visible. Check browser console for errors or failed network requests. Verify no 'Something went wrong' or blank page state.",
+        "description": "Navigate to https://app.phronex.com/jp/scan-history. Verify the page loads without errors.",
+        "action": "Navigate to https://app.phronex.com/jp/scan-history. Wait for the main content area to be visible. Check browser console for errors or failed network requests. Verify no 'Something went wrong' or blank page state.",
         "expected": "Page renders scan history content. No console errors. No network requests return 4xx or 5xx. Page title or heading contains 'Scan History' or equivalent label."
       },
       {
@@ -770,7 +770,7 @@
       {
         "id": 13,
         "description": "Navigate away from /jp/scan-history to the dashboard, then return and verify the data/state persists.",
-        "action": "Click the Dashboard link in the sidebar. Wait for the dashboard to load. Then click back to Scan History (or navigate to http://localhost:3002/jp/scan-history).",
+        "action": "Click the Dashboard link in the sidebar. Wait for the dashboard to load. Then click back to Scan History (or navigate to https://app.phronex.com/jp/scan-history).",
         "expected": "Scan history page reloads and shows the same data as before navigation. Any active filters or pagination state may reset (acceptable) but the underlying data rows are consistent. No loading errors on return visit."
       },
       {
@@ -864,13 +864,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate and log in if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session cookie is expired or missing, navigate to http://localhost:3002/login, fill email with superadmin credentials, fill password, click Sign In, and wait for redirect to dashboard.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session cookie is expired or missing, navigate to https://app.phronex.com/login, fill email with superadmin credentials, fill password, click Sign In, and wait for redirect to dashboard.",
         "expected": "User is authenticated. Dashboard URL is active (e.g. /dashboard or /jp/users). No login redirect occurs on protected routes."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/users and verify page load.",
-        "action": "Navigate to http://localhost:3002/jp/users. Wait for the page to fully load (network idle). Check for absence of 'Something went wrong', blank white screen, or unhandled error boundaries. Open browser console and assert zero uncaught JavaScript errors.",
+        "description": "Navigate to https://app.phronex.com/jp/users and verify page load.",
+        "action": "Navigate to https://app.phronex.com/jp/users. Wait for the page to fully load (network idle). Check for absence of 'Something went wrong', blank white screen, or unhandled error boundaries. Open browser console and assert zero uncaught JavaScript errors.",
         "expected": "Page renders the JP Users admin table or list. Page title or heading contains 'Users'. No console errors. HTTP status 200."
       },
       {
@@ -930,7 +930,7 @@
       {
         "id": 14,
         "description": "Verify that the Users page is inaccessible to non-superadmin users (negative auth test).",
-        "action": "Open a new incognito browser context. Log in as a regular (non-admin) JP user. Navigate directly to http://localhost:3002/jp/users.",
+        "action": "Open a new incognito browser context. Log in as a regular (non-admin) JP user. Navigate directly to https://app.phronex.com/jp/users.",
         "expected": "The page redirects to dashboard, shows a 403/forbidden error, or hides admin controls entirely. A regular user must not be able to view or interact with the admin Users management interface."
       },
       {
