@@ -979,12 +979,26 @@ except Exception as e:
     print(f"[1b2/3] Approved heuristics failed (non-fatal): {e}", file=sys.stderr)
 APPROVED_HEURISTICS_EOF
 
-# Step 1c: Second-pass URL substitution on MUTATED_SPEC.
+# Step 1c: Second-pass substitution on MUTATED_SPEC.
 # The sed at line 318 only runs on the baseline spec.  Generated + enriched
 # journeys (step 0b-gen) and wiki-injected steps (step 1b) are added AFTER
-# that initial sed, so any localhost:3002 references they carry leak through.
-# This pass catches them.
-sed -i "s|http://localhost:3002|${PORTAL_URL}|g" "${MUTATED_SPEC}"
+# that initial sed, so any localhost:3002 references AND credential placeholders
+# they carry leak through.  This pass catches them all.
+sed -i \
+  -e "s|http://localhost:3002|${PORTAL_URL}|g" \
+  -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
+  -e "s|qa-test-journeyhawk@phronex\.com|${_PORTAL_EMAIL}|g" \
+  -e "s|QA_OWNER_EMAIL|${_OWNER_EMAIL}|g" \
+  -e "s|QA_OWNER_PASSWORD|${_OWNER_PASS}|g" \
+  -e "s|QA_USER_EMAIL|${_USER_EMAIL}|g" \
+  -e "s|QA_USER_PASSWORD|${_USER_PASS}|g" \
+  -e "s|QA_JP_FREE_EMAIL|${_JP_FREE_EMAIL}|g" \
+  -e "s|QA_JP_FREE_PASSWORD|${_JP_FREE_PASS}|g" \
+  -e "s|QA_JP_STANDARD_EMAIL|${_JP_STANDARD_EMAIL}|g" \
+  -e "s|QA_JP_STANDARD_PASSWORD|${_JP_STANDARD_PASS}|g" \
+  -e "s|QA_JP_PRO_EMAIL|${_JP_PRO_EMAIL}|g" \
+  -e "s|QA_JP_PRO_PASSWORD|${_JP_PRO_PASS}|g" \
+  "${MUTATED_SPEC}"
 
 # ── Pipeline funnel summary ──────────────────────────────────────────────────
 echo ""
