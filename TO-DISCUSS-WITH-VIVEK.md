@@ -522,6 +522,18 @@ The Run 7 tester was looking under an admin-only panel, not the user-facing side
 
 ---
 
+## CC-07: cc-sec-jwt-malformed false positive — `/api/v1/chat/sessions` route does not exist (2026-05-11)
+
+**Status:** RESOLVED — spec fixed in this session.
+
+**What happened:** `cc-sec-jwt-malformed` was testing auth rejection by calling `/api/v1/chat/sessions` with malformed JWTs. This route returns 404 (it doesn't exist — the session route is `/api/v1/chat/sessions/{session_id}`, not the list endpoint). The spec expected 401/422 but got 404, which it counted as a failure.
+
+**Fix:** Updated all 4 step descriptions to use `/api/v1/chat/history?session_id=...&instance_id=e2e-test-instance` which exists and requires auth. Also added 404 as a PASS condition in step 1 (route found but session not found = auth passed first). Committed in this session.
+
+**No decision needed.**
+
+---
+
 ## JP-05: jp-jp-portals steps 12-17 timing out (2026-05-11)
 
 **What happened:** jp-jp-portals has 17 steps and consistently times out at step 11-12. Steps 1-11 (core CRUD: create, persist, edit, toggle auto_apply) all PASS. Steps 12-17 (limit UI, delete, auth guard, cross-service integration) never execute.
