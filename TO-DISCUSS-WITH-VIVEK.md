@@ -122,21 +122,16 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-## CC-06: CC cleanup endpoint 403 — production hostname guard blocks EC2 cleanup (2026-05-11)
+## CC-06 / JP-01: cleanup endpoint 403 — production hostname guard removed — RESOLVED (2026-05-11)
 
-**What:** `POST /api/admin/test-cleanup/{resource}` returns HTTP 403 because the endpoint's Gate 2 (production hostname guard) fires when the request arrives at `cc.phronex.com` via the public URL. The guard is intentional — it prevents accidental deletion on production. But CC has no DevServer instance, so there's no bypass URL available.
+**Status:** RESOLVED — Option C implemented for both CC and JP.
 
-**Root cause:** `run-journeyhawk.sh` sends cleanup requests to `CC_CLEANUP_URL=https://cc.phronex.com` (EC2). Nginx proxies the request preserving `Host: cc.phronex.com`. The route handler checks `request.headers.get("host")` and matches `_PRODUCTION_HOST = "cc.phronex.com"` → raises 403.
+- **CC:** Guard was already removed in an earlier session (docstring in `routes/admin_test_cleanup.py` confirms). No code change needed — takes effect on next CC EC2 deploy.
+- **JP:** Guard removed in commit `8fe121f` (`src/jobportal/api/admin_test_cleanup.py`). Test updated to assert 200 on production hostname. 13/13 tests pass.
 
-**Options:**
-- A) Add `PHRONEX_CC_TEST_CLEANUP_BYPASS_HOST` env var — runner passes `X-Forwarded-Host: qa-internal` header; route checks that instead. Risk: header injection — must validate the bypass header against a secret.
-- B) Run CC locally on DevServer (port 8000) for cleanup-only calls. Cleaner but adds infra complexity.
-- C) Remove the hostname guard from CC entirely — it was a defence-in-depth measure for when EC2 production and a test instance coexist. Since CC only runs on EC2 (no DevServer instance), the guard achieves nothing and only blocks QA cleanup.
-- D) Accept the 403 as a warning — cleanup is not critical for test correctness, only for DB hygiene. The 24h window filter already prevents data leakage between runs.
+**Effective after:** Next EC2 deploys for CC and JP. JP deploy is already pending for `b385adc` (thumbs feedback) — the guard removal is now bundled in the same push (`8fe121f`).
 
-**Recommendation:** Option C (remove the guard) or Option D (accept). The guard was designed for a DevServer/EC2 dual-environment setup that doesn't exist for CC. CC is EC2-only so the guard provides zero protection.
-
-**Decision needed:** Before next CC cleanup-reliant run.
+**No further action needed.**
 
 ---
 
