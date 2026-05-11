@@ -185,22 +185,20 @@ trunks are exempt. Commit: `52381568` in phronex-common. Tests: 14 run_filter te
 
 ---
 
-## CC-04: auth/identify accepts malformed emails — #960 (2026-05-11)
+## CC-04: auth/identify accepts malformed emails — RESOLVED (2026-05-11)
 
-**What:** phronex-auth `/auth/identify` accepts any string as email without validation.
-Fix: add `email: EmailStr` to request body Pydantic model.
-
-**Risk:** May break callers that pass non-RFC-5322 formats intentionally.
-Confirm no such callers exist before applying. Severity: LOW.
+**Status:** RESOLVED — already fixed. `IdentifyRequest.email: EmailStr` was in place, and
+`pydantic[email]` extra was added to pyproject.toml in commit `379f70a` (D-17). Validation
+is live on EC2. No further action needed.
 
 ---
 
-## CC-05: Sessions tab rows not clickable — #958 (2026-05-11)
+## CC-05: Sessions tab rows not clickable — RESOLVED (2026-05-11)
 
-**What:** Sessions tab in CC portal shows rows but clicking does nothing. No drill-down
-navigation implemented. Needs portal scoping.
-
-**Action needed:** Add to next portal milestone backlog.
+**Status:** RESOLVED — root cause was missing `Authorization` header in `SessionHistoryClient`
+fetch calls (not missing drill-down logic — the `View` button and slide-over panel were already
+built). Fixed in portal commit `b5897d3`: `apiToken` threaded from `page.tsx` → `CCDashboardClient`
+→ `SessionHistoryClient`, both fetch calls now send `Bearer` token. Deployed 2026-05-11.
 
 ---
 
@@ -363,19 +361,10 @@ will continue to influence AI recommendations.
 `signal: Literal["up", "down", "clear"] | None` and in the upsert, when signal="clear",
 explicitly set `signal=null` (bypass COALESCE with a CASE expression). No migration needed.
 
-**Fix shipped (this session):**
-- Backend: `routes_jobs.py` accepts `signal: Literal["up", "down", "clear"]`. CASE expression bypasses COALESCE when `clear_signal=True`. Committed `b385adc` — NOT YET DEPLOYED to EC2.
-- Portal: `JobsClient.tsx` detects toggle-off and sends `"clear"` instead of same signal. Committed `42cf585` — NOT YET DEPLOYED to EC2.
-
-**JP Run 12 finding:** `jp-verify-jobs-save` step 5 got 422 from EC2 because `b385adc` not deployed. Portal correctly sends `"clear"` (toggle-off working in frontend), but EC2 backend rejects it. The spec step 5 has been updated to record 422 as INFRA_GAP not FAIL until deployment completes.
-
-**Action needed:** Deploy JP backend to EC2. No Alembic migration needed — signal column is VARCHAR, not an enum.
-```bash
-$PHRONEX_SSH ubuntu@43.204.79.39 "cd /opt/jobportal && git pull origin main && \
-  /opt/jobportal/.venv/bin/pip install -e /opt/jobportal --quiet --no-deps && \
-  sudo systemctl restart jobportal && sleep 3 && \
-  curl -sf http://localhost:8001/api/v1/health && echo 'JP deploy OK'"
-```
+**Fix shipped and deployed (2026-05-11):**
+- Backend: `routes_jobs.py` accepts `signal: Literal["up", "down", "clear"]`. CASE expression bypasses COALESCE when `clear_signal=True`. Committed `b385adc`, deployed to EC2.
+- Portal: `JobsClient.tsx` detects toggle-off and sends `"clear"` instead of same signal. Committed `42cf585`, deployed to EC2.
+- EC2 JP health confirmed: `{"status":"healthy","version":"0.1.0"}` at 2026-05-11.
 
 ---
 
