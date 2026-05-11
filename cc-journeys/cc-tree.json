@@ -895,7 +895,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({ip:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass."
+        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. An IP block created with a wrong secret is a critical auth bypass. Note: endpoint is /api/v1/admin/ip-blocks (with /admin/ prefix), NOT /api/v1/ip-blocks."
       },
       {
         "id": 4,
