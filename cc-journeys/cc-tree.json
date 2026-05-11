@@ -797,7 +797,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN_A from step 2: fetch('/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>({status:r.status})). Expect HTTP 403 (JWT was issued for e2e-test-instance, not maxine \u2014 cross-instance access must be denied). PASS=403. FAIL=200 means IDOR vulnerability is present \u2014 fix is in commit 38617a1 but not yet deployed to EC2."
+        "description": "Using page.evaluate() with TOKEN_A from step 2: fetch('/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>({status:r.status})). Expect HTTP 403 (JWT was issued for e2e-test-instance, not maxine \u2014 cross-instance access must be denied). PASS=403 (IDOR fix is live \u2014 commit 38617a1 deployed 2026-05-11). FAIL=200 means IDOR vulnerability has REGRESSED."
       },
       {
         "id": 4,
