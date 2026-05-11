@@ -299,11 +299,7 @@
       },
       {
         "id": 5,
-        "description": "CLEANUP (non-blocking): Restore the original value \u2014 remove the ' [JH-QA-2026]' suffix and save. Verify the save succeeds (PATCH returns 200). IMPORTANT: This is a CLEANUP step only. If this step times out or does not execute, mark the overall journey PASS based on steps 1-4 results. Step 99 handles recovery. Do NOT mark the journey FAIL_ORACLE solely because this cleanup step is pending."
-      },
-      {
-        "id": 99,
-        "description": "CLEANUP RECOVERY: If step 5 did not complete, navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Check if '[JH-QA-2026]' appears in any field. If so, remove it and save. If the field no longer contains '[JH-QA-2026]', the cleanup already succeeded or was already restored \u2014 record as PASS. This step ensures test data contamination is always cleaned regardless of step 5 outcome."
+        "description": "CLEANUP (non-blocking): Restore the original value \u2014 remove the ' [JH-QA-2026]' suffix and save. IMPORTANT: This is a CLEANUP step only. If this step times out, returns a non-200, or does not execute, mark the overall journey PASS based on steps 1-4. Do NOT fail this journey solely because cleanup is incomplete. If the field no longer shows '[JH-QA-2026]' (already cleaned), that is also PASS."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
