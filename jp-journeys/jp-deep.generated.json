@@ -283,7 +283,7 @@
       },
       {
         "id": 5,
-        "description": "Click the same thumbs-up button again to undo the feedback. Verify the button color reverts to gray/muted. Take a screenshot."
+        "description": "Click the same thumbs-up button again (second click on an already-active thumbs-up). OBSERVE the result: the JP backend uses COALESCE for feedback signals — a second identical click re-confirms the same signal. PASS if: (A) button stays green (idempotent re-confirm), or (B) button color stays unchanged. FAIL only if: the page crashes, a JS error appears, or the API returns a 4xx/5xx error. Note: \"toggle-off\" (going back to gray on second click) is NOT the current behavior — do not expect it. Take a screenshot showing final button state."
       }
     ],
     "dependsOn": "jp-branch-jobs-list"
