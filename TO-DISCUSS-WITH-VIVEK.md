@@ -405,6 +405,12 @@ Note: `38617a1` (config/usage IDOR) was already protected — routes_config.py l
 
 **Check cron health:** `cat /tmp/ec2-oauth-refresh.log | tail -5` on DevServer.
 
+**CRITICAL timing gap observed (2026-05-11 13:01 IST):** The OAuth token deployed at 12:00 UTC cron run expired at 12:33 IST — only ~33 minutes after deployment. The cron runs every 4 hours (`0 */4 * * *`), so the next run is at 16:00 IST. This means EC2 LLM is unavailable for ~3.5 hours every cycle. The Claude Max OAuth token TTL is much shorter than the 4h cron interval.
+
+**Root cause:** Claude Max OAuth tokens have a short expiry window (the `expiresAt` field from the credentials file shows ~30-35 minutes). The refresh script was designed when tokens had longer TTLs.
+
+**Immediate fix needed:** Change the cron to run every 20 minutes (`*/20 * * * *`) to match the token TTL. Or investigate if there's a way to get longer-lived tokens.
+
 ---
 
 ## JP-03: Thumbs feedback is not toggleable — "clear" state missing (2026-05-11)
@@ -502,19 +508,17 @@ If it fails, run `pip install pydantic[email]` before restarting the service. Th
 
 ---
 
-## JP-04: Scan History sidebar navigation not discoverable (2026-05-11)
+## JP-04: Scan History sidebar navigation not discoverable — CLOSED AS FALSE POSITIVE (2026-05-11)
 
 **Found in:** JP Run 7, jp-jp-scan-history step 14.
 
-**What the tester found:** "Scan History is not accessible from a 'Search' group in sidebar navigation. It's currently accessible as an admin-only feature through the admin panel navigation structure, but no direct 'Scan History' link is visible in the main JP navigation dropdown."
+**Status:** FALSE POSITIVE — verified in session 2026-05-11.
 
-**Impact:** Users who know the URL `/jp/scan-history` can access it. Users who don't know the URL cannot discover it — there's no sidebar link in the primary navigation under a logical group like "Search". This is a feature discoverability gap, not a broken feature.
+Scan History IS in the "Search" navigation group:
+- `JPLayoutClient.tsx` line 72: `{ href: '/jp/scan-history', label: 'Scan History' }` — in `groupLabel: 'Search'`
+- `job-portal.ts` line 41: `{ label: 'Scan History', href: '/jp/scan-history', icon: 'Layers' }`
 
-**Options:**
-- **A (fix — recommended):** Add "Scan History" as a sub-item under the "Search" sidebar group (same group as "Portals"). This is additive and consistent with the admin tab pattern.
-- **B (accept):** Document that Scan History is an advanced/power feature only reachable via direct URL. Add it to the URL reference in docs.
-
-**Decision needed:** A (implement) or B (accept as-is). If A, note it for the next JP milestone.
+The Run 7 tester was looking under an admin-only panel, not the user-facing sidebar. No action needed.
 
 ---
 
