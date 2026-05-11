@@ -150,9 +150,14 @@ RESULTS_DIR="${3:-journeys-output/${PRODUCT}-${TIMESTAMP}}"
 export JOURNEYHAWK_RUN_ID="${PRODUCT}-${TIMESTAMP}"
 export JOURNEYHAWK_PRODUCT="${PRODUCT}"
 
-# MCPStateServer port — configurable for parallel execution.
-# Default 3001 preserves backward compatibility with single-product runs.
-CCTR_STATE_PORT="${CCTR_STATE_PORT:-3001}"
+# MCPStateServer port — auto-assigned for parallel execution safety.
+# Each concurrent JourneyHawk run needs its own port; port collision causes
+# cross-product test plan contamination (CC agent gets JP test plan, etc.).
+# Range 30010-39999 avoids collisions with known services (3001 was the
+# old default, 3002 = portal dev, 3003 = praxis).
+if [[ -z "${CCTR_STATE_PORT}" ]]; then
+  CCTR_STATE_PORT=$(python3 -c "import random; print(random.randint(30010, 39999))")
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
