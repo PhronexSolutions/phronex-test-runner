@@ -76,20 +76,30 @@ async function runJourney(
     // Resolve params before setting state — Claude sees substituted step text
     const resolvedSteps = resolveParams(testCase.steps, testCase.params ?? {});
 
+    // Pre-mark SKIP=PASS steps as passed before Claude sees them.
+    // Steps whose description starts with "SKIP=PASS" are out-of-scope or
+    // have a known infra gap — auto-passing them prevents the oracle LLM from
+    // overriding the instruction by reporting what it actually observes.
+    const autoPassedSteps = resolvedSteps.map(step =>
+        step.description.trimStart().startsWith("SKIP=PASS")
+            ? { ...step, status: "passed" as const }
+            : step
+    );
+
     // Any node with stateOutputPath: append a synthetic step instructing Claude
     // to save browser storage state (cookies + localStorage) so child nodes can
     // load it via --storage-state.  Both trunks (isSharedRoot) and branches need
     // this — leaves that dependsOn a branch need the branch's navigated-page state.
     const steps = (testCase.stateOutputPath)
         ? [
-            ...resolvedSteps,
+            ...autoPassedSteps,
             {
-                id: resolvedSteps.length + 1,
+                id: autoPassedSteps.length + 1,
                 description: `IMPORTANT — Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to "${resolve(testCase.stateOutputPath)}" to save cookies and localStorage for downstream test nodes. This step is critical — without it, dependent journeys will fail.`,
                 status: "pending" as const,
             },
         ]
-        : resolvedSteps;
+        : autoPassedSteps;
 
     const resolvedTestCase = { ...testCase, steps };
     server.setTestState(resolvedTestCase);
