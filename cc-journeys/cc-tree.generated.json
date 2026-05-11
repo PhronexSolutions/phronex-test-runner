@@ -899,15 +899,19 @@
       },
       {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as TOKEN."
+        "description": "Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store 'token' field as ANON_TOKEN. Expect HTTP 200."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({tier:'premium', customer_name:'JH QA Test', customer_email:'qa-billing-test@phronex.com'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 with checkout_url or payment link. A 422/400 means tier name is wrong \u2014 try 'starter' or check billing/status first."
+        "description": "Upgrade to identified user (required for billing \u2014 anonymous users have no email): Using page.evaluate() with ANON_TOKEN: fetch('/api/v1/auth/identify', {method:'POST', headers:{'Authorization':'Bearer '+ANON_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({email:'jh-billing-test@phronex.com', name:'JH Billing Test', instance_id:'e2e-test-instance'})}).then(r=>r.json()). Store the returned 'token' field as IDENTIFIED_TOKEN. Expect HTTP 200. The identify endpoint creates a user record with email='jh-billing-test@phronex.com' which is required by the billing backend."
       },
       {
         "id": 3,
-        "description": "Verify checkout response: (a) HTTP 200, (b) response contains 'checkout_url' or 'payment_link' (a Razorpay URL), (c) no 500 error. CC has two tiers: 'free' and 'premium'. If 'premium' checkout returns 402/503 (billing_disabled) or Razorpay is not configured, PASS with note 'billing adapter not configured on this server from billing/status'."
+        "description": "Using page.evaluate() with IDENTIFIED_TOKEN: fetch('/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+IDENTIFIED_TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({customer_name:'JH Billing Test'})}).then(r=>r.json().then(body=>({status:r.status, body}))).catch(e=>({error:e.toString()})). Expect HTTP 200 with a checkout_url (Razorpay link), OR HTTP 409 'already_subscribed' (acceptable \u2014 user was previously subscribed). CC billing only supports 'premium' tier \u2014 the route internally validates the only billable tier. Store as CHECKOUT."
+      },
+      {
+        "id": 4,
+        "description": "Verify CHECKOUT response: (a) status=200 AND body contains 'checkout_url' (a URL string starting with 'https://') AND 'subscription_id' (non-empty string) AND 'provider' field \u2014 PASS. OR (b) status=409 with error code 'already_subscribed' \u2014 PASS (user already has active subscription, checkout flow is working). FAIL only if status is 422, 500, or body contains 'email_required' (means user was not properly identified in step 2)."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
