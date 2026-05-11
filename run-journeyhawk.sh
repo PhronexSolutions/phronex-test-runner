@@ -155,7 +155,7 @@ export JOURNEYHAWK_PRODUCT="${PRODUCT}"
 # cross-product test plan contamination (CC agent gets JP test plan, etc.).
 # Range 30010-39999 avoids collisions with known services (3001 was the
 # old default, 3002 = portal dev, 3003 = praxis).
-if [[ -z "${CCTR_STATE_PORT}" ]]; then
+if [[ -z "${CCTR_STATE_PORT:-}" ]]; then
   CCTR_STATE_PORT=$(python3 -c "import random; print(random.randint(30010, 39999))")
 fi
 
