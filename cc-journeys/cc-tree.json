@@ -757,11 +757,11 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN_A from step 1: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 403 (cross-instance access denied). PASS=403, FAIL=200 (IDOR vulnerability)."
+        "description": "Using page.evaluate() with TOKEN_A from step 1: fetch('https://cc.phronex.com/api/v1/config/usage?instance_id=maxine', {headers:{'Authorization':'Bearer '+TOKEN_A}}).then(r=>({status:r.status})). Expect HTTP 403 (JWT was issued for e2e-test-instance, not maxine \u2014 cross-instance denied). PASS=403. FAIL=200 means IDOR vulnerability still present."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate() with TOKEN_A: fetch('https://cc.phronex.com/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'33333333-3333-4333-a333-333333333333'})}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 403 (cross-instance blocked). A 200 that returns maxine instance data is an IDOR vulnerability."
+        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin context. Using page.evaluate() with TOKEN_A: fetch('/api/v1/chat/message', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN_A, 'X-Guide-Secret':'6418d27534704b5555ba2b0e3907ff407f4c145159c03e11f645f6cc3fd35075', 'Content-Type':'application/json'}, body:JSON.stringify({message:'test', instance_id:'maxine', session_id:'33333333-3333-4333-a333-333333333333'})}).then(r=>({status:r.status})). Expect HTTP 403 (cross-instance chat blocked). Use relative URL \u2014 avoids CORS from app.phronex.com domain."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -921,11 +921,11 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json()). Expect HTTP 200. Record 'tier' and 'monthly_limit' as BILLING."
+        "description": "Using page.evaluate() with TOKEN: fetch('https://cc.phronex.com/api/v1/billing/status', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200. Store full response body as BILLING."
       },
       {
         "id": 3,
-        "description": "Verify BILLING: (a) 'tier' is a string ('free', 'starter', 'pro', etc.), (b) 'monthly_limit' is a positive integer or null (null = unlimited), (c) 'messages_used' >= 0. FAIL if tier is absent or monthly_limit is negative."
+        "description": "Verify BILLING response: (a) 'tier' field is a string ('free', 'starter', 'pro', etc.), (b) 'limits' is an object \u2014 check limits['messages-per-month'] is a positive integer. NOTE: API returns limits as a nested object, not a top-level 'monthly_limit' field. (c) 'status' field is present (e.g. 'active', 'trialing'). FAIL if tier or limits object is missing."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
