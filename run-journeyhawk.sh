@@ -65,6 +65,7 @@ _run_pipeline() {
     --product "${PRODUCT}" \
     --results-dir "${RESULTS_DIR}" \
     --spec-file "${SPEC_FILE}" \
+    --merge-depth "${MERGE_DEPTH}" \
     ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"} || true
 }
 
@@ -77,6 +78,7 @@ GATE_MODE=0
 # ---------- skip-passed flag — skip journeys that passed in prior runs ----------
 SKIP_PASSED=0
 FORCE_ACTIVE=0
+MERGE_DEPTH=5
 
 # ---------- Phase 82 STRAT-16 — per-run mode override ----------
 while [[ $# -gt 0 ]]; do
@@ -110,6 +112,16 @@ while [[ $# -gt 0 ]]; do
       ;;
     --force-active)
       FORCE_ACTIVE=1
+      shift
+      continue
+      ;;
+    --merge-depth)
+      MERGE_DEPTH="$2"
+      shift 2
+      continue
+      ;;
+    --merge-depth=*)
+      MERGE_DEPTH="${1#*=}"
       shift
       continue
       ;;
@@ -1366,6 +1378,7 @@ if [[ "${_pipeline_ran}" -eq 0 ]]; then
     --product "${PRODUCT}" \
     --results-dir "${RESULTS_DIR}" \
     --spec-file "${SPEC_FILE}" \
+    --merge-depth "${MERGE_DEPTH}" \
     ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"}
   PIPE_EXIT=$?
   _pipeline_ran=1
