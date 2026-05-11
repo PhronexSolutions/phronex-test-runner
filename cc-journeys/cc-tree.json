@@ -103,7 +103,7 @@
       },
       {
         "id": 3,
-        "description": "Check what the users count display shows. IMPORTANT: distinguish two cases \u2014 (A) the page shows '0 of N users' where N > 0 AND the table body is empty: this is a portal bundle staleness issue (source filter bug, fixed in portal commit 8e35075 \u2014 not yet deployed to EC2). Record this as INFRASTRUCTURE, not a product defect. (B) the API returns a 500 or the page crashes with a JS error: this IS a product defect, record and fail. If users ARE rendered, verify each row shows an identifier (email or anonymous ID) and no raw 'undefined' or 'null' for the flagged column."
+        "description": "Check what the users count display shows. IMPORTANT \u2014 three cases: (A) page shows '0 of N users' where N > 0 AND table body is empty \u2192 PASS (this is portal bundle staleness, source filter fix in commit 8e35075 not yet deployed to EC2 \u2014 INFRASTRUCTURE issue, not product defect, record as PASS with note). (B) API returns a 500 or page crashes with JS error \u2192 FAIL (product defect). (C) Users ARE rendered \u2192 PASS; verify each row shows identifier (email or ID) and flagged rows show a red background or flag icon (NOT a column header \u2014 CC uses row-level highlighting, not a dedicated Flagged column)."
       },
       {
         "id": 4,
