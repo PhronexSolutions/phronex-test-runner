@@ -758,20 +758,24 @@
     "executor": "http",
     "steps": [
       {
+        "id": 0,
+        "description": "CC-CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context for CC API calls. The health endpoint returns HTTP 200 with {\"status\": \"healthy\"}. All subsequent fetch() calls in page.evaluate() MUST use relative paths like /api/v1/... (NOT absolute https://cc.phronex.com/... URLs)."
+      },
+      {
         "id": 1,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/users', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin routes are unprotected \u2014 critical security finding."
+        "description": "Using page.evaluate(): fetch('/api/v1/users', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin routes are unprotected \u2014 critical security finding."
       },
       {
         "id": 2,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/sessions', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin session list is publicly accessible \u2014 critical finding."
+        "description": "Using page.evaluate(): fetch('/api/v1/sessions', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 response means admin session list is publicly accessible \u2014 critical finding."
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/instances', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 means admin instance list is publicly accessible \u2014 critical finding."
+        "description": "Using page.evaluate(): fetch('/api/v1/instances', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. A 200 means admin instance list is publicly accessible \u2014 critical finding."
       },
       {
         "id": 4,
-        "description": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/analytics', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. If any of the 4 admin routes (users, sessions, instances, analytics) returned 200 without auth, record as CRITICAL security finding."
+        "description": "Using page.evaluate(): fetch('/api/v1/analytics', {}).then(r=>{return {status:r.status}}). Expect HTTP 401 or 403. If any of the 4 admin routes (users, sessions, instances, analytics) returned 200 without auth, record as CRITICAL security finding."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -811,7 +815,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://app.phronex.com to establish browser context."
+        "description": "CC-CORS SETUP: Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context for CC API calls. The health endpoint returns HTTP 200 with {\"status\": \"healthy\"}. All subsequent fetch() calls in page.evaluate() MUST use relative paths like /api/v1/... (NOT absolute https://cc.phronex.com/... URLs)."
       },
       {
         "id": 1,
