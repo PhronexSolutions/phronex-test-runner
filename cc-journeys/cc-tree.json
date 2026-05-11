@@ -941,7 +941,7 @@
       },
       {
         "id": 3,
-        "description": "Using page.evaluate(): fetch('/api/v1/admin/ip-blocks', {method:'POST', headers:{'X-Admin-Secret':'wrong-secret','Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance', ip_address:'192.0.2.1',reason:'test'})}).then(r=>{return {status:r.status}}). Expect HTTP 403 (auth rejected before route handler). Also accept 404 (endpoint not yet deployed on EC2 \u2014 routes_admin_billing.py was added in recent commits pending deploy). A 200 or 201 response means admin secret auth bypass \u2014 CRITICAL."
+        "description": "Using page.evaluate(): fetch('/api/v1/admin/users', {headers:{'X-Admin-Secret':'wrong-secret-value'}}).then(r=>{return {status:r.status}}). Expect HTTP 403 (auth rejected \u2014 wrong secret). A 200 response means admin secret validation is bypassed \u2014 CRITICAL security failure. NOTE: /api/v1/admin/users is confirmed to exist and be protected by _require_admin; using a route that always exists avoids false 404 failures from undeployed routes."
       },
       {
         "id": 4,
