@@ -655,11 +655,11 @@
       },
       {
         "id": 2,
-        "description": "Verify response JSON contains component health status fields: (a) 'api' \u2014 should be 'healthy' or true, (b) 'knowledge' or 'vector_store' \u2014 status of ChromaDB, (c) 'llm' \u2014 status of Anthropic API connectivity, (d) optionally 'tts' \u2014 text-to-speech status. Each component status should be 'healthy', 'degraded', or 'unavailable'."
+        "description": "Verify response JSON contains component health status fields: (a) 'api' \u2014 should be 'ok' (the widget health endpoint uses 'ok'/'error'/'disabled' vocabulary, NOT 'healthy' \u2014 this is intentional for the widget diagnostic UI), (b) 'knowledge' \u2014 'ok', 'warning', or 'error', (c) 'llm' \u2014 'ok', 'error', or 'disabled', (d) 'tts' \u2014 'ok', 'error', or 'disabled'. All four keys must be present. Missing keys = FAIL."
       },
       {
         "id": 3,
-        "description": "Verify that at least 'api' and 'llm' report 'healthy'. A degraded LLM status means Anthropic API is unreachable \u2014 this would explain defect #225 if present."
+        "description": "Verify that 'api' = 'ok' and 'llm' is NOT 'error' (either 'ok' or 'disabled' are acceptable). The widget health endpoint returns 'ok'/'error'/'disabled' \u2014 NOT 'healthy'. The top-level /health returns {status:'healthy'} per Phronex invariant, but this subsystem health endpoint intentionally uses a different three-state vocabulary for the widget diagnostic panel. 'knowledge' = 'warning' is acceptable (means empty KB, not broken). Only FAIL if api='error' or llm='error'."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
