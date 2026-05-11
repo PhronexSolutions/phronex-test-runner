@@ -1122,7 +1122,7 @@
       },
       {
         "id": 13,
-        "description": "Subscription Upgrade Flow \u2014 rate limit guard: attempt checkout 6 times in rapid succession",
+        "description": "SKIP=PASS \u2014 Rate-limit checkout guard covered by dedicated cc-sec-rate-limit journey. Rapid-fire Razorpay calls inside a multi-flow journey risk poisoning session state for subsequent steps (14-20).",
         "action": "Send POST /api/v1/billing/checkout 6 times in quick succession from the same user session (limit is 5/hour). Use fetch or Playwright page.request for the 6th call.",
         "expected": "The 6th request returns HTTP 429 Too Many Requests. A rate-limit error message is visible or returned in the response body. Previous 5 calls succeeded (200)."
       },
