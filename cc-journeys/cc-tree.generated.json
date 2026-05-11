@@ -10,7 +10,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/cc. Verify the CC product section loads without a 500 error or blank white screen. Verify at least one CC sub-navigation item is visible (Dashboard, Content, Skills, Instance, Users, etc.). This confirms the CC product section is accessible for this superadmin account."
+        "description": "Navigate to https://app.phronex.com/cc/dashboard. Verify the CC product section loads without a 500 error or blank white screen. Verify at least one CC sub-navigation item is visible (Dashboard, Content, Skills, Instance, Users, etc.). This confirms the CC product section is accessible for this superadmin account."
       },
       {
         "id": 3,
@@ -383,7 +383,7 @@
       },
       {
         "id": 5,
-        "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', or similar button. If found, click it. Verify it navigates to a pricing page, checkout flow, or booking link \u2014 not a 404 or blank page. Record the destination URL."
+        "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', or similar button. If found, verify the button is visible and clickable. Do NOT click it further than the initial click that opens a checkout dialog or navigates to a pricing page \u2014 stop at the first navigation/modal. Verify it does not immediately return a 404 or error page on click. IMPORTANT: Do NOT proceed through any payment form, complete any checkout, or enter any payment details. Record the destination URL or dialog title only."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -964,7 +964,6 @@
     "id": "cc-cc-registrations",
     "description": "CC Registrations admin flow \u2014 verify superadmin can view, filter, and action (approve/reject) instance registration requests.",
     "depth": 3,
-    "dependsOn": "cc-trunk-superadmin",
     "steps": [
       {
         "id": 1,
@@ -1001,71 +1000,13 @@
         "description": "Verify the backend API GET /api/cc/owner/api/v1/admin/registrations?status=pending returns valid JSON with expected structure.",
         "expected": "Using page.evaluate(): fetch('/api/cc/owner/api/v1/admin/registrations?status=pending').then(r=>r.status). PASS = 200 (list returned, may be empty). FAIL = 404 (route missing) or 500 (server error)."
       }
-    ]
-  },
-  {
-    "id": "cc-cc-owners",
-    "description": "CC Owners admin flow \u2014 superadmin can create, view, and remove instance owners. No edit functionality exists (owners are managed via the Admin user panel).",
-    "depth": 3,
-    "dependsOn": "cc-trunk-superadmin",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session and navigate to https://app.phronex.com/cc/owners.",
-        "expected": "Page loads. Either owner rows in a table, or 'No instance owners found' empty state. '+ Add Owner' button visible in header. No console errors."
-      },
-      {
-        "id": 2,
-        "description": "Verify owner row structure: each row should show owner name (or email if no name), email, instance ID badge (copper-colored), creation date, 'Admin' link, and 'Remove' button.",
-        "expected": "If owners exist: table shows columns Owner, Instance, Created, Actions. Name/email in Owner cell, instance_id in mono copper badge, formatted date. Admin link navigates to admin panel. Remove button has red styling."
-      },
-      {
-        "id": 3,
-        "description": "Click '+ Add Owner'. Verify the creation form slides open with fields: Email (required), Password (required), Name (optional), Instance ID (required).",
-        "expected": "Form is visible with 4 fields in a 2-column grid. All fields have labels with asterisks for required. 'Create Owner' and 'Cancel' buttons are present."
-      },
-      {
-        "id": 4,
-        "description": "Submit the form with all fields empty. Verify validation error message 'Email, password, and instance ID are required.' appears.",
-        "expected": "Error message visible below the form. Form does not submit to the backend. Required fields may show browser native validation. Portal validation message is the primary check."
-      },
-      {
-        "id": 5,
-        "description": "Fill in valid test data: email=qa-owner-test@phronex.com, password=TestPassword123!, name=QA Test Owner, instance_id=e2e-test-instance. Click 'Create Owner'.",
-        "expected": "Form submits. Success message 'Owner qa-owner-test@phronex.com created for instance e2e-test-instance.' A new row appears in the table. Form closes."
-      },
-      {
-        "id": 6,
-        "description": "Verify the new owner row shows correctly \u2014 email, instance badge 'e2e-test-instance', recent creation date. Click 'Admin' link next to the new owner.",
-        "expected": "Admin link navigates to /admin?search=qa-owner-test@phronex.com (URL-encoded). Admin panel opens with the user pre-searched."
-      },
-      {
-        "id": 7,
-        "description": "Return to https://app.phronex.com/cc/owners. Click 'Remove' next to the test owner created in step 5. Verify a confirmation dialog appears.",
-        "expected": "Browser confirm() dialog appears with message 'Remove owner privileges for qa-owner-test@phronex.com? The user account will still exist.' Confirming proceeds with deletion."
-      },
-      {
-        "id": 8,
-        "description": "Confirm the deletion. Verify the owner row disappears from the list and a success message 'Owner privileges removed for qa-owner-test@phronex.com.' appears.",
-        "expected": "Row removed immediately (optimistic UI). Success message visible. No 404 error in console. Backend DELETE /api/cc/owner/api/v1/admin/owners/{user_id} returns 200."
-      },
-      {
-        "id": 9,
-        "description": "Refresh the page and verify the deleted owner does not reappear \u2014 deletion persisted.",
-        "expected": "Owner row absent from the list after reload. No ghost reappearance."
-      },
-      {
-        "id": 10,
-        "description": "Verify browser console is clean throughout \u2014 no 404 errors (deletion must use user_id not row id), no unhandled exceptions.",
-        "expected": "Zero 404 errors from DELETE call. Zero unhandled React errors. The console may show autocomplete attribute warnings (acceptable). No cross-instance data visible."
-      }
-    ]
+    ],
+    "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-cc-onboarding",
     "description": "Superadmin onboarding redirect: verify /cc/onboarding correctly redirects superadmins to /cc/instance. Also verify the onboarding page is accessible to instance owners (non-superadmin CC users).",
     "depth": 3,
-    "dependsOn": "cc-trunk-superadmin",
     "steps": [
       {
         "id": 1,
@@ -1092,72 +1033,43 @@
         "description": "Verify browser console is clean throughout this journey \u2014 no React error #310, no 'Application error', no unhandled exceptions.",
         "expected": "Zero React error #310 entries. Zero 'Application error: a client-side exception has occurred' messages. Any 404 from /cc/onboarding redirect to /cc/instance is acceptable. PASS = clean console."
       }
-    ]
+    ],
+    "dependsOn": "cc-trunk-superadmin"
   },
   {
     "id": "cc-cc-roadmap-narrative-summary",
-    "description": "[general] Cc Roadmap_Narrative Summary \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "CC Dashboard Overview \u2014 verify the CC portal dashboard loads correctly with its core tabs and instance overview metrics.",
     "depth": 3,
     "steps": [
       {
         "id": 1,
         "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate and log in if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. If session is expired or file missing, navigate to the CC login page, enter superadmin credentials, and authenticate to obtain a fresh session.",
-        "expected": "Authenticated superadmin session is active. JWT cookie or Authorization header is present. No redirect to login page occurs."
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'.",
+        "expected": "Authenticated superadmin session is active."
       },
       {
         "id": 2,
-        "description": "Navigate to the CC superadmin dashboard and verify the Roadmap Narrative Summary panel loads.",
-        "action": "Navigate to the CC admin dashboard root (e.g. /admin or /dashboard). Look for a 'Summary' section, panel, or card that reflects the ROADMAP-NARRATIVE feature count data (total features: 41, priority 1: 14, priority 2: 18, priority 3: 9, total API endpoints: 35).",
-        "expected": "The Summary panel is visible. Key metrics are rendered: total features count (41), priority breakdown (14 / 18 / 9), and total API endpoints (35). No loading spinner remains. No error state or empty placeholder is shown."
+        "description": "Navigate to the CC dashboard at https://app.phronex.com/cc/dashboard?instance=e2e-test-instance. Verify the page loads without a 500 error and shows a dashboard layout with navigation tabs.",
+        "action": "Navigate to https://app.phronex.com/cc/dashboard?instance=e2e-test-instance. Wait for the page to fully load.",
+        "expected": "Dashboard page loads. Navigation tabs are visible (Overview, Analytics, Sessions, or similar). No 500 error."
       },
       {
         "id": 3,
-        "description": "Verify the Feature Priority Matrix table or list is rendered with at least the top Priority 1 (Core/Flagship) features.",
-        "action": "Scroll to or locate the Feature Priority Matrix section. Assert that Priority 1 features are listed, including 'Instance Owner Setup Flow' and 'New Visitor Chat Flow'. Check that each feature entry shows section ID, priority label, and endpoint count.",
-        "expected": "At least 14 Priority 1 feature rows are visible. 'Instance Owner Setup Flow' shows priority 'Core / Flagship' and 6 endpoints. 'New Visitor Chat Flow' shows priority 'Core / Flagship' and 4 endpoints. Priority 2 section shows 18 features. Priority 3 section shows 9 features."
+        "description": "Verify the Overview tab (or default view) shows instance-level metrics: active sessions, messages (total or recent), or knowledge base status. At least one metric card should be present.",
+        "action": "Check the main content area for metric cards, stat panels, or summary widgets showing instance activity data.",
+        "expected": "At least one metric is displayed \u2014 e.g. session count, message count, or knowledge base document count. Numbers should be non-negative integers. No empty-state placeholder unless the instance is genuinely new."
       },
       {
         "id": 4,
-        "description": "Verify the Actor/Role Matrix is accessible and displays all four actor roles.",
-        "action": "Locate the Actor/Role Matrix section on the page or navigate to it via a tab/anchor. Assert that the four actor rows are rendered: Anonymous, Authenticated User, Instance Owner, and Superadmin (or equivalent admin role). Check that the Auth Method and Access Scope columns are populated.",
-        "expected": "All actor rows are present. Anonymous row shows 'POST /auth/anonymous (24h JWT)' auth method. Authenticated User row shows '30-day JWT' or HMAC reference. Instance Owner row shows JWT with role='instance_owner'. Access scope values are non-empty for each row."
+        "description": "Navigate to the Analytics tab. Verify the page loads and shows at least one chart, table, or data visualization. Chart axes and labels should be human-readable.",
+        "action": "Click the Analytics tab or navigate to /cc/analytics?instance=e2e-test-instance.",
+        "expected": "Analytics page loads without error. At least one chart or data table is rendered. No blank canvas or invisible SVG."
       },
       {
         "id": 5,
-        "description": "Verify the Chat Endpoints summary section lists key chat routes.",
-        "action": "Locate the Chat Endpoints section. Assert that 'POST /api/v1/chat/message' and 'GET /api/v1/chat/history' entries are present. Check that the description for the POST endpoint references SSE streaming and the field list (instance_id, message, session_id).",
-        "expected": "POST /api/v1/chat/message entry is visible with Bearer JWT auth notation and SSE stream description. GET /api/v1/chat/history entry is visible. At least the two core chat routes are rendered without truncation."
-      },
-      {
-        "id": 6,
-        "description": "Verify the Instance Owner Endpoints section lists the /api/v1/instance/me summary route.",
-        "action": "Locate the Instance Owner Endpoints section. Assert that 'GET /api/v1/instance/me' is listed with a description referencing instance branding, persona, tiers, and content stats. Check that the auth requirement note (JWT with role='instance_owner') is visible.",
-        "expected": "'GET /api/v1/instance/me' is listed. Description mentions branding, persona, tiers, content stats. Auth requirement note is present. No broken layout or missing rows in the endpoint table."
-      },
-      {
-        "id": 7,
-        "description": "Verify the Test Oracles / acceptance criteria section references key chat TOs (TO-CHAT-01, TO-CHAT-05, TO-CHAT-08).",
-        "action": "Locate any test oracle or acceptance criteria section on the summary page. Assert that references to SSE streaming chat (TO-CHAT-01), daily spend cap (TO-CHAT-05), and session close with LLM summary (TO-CHAT-08) are either displayed inline or accessible via a linked doc.",
-        "expected": "TO-CHAT-01 preconditions (valid token, active session, not rate-limited) are visible or linked. TO-CHAT-05 references 503 spend cap response. TO-CHAT-08 references session is_active=false and LLM summary generation. No 404 on any linked test oracle document."
-      },
-      {
-        "id": 8,
-        "description": "Simulate a cross-service integration check: verify the Summary page correctly reflects live instance data by calling GET /api/v1/instance/me in the background.",
-        "action": "Open browser DevTools Network panel (or assert via page API calls). Reload or trigger a refresh of the Summary section. Assert that a network call to GET /api/v1/instance/me (or an equivalent admin summary endpoint) is made and returns HTTP 200 with a JSON body containing branding, persona, tiers, and content stats fields.",
-        "expected": "GET /api/v1/instance/me returns 200 OK. Response JSON includes at least: branding object, persona object, tiers array or object, and a content stats field. No 401, 403, or 500 responses. The summary panel updates to reflect the returned data."
-      },
-      {
-        "id": 9,
-        "description": "Navigate away from the Summary page to the CC dashboard home and then return to verify state persistence.",
-        "action": "Click a navigation link to the CC dashboard home page (e.g. /dashboard or /admin). Wait for the dashboard to fully load. Then navigate back to the Summary section using browser back button or the same nav link used in step 2.",
-        "expected": "The Summary section reloads without errors. Feature counts (41 total, 14/18/9 by priority), actor matrix, and chat endpoint listings are still visible and consistent with the values verified in earlier steps. No loading error, blank state, or stale cache artefact is shown."
-      },
-      {
-        "id": 10,
-        "description": "Verify that the Summary page is inaccessible to unauthenticated users and returns an appropriate auth redirect or 401.",
-        "action": "Clear session cookies/storage to simulate a logged-out state. Attempt to navigate directly to the Summary page URL. Assert that the browser is redirected to the login page or receives a 401/403 response. Do not complete login \u2014 just confirm the gate.",
-        "expected": "Unauthenticated access to the Summary page results in a redirect to the CC login page or a 401/403 HTTP response. The summary data is not rendered. The login page or an auth error message is displayed."
+        "description": "Navigate to the Sessions tab (if present). Verify the session list loads and shows at least one entry, or shows a proper empty state message if no sessions exist.",
+        "action": "Click Sessions tab or navigate to /cc/sessions?instance=e2e-test-instance.",
+        "expected": "Sessions page loads. Either a list of session rows is shown or an explicit 'No sessions yet' empty state message appears. No raw JSON or 500 error."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -2004,6 +1916,626 @@
         "description": "Verify persistence across session reload",
         "action": "Close and reopen the browser (clear in-memory state). Reload the session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. Navigate to the Skills management page.",
         "expected": "CUSTOM_SKILL_ID (from step 6, submitted in step 8) is still present with the status updated during step 8. Confirms CCSkillStore persistence is DB-backed and not in-memory only."
+      }
+    ],
+    "dependsOn": "cc-trunk-superadmin"
+  },
+  {
+    "id": "cc-accountability",
+    "description": "[general] Accountability \u2014 Full DEEP journey covering CRUD, validation, and persistence",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "page.goto('https://app.phronex.com/auth/login') if session expired; fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit button",
+        "expected": "User is authenticated and redirected to dashboard or home page without errors"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/command-centre/accountability. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors).",
+        "action": "page.goto('https://app.phronex.com/command-centre/accountability'); wait for network idle; check for error boundaries and console errors",
+        "expected": "Page title or heading contains 'Accountability'; no error banners visible; HTTP status 200; no uncaught JS exceptions in console"
+      },
+      {
+        "id": 3,
+        "description": "Verify the data table/list section renders. Check that either data rows appear OR a proper empty state message is shown (not a blank section or error).",
+        "action": "Locate the main content area; check for table, list, or card elements; if empty, check for empty-state illustration or message text",
+        "expected": "Either: at least one data row is visible with readable content, OR an empty state message like 'No items yet' or similar is displayed; no blank white box or spinner stuck indefinitely"
+      },
+      {
+        "id": 4,
+        "description": "Inspect the page layout fully: check for tabs, sub-navigation, filter dropdowns, search inputs, date range pickers, and action buttons in the toolbar area.",
+        "action": "Query all interactive elements in the top toolbar: buttons, selects, inputs, tab links; log their labels and states",
+        "expected": "All toolbar controls are visible, not overlapping, and have readable labels; no truncated or missing button text; active tab (if any) is highlighted"
+      },
+      {
+        "id": 5,
+        "description": "If filters or search are present, enter a search term in the search input and verify the list updates or shows 'no results' state.",
+        "action": "Locate search input; type a generic test string (e.g. 'test'); wait for debounce or press Enter; observe list update",
+        "expected": "List either filters to matching rows or shows a 'no results' message; the page does not crash or show an error boundary"
+      },
+      {
+        "id": 6,
+        "description": "Locate the primary create/add button on the page (e.g. 'Create Link', 'Add', 'New'). Record its exact label. Click it and observe what happens.",
+        "action": "Find button with text matching /create|add|new/i; click it; wait for modal, drawer, or page navigation",
+        "expected": "A form modal, drawer, or new page opens within 2 seconds; no JS errors; form title matches the action taken"
+      },
+      {
+        "id": 7,
+        "description": "Inspect the create form: list all visible fields, their types (text, select, date, textarea), and which are marked required (asterisk, aria-required, or validation hint).",
+        "action": "Query all form fields inside the modal/form; log labels, input types, placeholder text, and required indicators",
+        "expected": "All fields have visible labels; required fields are clearly marked; no fields are overlapping or cut off by the modal boundary"
+      },
+      {
+        "id": 8,
+        "description": "Attempt to submit the create form with all fields left empty. Verify client-side validation fires.",
+        "action": "Click the submit/save button without filling any field; wait for validation messages to appear",
+        "expected": "Inline validation errors appear next to required fields (not just a generic toast); form is not submitted; no network request is fired for the create endpoint"
+      },
+      {
+        "id": 9,
+        "description": "Fill in all required fields with valid test data. Use realistic values: text fields get 'Test Accountability Entry', date fields get today's date, select fields get the first non-empty option.",
+        "action": "Fill each required field with appropriate test data; for selects use page.selectOption to pick first available option; for date pickers type or pick today's date",
+        "expected": "All required fields accept input without errors; no field rejects the test data; form remains open and ready to submit"
+      },
+      {
+        "id": 10,
+        "description": "Submit the form with valid data. Observe the response.",
+        "action": "Click the submit/save button; wait for network response or page change; check for success toast or redirect",
+        "expected": "A success toast or notification appears (e.g. 'Created successfully') OR the modal closes and the new entry appears in the list; no error toast or HTTP 4xx/5xx"
+      },
+      {
+        "id": 11,
+        "description": "Verify the newly created entry appears in the list/table with correct field values matching what was entered.",
+        "action": "Scan the list/table for the new entry; compare displayed values against the test data submitted",
+        "expected": "New row or card is visible; text fields show 'Test Accountability Entry' or the entered value; no stale/cached data from a previous entry"
+      },
+      {
+        "id": 12,
+        "description": "If the list has an edit action (pencil icon, 'Edit' button, or row click), open the edit form for the newly created entry.",
+        "action": "Click the edit control on the new entry row; wait for edit form/modal to open",
+        "expected": "Edit form opens pre-populated with the existing values; no fields are blank that should be filled; form title indicates edit mode (e.g. 'Edit' not 'Create')"
+      },
+      {
+        "id": 13,
+        "description": "Modify at least one field in the edit form (change the text field value by appending ' - Updated'). Submit the edit form.",
+        "action": "Clear the text field and re-type with ' - Updated' suffix; click save/submit",
+        "expected": "Success toast or modal close occurs; the list row now shows the updated value; no duplicate entry is created"
+      },
+      {
+        "id": 14,
+        "description": "Verify persistence: navigate away from the accountability page to the main dashboard, then navigate back to https://app.phronex.com/command-centre/accountability.",
+        "action": "page.goto('https://app.phronex.com/'); wait for load; page.goto('https://app.phronex.com/command-centre/accountability'); wait for network idle",
+        "expected": "The updated entry is still visible with the modified value; no data loss occurred during navigation; page loads cleanly without errors"
+      },
+      {
+        "id": 15,
+        "description": "If a delete action is available on the entry (trash icon, 'Delete' menu item, or swipe), click it and observe the confirmation flow.",
+        "action": "Click the delete control on the test entry; wait for confirmation dialog or immediate deletion",
+        "expected": "Either a confirmation dialog appears asking to confirm deletion, OR the entry is removed immediately with an undo option; no silent failure"
+      },
+      {
+        "id": 16,
+        "description": "Confirm the deletion (click 'Delete', 'Confirm', or 'Yes' in the dialog if present).",
+        "action": "Click the confirm delete button in the dialog; wait for the list to update",
+        "expected": "The deleted entry is removed from the list; a success toast appears (e.g. 'Deleted'); the list shows one fewer entry or the empty state if it was the last item"
+      },
+      {
+        "id": 17,
+        "description": "Verify the deleted entry does not reappear after a hard page reload (F5 / page.reload()).",
+        "action": "page.reload(); wait for network idle; scan the list for the previously deleted entry",
+        "expected": "Deleted entry is absent from the list; no ghost data; page loads without errors after reload"
+      },
+      {
+        "id": 18,
+        "description": "Check accessibility basics: verify all interactive buttons have accessible labels (aria-label or visible text), and no keyboard-inaccessible controls exist in the main flow.",
+        "action": "Query all buttons and links; check for aria-label or non-empty text content; tab through the main controls",
+        "expected": "No button has only an icon with no aria-label; tab order follows logical reading order; no focus traps outside modals"
+      }
+    ],
+    "dependsOn": "cc-trunk-superadmin"
+  },
+  {
+    "id": "cc-cc-architecture-5-2-prompt-assembly-ccpromptadapter",
+    "description": "[general] Cc Architecture 5 2 Prompt Assembly Ccpromptadapter \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "Load session file at '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. If expired or missing, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click the login button, and wait for redirect.",
+        "expected": "Session is active. User is authenticated as superadmin. Dashboard or home page is visible. No auth error banners appear."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the Content Companion (CC) admin interface and locate an active CC instance to use for prompt assembly testing.",
+        "action": "Navigate to the CC admin panel (e.g. https://app.phronex.com or the CC portal section). Find an active instance \u2014 look for an instance list or instance selector. Select or note down an instance ID (e.g. 'maxine') that is in active/unblocked state.",
+        "expected": "CC admin panel loads without errors. At least one active instance is visible. Instance ID is readable from the UI or URL."
+      },
+      {
+        "id": 3,
+        "description": "Open the instance configuration detail page for the selected instance and locate the Prompt / System Prompt section.",
+        "action": "Click into the selected instance's detail or settings page. Scroll to or click the 'Prompt', 'System Prompt', or 'Prompt Assembly' section/tab.",
+        "expected": "Prompt configuration section is visible. Current system prompt text (if any) is displayed. Fields for persona, language, memory context, and any other CCPromptAdapter inputs are accessible."
+      },
+      {
+        "id": 4,
+        "description": "Verify the prompt assembly inputs are editable \u2014 update the persona/system prompt field with a distinct test value.",
+        "action": "Click the system prompt or persona text field. Clear existing content. Type a unique test string, e.g. 'JOURNEY_TEST_PROMPT_ASSEMBLY_001: You are a helpful QA assistant.'",
+        "expected": "Text field accepts input. The distinct test string is visible in the field without truncation. No validation errors appear on non-empty valid input."
+      },
+      {
+        "id": 5,
+        "description": "Submit the updated prompt configuration and verify the save operation succeeds.",
+        "action": "Click the 'Save', 'Update', or equivalent submit button for the prompt configuration form.",
+        "expected": "A success notification (toast, banner, or inline message) appears confirming the save. No error messages. The page does not navigate away unexpectedly (or if it does, it returns to a state reflecting the saved data)."
+      },
+      {
+        "id": 6,
+        "description": "Initiate a chat session against the instance to verify the CCPromptAdapter assembles and injects the updated system prompt end-to-end.",
+        "action": "Navigate to the chat interface for the selected CC instance. If a session selector exists, start a new session. Send a chat message: 'Hello, who are you?'",
+        "expected": "The chat interface loads. The POST request to /api/v1/chat is issued with the correct instance_id and a valid session_id. SSE stream begins \u2014 event: chunk events appear in the response. The assistant reply reflects the persona defined in the updated system prompt (e.g. references 'QA assistant' behaviour or tone). event: done event arrives and the stream closes cleanly."
+      },
+      {
+        "id": 7,
+        "description": "Verify LLM usage and message persistence after the chat turn completes.",
+        "action": "After the chat response completes, navigate to the admin usage/logs section for the instance (if accessible via UI) or check the chat history panel within the session. Look for the persisted user message and assistant response.",
+        "expected": "The user message 'Hello, who are you?' and the assistant reply are both visible in the chat history. If a usage/cost panel exists, an LLMUsage entry is shown reflecting the model used, token counts, and cost. No duplicate messages appear."
+      },
+      {
+        "id": 8,
+        "description": "Test multi-language prompt assembly \u2014 update the instance language configuration to a non-English locale (e.g. de-DE) and send a chat message.",
+        "action": "Return to the instance configuration. Find the language/locale field (BCP-47 code field). Set the value to 'de-DE'. Save the configuration. Navigate back to the chat interface and start a new session. Send the message: 'Hello, respond to me.'",
+        "expected": "Save succeeds without errors. In the new chat session, the assistant response is generated in German (de-DE). The system prompt assembled by CCPromptAdapter includes a language instruction matching 'de-DE'. No SSE stream errors occur."
+      },
+      {
+        "id": 9,
+        "description": "Test memory context injection \u2014 verify that when memory is enabled for a premium-tier user, the assembled prompt includes memory context.",
+        "action": "In the instance or user configuration, confirm or enable the memory feature (memory_enabled=true if configurable via UI). Start a new chat session and send a message that would be memory-worthy (e.g. 'My name is JourneyHawk and I prefer concise answers.'). End the session. Start a second new session and send: 'What do you know about me?'",
+        "expected": "In the second session, the assistant's response references information from the previous session (e.g. the name or preference stated). The assembled system prompt (observable if prompt preview is available in admin UI) includes a memory context block. In-memory history cap of 15 messages per side is not exceeded (no UI error about history overflow)."
+      },
+      {
+        "id": 10,
+        "description": "Navigate away from the chat page to the main dashboard, then return to the chat session and verify state persistence.",
+        "action": "Click the dashboard or home navigation link. Wait for the dashboard page to load fully. Then navigate back to the chat interface for the same instance and the same session (use browser back or session selector).",
+        "expected": "The dashboard loads without errors. On returning to the chat interface, previously sent messages in the session are still visible. Session ID remains the same. No re-authentication is required. The assembled prompt configuration (persona, language) is still reflected in assistant behaviour on a follow-up message."
+      },
+      {
+        "id": 11,
+        "description": "Verify validation: attempt to save a blank/empty system prompt and confirm the UI enforces constraints.",
+        "action": "Navigate back to the instance prompt configuration. Clear the system prompt field completely (empty string). Attempt to save.",
+        "expected": "Either a validation error is shown inline (e.g. 'System prompt cannot be empty') preventing the save, OR the save succeeds and the CCPromptAdapter falls back gracefully to a default prompt (no 500 error, no broken chat). The chat interface remains functional after this action."
+      },
+      {
+        "id": 12,
+        "description": "Restore the original system prompt value and confirm the instance returns to baseline state.",
+        "action": "In the prompt configuration, re-enter a valid system prompt (e.g. restore the original value or enter 'You are a helpful assistant.'). Save the configuration.",
+        "expected": "Save succeeds. The instance is back to a valid configured state. A new chat message sent in a fresh session returns a coherent, on-persona response. No residual test artefacts (e.g. 'JOURNEY_TEST_PROMPT_ASSEMBLY_001') remain active."
+      }
+    ],
+    "dependsOn": "cc-trunk-superadmin"
+  },
+  {
+    "id": "cc-cc-hld-5-2-cost-controls",
+    "description": "[general] Cc Hld 5 2 Cost Controls \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 4,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState: load from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'; if session cookie missing or expired, navigate to https://app.phronex.com/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit button",
+        "expected": "User is authenticated and redirected to dashboard. No login error visible. Auth cookie present in browser storage."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the superadmin cost analytics endpoint to verify cost-by-user data is accessible.",
+        "action": "Navigate to http://localhost:8000/api/v1/admin/analytics/cost-by-user?days=30 in a new tab or via fetch from browser console; alternatively navigate to the admin analytics UI page if one exists at https://app.phronex.com/admin/analytics",
+        "expected": "Response returns HTTP 200 with a JSON array of users sorted by LLM cost. Each entry contains at minimum user_id, total_cost, and model fields. No 401 or 403 error."
+      },
+      {
+        "id": 3,
+        "description": "Verify the daily spend limit enforcement by inspecting the known tier limits documented in USER-SPEC: free tier $0.50/day, premium tier $10/day.",
+        "action": "Navigate to https://app.phronex.com/admin or relevant admin panel. Search for any UI surface showing per-tier spend limits. If no UI surface exists, note as gap. Also call GET /api/v1/admin/analytics and inspect the response for tier_distribution and spend_limit fields.",
+        "expected": "Spend limit values of $0.50 (free) and $10.00 (premium) are reflected in the response or UI. USER-SPEC \u00a718 Known Limitations notes these are hardcoded and not configurable via admin UI \u2014 confirm no admin UI control exists for changing these values (absence is expected behaviour, not a defect)."
+      },
+      {
+        "id": 4,
+        "description": "Trigger a chat message via the UI to generate an LLMUsage row, then verify cost tracking is recorded.",
+        "action": "Navigate to https://app.phronex.com and open a chat session for a known active instance (e.g. 'maxine'). Send a short message: 'Hello'. Observe the SSE stream in the Network tab \u2014 confirm events of type 'chunk' and 'done' appear. After stream completes, call GET /api/v1/admin/analytics/cost-by-user?days=1 to verify a new LLMUsage row was created.",
+        "expected": "Chat response streams successfully. SSE events include at least one 'chunk' event and a final 'done' event. The cost-by-user analytics endpoint reflects a new usage entry for the test user with non-zero total_cost. LLMUsage row contains model name and token counts."
+      },
+      {
+        "id": 5,
+        "description": "Verify rate-limiting behaviour: attempt to exceed the daily spend limit for a free-tier test user and confirm the chat endpoint returns a blocked response.",
+        "action": "Using the superadmin session, call POST /api/v1/admin/test-helpers/set-spend or equivalent endpoint to simulate a free-tier user at $0.50 daily spend (if no such endpoint exists, note as gap and skip assertion). Then attempt to POST /api/v1/chat as that user with message 'Test over-limit'. Inspect the HTTP response status and body.",
+        "expected": "If spend simulation endpoint exists: chat returns HTTP 429 or HTTP 402 with an error body indicating daily spend limit exceeded. If no simulation endpoint exists: document gap \u2014 spend-limit enforcement cannot be verified without a test helper or spend-reset admin endpoint."
+      },
+      {
+        "id": 6,
+        "description": "Verify BYOK (Bring Your Own Key) cost tracking: confirm that when an instance has a custom LLM API key configured, usage is billed against that key and recorded correctly in LLMUsage.",
+        "action": "Navigate to the instance configuration admin page for a test instance. Verify that an InstanceLLMConfig row can be set with an encrypted API key. If UI exists, set a BYOK key. Then send a chat message. Inspect LLMUsage row via GET /api/v1/admin/analytics/{instance_id} \u2014 confirm model and cost fields are populated and the response notes the key source as instance-owned.",
+        "expected": "LLMUsage row is created with model and cost values. Per TEST-ORACLES TO-CHAT-13: the API key is decrypted in-memory only and never exposed in the response. The analytics endpoint reflects costs attributed to the instance's BYOK configuration. If BYOK key is invalid, the system falls back to the platform key without error."
+      },
+      {
+        "id": 7,
+        "description": "Verify cross-instance cost aggregation via the admin analytics overview endpoint.",
+        "action": "Call GET /api/v1/admin/analytics with the superadmin X-Admin-Secret header. Inspect the response for per-instance cost breakdown fields.",
+        "expected": "Response includes total_users, total_sessions, and per-instance breakdown. Per-instance entries include cost or spend data. The instance tested in steps 4\u20136 appears in the breakdown with a non-zero spend value consistent with the LLMUsage rows created during this journey."
+      },
+      {
+        "id": 8,
+        "description": "Navigate away from the admin analytics page to the dashboard, then return and verify data persistence.",
+        "action": "Navigate to https://app.phronex.com (dashboard). Wait 2 seconds. Navigate back to https://app.phronex.com/admin/analytics or re-call GET /api/v1/admin/analytics/cost-by-user?days=1.",
+        "expected": "Analytics data from steps 4\u20137 is still present. LLMUsage rows created during this journey are persisted to the database and survive navigation. No data loss or state reset occurs."
+      },
+      {
+        "id": 9,
+        "description": "Confirm the Known Limitation documented in USER-SPEC \u00a718: daily spend limits are hardcoded and no admin UI exists to change them.",
+        "action": "Search https://app.phronex.com/admin for any input field, settings panel, or configuration page that allows editing per-tier daily spend limits ($0.50 free / $10 premium). Also grep the admin analytics UI for any editable spend-limit control.",
+        "expected": "No UI control exists for modifying daily spend limits. This matches the known limitation documented in USER-SPEC \u00a718. If such a UI IS found, flag as an undocumented feature that needs USER-SPEC update."
+      }
+    ],
+    "dependsOn": "cc-trunk-superadmin"
+  },
+  {
+    "id": "cc-cc-hld-7-external-integration-points",
+    "description": "[general] Cc Hld 7 External Integration Points \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit",
+        "expected": "Dashboard or authenticated page loads without redirect to login. Session cookie is present."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the CC backend health endpoint to confirm all external integration subsystems report healthy before beginning integration tests.",
+        "action": "Navigate to http://localhost:8000/api/v1/config/health/widget (or issue GET via fetch in browser console: fetch('http://localhost:8000/api/v1/config/health/widget').then(r=>r.json()).then(console.log))",
+        "expected": "Response is 200 OK. JSON body contains status fields for 'api', 'knowledge', 'llm', and 'tts' subsystems. No subsystem reports 'error' or 'degraded'."
+      },
+      {
+        "id": 3,
+        "description": "Verify the public branding/config endpoint is reachable and returns well-formed data, confirming the CC config service integrates correctly with instance storage.",
+        "action": "In browser console: fetch('http://localhost:8000/api/v1/config/branding?instance_id=maxine').then(r=>r.json()).then(d=>console.log(JSON.stringify(d)))",
+        "expected": "200 OK. Response contains 'colors', 'welcome_message', and 'lead_capture' keys. No auth token required. Locale-aware branding fields are present."
+      },
+      {
+        "id": 4,
+        "description": "Test the anonymous auth endpoint to verify the auth service external integration point returns a valid JWT and user_id.",
+        "action": "In browser console: fetch('http://localhost:8000/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'}).then(r=>r.json()).then(d=>{ window._anonJwt=d.token; window._anonUserId=d.user_id; console.log(d); })",
+        "expected": "Response is 200 OK. JSON contains 'user_id' (non-null UUID string) and a JWT token string. Store token in window._anonJwt for use in subsequent steps."
+      },
+      {
+        "id": 5,
+        "description": "Use the anonymous JWT to send a chat message, exercising the LLM external integration point (OpenAI/vendor call) and SSE streaming pipeline.",
+        "action": "In browser console: const es = new EventSource('http://localhost:8000/api/v1/chat/message'); then use fetch with POST: fetch('http://localhost:8000/api/v1/chat/message', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._anonJwt}, body: JSON.stringify({instance_id:'maxine', message:'Hello, what can you help me with?', session_id: window._anonUserId, voice_enabled:false})}).then(r=>{ window._chatResp=r; console.log('status', r.status); })",
+        "expected": "Response status is 200. Response Content-Type includes 'text/event-stream'. SSE stream emits at least one 'token' event and a final 'done' event. No 'error' event is emitted. LLM integration is confirmed active."
+      },
+      {
+        "id": 6,
+        "description": "Verify chat history persistence \u2014 confirm the external integration with the database returns the message just sent.",
+        "action": "In browser console: fetch('http://localhost:8000/api/v1/chat/history?session_id='+window._anonUserId+'&limit=5', {headers:{'Authorization':'Bearer '+window._anonJwt}}).then(r=>r.json()).then(d=>{ window._chatHistory=d; console.log(JSON.stringify(d)); })",
+        "expected": "Response is 200 OK. Returned history array contains at least one message matching the 'Hello, what can you help me with?' text sent in step 5. Confirms DB persistence layer is integrated."
+      },
+      {
+        "id": 7,
+        "description": "Test the lead capture / identity endpoint to verify the identify integration flow: attach identity to the anonymous session.",
+        "action": "In browser console: fetch('http://localhost:8000/api/v1/auth/identify', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._anonJwt}, body: JSON.stringify({email:'journeyhawk-leadtest@phronex.com', name:'JourneyHawk Lead', session_id: window._anonUserId})}).then(r=>r.json()).then(d=>{ window._identifiedJwt=d.token; console.log(d); })",
+        "expected": "Response is 200 OK. Returns a new 30-day JWT in 'token'. The user identity is merged/attached. Confirms the auth identify integration point is functioning."
+      },
+      {
+        "id": 8,
+        "description": "Use superadmin JWT to call the admin analytics overview endpoint, verifying the cross-instance aggregation integration point.",
+        "action": "In browser console: first retrieve superadmin token from session cookies or local storage. Then: fetch('http://localhost:8000/api/v1/admin/analytics/overview', {headers:{'Authorization':'Bearer '+window._superadminJwt}}).then(r=>{console.log('status',r.status); return r.json();}).then(console.log)",
+        "expected": "Response is 200 OK with superadmin JWT. JSON contains aggregated metrics: 'total_sessions', 'total_messages', 'total_users', 'active_instances'. A request without superadmin JWT returns 403."
+      },
+      {
+        "id": 9,
+        "description": "Verify the LLM cost dashboard endpoint (admin analytics/costs) integrates with LLMUsage records and returns cost data.",
+        "action": "In browser console: fetch('http://localhost:8000/api/v1/admin/analytics/costs', {headers:{'Authorization':'Bearer '+window._superadminJwt}}).then(r=>{console.log('status',r.status); return r.json();}).then(console.log)",
+        "expected": "Response is 200 OK. JSON contains cost breakdown data. Endpoint is gated to superadmin role \u2014 a non-superadmin JWT returns 403. Confirms LLM cost tracking integration is wired."
+      },
+      {
+        "id": 10,
+        "description": "Verify the widget usage endpoint integrates correctly \u2014 call the usage endpoint with the identified JWT to confirm subscription/tier integration.",
+        "action": "In browser console: fetch('http://localhost:8000/api/v1/config/usage', {headers:{'Authorization':'Bearer '+window._identifiedJwt}}).then(r=>r.json()).then(d=>{ console.log(JSON.stringify(d)); window._usageData=d; })",
+        "expected": "Response is 200 OK. JSON contains 'tier', 'monthly_limit', 'messages_used', 'messages_remaining'. Values are numeric and consistent (messages_used + messages_remaining <= monthly_limit)."
+      },
+      {
+        "id": 11,
+        "description": "Navigate away from current page to the CC admin dashboard in the portal, then return and re-verify the analytics overview endpoint still responds correctly (persistence and statelessness check).",
+        "action": "Navigate to https://app.phronex.com (portal dashboard), wait 2 seconds, then navigate back and re-run: fetch('http://localhost:8000/api/v1/admin/analytics/overview', {headers:{'Authorization':'Bearer '+window._superadminJwt}}).then(r=>r.json()).then(console.log)",
+        "expected": "Analytics overview returns the same or updated (not reset) metrics. No data loss or session invalidation. Confirms backend statelessness and DB persistence across navigation events."
+      },
+      {
+        "id": 12,
+        "description": "Confirm rate limiting integration is present on the anonymous auth endpoint by issuing a burst of requests and observing 429 responses after the threshold.",
+        "action": "In browser console: const results=[]; for(let i=0;i<5;i++){ results.push(fetch('http://localhost:8000/api/v1/auth/anonymous',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.status)); } Promise.all(results).then(statuses=>console.log(statuses))",
+        "expected": "Most responses are 200. If rate limit (20/hr per IP) is not hit in this burst, all return 200 and the test is inconclusive but not a failure. If limit IS hit, at least one response returns 429 with a rate-limit error body. No 500 errors."
+      },
+      {
+        "id": 13,
+        "description": "Verify that accessing an admin endpoint without authentication returns 401 or 403, confirming the JWT guard integration is enforced on external-facing admin routes.",
+        "action": "In browser console: fetch('http://localhost:8000/api/v1/admin/analytics/overview').then(r=>console.log('unauthenticated status:', r.status))",
+        "expected": "Response status is 401 or 403. No admin data is returned. Confirms all external admin integration points are protected by auth middleware."
+      }
+    ],
+    "dependsOn": "cc-trunk-superadmin"
+  },
+  {
+    "id": "cc-cc-hld-8-security-measures",
+    "description": "[general] Cc Hld 8 Security Measures \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load or navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com and password=HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit",
+        "expected": "User is authenticated and redirected to the dashboard. No auth errors visible."
+      },
+      {
+        "id": 2,
+        "description": "Verify JWT token is not exposed in page source or client-accessible JavaScript globals.",
+        "action": "Open browser DevTools console, run `JSON.stringify(window.__NEXT_DATA__)` and inspect the output for any string matching /eyJ[A-Za-z0-9_-]{10,}/",
+        "expected": "No raw JWT tokens appear in __NEXT_DATA__, window globals, or inline script tags. Tokens should only be in httpOnly cookies."
+      },
+      {
+        "id": 3,
+        "description": "Verify authentication cookies are httpOnly and Secure.",
+        "action": "In DevTools Application > Cookies for localhost:3002, inspect all cookies set after login (e.g. next-auth.session-token or equivalent).",
+        "expected": "Session cookie has HttpOnly=true, Secure=true (or Secure on non-localhost environments), and SameSite=Lax or Strict. Cookie is not accessible via document.cookie."
+      },
+      {
+        "id": 4,
+        "description": "Attempt to access a protected CC API endpoint without authentication by opening an incognito tab and hitting a known authenticated route directly.",
+        "action": "Open a new incognito browser context, navigate to http://localhost:8000/api/v1/content or any CC authenticated endpoint without credentials.",
+        "expected": "Server responds with HTTP 401 or 403. Response body contains an error message. No user data is returned."
+      },
+      {
+        "id": 5,
+        "description": "Verify CSRF protection: attempt a state-mutating POST request from a different origin without the correct CSRF token.",
+        "action": "In browser console on a non-CC origin (e.g. about:blank), execute fetch('http://localhost:8000/api/v1/content', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:'{}'}) and inspect the response status.",
+        "expected": "Request is rejected with HTTP 403 or CSRF token mismatch error. No data mutation occurs."
+      },
+      {
+        "id": 6,
+        "description": "Verify that direct navigation to superadmin-only routes is blocked for a non-superadmin session.",
+        "action": "Log out of the superadmin session. Log in with a standard non-admin test account if available, then navigate directly to any admin-only route (e.g. /admin or /superadmin).",
+        "expected": "User is redirected to an access-denied page or the dashboard with an error toast. The admin UI is not rendered."
+      },
+      {
+        "id": 7,
+        "description": "Verify input sanitization: attempt XSS injection in a text input field visible on the CC interface.",
+        "action": "Navigate to a form in CC that accepts free-text input (e.g. content title or description field). Enter the value <script>window.__XSS_TEST__=1</script> and submit.",
+        "expected": "The injected script tag is not executed. The value is either escaped and displayed as literal text, or rejected with a validation error. window.__XSS_TEST__ remains undefined."
+      },
+      {
+        "id": 8,
+        "description": "Verify input sanitization: attempt SQL injection pattern in a search or filter field.",
+        "action": "Locate a search or filter input in the CC UI. Enter the value ' OR '1'='1 and submit or trigger search.",
+        "expected": "No database error is surfaced. The UI either returns no results or shows a validation error. No stack trace or SQL error is visible to the user."
+      },
+      {
+        "id": 9,
+        "description": "Verify that the Content Companion API enforces instance-level data isolation: a request authenticated as one instance cannot read another instance's content.",
+        "action": "Using the superadmin session, note the current instance_id from a content response. Construct a direct API call (via fetch in console) to http://localhost:8000/api/v1/content?instance_id=<different_instance_id> using the current session credentials.",
+        "expected": "The response returns only content belonging to the authenticated user's instance, or returns 403/empty. No cross-instance data leakage."
+      },
+      {
+        "id": 10,
+        "description": "Verify that sensitive fields (passwords, tokens, internal URLs) are not included in API responses rendered in the browser network tab.",
+        "action": "Open DevTools Network tab, navigate through CC pages (dashboard, content list, settings), and inspect JSON response bodies from the CC backend.",
+        "expected": "No password hashes, API keys, internal service URLs (e.g. http://localhost:8001), or JWT secrets appear in any response payload."
+      },
+      {
+        "id": 11,
+        "description": "Verify that the health endpoint does not expose sensitive configuration details.",
+        "action": "Navigate to http://localhost:8000/health in the browser.",
+        "expected": "Response is exactly {\"status\": \"healthy\"} or includes only non-sensitive operational metadata. No environment variables, secrets, database URLs, or internal hostnames are exposed."
+      },
+      {
+        "id": 12,
+        "description": "Navigate away from the CC interface to the portal dashboard, then return and verify session and security state persists correctly.",
+        "action": "From the CC UI, navigate to https://app.phronex.com (portal dashboard), wait 3 seconds, then navigate back to the CC section.",
+        "expected": "User remains authenticated. Previously viewed content is accessible. No re-authentication prompt appears unless the session has genuinely expired. Security headers (X-Frame-Options, Content-Security-Policy) are present on the returned page."
+      },
+      {
+        "id": 13,
+        "description": "Verify HTTP security headers are present on CC frontend responses.",
+        "action": "In DevTools Network tab, select any document or XHR request to the CC backend (localhost:8000) and inspect the Response Headers section.",
+        "expected": "Response includes at minimum: X-Content-Type-Options: nosniff, and ideally X-Frame-Options: DENY or SAMEORIGIN. No Server header exposing internal version strings."
+      },
+      {
+        "id": 14,
+        "description": "Verify that after logout, the session cookie is invalidated and protected routes are no longer accessible.",
+        "action": "Log out via the UI logout action. Then attempt to navigate directly to a protected CC route (e.g. content list) without logging in again.",
+        "expected": "User is redirected to the login page. The session cookie is cleared or expired. No cached protected content is served from the previous session."
+      }
+    ],
+    "dependsOn": "cc-trunk-superadmin"
+  },
+  {
+    "id": "cc-cc-hld-8-1-defence-in-depth",
+    "description": "[general] Cc Hld 8 1 Defence In Depth \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "Load session storage from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'; if session is invalid or expired, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, and click the login button.",
+        "expected": "User is authenticated and redirected to the dashboard. Navigation bar shows superadmin identity. No 401 or redirect loop occurs."
+      },
+      {
+        "id": 2,
+        "description": "Verify the application is running in a secure baseline state before testing defence-in-depth controls.",
+        "action": "Navigate to https://app.phronex.com. Open browser DevTools Network tab. Check that all requests use HTTPS or localhost. Inspect response headers on the main HTML document for security headers: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Strict-Transport-Security.",
+        "expected": "At minimum X-Content-Type-Options: nosniff is present. No mixed-content warnings appear in the console. The page loads without JavaScript errors related to CSP violations."
+      },
+      {
+        "id": 3,
+        "description": "Attempt to access a protected resource directly without authentication by opening an incognito/private context and navigating to a known authenticated route.",
+        "action": "Open a new browser context (incognito). Navigate directly to https://app.phronex.com/dashboard or the main authenticated landing page without logging in.",
+        "expected": "The application redirects to https://app.phronex.com/auth/login. The protected page content is NOT rendered. No sensitive data is visible before the redirect completes."
+      },
+      {
+        "id": 4,
+        "description": "Attempt an IDOR (Insecure Direct Object Reference) probe \u2014 try to access another instance's resource by manipulating an ID in the URL while authenticated as the QA superadmin.",
+        "action": "While authenticated, identify a resource URL that contains a numeric or UUID segment (e.g. /instances/{id} or /content/{id}). Modify the ID to a plausible but different value (e.g. increment by 1 or substitute a known-invalid UUID like 00000000-0000-0000-0000-000000000001). Navigate to the modified URL.",
+        "expected": "The application returns a 403 Forbidden or 404 Not Found response, OR redirects to an error page. The foreign resource's data is NOT rendered. No stack trace or internal path is exposed in the error response."
+      },
+      {
+        "id": 5,
+        "description": "Probe for reflected XSS via URL query parameters on a search or filter endpoint.",
+        "action": "Navigate to a page that accepts a query parameter (e.g. /search?q= or /content?filter=). Append a payload such as ?q=%3Cscript%3Ealert('xss')%3C%2Fscript%3E to the URL and load the page.",
+        "expected": "The injected script tag is NOT executed. The browser does not show an alert dialog. The rendered HTML either escapes the payload as &lt;script&gt; or strips it entirely. No XSS fires."
+      },
+      {
+        "id": 6,
+        "description": "Verify CSRF protection on a state-mutating form \u2014 inspect that anti-CSRF tokens or SameSite cookie attributes are in place.",
+        "action": "Open DevTools \u2192 Application \u2192 Cookies. Inspect the session or auth cookie attributes. Also open a form that submits a POST (e.g. create content, update settings). Inspect the outgoing request headers in the Network tab for a CSRF token header (e.g. X-CSRF-Token) or verify the cookie has SameSite=Strict or SameSite=Lax.",
+        "expected": "The auth cookie has SameSite=Strict or SameSite=Lax. If a CSRF token pattern is used, the token is present in the POST request. A cross-origin POST attempt without the token would be rejected (verified by observing the token's presence as a necessary condition)."
+      },
+      {
+        "id": 7,
+        "description": "Test that the Content Companion superadmin cannot escalate privileges beyond their granted scope \u2014 attempt to access a route reserved for platform-level superadmins if such a distinction exists.",
+        "action": "Navigate to https://app.phronex.com/admin or /superadmin or /platform-admin. Observe the HTTP response code and rendered content.",
+        "expected": "Either the page is accessible (confirming superadmin scope is correct) OR a 403 is returned. No unintended privilege escalation occurs. If redirected, the redirect target is appropriate and does not expose admin functionality to a lower-privileged role."
+      },
+      {
+        "id": 8,
+        "description": "Verify that sensitive data is not leaked in client-side JavaScript bundles or API responses \u2014 inspect a key API response for fields that should be server-side only.",
+        "action": "Open DevTools \u2192 Network. Reload the page or trigger a content list API call (e.g. GET /api/content or similar). Inspect the JSON response body for fields such as internal_token, secret, password_hash, private_key, or api_key.",
+        "expected": "No secret, credential, password hash, or internal API key appears in any client-facing API response. Internal-only fields are stripped before the response reaches the browser."
+      },
+      {
+        "id": 9,
+        "description": "Verify rate limiting or brute-force protection on the login endpoint by submitting multiple rapid failed login attempts.",
+        "action": "Navigate to https://app.phronex.com/auth/login. Submit the login form 6 times in quick succession with email qa-test-journeyhawk@phronex.com and an intentionally wrong password (e.g. 'WRONG_PASSWORD_TEST'). Observe the response after the 5th and 6th attempt.",
+        "expected": "After repeated failures, either: (a) a rate-limit error message appears ('Too many attempts, please wait'), (b) a CAPTCHA challenge is presented, or (c) the account is temporarily locked. The form does not continue accepting attempts indefinitely without any friction."
+      },
+      {
+        "id": 10,
+        "description": "Re-authenticate cleanly after the brute-force probe to restore a valid session for persistence testing.",
+        "action": "Navigate to https://app.phronex.com/auth/login. Fill email with qa-test-journeyhawk@phronex.com and password with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Submit the form.",
+        "expected": "Successful login. Redirected to the authenticated dashboard. Session is valid."
+      },
+      {
+        "id": 11,
+        "description": "Verify that the application's error handling does not expose stack traces, internal file paths, or database query details to the browser.",
+        "action": "Trigger a deliberate client-side error by navigating to a non-existent route (e.g. https://app.phronex.com/this-route-does-not-exist-404-probe). Also attempt an API call with a malformed payload if a form is available (e.g. submit a content creation form with all required fields blank).",
+        "expected": "The 404 page renders a user-friendly error message without exposing file paths, Python tracebacks, SQLAlchemy query strings, or internal service hostnames. The API validation error returns a structured JSON error (e.g. {detail: ...}) not a raw exception dump."
+      },
+      {
+        "id": 12,
+        "description": "Navigate away from the current page to the dashboard, then return to a previously visited protected resource and verify session state and data persistence.",
+        "action": "From an authenticated page (e.g. a content detail page), navigate to https://app.phronex.com/dashboard. Wait for the dashboard to fully load. Then use the browser back button or navigate directly back to the previously visited protected route.",
+        "expected": "The previously visited page reloads correctly with the same data. The session remains valid \u2014 no re-authentication prompt appears. Data visible before navigation is still visible after returning, confirming persistence of both session and server-side state."
+      },
+      {
+        "id": 13,
+        "description": "Verify that logging out invalidates the server-side session and prevents access to protected routes with the old session token.",
+        "action": "Click the logout button or navigate to the logout endpoint. After logout completes, attempt to navigate directly to https://app.phronex.com/dashboard without logging in again. Also check DevTools \u2192 Application \u2192 Cookies to confirm the session cookie has been cleared or expired.",
+        "expected": "After logout, the session cookie is cleared or marked as expired. Navigating to a protected route redirects back to https://app.phronex.com/auth/login. The old session token (if replayed via DevTools) is rejected with a 401 or redirect, confirming server-side session invalidation."
+      }
+    ],
+    "dependsOn": "cc-trunk-superadmin"
+  },
+  {
+    "id": "cc-cc-user-spec-1-actor-role-matrix",
+    "description": "[general] Cc User_Spec 1 Actor Role Matrix \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/login; if session file exists, restore storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'; otherwise fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, and click the submit/login button.",
+        "expected": "User is redirected to the dashboard or home page without seeing a login error. The authenticated session is active (nav header shows a user avatar or account menu, not a 'Sign In' CTA)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the ContentCompanion (CC) instance dashboard at http://localhost:8000 (or the CC product URL) and confirm the page loads without errors.",
+        "action": "mcp__playwright__browser_navigate to the CC dashboard root (e.g. http://localhost:8000); take a snapshot.",
+        "expected": "HTTP 200. Page title or heading references 'ContentCompanion' or 'CC'. No JS console errors of severity ERROR. No 'Unauthorized' or 5xx banners visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify the Anonymous actor row is represented correctly: confirm that unauthenticated access to the chat widget endpoint returns a valid anonymous JWT via POST /api/v1/auth/anonymous with a known instance_id.",
+        "action": "mcp__playwright__browser_network_request \u2014 send POST http://localhost:8000/api/v1/auth/anonymous with body {\"instance_id\": \"maxine\"}; capture response body and status.",
+        "expected": "Response status 200. Body contains keys: 'token' (non-empty string, JWT format with 3 dot-separated segments), 'user_id' (UUID v4 pattern), 'session_id' (UUID v4 pattern). No error_code field present."
+      },
+      {
+        "id": 4,
+        "description": "Verify anonymous rate-limit contract: replay POST /api/v1/auth/anonymous 21 times in rapid succession from the same IP to confirm the 20/hour per-IP ceiling is enforced.",
+        "action": "mcp__playwright__browser_evaluate \u2014 execute a loop of 21 fetch calls to POST /api/v1/auth/anonymous with body {\"instance_id\": \"maxine\"} and collect all response statuses.",
+        "expected": "First 20 responses return 200. The 21st response returns 429 (Too Many Requests). Response body of the 429 contains an error or rate_limit indicator."
+      },
+      {
+        "id": 5,
+        "description": "Verify that an invalid instance_id is rejected by the anonymous auth endpoint (TO-AUTH-02).",
+        "action": "mcp__playwright__browser_network_request \u2014 send POST http://localhost:8000/api/v1/auth/anonymous with body {\"instance_id\": \"../hack\"}.",
+        "expected": "Response status 400. Body contains error_code: 'INVALID_INSTANCE_ID'."
+      },
+      {
+        "id": 6,
+        "description": "Verify the Authenticated User actor row: use POST /api/v1/auth/identify (or POST /api/v1/auth/embed with HMAC) to obtain a 30-day JWT for a known returning user.",
+        "action": "mcp__playwright__browser_network_request \u2014 send POST http://localhost:8000/api/v1/auth/identify with a valid returning-user payload (email or external_id belonging to the QA test account); capture status and response body.",
+        "expected": "Response status 200. Body contains 'token' (JWT, 30-day expiry decodable from the exp claim), 'user_id', 'session_id'. Token role claim does NOT include 'instance_owner'."
+      },
+      {
+        "id": 7,
+        "description": "Verify the Instance Owner actor row: authenticate using the superadmin/instance-owner JWT and confirm the three owner-visible tabs (Overview, Analytics, Info & Connections) all load without errors.",
+        "action": "Using the authenticated session from step 1, navigate to the CC instance owner dashboard. Locate and click the 'Overview' tab, then 'Analytics' tab, then 'Info & Connections' tab; take a screenshot after each tab activation.",
+        "expected": "Each of the three tabs loads content without a 4xx/5xx banner and without blank/spinner-stuck state. Tab labels 'Overview', 'Analytics', and 'Info & Connections' are all visible in the tab bar. Active tab is visually highlighted after each click."
+      },
+      {
+        "id": 8,
+        "description": "On the Overview tab, verify instance owner scope: confirm that instance-specific data (instance name, connection status, or usage summary) is rendered and scoped to the current instance.",
+        "action": "Remain on the Overview tab; take a DOM snapshot and extract visible text within the main content area.",
+        "expected": "At least one of: instance name, instance_id, or a usage/session metric is visible. No cross-instance data is exposed. No 'Unauthorized' or 'Access Denied' message."
+      },
+      {
+        "id": 9,
+        "description": "On the Analytics tab, verify that analytics data loads and the chart or table renders without JS errors.",
+        "action": "Click the 'Analytics' tab; wait for any loading spinner to disappear; take a screenshot; check browser console for ERROR-level messages.",
+        "expected": "Analytics content area is populated (chart, table, or at minimum a 'no data yet' empty state message). Zero ERROR-level console messages related to analytics loading."
+      },
+      {
+        "id": 10,
+        "description": "On the Info & Connections tab, verify that instance configuration fields are editable and that a no-op save (submitting unchanged values) completes without error.",
+        "action": "Click the 'Info & Connections' tab; identify a text input field (e.g. instance display name or webhook URL); note the current value; click Save or Submit without changing any value.",
+        "expected": "Form submission returns a 200 (or equivalent success toast/confirmation). The field retains its original value after save. No validation error is displayed for an unchanged valid value."
+      },
+      {
+        "id": 11,
+        "description": "Validate that the Chat (SSE stream) endpoint is reachable for an authenticated user: send POST /api/v1/chat/message with a minimal message payload and confirm SSE token events are emitted.",
+        "action": "mcp__playwright__browser_evaluate \u2014 using the 30-day JWT from step 6, open an EventSource or fetch with ReadableStream to POST /api/v1/chat/message with a test message body; collect the first 3 SSE events or wait up to 10 seconds.",
+        "expected": "At least one SSE event is received with event type 'token' or 'delta'. No immediate 4xx error. Stream does not close immediately with an error event."
+      },
+      {
+        "id": 12,
+        "description": "Navigate to the portal dashboard at http://localhost:3002 (phronex-portal), then return to the CC dashboard, and verify that the authenticated session and any previously loaded instance data persist without re-authentication.",
+        "action": "mcp__playwright__browser_navigate to http://localhost:3002; wait for the portal home page to load; then navigate back to the CC instance owner dashboard URL.",
+        "expected": "User remains authenticated (no redirect to login). The CC dashboard tabs (Overview, Analytics, Info & Connections) are still accessible. Previously visible instance data is still shown without a full reload prompt."
+      },
+      {
+        "id": 13,
+        "description": "Hard-refresh the CC dashboard page (Ctrl+F5 / force reload) and verify the actor/role access boundaries are re-enforced correctly after a cold page load.",
+        "action": "mcp__playwright__browser_press_key with key 'F5' (or navigate to the same CC dashboard URL again to simulate a fresh load); wait for page to fully render; check for authenticated state indicators.",
+        "expected": "Page reloads without showing a login screen (session cookie/token is restored from storage). Instance Owner tabs remain visible and accessible. No JS error on cold load."
+      },
+      {
+        "id": 14,
+        "description": "Attempt to access an Instance Owner route using only an Anonymous JWT (obtained in step 3) and verify it is rejected.",
+        "action": "mcp__playwright__browser_network_request \u2014 send a GET or POST request to an instance-owner-only endpoint (e.g. analytics summary or instance config) with Authorization: Bearer <anonymous_token_from_step_3>.",
+        "expected": "Response status 401 or 403. Body contains an error code indicating insufficient role/scope. The anonymous token is NOT treated as an owner-level credential."
+      },
+      {
+        "id": 15,
+        "description": "Take a final screenshot of the CC dashboard in the authenticated instance-owner view to archive evidence of the complete Actor / Role Matrix journey.",
+        "action": "mcp__playwright__browser_take_screenshot with full-page option; save as evidence for this journey run.",
+        "expected": "Screenshot captures the CC dashboard with at least one owner-visible tab active, authenticated user indicator present, and no error banners. Journey completes without unhandled exceptions."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
