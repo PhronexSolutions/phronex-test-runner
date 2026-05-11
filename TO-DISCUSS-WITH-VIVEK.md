@@ -559,3 +559,19 @@ The Run 7 tester was looking under an admin-only panel, not the user-facing side
 Same split applied to jp-jp-scan-history → `jp-jp-scan-history-extended`.
 
 **No decision needed** — fix committed `4d5131c`. Noting for awareness that this pattern (long CRUD-heavy journeys hitting timeout) may recur as more features are added.
+
+---
+
+## D-21: CC /me/data-export has no UI surface in portal (2026-05-11)
+
+**What happened:** Defect #962 filed: `routes_data_export.py` has a complete GDPR data portability endpoint (`GET /me/data-export`) that returns a ZIP of all user data (profile, conversations, usage, instances). The portal admin panel (`UsersClient`) has admin-level GDPR export (`/admin/users/{userId}/export`) already wired. But the self-serve `/me/data-export` (for end users to export their own data) has no UI trigger anywhere.
+
+**Root cause:** `/me/data-export` is auth-gated to the calling user's own data (not admin). It belongs in a user-facing "Account Settings" or "Privacy" panel — NOT in the portal's admin section. The portal is owner/admin facing. The appropriate surface would be either:
+- A) CC widget account panel (settings page inside the widget, authenticated via CC JWT)
+- B) A future dedicated CC account settings page in the portal (for `phronex_auth` sourced users)
+
+**Current state:** Backend complete and tested. Admin export working. Self-serve export has no trigger.
+
+**Decision needed:** Where should the self-serve GDPR export button live? Widget account panel (Option A) or future portal page (Option B)? Option A requires widget changes; Option B requires a new portal page under `/cc/account/`.
+
+**No action until decision.** Defect #962 closed as `DEFERRED` pending this decision.
