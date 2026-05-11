@@ -903,11 +903,11 @@
       },
       {
         "id": 2,
-        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({tier:'pro'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 with checkout_url or payment link. A 422/400 means tier name is wrong \u2014 try 'starter' or check billing/status first."
+        "description": "Using page.evaluate() with TOKEN: fetch('/api/v1/billing/checkout', {method:'POST', headers:{'Authorization':'Bearer '+TOKEN, 'Content-Type':'application/json'}, body:JSON.stringify({tier:'premium', customer_name:'JH QA Test', customer_email:'qa-billing-test@phronex.com'})}).then(r=>r.json().then(body=>({status:r.status, body}))). Expect HTTP 200 with checkout_url or payment link. A 422/400 means tier name is wrong \u2014 try 'starter' or check billing/status first."
       },
       {
         "id": 3,
-        "description": "Verify checkout response: (a) HTTP 200, (b) response contains 'checkout_url' or 'payment_link' (a Razorpay URL), (c) no 500 error. If tier 'pro' returns 400, PASS with note 'tier name needs confirmation from billing/status'."
+        "description": "Verify checkout response: (a) HTTP 200, (b) response contains 'checkout_url' or 'payment_link' (a Razorpay URL), (c) no 500 error. CC has two tiers: 'free' and 'premium'. If 'premium' checkout returns 402/503 (billing_disabled) or Razorpay is not configured, PASS with note 'billing adapter not configured on this server from billing/status'."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
