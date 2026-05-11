@@ -465,3 +465,15 @@ If it fails, run `pip install pydantic[email]` before restarting the service. Th
 **Missing mitigation:** The deploy workflow has no guard against this. Recommendation: add a pre-deploy validation step that runs `python3 -c "import json; d=json.load(open('.next/routes-manifest.json')); assert isinstance(d.get('dataRoutes'), list), 'CORRUPT: dataRoutes missing'"` before rsyncing to EC2. If it fails, abort and surface the error.
 
 **No decision needed** — but flagging so the issue and its recovery pattern is documented. The memory note exists but this was the first time it caused a real production outage (3h portal downtime, full JP Run 5 cascade failure due to 502s during the window).
+
+## D-19: JP depth-2 journeys failing due to missing session state loading (2026-05-11)
+
+**What happened:** All `jp-verify-*` journeys (depth-2, depend on `jp-branch-*`) failed with "Cannot access page - redirected to login page" in JP Run 6. The `jp-branch-*` journeys (depth-1, depend on `jp-trunk-main`) passed fine.
+
+**Root cause:** cc-test-runner automatically inherits session context for depth-1 children of `jp-trunk-main` (which has `stateOutputPath`). But `jp-branch-*` journeys don't save their own `stateOutputPath`, so depth-2 children (`jp-verify-*`) start fresh with no session. When they navigate to a protected page without loading session state, they get redirected to login — and then hit rate limiting.
+
+**Resolution this session:** Added explicit session loading step 1 to all 9 `jp-verify-*` journeys, instructing them to load `jp-trunk-main-state.json` before navigating. Committed `9f0ac5e`.
+
+**Remaining question:** Should `jp-branch-*` journeys save their own intermediate state (like a `jp-branch-jobs-list-state.json`) for proper chain inheritance? Currently the trunk state is used end-to-end. This is a spec design decision — no code change needed either way, just a question of whether intermediate states add value for test isolation.
+
+**No decision needed** — current fix works. Flagging for awareness.
