@@ -432,7 +432,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -460,7 +460,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Extract token. Store as VISITOR_TOKEN."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). Using page.evaluate(): fetch('/api/v1/auth/anonymous', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({instance_id:'e2e-test-instance'})}).then(r=>r.json()). Expect HTTP 200. Extract token. Store as VISITOR_TOKEN."
       },
       {
         "id": 2,
@@ -486,7 +486,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -512,7 +512,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -538,7 +538,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -564,7 +564,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -611,7 +611,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -649,7 +649,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -675,7 +675,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -701,7 +701,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -801,7 +801,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -853,7 +853,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -883,7 +883,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com (widget domain) to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health (widget domain health endpoint) to establish same-origin browser context \u2014 root / returns 404, health returns 200. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
@@ -1013,7 +1013,7 @@
     "steps": [
       {
         "id": 0,
-        "description": "Navigate to https://cc.phronex.com to establish same-origin browser context. All subsequent fetch() calls use relative paths to avoid CORS restrictions."
+        "description": "Navigate to https://cc.phronex.com/api/v1/health to establish same-origin browser context (the root / returns 404; health endpoint returns 200 JSON). All subsequent fetch() calls use relative paths to avoid CORS restrictions."
       },
       {
         "id": 1,
