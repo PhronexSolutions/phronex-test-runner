@@ -103,11 +103,11 @@
       },
       {
         "id": 3,
-        "description": "If users are listed: verify each user row displays at minimum an identifier (email or anonymous ID) and does NOT show a raw 'undefined' or 'null' for the flagged status column. Look for a flag/badge icon or a 'Flagged' column \u2014 its presence confirms is_flagged is in the SELECT."
+        "description": "Check what the users count display shows. IMPORTANT: distinguish two cases \u2014 (A) the page shows '0 of N users' where N > 0 AND the table body is empty: this is a portal bundle staleness issue (source filter bug, fixed in portal commit 8e35075 \u2014 not yet deployed to EC2). Record this as INFRASTRUCTURE, not a product defect. (B) the API returns a 500 or the page crashes with a JS error: this IS a product defect, record and fail. If users ARE rendered, verify each row shows an identifier (email or anonymous ID) and no raw 'undefined' or 'null' for the flagged column."
       },
       {
         "id": 4,
-        "description": "Navigate to https://app.phronex.com/cc/all-users (superadmin cross-instance view). Verify this page loads without a 500 error. If it shows users, verify the flagged status indicator is visible here too. A crash on this page with a different error than #241 should be recorded as a new defect."
+        "description": "Navigate to https://app.phronex.com/cc/all-users (superadmin cross-instance view). Verify this page loads without a 500 error. Same distinction as Step 3: '0 of N' with empty table = bundle staleness (INFRASTRUCTURE), JS crash = product defect. If users render, verify flagged status indicator is visible."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
