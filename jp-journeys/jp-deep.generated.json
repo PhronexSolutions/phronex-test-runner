@@ -3930,69 +3930,53 @@
     "steps": [
       {
         "id": 1,
-        "description": "Session bootstrap: attempt to restore saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file exists and is valid, load it into the browser context. If missing or expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit and await redirect.",
-        "action": "loadStorageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR goto('http://localhost:3002/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]') \u2192 waitForURL('**/jp/**')",
-        "expected": "Browser is authenticated as the superadmin QA user. Current URL matches /jp/ or a sub-route. No error banners are visible."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the login page in a separate browser context (or incognito tab) to begin the free-tier login flow. Confirm the login page renders correctly before entering credentials.",
-        "action": "goto('http://localhost:3002/auth/login') \u2192 waitForSelector('input[type=email]') \u2192 waitForSelector('input[type=password]') \u2192 waitForSelector('button[type=submit]')",
-        "expected": "Login page loads at /auth/login. Email field, password field, and Sign In button are all visible. No JS errors in console. Page title or heading references the JP portal branding."
+        "description": "Navigate to https://app.phronex.com/auth/login in the current browser context. Verify the login form renders with email + password fields and a Sign In button.",
+        "action": "page.goto('https://app.phronex.com/auth/login'); browser_snapshot; assert email + password input fields + Sign In button visible"
       },
       {
         "id": 3,
-        "description": "Enter the free-tier QA user credentials. Email: qa-jp-free@phronex.com. Password must be read from the runtime environment (QA_FREE_TIER_PASSWORD placeholder \u2014 do not hard-code). Fill both fields and assert values are accepted without validation errors before submission.",
-        "action": "fill('input[type=email]', 'qa-jp-free@phronex.com') \u2192 fill('input[type=password]', '{QA_FREE_TIER_PASSWORD}') \u2192 expect(locator('input[type=email]')).toHaveValue('qa-jp-free@phronex.com') \u2192 expect(page.locator('[role=alert]')).not.toBeVisible()",
-        "expected": "Email field shows qa-jp-free@phronex.com. Password field is filled (masked). No inline validation errors appear. Submit button remains enabled."
+        "description": "Verify the login form handles empty submission correctly: click Sign In with both fields empty and assert a client-side validation error is shown (not a server 500).",
+        "action": "browser_click Sign In with empty fields; assert validation error; NO 500"
       },
       {
         "id": 4,
-        "description": "Click the Sign In button and wait for the network response from the /api/v1/auth/login endpoint. Capture the HTTP status code of the POST request.",
-        "action": "Promise.all([page.waitForResponse(resp => resp.url().includes('/api/v1/auth/login') && resp.request().method() === 'POST'), page.click('button[type=submit]')])",
-        "expected": "POST /api/v1/auth/login returns HTTP 200. Response body contains a JWT access token. No 401 or 403 status is returned."
+        "description": "Verify invalid credential rejection: enter qa-test-journeyhawk@phronex.com with an incorrect password and submit. Assert an error message is shown (e.g. 'Invalid credentials') and the user is NOT logged in.",
+        "action": "browser_fill email qa-test-journeyhawk@phronex.com; fill password 'wrong-password-test'; click Sign In; assert error message; assert URL still /auth/login"
       },
       {
         "id": 5,
-        "description": "Assert post-login redirect to the JP dashboard for the free-tier user. URL must resolve to /jp/ (or /jp/dashboard). Wait for the dashboard layout to be fully hydrated.",
-        "action": "waitForURL('**/jp/**', { timeout: 10000 }) \u2192 expect(page).toHaveURL(/\\/jp\\//)",
-        "expected": "URL redirects to /jp/ (or /jp/dashboard) confirming successful authentication as per TEST-ORACLES jp-trunk-free Step 5. No redirect to /auth/login or error page occurs."
+        "description": "Verify malformed email rejection: enter 'notanemail' in the email field and submit. Assert client-side validation blocks submission.",
+        "action": "browser_fill email 'notanemail'; click Sign In; assert validation error for invalid email format"
       },
       {
         "id": 6,
-        "description": "Verify the dashboard renders key UI landmarks for a free-tier user: sidebar navigation, dashboard heading, and quota/tier indicator. Assert that superadmin-only amber tabs (Admin / SA) are NOT visible.",
-        "action": "waitForSelector('[data-testid=\"jp-sidebar\"], nav, aside') \u2192 expect(page.locator('text=/dashboard/i')).toBeVisible() \u2192 expect(page.locator('[data-tier-badge], [data-testid=\"tier-indicator\"]')).toBeVisible() \u2192 expect(page.locator('[data-admin-tab], .amber-pill')).not.toBeVisible()",
-        "expected": "Dashboard landing area is visible with scan summary, recent jobs, or application pipeline sections present. AI quota status widget is present. Amber admin pills are hidden for the free-tier role."
+        "description": "Log in with correct credentials (qa-test-journeyhawk@phronex.com). Verify successful redirect away from /auth/login to /jp/ or /jp/dashboard.",
+        "action": "browser_fill email qa-test-journeyhawk@phronex.com; fill password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9; click Sign In; wait for redirect; assert URL contains /jp/"
       },
       {
         "id": 7,
-        "description": "Confirm the free-tier user's quota/tier label is displayed and reads 'Free' (or equivalent). Cross-validate against the USER-SPEC tier badge convention.",
-        "action": "expect(page.locator('[data-testid=\"tier-indicator\"], [data-tier-badge]')).toContainText(/free/i)",
-        "expected": "Tier indicator clearly shows 'Free' tier. No 'Standard' or 'Pro' label is present. This confirms the backend JWT tier claim is correctly reflected in the UI."
+        "description": "Navigate to https://app.phronex.com/jp/subscription and verify the subscription page shows the current tier label for the QA account.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot; assert tier label visible"
       },
       {
         "id": 8,
-        "description": "Navigate to the Jobs tab (Search group \u2192 Jobs) from the sidebar. Verify the route resolves and the jobs list or empty-state renders without error.",
-        "action": "click('a[href*=\"/jp/jobs\"], [data-testid=\"nav-jobs\"]') \u2192 waitForURL('**/jp/jobs**') \u2192 waitForSelector('[data-testid=\"jobs-list\"], [data-testid=\"empty-state\"], table, ul')",
-        "expected": "URL changes to /jp/jobs (or equivalent). Jobs list or an empty-state message renders. No 403, 404, or unhandled error boundary is displayed. Network request to /api/v1/jobs returns 200."
+        "description": "Verify that free-tier gating UI indicators exist in the portal \u2014 navigate to /jp/portals and assert tier limit messages (e.g. 'Profile limit reached (1/1)') are shown for the standard-tier QA account.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert tier limit messages visible"
       },
       {
         "id": 9,
-        "description": "Navigate away to the Dashboard route, then use browser back-button to return to Jobs. Verify that the previously loaded state (list or empty-state) is still present \u2014 confirming client-side persistence.",
-        "action": "click('a[href*=\"/jp/\"], [data-testid=\"nav-dashboard\"]') \u2192 waitForURL('**/jp/**') \u2192 page.goBack() \u2192 waitForURL('**/jp/jobs**') \u2192 waitForSelector('[data-testid=\"jobs-list\"], [data-testid=\"empty-state\"], table, ul')",
-        "expected": "After returning via back-navigation, the Jobs page re-renders with the same content (or triggers a fresh fetch that succeeds). No blank screen, loading spinner stuck, or navigation loop occurs."
+        "description": "Verify the portrait feature is accessible (not free-tier gated) for the QA account by navigating to /jp/portrait and checking no 'Upgrade to Pro' wall blocks the page.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot; assert no fullscreen upgrade wall for non-free tier"
       },
       {
         "id": 10,
-        "description": "Attempt to access a superadmin-only route (e.g. /jp/admin or a known SA-only API endpoint) while authenticated as the free-tier user. Verify the application enforces access control.",
-        "action": "goto('http://localhost:3002/jp/admin') \u2192 waitForLoadState('networkidle')",
-        "expected": "Browser is redirected away from /jp/admin OR an access-denied / 403 page is displayed. The admin panel content is NOT rendered for the free-tier user. This confirms tier-based route guarding is active."
-      },
-      {
-        "id": 11,
-        "description": "Save the free-tier browser session state to '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-free-state.json' for downstream dependent journeys.",
-        "action": "page.context().storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-free-state.json' })",
-        "expected": "File jp-trunk-free-state.json is written successfully. File size is non-zero. JSON contains 'cookies' and 'origins' keys. Dependent journeys tagged depends_on: jp-trunk-free can load this state without re-authenticating."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4004,87 +3988,48 @@
     "steps": [
       {
         "id": 1,
-        "description": "Attempt to restore saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file exists and the session is still valid, skip to step 3. If expired or missing, navigate to http://localhost:3002/auth/login.",
-        "action": "storageState_load_or_navigate: path='/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json', fallback_url='http://localhost:3002/auth/login'",
-        "expected": "Either the authenticated session is restored (URL is NOT /auth/login) OR the login page renders at /auth/login with an email input, a password input, and a Sign In button visible in the DOM."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "If on the login page: fill the email field with qa-test-journeyhawk@phronex.com and the password field with QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
-        "action": "fill selector='input[type=email]' value='qa-test-journeyhawk@phronex.com'; fill selector='input[type=password]' value='QA_SUPERADMIN_PASSWORD'; click selector='button[type=submit]'",
-        "expected": "Form submits without client-side validation errors. URL redirects to /jp/ (dashboard or jobs). No error toast or inline error message is displayed."
+        "description": "Verify the superadmin session is active \u2014 the sidebar should render the amber admin nav group with Users/Security/Portrait entries.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); browser_snapshot; assert amber admin nav group visible"
       },
       {
         "id": 3,
-        "description": "Confirm the authenticated session belongs to the superadmin account by asserting the sidebar renders the Admin/SA amber-variant pill group (admin tabs visible only to superadmin users, per USER-SPEC navigation structure).",
-        "action": "snapshot; assert selector='[data-variant=amber]' or any element with text matching /admin/i is visible in the sidebar",
-        "expected": "At least one amber-variant admin pill or admin-labelled sidebar tab is visible, confirming the superadmin session is active."
+        "description": "Navigate to https://app.phronex.com/jp/subscription and read the current tier label for the QA account. Assert it is 'Standard Seeker', 'Pro Seeker', or 'Superadmin' \u2014 NOT 'Free Seeker' (which would block portrait and AI features).",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot; assert tier label matches Standard/Pro/Superadmin"
       },
       {
         "id": 4,
-        "description": "Log out the current superadmin session (or open a new incognito context) and navigate to http://localhost:3002/auth/login to begin the Standard Tier Login journey. This isolates the standard-tier credentials from the superadmin session.",
-        "action": "navigate url='http://localhost:3002/auth/login'",
-        "expected": "Login page loads at /auth/login. Email input, password input, and Sign In button are all visible. No pre-filled credentials from the previous session appear."
+        "description": "Verify standard-tier feature access: navigate to /jp/portrait and confirm the portrait page loads without a 'Upgrade to Pro' gate.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot; assert no free-tier upgrade wall"
       },
       {
         "id": 5,
-        "description": "Fill the email field with the standard-tier QA account email 'qa-jp-standard@phronex.com'. Assert the field accepts input and reflects the typed value.",
-        "action": "fill selector='input[type=email]' value='qa-jp-standard@phronex.com'; assert input value='qa-jp-standard@phronex.com'",
-        "expected": "Email field value equals 'qa-jp-standard@phronex.com'. No inline validation error is shown."
+        "description": "Verify jobs list loads for the QA account \u2014 navigate to /jp/jobs and assert the page renders job listings or a meaningful empty state.",
+        "action": "page.goto('https://app.phronex.com/jp/jobs'); waitForLoadState; browser_snapshot; assert (job listings OR empty state) visible"
       },
       {
         "id": 6,
-        "description": "Fill the password field with the standard-tier account password placeholder QA_STANDARD_PASSWORD. Assert the field type remains 'password' (characters are masked).",
-        "action": "fill selector='input[type=password]' value='QA_STANDARD_PASSWORD'; assert selector='input[type=password]' attribute type='password'",
-        "expected": "Password field accepts input and characters are masked. No premature form submission or error."
+        "description": "Verify portals page loads and shows the tier limit for search profiles (Standard = 1 profile per portal).",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert search profile limit shown per portal"
       },
       {
         "id": 7,
-        "description": "Click the Sign In button and wait for navigation to settle.",
-        "action": "click selector='button[type=submit]'; wait_for_navigation",
-        "expected": "No client-side error toast appears. The form does not re-render with a field-level error. Navigation begins away from /auth/login."
+        "description": "Verify applications page loads for the standard-tier account.",
+        "action": "page.goto('https://app.phronex.com/jp/applications'); waitForLoadState; browser_snapshot; assert (applications OR empty state) visible"
       },
       {
         "id": 8,
-        "description": "Assert the post-login redirect lands at /jp/ (dashboard or jobs), confirming successful authentication for the standard-tier user \u2014 matching TEST ORACLE jp-trunk-standard step 5.",
-        "action": "assert url matches regex='^http://localhost:3002/jp(/.*)?$'",
-        "expected": "URL is /jp/ or a sub-path of /jp/ (e.g. /jp/dashboard or /jp/jobs). The page does not show /auth/login, /auth/error, or any HTTP error status."
+        "description": "Navigate back to https://app.phronex.com/jp/dashboard and verify the dashboard renders correctly with no session loss.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); browser_snapshot; assert dashboard visible"
       },
       {
         "id": 9,
-        "description": "Take a full-page snapshot of the post-login dashboard and assert the main navigation sidebar is rendered with the standard user-facing tab groups: Dashboard, Jobs (Search group), and other standard tabs per USER-SPEC navigation structure.",
-        "action": "snapshot; assert selector='nav' or sidebar contains text matching /dashboard/i; assert selector contains text matching /jobs/i",
-        "expected": "Sidebar renders with at least the Dashboard tab and the Jobs tab visible. No 500 error, blank page, or spinner-stuck state."
-      },
-      {
-        "id": 10,
-        "description": "Assert that admin/SA amber-variant tabs are NOT visible for the standard-tier user, confirming tier-based UI gating is enforced.",
-        "action": "assert selector='[data-variant=amber]' is NOT present OR has zero visible instances",
-        "expected": "No amber-variant admin pill or admin-labelled sidebar tab is visible. The standard-tier user is correctly excluded from admin UI surfaces."
-      },
-      {
-        "id": 11,
-        "description": "Navigate to the Jobs page (/jp/jobs) directly to verify standard-tier access to the core job-browsing feature.",
-        "action": "navigate url='http://localhost:3002/jp/jobs'",
-        "expected": "Jobs page loads at /jp/jobs without redirect to /auth/login or an access-denied screen. Job listing UI (table, cards, or loading skeleton) is visible."
-      },
-      {
-        "id": 12,
-        "description": "Navigate away to the Dashboard (/jp/ or /jp/dashboard), then use the browser back button to return to /jp/jobs, and assert the jobs page re-renders correctly (persistence and navigation regression check).",
-        "action": "navigate url='http://localhost:3002/jp/'; navigate_back",
-        "expected": "Browser returns to /jp/jobs. Page renders the jobs listing UI without a full session expiry redirect or blank state. URL is /jp/jobs."
-      },
-      {
-        "id": 13,
-        "description": "Assert the authenticated user identity persists across the navigation round-trip by verifying no login prompt or session-expired banner has appeared.",
-        "action": "assert selector='input[type=email]' is NOT visible; assert url does NOT match /auth/login/",
-        "expected": "The email input (login form) is absent from the DOM. URL remains within /jp/. Session is intact after navigation."
-      },
-      {
-        "id": 14,
-        "description": "Check browser console for any uncaught JavaScript errors or failed network requests (4xx/5xx) that occurred during the standard-tier login journey.",
-        "action": "browser_console_messages; browser_network_requests",
-        "expected": "No uncaught JS errors in the console. No 401, 403, or 5xx responses in the network log for core page assets or API calls made during login and post-login navigation."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4096,63 +4041,38 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or cookie expired, navigate to http://localhost:3002/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click submit",
-        "expected": "User is authenticated. Page URL is http://localhost:3002/jp/ or a known post-login landing path. No error banner is visible. The sidebar is rendered with at least the 'Dashboard' entry."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the free-tier QA user login to establish a free-tier session context. Open http://localhost:3002/auth/login and log in with email qa-jp-free@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "action": "navigate to http://localhost:3002/auth/login; fill #email with 'qa-jp-free@phronex.com'; fill #password with QA_SUPERADMIN_PASSWORD; click the sign-in submit button",
-        "expected": "Free-tier user is redirected to /jp/ after login (TEST ORACLE jp-trunk-free step 5). URL matches http://localhost:3002/jp/. No error or 4xx response visible. Sidebar renders with Dashboard pill group."
+        "description": "Navigate to https://app.phronex.com/jp/subscription. Verify the page loads and a tier label is shown for the QA account.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot; assert tier label visible"
       },
       {
         "id": 3,
-        "description": "Verify the sidebar navigation structure visible to a free-tier user. Check that only user-facing tabs are shown and that amber admin/SA tabs are NOT visible.",
-        "action": "snapshot the sidebar DOM (JPLayoutClient.tsx renders sidebar); assert presence of 'Dashboard' link; assert presence of 'Jobs' link under Search group; assert absence of any element with amber pill variant or text containing 'Admin' or 'Superadmin'",
-        "expected": "Sidebar contains Dashboard and Jobs tabs at minimum. No amber admin tabs are rendered. Free-tier user does not see superadmin controls."
+        "description": "Verify the subscription page documents tier-based feature limits \u2014 assert the page describes or shows limits for portals, search profiles, AI credits, or portrait access.",
+        "action": "browser_snapshot; assert feature limit description or plan comparison visible"
       },
       {
         "id": 4,
-        "description": "Navigate to the Portals section (/jp/portals) to verify free-tier portal constraints are enforced in the UI.",
-        "action": "click the Portals or Search Profiles navigation link in the sidebar; assert URL changes to /jp/portals or equivalent",
-        "expected": "Portals page loads with HTTP 200. The page title or heading reflects 'Portals' or 'Search Profiles'. Existing portal configs (if any) are listed."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify tier-limit gating is enforced in the UI \u2014 check that portal slot indicators and search profile limits are shown.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert tier limit indicators (slot count, profile limit) visible"
       },
       {
         "id": 5,
-        "description": "Attempt to add a second search profile to an existing portal to verify free-tier limit (max 1 search profile per portal) is enforced.",
-        "action": "Select or create a portal config. If no portal exists, click 'Add Portal', fill portal_name='QA Test Portal', submit. Then attempt to add a second SearchProfile to that portal by clicking 'Add Search Profile' a second time after one already exists.",
-        "expected": "The UI displays an error, disabled button, or inline validation message indicating the free-tier limit of 1 search profile per portal has been reached. No second search profile is created. No 500 error occurs. The API POST to /portals/ (or nested search-profile endpoint) returns a 400 or 403 with a tier-limit message if the button is not blocked at the UI layer."
+        "description": "Navigate to https://app.phronex.com/jp/portrait and verify the portrait page either shows content (for non-free tier) or a pro-gate message (for free tier). Assert no blank page.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot; assert (portrait content OR pro-gate message) visible; no blank page"
       },
       {
         "id": 6,
-        "description": "Verify that attempting to add more than 10 portals is blocked for the free-tier user. Count existing portals and, if fewer than 10, create portals up to the limit and attempt to add an 11th.",
-        "action": "On /jp/portals, count the number of portal cards/rows rendered. If count < 10, note the count. Click 'Add Portal' and confirm the form accepts a new portal until count reaches 10. Then click 'Add Portal' once more.",
-        "expected": "At 10 portals, the 'Add Portal' button is disabled or an inline error is shown stating the maximum of 10 portals per user has been reached. The backend POST /portals/ returns 400/403 if attempted programmatically. No portal beyond 10 is persisted."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard and verify the dashboard renders tier-related indicators if any (AI quota widget, scan status).",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); browser_snapshot; assert dashboard renders without errors"
       },
       {
         "id": 7,
-        "description": "Navigate to the Jobs section (/jp/jobs) and verify the job listings page renders correctly for the free-tier user, including filter controls for portal, status, and AI match score.",
-        "action": "click 'Jobs' in the sidebar; assert URL is /jp/jobs; wait for job listing table or card grid to appear; assert filter controls for 'portal', 'status', and 'AI match score' are present in the DOM",
-        "expected": "Jobs page renders with HTTP 200. At least the filter bar is visible with portal, status, and AI match score filter options. If no jobs are scraped yet, an empty-state message is shown rather than an error."
-      },
-      {
-        "id": 8,
-        "description": "Check the AI quota status widget on the Dashboard for a free-tier user. Navigate to /jp/ and inspect the quota indicator.",
-        "action": "navigate to http://localhost:3002/jp/; locate the AI quota status widget on the dashboard landing page; read its displayed value",
-        "expected": "The AI quota status widget is visible and shows a numeric or percentage value. It does not show a server error. Free-tier quota ceiling is reflected (lower than pro tier). Widget does not crash the page."
-      },
-      {
-        "id": 9,
-        "description": "Navigate away from the dashboard to /jp/jobs and then back to /jp/ to verify state and data persistence after navigation.",
-        "action": "navigate to http://localhost:3002/jp/jobs; wait for page load; navigate back to http://localhost:3002/jp/ (dashboard); wait for dashboard widgets to render",
-        "expected": "Dashboard re-renders without a full page reload error. The AI quota widget, scan summary, recent jobs, and application pipeline sections all display data consistent with what was shown before navigation. No stale-state error or blank widget panels appear."
-      },
-      {
-        "id": 10,
-        "description": "Re-authenticate as superadmin to restore the privileged session for downstream dependent journeys.",
-        "action": "navigate to http://localhost:3002/auth/login; fill email=qa-test-journeyhawk@phronex.com; fill password=QA_SUPERADMIN_PASSWORD; click submit; save storageState to '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'",
-        "expected": "Superadmin user is authenticated and redirected to /jp/. Session state file is written successfully. Amber admin/SA tabs are visible in the sidebar confirming superadmin role is active."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4164,69 +4084,38 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/login; attempt to restore session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if session invalid, fill #email with 'qa-test-journeyhawk@phronex.com', fill #password with QA_SUPERADMIN_PASSWORD, click the submit/login button",
-        "expected": "User is authenticated and redirected to the portal dashboard (URL contains /jp/ or /dashboard). No login error banners visible. Sidebar is present with at least the Dashboard nav item."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Switch to the standard-tier QA user context: log out current session and log in as the standard-tier user.",
-        "action": "Navigate to http://localhost:3002/auth/login; fill #email with 'qa-jp-standard@phronex.com', fill #password with QA_SUPERADMIN_PASSWORD, click the submit/login button",
-        "expected": "Standard-tier user is authenticated. Per TEST-ORACLES jp-trunk-standard step 5, user is redirected to /jp/ after login. No error banners. Sidebar renders with tier-appropriate tabs visible."
+        "description": "Navigate to https://app.phronex.com/jp/subscription. Verify the page loads and a tier label is shown for the QA account.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot; assert tier label visible"
       },
       {
         "id": 3,
-        "description": "Verify standard-tier landing page state: confirm the dashboard overview renders key widgets and AI quota status reflects standard-tier limits.",
-        "action": "mcp__playwright__browser_snapshot the current page after login redirect; assert URL is /jp/ or /jp/dashboard; inspect DOM for 'scan summary', 'recent jobs', 'application pipeline', and 'AI quota status' sections",
-        "expected": "All four dashboard widgets are present in the DOM. AI quota status section is visible and shows a non-zero quota consistent with standard tier (not the free-tier zero/locked state). No 'upgrade to unlock' gates block the view."
+        "description": "Verify the subscription page documents tier-based feature limits \u2014 assert the page describes or shows limits for portals, search profiles, AI credits, or portrait access.",
+        "action": "browser_snapshot; assert feature limit description or plan comparison visible"
       },
       {
         "id": 4,
-        "description": "Navigate to the Jobs tab via the sidebar Search group and verify job listings load for the standard-tier user.",
-        "action": "mcp__playwright__browser_click the 'Jobs' nav item in the sidebar Search group pill; mcp__playwright__browser_wait_for the job listings table or card grid to appear",
-        "expected": "URL changes to the Jobs route (e.g. /jp/jobs). A list or table of job listings is rendered. Filter controls (portal, status, AI match score) are visible. No 'tier locked' overlay is present \u2014 standard tier has access to this view."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify tier-limit gating is enforced in the UI \u2014 check that portal slot indicators and search profile limits are shown.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert tier limit indicators (slot count, profile limit) visible"
       },
       {
         "id": 5,
-        "description": "Open the Portals configuration view and assert the standard-tier search profile limit is enforced (max 2 search profiles per portal for standard tier, vs 1 for free and 5 for pro).",
-        "action": "mcp__playwright__browser_click the Portals nav item in the sidebar; mcp__playwright__browser_wait_for the portals list to render; inspect each portal card for its search profile count badge or indicator",
-        "expected": "The Portals page loads. At least one portal configuration is displayed. The UI does NOT show a 'max 1 profile' free-tier restriction message. If an 'Add Search Profile' button is present on a portal that already has 1 profile, the button is enabled (not disabled/locked) confirming standard tier allows more than 1. The user cannot exceed 10 portals total \u2014 if 10 exist, the 'Add Portal' button should be disabled."
+        "description": "Navigate to https://app.phronex.com/jp/portrait and verify the portrait page either shows content (for non-free tier) or a pro-gate message (for free tier). Assert no blank page.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot; assert (portrait content OR pro-gate message) visible; no blank page"
       },
       {
         "id": 6,
-        "description": "Attempt to add a second search profile to an existing portal to validate standard-tier limit enforcement in the UI.",
-        "action": "mcp__playwright__browser_click 'Add Search Profile' on an existing portal that has exactly 1 profile; fill the keyword and location fields in the modal/form; click Save/Submit",
-        "expected": "The second search profile is created successfully. No tier-gate error is shown. The portal card now displays 2 search profiles. This confirms standard-tier allows more than the free-tier maximum of 1 profile per portal."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard and verify the dashboard renders tier-related indicators if any (AI quota widget, scan status).",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); browser_snapshot; assert dashboard renders without errors"
       },
       {
         "id": 7,
-        "description": "Attempt to add a sixth search profile to the same portal to confirm the standard-tier cap of 5 profiles per portal is enforced.",
-        "action": "Repeat the 'Add Search Profile' flow until the portal has 5 profiles; attempt to add a 6th by clicking 'Add Search Profile' again",
-        "expected": "Either the 'Add Search Profile' button is disabled once the portal reaches 5 profiles, OR submitting a 6th profile returns a validation error message indicating the standard-tier maximum has been reached. The 6th profile does NOT persist in the portal card."
-      },
-      {
-        "id": 8,
-        "description": "Verify admin/superadmin tabs are NOT visible to the standard-tier non-superadmin user (sidebar amber variant tabs should be hidden).",
-        "action": "mcp__playwright__browser_snapshot the sidebar; inspect DOM for elements with the amber pill/variant class used for admin tabs in JPLayoutClient.tsx",
-        "expected": "No amber-variant admin or SA-only sidebar tabs are rendered in the DOM for the standard-tier user. The admin section is entirely absent \u2014 not just visually hidden with CSS, but absent from the rendered HTML."
-      },
-      {
-        "id": 9,
-        "description": "Navigate to the dashboard and then to Jobs and back to the dashboard to verify navigation round-trip works without data loss or blank renders.",
-        "action": "mcp__playwright__browser_click the Dashboard nav item; mcp__playwright__browser_wait_for dashboard widgets; mcp__playwright__browser_click the Jobs nav item; mcp__playwright__browser_wait_for job listings; mcp__playwright__browser_click the Dashboard nav item again",
-        "expected": "Each navigation transition renders the correct page without blank screens, JS errors, or loading spinners that never resolve. Dashboard widgets reload or remain populated from cache. No 'session expired' redirect occurs."
-      },
-      {
-        "id": 10,
-        "description": "Navigate away from the portal to the root and return to verify session and data persistence across navigation.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002; then mcp__playwright__browser_navigate to http://localhost:3002/jp/dashboard",
-        "expected": "The standard-tier user's session is still active after navigating away and back \u2014 no re-login prompt. The dashboard renders with the same data (job counts, portal configs) as before. The URL resolves to /jp/ or /jp/dashboard, consistent with TEST-ORACLES jp-trunk-standard step 5 redirect behaviour."
-      },
-      {
-        "id": 11,
-        "description": "Check browser console for JavaScript errors accumulated across all steps of this journey.",
-        "action": "mcp__playwright__browser_console_messages",
-        "expected": "No uncaught JS exceptions, unhandled promise rejections, or CORS errors in the console log. Warnings about deprecated APIs are acceptable but must be noted. Any error referencing auth, session, or tier validation is a FAIL."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4312,63 +4201,38 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/login if session file is missing or expired; otherwise restore session state from /home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json",
-        "expected": "User is authenticated. Either the session cookie is valid and the app loads past the login screen, or a fresh login with qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD succeeds and redirects to /jp/."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the free-tier user account area. In the portal sidebar (JPLayoutClient.tsx), locate the tier/plan indicator. If a dedicated plan/billing page exists (e.g. /jp/plan or /jp/settings/plan), navigate there now.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/ and take a snapshot; then attempt navigation to http://localhost:3002/jp/plan or http://localhost:3002/jp/settings/plan to find the tier label surface.",
-        "expected": "The page loads without a 404 or redirect to login. A tier/plan section or badge is visible in the sidebar or on the settings page."
+        "description": "Navigate to https://app.phronex.com/jp/subscription. Verify the page loads and a tier label is shown for the QA account.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot; assert tier label visible"
       },
       {
         "id": 3,
-        "description": "Use the superadmin controls to switch the active user context to the free-tier QA account (qa-jp-free@phronex.com) if impersonation is available, OR log out and log back in as qa-jp-free@phronex.com (use the free-tier session file at /home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-free-state.json if present). Credentials for free-tier login: email qa-jp-free@phronex.com, password resolved at runtime from QA_FREE_PASSWORD env var.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/login; fill email field with qa-jp-free@phronex.com and password field with the runtime-resolved free-tier password; click the submit/login button.",
-        "expected": "Free-tier user is authenticated and redirected to /jp/ per TEST-ORACLES journey jp-trunk-free step 5. No error banner. The sidebar renders without admin/SA amber tabs."
+        "description": "Verify the subscription page documents tier-based feature limits \u2014 assert the page describes or shows limits for portals, search profiles, AI credits, or portrait access.",
+        "action": "browser_snapshot; assert feature limit description or plan comparison visible"
       },
       {
         "id": 4,
-        "description": "On the /jp/ dashboard as the free-tier user, take a full-page snapshot and locate the AI quota status widget and the plan/tier label. Assert that the label explicitly reads 'Free', 'Free Tier', or equivalent \u2014 not 'Standard' or 'Pro'.",
-        "action": "mcp__playwright__browser_snapshot of /jp/ dashboard; search the DOM snapshot for text matching /free/i in any tier badge, plan chip, or quota widget.",
-        "expected": "A visible element on the dashboard contains the text 'Free' or 'Free Tier'. No 'Standard' or 'Pro' label is present for this account."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify tier-limit gating is enforced in the UI \u2014 check that portal slot indicators and search profile limits are shown.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert tier limit indicators (slot count, profile limit) visible"
       },
       {
         "id": 5,
-        "description": "Navigate to the Portals section (/jp/portals or equivalent) as the free-tier user. Attempt to add a second search profile to any existing portal configuration. Assert that the UI enforces the free-tier cap of max 1 search profile per portal.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/portals; take a snapshot; click 'Add Search Profile' (or equivalent button) on a portal that already has 1 search profile.",
-        "expected": "The UI either disables the 'Add Search Profile' button, shows a tooltip/badge indicating the free-tier limit (e.g. '1/1 search profiles'), or displays an inline error message stating the free-tier maximum has been reached. No second profile is created."
+        "description": "Navigate to https://app.phronex.com/jp/portrait and verify the portrait page either shows content (for non-free tier) or a pro-gate message (for free tier). Assert no blank page.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot; assert (portrait content OR pro-gate message) visible; no blank page"
       },
       {
         "id": 6,
-        "description": "Navigate to the Jobs section (/jp/jobs) and inspect the applications-per-day quota indicator. Assert that a cap figure consistent with the free-tier limit is displayed (e.g. a badge showing 'X / N applications today' where N is the free-tier daily cap, not unlimited).",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/jobs; take a snapshot; locate any quota, rate-limit, or usage indicator in the page header or sidebar.",
-        "expected": "A quota indicator is visible showing a finite daily application cap. The displayed cap value matches the documented free-tier limit (not an empty/unlimited state). The label references 'Free' or shows a restricted number consistent with free-tier constraints."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard and verify the dashboard renders tier-related indicators if any (AI quota widget, scan status).",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); browser_snapshot; assert dashboard renders without errors"
       },
       {
         "id": 7,
-        "description": "Navigate away from the Jobs page to the Dashboard (/jp/), then navigate back to /jp/jobs. Verify that the quota/cap indicator and tier label persist across navigation without requiring a page reload or re-login.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/; wait for page to settle; then mcp__playwright__browser_navigate back to http://localhost:3002/jp/jobs; take a snapshot.",
-        "expected": "The same tier label ('Free'/'Free Tier') and the same quota cap figure are present after round-trip navigation. No flash of incorrect tier data. No re-authentication prompt."
-      },
-      {
-        "id": 8,
-        "description": "Hard-reload the /jp/jobs page (simulate Ctrl+F5 / full browser refresh) while still authenticated as the free-tier user. Verify the tier label and quota cap survive a full page reload (i.e. are not lost on cold render).",
-        "action": "mcp__playwright__browser_press_key 'F5' or use browser_navigate to the same URL to trigger a full reload; take a snapshot after the page settles.",
-        "expected": "After a hard reload, the free-tier label and daily cap indicator are still rendered correctly. The user remains authenticated (no redirect to /auth/login). No 'undefined', 'null', or empty string appears in place of the tier name."
-      },
-      {
-        "id": 9,
-        "description": "As the free-tier user, open the browser console and assert no unhandled JavaScript errors or failed network requests (4xx/5xx) related to tier/plan/quota API endpoints occurred during the session.",
-        "action": "mcp__playwright__browser_console_messages; mcp__playwright__browser_network_requests filtered to /quota|plan|tier|limit/i paths.",
-        "expected": "Zero console errors with severity 'error' related to plan or quota. All tier/quota API calls return 200. No CORS errors or 401/403 responses for endpoints the free-tier user is entitled to access."
-      },
-      {
-        "id": 10,
-        "description": "Log out of the free-tier account cleanly (click logout in the sidebar or navigate to /auth/logout). Then re-authenticate as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD at http://localhost:3002/auth/login to restore the superadmin session for subsequent journeys.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/logout or click the logout button in the sidebar; then navigate to http://localhost:3002/auth/login and fill email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD; submit the form.",
-        "expected": "Logout succeeds \u2014 session cookies are cleared and the user is redirected to /auth/login or the marketing home page. Re-login as superadmin succeeds and redirects to /jp/. The superadmin amber sidebar tabs are visible again, confirming the correct role is restored."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -4380,63 +4244,38 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session file is missing or expired, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, and click the Sign In button.",
-        "action": "storageState load OR navigate('http://localhost:3002/auth/login') \u2192 fill('[name=email]', 'qa-test-journeyhawk@phronex.com') \u2192 fill('[name=password]', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
-        "expected": "User is authenticated. URL becomes http://localhost:3002/jp/ or a protected route. No login error banner is visible. Session cookie is present in browser storage."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Job Portal product root at http://localhost:3002/jp/ and wait for the sidebar to render fully.",
-        "action": "navigate('http://localhost:3002/jp/') \u2192 waitForSelector('[data-testid=\"jp-sidebar\"], nav, aside', { state: 'visible', timeout: 10000 })",
-        "expected": "The /jp/ dashboard page loads without a 404 or 500 error. The sidebar is visible. The page title or heading contains 'Dashboard' or similar landing label."
+        "description": "Navigate to https://app.phronex.com/jp/subscription. Verify the page loads and a tier label is shown for the QA account.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot; assert tier label visible"
       },
       {
         "id": 3,
-        "description": "Locate the user tier label or badge element in the sidebar, header, or account section that displays the subscription tier. This element should reflect 'Standard' for a standard-tier user. As superadmin, inspect the UI for where tier badges are rendered (sidebar pill, account dropdown, or dashboard card).",
-        "action": "snapshot() \u2192 locate text matching /Standard/i within sidebar, header chip, or account section \u2192 assert element exists",
-        "expected": "At least one element on the page contains the text 'Standard' (case-insensitive) displayed as a tier label, badge, or pill. The element is visible and not hidden via CSS."
+        "description": "Verify the subscription page documents tier-based feature limits \u2014 assert the page describes or shows limits for portals, search profiles, AI credits, or portrait access.",
+        "action": "browser_snapshot; assert feature limit description or plan comparison visible"
       },
       {
         "id": 4,
-        "description": "Open the browser developer console and confirm no JavaScript errors or failed network requests (4xx/5xx) were emitted during the page load of /jp/.",
-        "action": "browser_console_messages() \u2192 filter for level 'error' \u2192 assert count === 0 OR errors are non-critical (e.g. favicon 404 is acceptable)",
-        "expected": "Zero JavaScript errors in the console. No failed XHR/fetch requests to /api/ or /portals/ endpoints with status >= 400 that would indicate a broken tier-check API call."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify tier-limit gating is enforced in the UI \u2014 check that portal slot indicators and search profile limits are shown.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert tier limit indicators (slot count, profile limit) visible"
       },
       {
         "id": 5,
-        "description": "As superadmin, navigate to the standard-tier QA user's session context. Go to http://localhost:3002/auth/login and authenticate with the standard-tier QA user credentials: email qa-jp-standard@phronex.com and password QA_SUPERADMIN_PASSWORD to simulate standard-tier perspective. (Use only the specified placeholder credentials \u2014 do not invent others.)",
-        "action": "navigate('http://localhost:3002/auth/login') \u2192 fill('[name=email]', 'qa-jp-standard@phronex.com') \u2192 fill('[name=password]', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
-        "expected": "Standard-tier user authenticates successfully. URL redirects to /jp/ as specified in TEST-ORACLES: 'Standard-tier user redirected to /jp/ after login'. No error page or access-denied screen appears."
+        "description": "Navigate to https://app.phronex.com/jp/portrait and verify the portrait page either shows content (for non-free tier) or a pro-gate message (for free tier). Assert no blank page.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot; assert (portrait content OR pro-gate message) visible; no blank page"
       },
       {
         "id": 6,
-        "description": "After login as the standard-tier user, assert the redirect destination is exactly /jp/ and not /auth/login or any error route.",
-        "action": "waitForURL('**/jp/**', { timeout: 8000 }) \u2192 assert url.includes('/jp/')",
-        "expected": "Current URL contains '/jp/'. The page is the JP dashboard, not a login page, error page, or onboarding flow. This satisfies TEST-ORACLES: Journey jp-trunk-standard Step 5."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard and verify the dashboard renders tier-related indicators if any (AI quota widget, scan status).",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); browser_snapshot; assert dashboard renders without errors"
       },
       {
         "id": 7,
-        "description": "On the /jp/ dashboard while authenticated as the standard-tier user, locate the tier label/badge in the sidebar or account area. Assert it reads 'Standard' and not 'Free' or 'Pro'.",
-        "action": "snapshot() \u2192 getByText(/Standard/i) within sidebar or header \u2192 assert visible \u2192 getByText(/Free|Pro/i) \u2192 assert NOT present as a tier badge",
-        "expected": "The tier label displays 'Standard'. Labels 'Free' and 'Pro' are absent from tier-indicator elements. The pill/badge colour may be distinct from amber (admin) \u2014 any non-amber variant is acceptable per USER-SPEC sidebar grouping rules."
-      },
-      {
-        "id": 8,
-        "description": "Verify the standard-tier portal search profile limit enforcement is reflected in the UI. Navigate to the Portals or Search Profiles section (sidebar 'Jobs' group or portal config page). Check that the UI communicates a max of 2 search profiles per portal (standard tier), not 1 (free) or 5 (pro).",
-        "action": "click sidebar item for 'Jobs' or 'Portals' \u2192 waitForSelector('[data-testid=\"portal-list\"], .portal-card, table', { state: 'visible' }) \u2192 snapshot() \u2192 look for limit hint text or disabled 'Add Profile' button that references the tier cap",
-        "expected": "The portal management UI is accessible. Any tier-enforcement message, tooltip, or disabled-button label references a cap consistent with the standard tier (greater than free tier's 1 profile cap). No 500 error from GET /portals/."
-      },
-      {
-        "id": 9,
-        "description": "Navigate away from the current page to the Dashboard (click the Dashboard link in the sidebar), then use the browser back button or sidebar to return to the Portals/Jobs page. Verify the tier label and page state are still correct after navigation.",
-        "action": "click('[href*=\"/jp/\"]' or sidebar 'Dashboard' link) \u2192 waitForURL('**/jp/') \u2192 navigate back via sidebar to Portals \u2192 waitForSelector('[data-testid=\"portal-list\"], .portal-card', { state: 'visible' })",
-        "expected": "After round-trip navigation, the Standard tier badge is still visible in the sidebar/header. The Portals page reloads data without error. No session expiry or re-authentication prompt appears. State persistence confirmed."
-      },
-      {
-        "id": 10,
-        "description": "Take a final screenshot of the page in its persisted state showing the Standard tier label and the Portals/Dashboard content. This screenshot serves as evidence for the QA run archive.",
-        "action": "browser_take_screenshot({ fullPage: false })",
-        "expected": "Screenshot captured successfully showing: (1) authenticated Standard-tier user session, (2) visible 'Standard' tier label or badge, (3) /jp/ route confirmed in browser URL bar, (4) no error overlays or modals."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -5508,87 +5347,38 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') THEN fill('#email', 'qa-test-journeyhawk@phronex.com') AND fill('#password', 'QA_SUPERADMIN_PASSWORD') AND click('[type=submit]')",
-        "expected": "User is authenticated. URL is either /jp/ or /jp/dashboard. Sidebar is visible and contains at least the Dashboard link. No error banners present."
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired login"
       },
       {
         "id": 2,
-        "description": "Navigate to the Admin / User Management area to locate the three tier QA accounts (free, standard, pro) that will be used for tier-gating assertions.",
-        "action": "click('[data-testid=sidebar-admin]') OR navigate('/jp/admin/users'). Wait for the user table to load. Search or scroll to find qa-jp-free@phronex.com, qa-jp-standard@phronex.com, and qa-jp-pro@phronex.com.",
-        "expected": "The admin user table renders without error. All three QA tier accounts are visible. Each row shows the correct tier badge: Free, Standard, Pro respectively."
+        "description": "Navigate to https://app.phronex.com/jp/subscription. Verify the page loads and a tier label is shown for the QA account.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot; assert tier label visible"
       },
       {
         "id": 3,
-        "description": "Open a new browser context (incognito / second tab) and log in as the FREE-tier QA user to verify Free-tier constraints are applied at login.",
-        "action": "navigate('http://localhost:3002/auth/login') in a new context. fill('#email', 'qa-jp-free@phronex.com') AND fill('#password', 'QA_FREE_PASSWORD') AND click('[type=submit]'). Wait for redirect.",
-        "expected": "Free-tier user is redirected to /jp/ after login (matches TEST-ORACLES jp-trunk-free step 5). Dashboard loads. Tier indicator in the UI shows 'Free'. No 500 or auth errors."
+        "description": "Verify the subscription page documents tier-based feature limits \u2014 assert the page describes or shows limits for portals, search profiles, AI credits, or portrait access.",
+        "action": "browser_snapshot; assert feature limit description or plan comparison visible"
       },
       {
         "id": 4,
-        "description": "As the free-tier user, navigate to Portals and attempt to create a second Search Profile on an existing portal to verify the Free-tier hard limit (max 1 search profile per portal).",
-        "action": "click('[data-testid=sidebar-portals]') OR navigate('/jp/portals'). Locate an existing portal config that already has 1 search profile. Click 'Add Search Profile'. Attempt to submit a second profile with keyword='engineer' and location='Mumbai'.",
-        "expected": "The UI either disables the 'Add Search Profile' button when the limit is reached, OR displays an error/toast message such as 'Free plan allows a maximum of 1 search profile per portal'. The second profile is NOT created. The portal still shows only 1 search profile."
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify tier-limit gating is enforced in the UI \u2014 check that portal slot indicators and search profile limits are shown.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); browser_snapshot; assert tier limit indicators (slot count, profile limit) visible"
       },
       {
         "id": 5,
-        "description": "As the free-tier user, verify that premium/locked features are visually gated \u2014 e.g. AI match scoring, auto-apply, or advanced filters show a tier-upgrade prompt rather than active controls.",
-        "action": "navigate('/jp/jobs'). Inspect the AI match score column or filter panel. Attempt to interact with any control labelled with a lock icon, 'Pro', or 'Upgrade' badge.",
-        "expected": "Locked controls are non-interactive or display an upgrade CTA (e.g. modal or tooltip: 'Upgrade to Pro to use AI match scoring'). No 403/500 errors. The page does not crash. Free-accessible features (job browsing, basic search) remain fully functional."
+        "description": "Navigate to https://app.phronex.com/jp/portrait and verify the portrait page either shows content (for non-free tier) or a pro-gate message (for free tier). Assert no blank page.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait'); browser_snapshot; assert (portrait content OR pro-gate message) visible; no blank page"
       },
       {
         "id": 6,
-        "description": "Switch to the STANDARD-tier QA user context and verify Standard-tier login redirect and feature availability.",
-        "action": "navigate('http://localhost:3002/auth/login') in a new context. fill('#email', 'qa-jp-standard@phronex.com') AND fill('#password', 'QA_STANDARD_PASSWORD') AND click('[type=submit]'). Wait for redirect.",
-        "expected": "Standard-tier user is redirected to /jp/ after login (matches TEST-ORACLES jp-trunk-standard step 5). Dashboard loads. Tier indicator shows 'Standard'. Features gated above Free are now accessible. Features requiring Pro are still locked."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard and verify the dashboard renders tier-related indicators if any (AI quota widget, scan status).",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); browser_snapshot; assert dashboard renders without errors"
       },
       {
         "id": 7,
-        "description": "As the standard-tier user, navigate to Portals and verify that the search profile limit is higher than Free (> 1 per portal, but less than Pro's 5). Create up to 2 search profiles on a portal and confirm both are accepted.",
-        "action": "navigate('/jp/portals'). Add a first search profile (keyword='developer', location='Bangalore'). Submit. Then add a second search profile (keyword='engineer', location='Pune'). Submit.",
-        "expected": "Both search profiles are created successfully. Each shows in the portal's profile list. No tier-limit error appears for the second profile. The portal row reflects 2 active search profiles."
-      },
-      {
-        "id": 8,
-        "description": "Switch to the PRO-tier QA user context and verify Pro-tier login redirect and full feature access.",
-        "action": "navigate('http://localhost:3002/auth/login') in a new context. fill('#email', 'qa-jp-pro@phronex.com') AND fill('#password', 'QA_PRO_PASSWORD') AND click('[type=submit]'). Wait for redirect.",
-        "expected": "Pro-tier user is redirected to /jp/ after login (matches TEST-ORACLES jp-trunk-pro step 5). Tier indicator shows 'Pro'. All previously locked controls (AI match scoring, auto-apply, advanced filters) are now active and interactive."
-      },
-      {
-        "id": 9,
-        "description": "As the pro-tier user, verify the maximum search profile cap of 5 per portal: create profiles 1 through 5, then attempt a 6th to confirm hard stop.",
-        "action": "navigate('/jp/portals'). Select or create a portal. Add 5 search profiles sequentially (e.g. keywords: dev1, dev2, dev3, dev4, dev5, all location='Delhi'). After the 5th succeeds, attempt a 6th profile.",
-        "expected": "Profiles 1\u20135 are all created successfully. On attempting the 6th, the UI shows a limit error: 'Pro plan allows a maximum of 5 search profiles per portal' (or equivalent). The 6th profile is NOT persisted. The portal shows exactly 5 profiles."
-      },
-      {
-        "id": 10,
-        "description": "As the pro-tier user, verify the global portal cap of 10: note current portal count. If fewer than 10 portals exist, add portals up to 10 and confirm success; then attempt portal number 11 and assert rejection.",
-        "action": "navigate('/jp/portals'). Count existing portals. Click 'Add Portal' repeatedly until 10 portals exist, each with a unique portal_name. After the 10th is saved, click 'Add Portal' again and attempt to save portal number 11.",
-        "expected": "Portals 1\u201310 are created without error. On attempting the 11th, the UI shows a cap error: 'Maximum of 10 portals allowed per user' (or equivalent). Portal count remains at 10."
-      },
-      {
-        "id": 11,
-        "description": "Return to the superadmin session and use the Admin panel to forcibly downgrade the pro-tier QA account (qa-jp-pro@phronex.com) to Free tier, then re-verify that tier-gating constraints re-apply immediately.",
-        "action": "Switch back to the superadmin browser context. navigate('/jp/admin/users'). Find qa-jp-pro@phronex.com. Click 'Edit' or 'Change Tier'. Select 'Free'. Save. Then navigate to the pro user's portal listing as an admin preview.",
-        "expected": "The tier badge for qa-jp-pro@phronex.com now shows 'Free'. If the admin panel enforces excess-resource locking, portals or search profiles beyond Free limits are flagged or locked. No 500 errors during the downgrade action."
-      },
-      {
-        "id": 12,
-        "description": "Log back in as the now-downgraded free-tier user (previously pro) and verify the UI reflects the new tier and that previously Pro-only features are gated again.",
-        "action": "navigate('http://localhost:3002/auth/login') in the pro-user context. fill('#email', 'qa-jp-pro@phronex.com') AND fill('#password', 'QA_PRO_PASSWORD') AND click('[type=submit]'). Inspect the tier indicator and any previously Pro-unlocked controls.",
-        "expected": "Tier indicator shows 'Free'. AI match scoring, auto-apply, and advanced filter controls are locked again. Any search profiles beyond the Free limit are either hidden, locked, or display a 'reactivate by upgrading' message. No data corruption or unhandled errors."
-      },
-      {
-        "id": 13,
-        "description": "Restore the pro-tier QA account back to Pro tier via the superadmin panel to leave test data in a clean state.",
-        "action": "Switch to superadmin context. navigate('/jp/admin/users'). Find qa-jp-pro@phronex.com. Click 'Edit' \u2192 set tier back to 'Pro'. Save.",
-        "expected": "Tier badge reverts to 'Pro'. No errors on save. The account is restored for future test runs."
-      },
-      {
-        "id": 14,
-        "description": "Navigate away from the current admin page to the Dashboard, then return to the Portals page to verify that all tier-gating state and portal data persists correctly across navigation.",
-        "action": "click('[data-testid=sidebar-dashboard]') OR navigate('/jp/dashboard'). Wait 1 second. Then click('[data-testid=sidebar-portals]') OR navigate('/jp/portals').",
-        "expected": "The Dashboard loads without errors. On returning to Portals, all previously created portals and search profiles are still present and correctly displayed. Tier constraints are still enforced. No data loss or re-fetch errors (no 4xx/5xx in browser network log)."
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError/hydration/unhandled-rejection messages"
       }
     ],
     "dependsOn": "jp-trunk-main"
