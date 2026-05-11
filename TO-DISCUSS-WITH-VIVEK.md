@@ -211,6 +211,33 @@ navigation implemented. Needs portal scoping.
 
 ---
 
+## JP-01: JP cleanup endpoint 403 — same class as CC-06 (2026-05-11)
+
+**What:** `POST /api/admin/test-cleanup/{resource}` returns HTTP 403 for JP (`jobc.phronex.com`).
+Same production hostname guard issue as CC-06. JP has no DevServer instance either.
+
+**Impact:** Non-fatal — pre-run cleanup is skipped, test data accumulates. The `name LIKE 'JH-%'`
+filter + 24h window prevents cross-run interference regardless.
+
+**Action needed:** Same resolution as CC-06. Batch both together.
+
+---
+
+## JP-02: `claude -p` returns explanatory prose instead of JSON — FIXED (2026-05-11)
+
+**What:** `ClaudeOAuthSubprocessProvider.extract_structured()` was receiving `★ Insight` blocks
+and analysis text instead of JSON because `claude -p` inherits the user's Claude Code "explanatory
+output style" setting. Every LLM enrichment call failed with `JSONDecodeError`, causing all 53
+generated journeys to fall back to heuristic (unmodified specs = zero enrichment).
+
+**Fix applied:** Commit `9a6da9e4` in phronex-common:
+1. Prepend explicit JSON-only directive to system prompt (overrides style settings)
+2. Add regex JSON object extraction as recovery for responses that still wrap JSON in prose
+
+**No decision needed — fix shipped and pushed.**
+
+---
+
 ## D-13: Trunk login fails when EC2 is down — leaf journeys still pass via saved session
 
 **What happened in run7:** The trunk (`comc-trunk-superadmin`) failed at the login step because `AUTH_API_URL=https://auth.phronex.com` — the portal validates credentials against EC2 phronex-auth, which is currently unreachable. However, all 10+ leaf journeys PASSED by loading the saved session from run6's state file (`comc-trunk-superadmin-state.json`, valid 715 hours).
@@ -281,3 +308,26 @@ navigation implemented. Needs portal scoping.
 **Fixed:** New migration `5048125bf9ba` restores the table. Applied to DevServer DB 2026-05-07. ComC restarted — vendor subscription POST now works.
 
 **Action needed:** When this migration is deployed to production (when ComC goes to EC2), it will apply automatically via `alembic upgrade head`. No special action required. Just noting for awareness.
+
+---
+
+## D-14: CC lead form Export CSV is a dark feature — backend route missing (2026-05-11)
+
+**What:** `LeadFormClient.tsx` (portal) has an "Export CSV" button at lines 227-251 that calls `POST /api/admin/cc/api/v1/lead-form/submissions/export`. This goes through the Next.js proxy to the CC backend. The CC backend has **no such route** in `routes_admin_instances.py` — the lead form section only has field list/create/patch/delete (`/lead-form/fields/*`). There is no submissions storage, no submissions list, and no CSV export endpoint.
+
+**Root cause:** The export button was built into the portal UI without a corresponding backend implementation. Lead form responses in CC are not currently stored in the database at all — they go to... nowhere? The config-backed lead form stores field *definitions* in YAML, but field *submissions* have no persistence layer.
+
+**Impact:** Any CC instance admin clicking Export CSV gets a 404 (surfaced as a network error in the portal). This is a silent failure — no error toast, just a failed download.
+
+**This is a dark feature — NOT implementing autonomously.** Implementing submission storage requires:
+1. A new `cc_lead_form_submissions` DB table (Alembic migration)
+2. A CC route to receive webhook submissions and store them
+3. The export CSV endpoint itself
+4. Possibly a submissions list view in the portal
+
+**Decision needed:**
+- A) Scope into the next CC milestone — implement submissions storage + export
+- B) Disable the Export CSV button in the portal until the backend is ready (1-line change in `LeadFormClient.tsx`)
+- C) Accept the dark feature — button exists but is non-functional
+
+**Recommendation:** Option B short-term (remove false affordance), Option A mid-term. The button creating a silent 404 is a UX defect.
