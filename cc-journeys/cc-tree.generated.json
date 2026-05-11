@@ -300,6 +300,10 @@
       {
         "id": 5,
         "description": "Restore the original value: remove the ' [JH-QA-2026]' suffix and save. Verify the save succeeds. This cleanup ensures the live widget persona returns to its production state."
+      },
+      {
+        "id": 99,
+        "description": "CLEANUP RECOVERY: If step 5 did not complete, navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Check if '[JH-QA-2026]' appears in any field. If so, remove it and save. If the field no longer contains '[JH-QA-2026]', the cleanup already succeeded or was already restored \u2014 record as PASS. This step ensures test data contamination is always cleaned regardless of step 5 outcome."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
