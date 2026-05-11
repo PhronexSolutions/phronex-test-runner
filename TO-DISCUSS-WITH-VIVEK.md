@@ -163,19 +163,16 @@ $PHRONEX_SSH ubuntu@43.204.79.39 "cd /opt/contentcompanion && git pull origin ma
 
 ---
 
-## CC-02: cc-data-* journeys evicted as Class 5 garbage (2026-05-11)
+## CC-02: cc-data-* journeys evicted as Class 5 garbage — RESOLVED (2026-05-11)
 
-**What:** 5 `cc-data-*` journeys (DB foreign key checks) were automatically evicted by the
-static spec garbage scanner as "no navigable URL in any step". These ARE legitimate tests
-but require direct PostgreSQL access, not a browser.
+**Status:** RESOLVED — Option A implemented (phronex-common `98515fb1` + test-runner `9e251cb`).
 
-**Options:**
-- A) Add `"runner": "db"` field — pre-flight filter skips them silently without eviction
-- B) Move to `cc-db-checks.json` separate spec for a future non-browser runner
-- C) Accept eviction — they were always SKIP journeys anyway (marked with "SKIP" in description)
+**Fix:** `_is_garbage_journey()` Class 5 now skips the URL-presence check when `runner='db'`.
+5 DB integrity journeys recreated in `cc-journeys/cc-db-checks.json` with `"runner": "db"`:
+`cc-data-user-instance-fk`, `cc-data-session-user-fk`, `cc-data-subscription-user`,
+`cc-data-llm-usage-session`, `cc-data-tenant-isolation`.
 
-**Recommendation:** Option A is lowest effort. Modify `_is_garbage_journey()` to skip Class 5
-check when `journey.get('runner') == 'db'`. No cost.
+**No further action needed.**
 
 ---
 
