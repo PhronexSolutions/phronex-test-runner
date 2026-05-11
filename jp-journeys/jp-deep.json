@@ -94,18 +94,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "If jobs are listed, click on the first job card or row to open its detail view. If no jobs exist, navigate to https://app.phronex.com/jp/jobs and note the empty state."
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
       },
       {
         "id": 3,
-        "description": "Verify the job detail panel or page opens and shows job title, company name, and description. Report whether the detail view opened or if the empty state was encountered."
+        "description": "If jobs are listed, click on the first job card or row to open its detail view. If no jobs exist, navigate to https://app.phronex.com/jp/jobs and note the empty state."
       },
       {
         "id": 4,
+        "description": "Verify the job detail panel or page opens and shows job title, company name, and description. Report whether the detail view opened or if the empty state was encountered."
+      },
+      {
+        "id": 5,
         "description": "Take a screenshot showing the job detail view or empty state"
       }
     ],
