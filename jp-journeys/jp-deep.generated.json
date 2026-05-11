@@ -257,7 +257,7 @@
       {
         "id": 7,
         "description": "Verify persistence: navigate away to the Dashboard, then return to /jp/config (Personal Info tab) and confirm the saved values are still shown.",
-        "action": "Click the Dashboard sidebar link (or navigate to http://localhost:3002/jp/dashboard). Wait for the dashboard to load. Then navigate back to http://localhost:3002/jp/config and wait for network-idle.",
+        "action": "Click the Dashboard sidebar link (or navigate to https://app.phronex.com/jp/dashboard). Wait for the dashboard to load. Then navigate back to https://app.phronex.com/jp/config and wait for network-idle.",
         "expected": "The name field displays 'JourneyHawk QA Tester'. The bio field displays 'Automated QA profile update'. Values match what was saved \u2014 no stale or default data is shown."
       },
       {
@@ -275,7 +275,7 @@
       {
         "id": 10,
         "description": "Cross-service integration check: after profile update, navigate to the Dashboard and verify the scan summary, recent jobs, and application pipeline widgets reflect a consistent authenticated state (no logged-out or anonymous data).",
-        "action": "Navigate to http://localhost:3002/jp/dashboard. Wait for network-idle. Inspect the stats cards for numeric values. Assert no widget shows 'NaN', 'undefined', or '--' as its primary value.",
+        "action": "Navigate to https://app.phronex.com/jp/dashboard. Wait for network-idle. Inspect the stats cards for numeric values. Assert no widget shows 'NaN', 'undefined', or '--' as its primary value.",
         "expected": "Dashboard stats cards display numeric values (integers or formatted numbers). The application pipeline shows the correct user's data. No widget is in an error or skeleton-loading state after 5 seconds."
       }
     ],
@@ -288,8 +288,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, and submit. Await full portal load.",
-        "action": "storageState load OR navigate to http://localhost:3002/auth/login and fill credentials then click Sign In",
+        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, and submit. Await full portal load.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login and fill credentials then click Sign In",
         "expected": "Portal dashboard is visible. User avatar or email indicator confirms qa-test-journeyhawk@phronex.com is authenticated. No redirect back to /auth/login."
       },
       {
@@ -374,14 +374,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click Sign In.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) or goto('http://localhost:3002/auth/login') then fill('#email', 'qa-test-journeyhawk@phronex.com'), fill('#password', 'QA_SUPERADMIN_PASSWORD'), click('button[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click Sign In.",
+        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) or goto('https://app.phronex.com/auth/login') then fill('#email', 'qa-test-journeyhawk@phronex.com'), fill('#password', 'QA_SUPERADMIN_PASSWORD'), click('button[type=submit]')",
         "expected": "User is authenticated and lands on /jp/ or /jp/jobs. No login error is shown. Sidebar is visible with at least a 'Jobs' navigation item."
       },
       {
         "id": 2,
         "description": "Navigate to the Jobs listing page at /jp/jobs.",
-        "action": "goto('http://localhost:3002/jp/jobs')",
+        "action": "goto('https://app.phronex.com/jp/jobs')",
         "expected": "URL is /jp/jobs. Page heading or breadcrumb contains 'Jobs'. Either a list of job cards/rows is visible OR a meaningful empty-state message is displayed (e.g. 'No jobs found'). No 500 error or loading spinner persists beyond 5 seconds."
       },
       {
@@ -435,7 +435,7 @@
       {
         "id": 11,
         "description": "Navigate away to the Dashboard (/jp/) to test navigation persistence, then navigate back to /jp/jobs.",
-        "action": "goto('http://localhost:3002/jp/'); waitForLoadState('networkidle'); goto('http://localhost:3002/jp/jobs'); waitForLoadState('networkidle')",
+        "action": "goto('https://app.phronex.com/jp/'); waitForLoadState('networkidle'); goto('https://app.phronex.com/jp/jobs'); waitForLoadState('networkidle')",
         "expected": "After returning to /jp/jobs, the page loads correctly. Previously applied filters may or may not persist (document actual behaviour). The job list or empty state is visible with no error."
       },
       {
@@ -484,14 +484,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or the session cookie is expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, submit the login form, and wait for redirect to the authenticated dashboard before proceeding.",
-        "action": "storageState load OR navigate('http://localhost:3002/auth/login') \u2192 fill email + password \u2192 click submit \u2192 await URL not containing '/auth/login'",
+        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or the session cookie is expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, submit the login form, and wait for redirect to the authenticated dashboard before proceeding.",
+        "action": "storageState load OR navigate('https://app.phronex.com/auth/login') \u2192 fill email + password \u2192 click submit \u2192 await URL not containing '/auth/login'",
         "expected": "User is authenticated as qa-test-journeyhawk@phronex.com. The dashboard or a post-login landing page is visible with no authentication error banners."
       },
       {
         "id": 2,
-        "description": "Navigate directly to the Config page by clicking the 'Config' item in the portal sidebar (look for a pill/tab labelled 'Config' or 'Configuration' inside JPLayoutClient.tsx sidebar groups), OR navigate programmatically to http://localhost:3002/jp/config. Wait for the page to reach a stable loaded state (no loading spinners, network idle).",
-        "action": "click sidebar nav item matching text /config/i OR navigate('http://localhost:3002/jp/config') \u2192 waitForLoadState('networkidle')",
+        "description": "Navigate directly to the Config page by clicking the 'Config' item in the portal sidebar (look for a pill/tab labelled 'Config' or 'Configuration' inside JPLayoutClient.tsx sidebar groups), OR navigate programmatically to https://app.phronex.com/jp/config. Wait for the page to reach a stable loaded state (no loading spinners, network idle).",
+        "action": "click sidebar nav item matching text /config/i OR navigate('https://app.phronex.com/jp/config') \u2192 waitForLoadState('networkidle')",
         "expected": "URL resolves to /jp/config (no redirect to login or 404). Page heading or breadcrumb confirms this is the Configuration section. HTTP response is 200."
       },
       {
@@ -558,14 +558,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie expired, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click Sign In button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie expired, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click Sign In button",
         "expected": "After session restore or fresh login, URL matches /jp/ (dashboard or jobs). No error banner is visible. Auth token cookie is present in browser storage."
       },
       {
         "id": 2,
         "description": "Navigate to the Jobs list page to locate a job to open.",
-        "action": "navigate to http://localhost:3002/jp/jobs",
+        "action": "navigate to https://app.phronex.com/jp/jobs",
         "expected": "Page URL is /jp/jobs. Either a list of job rows/cards is visible OR a meaningful empty-state message is shown (no 5xx error, no blank screen)."
       },
       {
@@ -601,13 +601,13 @@
       {
         "id": 8,
         "description": "Navigate away from the Job Detail page to the Dashboard, then use the browser Back button to return and verify state is consistent.",
-        "action": "Click the Dashboard nav link or navigate to http://localhost:3002/jp/dashboard. Wait for dashboard to load (stats cards visible). Then call page.goBack() / click browser back.",
+        "action": "Click the Dashboard nav link or navigate to https://app.phronex.com/jp/dashboard. Wait for dashboard to load (stats cards visible). Then call page.goBack() / click browser back.",
         "expected": "URL returns to /jp/jobs/{id}. Job detail content re-renders with the correct title 'QA Test Job \u2014 JourneyHawk'. No auth redirect (session still valid). No blank or broken layout."
       },
       {
         "id": 9,
         "description": "Verify cross-service integration: confirm the job detail page does not expose internal server-side URLs to the browser client.",
-        "action": "Inspect all XHR/fetch request URLs initiated from the job detail page. Assert none of the URLs start with http://localhost:8001 or any raw internal hostname (only relative paths or the public base URL https://jobc.phronex.com/api/v1 are acceptable).",
+        "action": "Inspect all XHR/fetch request URLs initiated from the job detail page. Assert none of the URLs start with https://jobc.phronex.com or any raw internal hostname (only relative paths or the public base URL https://jobc.phronex.com/api/v1 are acceptable).",
         "expected": "Zero network requests from the browser target an internal localhost:{port} backend URL. All API calls use either relative paths (/api/v1/\u2026) or the public domain, confirming the client-component / server-URL invariant is satisfied."
       },
       {
@@ -633,14 +633,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session cookie is expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit and wait for redirect to the dashboard.",
-        "action": "storageState load OR navigate to http://localhost:3002/auth/login and authenticate",
+        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session cookie is expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit and wait for redirect to the dashboard.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login and authenticate",
         "expected": "User is authenticated and the dashboard page is visible."
       },
       {
         "id": 2,
-        "description": "Navigate DIRECTLY to the user portrait page by visiting the URL http://localhost:3002/jp/portrait. Do NOT click 'Portrait' in any sidebar \u2014 the admin sidebar Portrait link goes to the admin lookup page, not the user portrait page.",
-        "action": "page.goto('http://localhost:3002/jp/portrait')",
+        "description": "Navigate DIRECTLY to the user portrait page by visiting the URL https://app.phronex.com/jp/portrait. Do NOT click 'Portrait' in any sidebar \u2014 the admin sidebar Portrait link goes to the admin lookup page, not the user portrait page.",
+        "action": "page.goto('https://app.phronex.com/jp/portrait')",
         "expected": "The page loads at /jp/portrait without a 500 error or blank white screen. One of these states is acceptable: (a) a portrait card with personalised content; (b) a 'portrait being prepared' or 'locked' empty state with CTAs like 'Browse Jobs' and 'Upload Resume'; (c) a loading spinner that resolves within 10 seconds."
       },
       {
@@ -677,7 +677,7 @@
         "id": 8,
         "description": "If the Share Profile button is enabled: click it and assert a modal/panel opens with a shareable URL or a 'Generate Link' CTA. If disabled/locked: assert the disabled state shows a meaningful label (not just a greyed-out button with no explanation).",
         "action": "click Share Profile button OR assert disabled state label",
-        "expected": "Either a share link URL is displayed (matching pattern jobc.phronex.com/p/ or localhost:3002/p/), or a locked state with explanatory text is shown."
+        "expected": "Either a share link URL is displayed (matching pattern jobc.phronex.com/p/ or app.phronex.com/p/), or a locked state with explanatory text is shown."
       },
       {
         "id": 9,
@@ -937,14 +937,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if session cookie absent, navigate to http://localhost:3002/auth/login, fill email 'qa-test-journeyhawk@phronex.com', fill password 'QA_SUPERADMIN_PASSWORD', click submit",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if session cookie absent, navigate to https://app.phronex.com/auth/login, fill email 'qa-test-journeyhawk@phronex.com', fill password 'QA_SUPERADMIN_PASSWORD', click submit",
         "expected": "User is authenticated; sidebar navigation with JP tabs is visible; no redirect back to /auth/login"
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/portrait and confirm the page renders without fatal errors.",
-        "action": "browser_navigate to http://localhost:3002/jp/portrait; browser_snapshot; browser_console_messages",
+        "description": "Navigate to https://app.phronex.com/jp/portrait and confirm the page renders without fatal errors.",
+        "action": "browser_navigate to https://app.phronex.com/jp/portrait; browser_snapshot; browser_console_messages",
         "expected": "HTTP 200; page title or heading contains 'Portrait' (case-insensitive); no full-page error boundary text ('Something went wrong', 'An error occurred'); zero console errors of level ERROR"
       },
       {
@@ -986,7 +986,7 @@
       {
         "id": 9,
         "description": "Navigate away from /jp/portrait to the JP dashboard (/jp/dashboard or /jp), then return to /jp/portrait and verify state persists (no data loss, no reload error).",
-        "action": "browser_navigate to http://localhost:3002/jp; browser_wait for dashboard content; browser_navigate to http://localhost:3002/jp/portrait; browser_snapshot; browser_console_messages",
+        "action": "browser_navigate to https://app.phronex.com/jp; browser_wait for dashboard content; browser_navigate to https://app.phronex.com/jp/portrait; browser_snapshot; browser_console_messages",
         "expected": "Portrait page reloads within 5 seconds; same content state (locked or unlocked) as before navigation; no console ERRORs; no skeleton loaders stuck in loading state longer than 5 seconds"
       },
       {
@@ -1017,14 +1017,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/login if session file is absent or expired; fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/auth/login if session file is absent or expired; fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button",
         "expected": "User is authenticated and redirected to the JP dashboard or portal home without any error banner. Session cookie is set."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/applications. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors).",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/applications; capture a snapshot; collect console messages",
+        "description": "Navigate to https://app.phronex.com/jp/applications. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors).",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp/applications; capture a snapshot; collect console messages",
         "expected": "Page title or heading contains 'Applications'. No red error banners, no 'Something went wrong' text, zero console errors of severity ERROR. HTTP status 200."
       },
       {
@@ -1054,7 +1054,7 @@
       {
         "id": 7,
         "description": "Test filter/sort controls on the Applications page if present. Apply a status filter.",
-        "action": "mcp__playwright__browser_navigate back to http://localhost:3002/jp/applications if detail view is still open; locate a filter control (dropdown, pill, or chip) for status; select a specific status (e.g. 'Applied'); wait for list to update",
+        "action": "mcp__playwright__browser_navigate back to https://app.phronex.com/jp/applications if detail view is still open; locate a filter control (dropdown, pill, or chip) for status; select a specific status (e.g. 'Applied'); wait for list to update",
         "expected": "After applying a status filter, only applications matching that status are shown. The filter chip or dropdown reflects the active filter. If no applications match, the empty state is shown \u2014 not a spinner or blank region."
       },
       {
@@ -1078,7 +1078,7 @@
       {
         "id": 11,
         "description": "Navigate away from /jp/applications to the dashboard (/jp or /jp/dashboard), then navigate back and verify data/state persists.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp; then mcp__playwright__browser_navigate back to http://localhost:3002/jp/applications",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp; then mcp__playwright__browser_navigate back to https://app.phronex.com/jp/applications",
         "expected": "The Applications page re-renders with the same data as before navigation. Any previously applied filter is either preserved (if the product persists filter state) or reset to default \u2014 either behaviour is acceptable, but the page must not show a blank region or error. No re-authentication is required."
       },
       {
@@ -1103,14 +1103,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') then fill('#email', 'qa-test-journeyhawk@phronex.com') then fill('#password', 'QA_SUPERADMIN_PASSWORD') then click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') then fill('#email', 'qa-test-journeyhawk@phronex.com') then fill('#password', 'QA_SUPERADMIN_PASSWORD') then click('[type=submit]')",
         "expected": "Session is active. User is authenticated as superadmin. No redirect to login page occurs on subsequent navigation."
       },
       {
         "id": 2,
-        "description": "Navigate to http://localhost:3002/jp/users. Verify the page loads without errors.",
-        "action": "navigate('http://localhost:3002/jp/users') then waitFor('main, [data-testid=\"users-page\"]') then captureConsoleErrors()",
+        "description": "Navigate to https://app.phronex.com/jp/users. Verify the page loads without errors.",
+        "action": "navigate('https://app.phronex.com/jp/users') then waitFor('main, [data-testid=\"users-page\"]') then captureConsoleErrors()",
         "expected": "Page loads with HTTP 200. No 'Something went wrong' banner. No uncaught JS console errors. The page title or heading contains 'Users' or equivalent. No blank white screen."
       },
       {
@@ -1169,14 +1169,14 @@
       },
       {
         "id": 12,
-        "description": "Navigate away from /jp/users to the JP dashboard at http://localhost:3002/jp/dashboard, wait for it to load, then navigate back to http://localhost:3002/jp/users.",
-        "action": "navigate('http://localhost:3002/jp/dashboard') then waitFor('main') then navigate('http://localhost:3002/jp/users') then waitFor('table, [data-testid=\"users-table\"]')",
+        "description": "Navigate away from /jp/users to the JP dashboard at https://app.phronex.com/jp/dashboard, wait for it to load, then navigate back to https://app.phronex.com/jp/users.",
+        "action": "navigate('https://app.phronex.com/jp/dashboard') then waitFor('main') then navigate('https://app.phronex.com/jp/users') then waitFor('table, [data-testid=\"users-table\"]')",
         "expected": "Dashboard loads without errors. On returning to /jp/users, the table re-renders with the same data. No stale cache error. No forced re-login. Search/filter state is reset to default (expected on fresh navigation)."
       },
       {
         "id": 13,
         "description": "Open browser DevTools network tab and navigate to /jp/users. Verify the underlying API call to fetch users (e.g. GET /admin/users or similar) returns HTTP 200 with a JSON array body.",
-        "action": "interceptNetwork('GET', '/*/users*') then navigate('http://localhost:3002/jp/users') then assertResponseStatus(200) then assertResponseBodyContainsArray()",
+        "action": "interceptNetwork('GET', '/*/users*') then navigate('https://app.phronex.com/jp/users') then assertResponseStatus(200) then assertResponseBodyContainsArray()",
         "expected": "Network request to the users endpoint returns HTTP 200. Response body is a JSON array (or paginated object containing an array). No 401/403 (auth failure) or 500 (server error)."
       },
       {
@@ -1188,7 +1188,7 @@
       {
         "id": 15,
         "description": "Take a final screenshot of the /jp/users page in its loaded state as evidence of a passing journey run.",
-        "action": "navigate('http://localhost:3002/jp/users') then waitFor('table, [data-testid=\"users-table\"]') then screenshot('jp-jp-users-2-final')",
+        "action": "navigate('https://app.phronex.com/jp/users') then waitFor('table, [data-testid=\"users-table\"]') then screenshot('jp-jp-users-2-final')",
         "expected": "Screenshot captured. Page shows the users table fully rendered, the amber admin sidebar group visible, and no error banners. Screenshot is saved as run evidence."
       }
     ],
@@ -1342,14 +1342,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session cookie is expired or the file is absent, navigate to http://localhost:3002/auth/login, fill email with qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, submit, and confirm redirect away from /auth/login before continuing.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/auth/login if session invalid; else restore storage state from .tmp/jp-trunk-main-state.json",
+        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session cookie is expired or the file is absent, navigate to https://app.phronex.com/auth/login, fill email with qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, submit, and confirm redirect away from /auth/login before continuing.",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/auth/login if session invalid; else restore storage state from .tmp/jp-trunk-main-state.json",
         "expected": "User is authenticated as superadmin. No login error banner is visible. The portal header or dashboard element confirming session is present."
       },
       {
         "id": 2,
         "description": "Navigate to the JobPortal config page at /jp/config (or the equivalent config route surfaced in the portal for the 'jp' product). Wait for the page to finish loading.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/config",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp/config",
         "expected": "Page loads at /jp/config with HTTP 200. At least one configuration section heading or form field is visible. No error toast, 'Something went wrong', or blank white screen appears."
       },
       {
@@ -1378,7 +1378,7 @@
       },
       {
         "id": 7,
-        "description": "Reload the page (hard refresh) to verify the saved key persists across page loads. After reload, re-authenticate if the session expired using qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD at http://localhost:3002/auth/login.",
+        "description": "Reload the page (hard refresh) to verify the saved key persists across page loads. After reload, re-authenticate if the session expired using qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD at https://app.phronex.com/auth/login.",
         "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp/config (full page reload); waitForLoadState('networkidle'); browser_snapshot to verify masked key still shown",
         "expected": "The config page loads again. The API key field now shows a masked value (e.g., '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022' or the last-4 reveal pattern) rather than being empty, confirming the key was persisted server-side. The raw key value is NOT exposed in the DOM or any visible UI element."
       },
@@ -1427,7 +1427,7 @@
       {
         "id": 15,
         "description": "Final persistence verification: perform a full browser close simulation by taking a snapshot of the current config state, then re-navigating cold to /jp/config. Confirm the masked key is still present, confirming AES-256-GCM encrypted at-rest storage is functioning correctly.",
-        "action": "mcp__playwright__browser_navigate to http://localhost:3002/jp/config",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp/config",
         "expected": "The API key field shows a masked/reveal-last-4 value. The page renders without errors. The full journey has exercised CRUD (read baseline, create/update, validate, persist), boundary/XSS validation, navigation round-trips, cross-service integration, and audit trail \u2014 meeting the DEEP coverage requirement."
       }
     ],
@@ -1440,8 +1440,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click Sign In.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on expiry navigate to http://localhost:3002/auth/login and fill credentials qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD then click Sign In button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click Sign In.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on expiry navigate to https://app.phronex.com/auth/login and fill credentials qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD then click Sign In button",
         "expected": "URL is /jp/ (dashboard or jobs route). No auth error banner visible. JWT cookie or Authorization header is set in browser storage."
       },
       {
@@ -1595,14 +1595,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click Sign In.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click Sign In.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
         "expected": "URL is /jp/ (dashboard or jobs) and no auth error banner is visible; JWT cookie or localStorage token is present."
       },
       {
         "id": 2,
         "description": "Navigate to the Settings section of the JobPortal application.",
-        "action": "navigate('http://localhost:3002/jp/settings') OR click the Settings nav item in the sidebar/top-nav.",
+        "action": "navigate('https://app.phronex.com/jp/settings') OR click the Settings nav item in the sidebar/top-nav.",
         "expected": "Settings page loads at a URL matching /jp/settings (or /jp/settings/*). Page heading or breadcrumb contains 'Settings'. No 403 or 404 status. Network response for any settings GET API call returns HTTP 200."
       },
       {
@@ -1644,13 +1644,13 @@
       {
         "id": 9,
         "description": "Navigate away from the Settings page to the JP dashboard/jobs list.",
-        "action": "click the Dashboard or Jobs nav link, OR navigate('http://localhost:3002/jp/').",
+        "action": "click the Dashboard or Jobs nav link, OR navigate('https://app.phronex.com/jp/').",
         "expected": "URL changes away from /jp/settings. Dashboard or jobs list content is visible. No session expiry redirect to /auth/login."
       },
       {
         "id": 10,
         "description": "Navigate back to the Settings page to verify persistence of the saved value from step 5/8.",
-        "action": "click Settings nav item OR navigate('http://localhost:3002/jp/settings').",
+        "action": "click Settings nav item OR navigate('https://app.phronex.com/jp/settings').",
         "expected": "Settings page reloads. The field edited in step 5/8 now shows the new value that was saved \u2014 not the original value from step 4. This confirms the change was persisted server-side and is re-hydrated on page load. Network GET request for settings returns HTTP 200 with updated payload."
       },
       {
@@ -1668,13 +1668,13 @@
       {
         "id": 13,
         "description": "Verify the settings page is accessible only to authenticated users: open a new incognito/unauthenticated context and attempt to access the settings URL directly.",
-        "action": "Open new browser context with no cookies \u2192 navigate('http://localhost:3002/jp/settings').",
+        "action": "Open new browser context with no cookies \u2192 navigate('https://app.phronex.com/jp/settings').",
         "expected": "Unauthenticated request is redirected to /auth/login (HTTP 302/307) or returns HTTP 401/403. The settings page content is NOT rendered for unauthenticated users."
       },
       {
         "id": 14,
         "description": "Return to the authenticated session and confirm the settings page remains functional after the cross-context check.",
-        "action": "Switch back to the authenticated page context \u2192 navigate('http://localhost:3002/jp/settings').",
+        "action": "Switch back to the authenticated page context \u2192 navigate('https://app.phronex.com/jp/settings').",
         "expected": "Settings page loads normally for the authenticated QA superadmin session. All groups and fields are visible. No session disruption from the parallel unauthenticated context."
       }
     ],
@@ -1687,38 +1687,38 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if file missing or session invalid, navigate to http://localhost:3002/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if file missing or session invalid, navigate to https://app.phronex.com/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In button",
         "expected": "Either session is restored and user lands on /jp/ dashboard, OR login page loads with email and password fields visible, form submits without error, and URL redirects to /jp/"
       },
       {
         "id": 2,
         "description": "Verify the /auth/login page DOM structure \u2014 confirm the page renders required form elements before any interaction.",
-        "action": "Navigate to http://localhost:3002/auth/login (without session); take a DOM snapshot; assert presence of: an <input> with type='email' or name containing 'email', an <input> with type='password', a submit button with visible label matching 'Sign In' or similar, and a page heading or logo identifying JobPortal",
+        "action": "Navigate to https://app.phronex.com/auth/login (without session); take a DOM snapshot; assert presence of: an <input> with type='email' or name containing 'email', an <input> with type='password', a submit button with visible label matching 'Sign In' or similar, and a page heading or logo identifying JobPortal",
         "expected": "Login page renders at /auth/login with email input, password input, and a Sign In button all visible in the DOM; no console errors on page load; page title or heading identifies the product"
       },
       {
         "id": 3,
         "description": "Attempt login with an empty email and empty password to validate required-field enforcement.",
-        "action": "Navigate to http://localhost:3002/auth/login; leave both email and password fields blank; click the Sign In button",
+        "action": "Navigate to https://app.phronex.com/auth/login; leave both email and password fields blank; click the Sign In button",
         "expected": "Form does not submit; browser-native or application-level validation messages appear on both the email and password fields; URL remains /auth/login; no network request to POST /api/v1/auth/login is fired (or if fired, a 422 or 400 response is returned)"
       },
       {
         "id": 4,
         "description": "Attempt login with a valid email format but incorrect password to verify authentication rejection.",
-        "action": "Navigate to http://localhost:3002/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with 'WrongPassword999!'; click the Sign In button",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with 'WrongPassword999!'; click the Sign In button",
         "expected": "POST /api/v1/auth/login returns a 401 or 400 response; an error message is displayed in the UI (e.g. 'Invalid credentials' or similar); URL remains /auth/login; no JWT is stored in localStorage or cookies"
       },
       {
         "id": 5,
         "description": "Attempt login with an invalid email format (not a valid email address) to verify client-side email format validation.",
-        "action": "Navigate to http://localhost:3002/auth/login; fill email with 'notanemail'; fill password with 'SomePassword123'; click the Sign In button",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'notanemail'; fill password with 'SomePassword123'; click the Sign In button",
         "expected": "Browser or application validation rejects the email field with a format error; form does not submit; URL remains /auth/login"
       },
       {
         "id": 6,
         "description": "Perform a successful login with valid superadmin credentials and verify the JWT is issued and stored.",
-        "action": "Navigate to http://localhost:3002/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with QA_SUPERADMIN_PASSWORD; click the Sign In button; after redirect, inspect cookies and/or localStorage for a JWT token",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with QA_SUPERADMIN_PASSWORD; click the Sign In button; after redirect, inspect cookies and/or localStorage for a JWT token",
         "expected": "POST /api/v1/auth/login returns 200 with a JWT in the response body; URL redirects to /jp/ (dashboard or jobs list); a JWT token is present in localStorage (key 'token' or similar) or as an HttpOnly cookie; the token is a valid JWT structure (three base64 segments separated by dots)"
       },
       {
@@ -1730,7 +1730,7 @@
       {
         "id": 8,
         "description": "Verify that accessing a protected route without a session redirects unauthenticated users to the login page.",
-        "action": "Clear all cookies and localStorage; navigate directly to http://localhost:3002/jp/ (a protected route) without any session",
+        "action": "Clear all cookies and localStorage; navigate directly to https://app.phronex.com/jp/ (a protected route) without any session",
         "expected": "Browser is redirected to /auth/login (or equivalent auth gate URL); the login form is displayed; no protected content is visible; HTTP response or client-side redirect results in landing on the login page"
       },
       {
@@ -1748,7 +1748,7 @@
       {
         "id": 11,
         "description": "Verify the health endpoint is publicly accessible without authentication, confirming the auth guard does not over-block.",
-        "action": "Navigate to http://localhost:3002/api/v1/health (or send a GET request via browser); observe the response body",
+        "action": "Navigate to https://app.phronex.com/api/v1/health (or send a GET request via browser); observe the response body",
         "expected": "GET /health returns HTTP 200 with body {\"status\": \"healthy\"}; no authentication header is required; response time is under 2 seconds"
       },
       {
@@ -1766,7 +1766,7 @@
       {
         "id": 14,
         "description": "Final persistence and state check: log back in and confirm the dashboard state is clean (no stale data from previous session).",
-        "action": "Navigate to http://localhost:3002/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with QA_SUPERADMIN_PASSWORD; click Sign In; after redirect to /jp/, take a screenshot and DOM snapshot",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with QA_SUPERADMIN_PASSWORD; click Sign In; after redirect to /jp/, take a screenshot and DOM snapshot",
         "expected": "Login succeeds and redirects to /jp/; a fresh JWT is issued; dashboard renders with up-to-date user data; no stale error banners or session-conflict warnings are visible; the journey completes without any unhandled console errors"
       }
     ],
@@ -1978,14 +1978,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to http://localhost:3002/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on failure navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on failure navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In button.",
         "expected": "User is authenticated. URL redirects to /jp/ (dashboard or jobs). No error banners are visible. The authenticated user identity matches the superadmin account."
       },
       {
         "id": 2,
-        "description": "Navigate to the Admin Endpoints section of the JobPortal \u2014 typically accessible at http://localhost:3002/jp/admin or equivalent admin route. Confirm the admin panel renders.",
-        "action": "Navigate to http://localhost:3002/jp/admin (or the resolved admin URL). Wait for the page to fully load.",
+        "description": "Navigate to the Admin Endpoints section of the JobPortal \u2014 typically accessible at https://app.phronex.com/jp/admin or equivalent admin route. Confirm the admin panel renders.",
+        "action": "Navigate to https://app.phronex.com/jp/admin (or the resolved admin URL). Wait for the page to fully load.",
         "expected": "Admin panel page renders without a 403/404/500 error. An admin-specific heading, nav section, or tab group is visible confirming superadmin access is granted."
       },
       {
@@ -2069,7 +2069,7 @@
       {
         "id": 16,
         "description": "Error boundary check: access a non-existent admin sub-route to verify the app handles unknown admin paths gracefully.",
-        "action": "Navigate to http://localhost:3002/jp/admin/nonexistent-route-xyz.",
+        "action": "Navigate to https://app.phronex.com/jp/admin/nonexistent-route-xyz.",
         "expected": "The app renders a 404 page or redirects to the admin landing page. No unhandled exception or blank white screen is shown. The admin navigation is still accessible."
       },
       {
@@ -2088,14 +2088,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) OR navigate('http://localhost:3002/auth/login'), fill('#email', 'qa-test-journeyhawk@phronex.com'), fill('#password', 'QA_SUPERADMIN_PASSWORD'), click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) OR navigate('https://app.phronex.com/auth/login'), fill('#email', 'qa-test-journeyhawk@phronex.com'), fill('#password', 'QA_SUPERADMIN_PASSWORD'), click('[type=submit]')",
         "expected": "Session is active and user is authenticated. If login flow was triggered, URL redirects to /jp/ (dashboard or jobs) with no error banners. Auth token cookie or localStorage JWT is present."
       },
       {
         "id": 2,
         "description": "Navigate to the JobPortal base URL and confirm the authenticated dashboard loads correctly at /jp/.",
-        "action": "navigate('http://localhost:3002/jp/')",
+        "action": "navigate('https://app.phronex.com/jp/')",
         "expected": "Page title or heading indicates JobPortal dashboard. No 401/403 redirect. Navigation sidebar or top-bar is visible. HTTP response status is 200."
       },
       {
@@ -2107,7 +2107,7 @@
       {
         "id": 4,
         "description": "Locate and navigate to the Admin Endpoints section of the portal UI (e.g. /jp/admin or an 'Admin' menu item in the sidebar).",
-        "action": "look for nav link with text matching /admin/i, click it OR navigate('http://localhost:3002/jp/admin')",
+        "action": "look for nav link with text matching /admin/i, click it OR navigate('https://app.phronex.com/jp/admin')",
         "expected": "Admin page loads with HTTP 200. Page contains admin-specific controls, tables, or panels. No blank page or 404 error."
       },
       {
@@ -2119,7 +2119,7 @@
       {
         "id": 6,
         "description": "Navigate to the Configuration section (e.g. /jp/config or a 'Configuration' link in the sidebar). This is a Priority 1 Core feature per the roadmap.",
-        "action": "look for nav link with text matching /config(uration)?/i, click it OR navigate('http://localhost:3002/jp/config')",
+        "action": "look for nav link with text matching /config(uration)?/i, click it OR navigate('https://app.phronex.com/jp/config')",
         "expected": "Configuration page loads with HTTP 200. At least one of the 3 documented sub-sections is visible (e.g. credential settings, rate-limit config, or system settings panels)."
       },
       {
@@ -2137,14 +2137,14 @@
       {
         "id": 9,
         "description": "Navigate to the Professional Portrait section (Priority 1 Core, /jp/portrait or equivalent) to verify the feature surface exists.",
-        "action": "look for nav link with text matching /portrait/i, click it OR navigate('http://localhost:3002/jp/portrait')",
+        "action": "look for nav link with text matching /portrait/i, click it OR navigate('https://app.phronex.com/jp/portrait')",
         "expected": "Portrait page loads with HTTP 200. The page renders a form or display card for professional portrait data. No 404 or unhandled exception."
       },
       {
         "id": 10,
         "description": "Attempt a read (GET) operation on the internal endpoints by inspecting network traffic when loading an authenticated page. Verify JWT is sent as Authorization: Bearer header and is not a plain decoded payload.",
         "action": "network_requests() \u2014 filter for requests to /api/v1/* made during page load. Inspect the Authorization header of any captured request.",
-        "expected": "Authorization header is present and starts with 'Bearer '. The token is an opaque JWT string (three dot-separated base64 segments), not a decoded JSON object. No internal server URL (e.g. http://localhost:8001) appears in any client-side request."
+        "expected": "Authorization header is present and starts with 'Bearer '. The token is an opaque JWT string (three dot-separated base64 segments), not a decoded JSON object. No internal server URL (e.g. https://jobc.phronex.com) appears in any client-side request."
       },
       {
         "id": 11,
@@ -2161,13 +2161,13 @@
       {
         "id": 13,
         "description": "Navigate away to the dashboard (/jp/) and then return to the previously edited configuration or admin section to verify persistence.",
-        "action": "navigate('http://localhost:3002/jp/'), then navigate back to the page edited in step 12.",
+        "action": "navigate('https://app.phronex.com/jp/'), then navigate back to the page edited in step 12.",
         "expected": "The value submitted in step 12 is still present in the form/table after navigation away and back. No silent data loss. This validates backend write + read round-trip integrity."
       },
       {
         "id": 14,
         "description": "Verify the audit log or system_error_log is accessible (v1.2 hardening feature). Navigate to any audit trail UI surface if present.",
-        "action": "look for nav link or admin sub-panel with text matching /audit|error.log|system.log/i, click it OR navigate('http://localhost:3002/jp/admin/audit')",
+        "action": "look for nav link or admin sub-panel with text matching /audit|error.log|system.log/i, click it OR navigate('https://app.phronex.com/jp/admin/audit')",
         "expected": "Audit log page loads without error. If entries exist, they are displayed in a table with timestamp, action type, and actor fields. If the page is a stub, document it \u2014 it must not be entirely absent per the no-accidental-shrinkage invariant."
       },
       {
@@ -2192,14 +2192,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "Load storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or the file is missing, navigate to http://localhost:3002/auth/login, fill the email field with 'qa-test-journeyhawk@phronex.com', fill the password field with QA_SUPERADMIN_PASSWORD, and click the login/submit button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "Load storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or the file is missing, navigate to https://app.phronex.com/auth/login, fill the email field with 'qa-test-journeyhawk@phronex.com', fill the password field with QA_SUPERADMIN_PASSWORD, and click the login/submit button.",
         "expected": "User is authenticated. The browser is on a page within the jp portal (e.g. /jp/dashboard or /jp/) without any login redirect. No authentication error banners are visible."
       },
       {
         "id": 2,
         "description": "Navigate to the Job Portal dashboard overview page.",
-        "action": "Navigate to http://localhost:3002/jp/dashboard.",
+        "action": "Navigate to https://app.phronex.com/jp/dashboard.",
         "expected": "The page loads with HTTP 200. The URL is /jp/dashboard. The sidebar is visible and contains the navigation pill groups as described in USER-SPEC (Dashboard, Search group with Jobs, etc.). No error toasts or 5xx messages are present."
       },
       {
@@ -2296,14 +2296,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit. Confirm redirect away from /auth/login (e.g. to dashboard or /jp/).",
-        "action": "storageState load OR navigate to http://localhost:3002/auth/login \u2192 fill email/password \u2192 click submit",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit. Confirm redirect away from /auth/login (e.g. to dashboard or /jp/).",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login \u2192 fill email/password \u2192 click submit",
         "expected": "User is authenticated. No login form is visible. Current URL is NOT /auth/login."
       },
       {
         "id": 2,
-        "description": "Navigate to the JP application root at http://localhost:3002/jp (or the dashboard path if known). Wait for the page to reach a stable loaded state (no spinners, no skeleton loaders).",
-        "action": "navigate to http://localhost:3002/jp and wait for network idle",
+        "description": "Navigate to the JP application root at https://app.phronex.com/jp (or the dashboard path if known). Wait for the page to reach a stable loaded state (no spinners, no skeleton loaders).",
+        "action": "navigate to https://app.phronex.com/jp and wait for network idle",
         "expected": "Dashboard or main JP page renders without error banners or 4xx/5xx indicators. Page title or heading contains recognisable JP product branding."
       },
       {
@@ -2381,7 +2381,7 @@
       {
         "id": 15,
         "description": "Navigate away from the Feature Priority Matrix page \u2014 go to the JP dashboard or a clearly different route (e.g. /jp or /jp/profile). Confirm the navigation succeeds and the matrix page is no longer in view.",
-        "action": "navigate to http://localhost:3002/jp or /jp/dashboard",
+        "action": "navigate to https://app.phronex.com/jp or /jp/dashboard",
         "expected": "Dashboard or alternative page renders. Feature Priority Matrix content is not visible. No navigation error."
       },
       {
@@ -2400,7 +2400,7 @@
         "id": 18,
         "description": "Verify that the Feature Priority Matrix is accessible to the authenticated superadmin session only. Without logging out, open a new incognito-style context (or clear auth cookies) and attempt to navigate directly to the Feature Priority Matrix URL. Assert that the unauthenticated request is redirected to the login page or returns a 401/403.",
         "action": "clear auth state / open unauthenticated context \u2192 navigate to Feature Priority Matrix URL",
-        "expected": "Unauthenticated access is blocked. User is redirected to http://localhost:3002/auth/login or receives a 401/403 response. Feature Matrix data is NOT exposed to unauthenticated users."
+        "expected": "Unauthenticated access is blocked. User is redirected to https://app.phronex.com/auth/login or receives a 401/403 response. Feature Matrix data is NOT exposed to unauthenticated users."
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -2412,20 +2412,20 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or expired, navigate to http://localhost:3002/auth/login, fill the email field with qa-test-journeyhawk@phronex.com, fill the password field with QA_SUPERADMIN_PASSWORD, and submit the login form.",
-        "action": "storageState load '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on failure navigate to http://localhost:3002/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click submit",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or expired, navigate to https://app.phronex.com/auth/login, fill the email field with qa-test-journeyhawk@phronex.com, fill the password field with QA_SUPERADMIN_PASSWORD, and submit the login form.",
+        "action": "storageState load '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on failure navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click submit",
         "expected": "User is authenticated and redirected to the JP dashboard or home page. No error banners are visible. The authenticated user's name or avatar is present in the top navigation."
       },
       {
         "id": 2,
-        "description": "Navigate to the JP dashboard root (http://localhost:3002) and confirm the application is healthy before beginning the Priority-2 feature verification.",
-        "action": "navigate to http://localhost:3002 and inspect the page for a dashboard container, navigation bar, and absence of 500/404 error messages",
+        "description": "Navigate to the JP dashboard root (https://app.phronex.com) and confirm the application is healthy before beginning the Priority-2 feature verification.",
+        "action": "navigate to https://app.phronex.com and inspect the page for a dashboard container, navigation bar, and absence of 500/404 error messages",
         "expected": "Page loads with HTTP 200, dashboard shell is rendered, no JavaScript console errors at the ERROR level, and no 'Something went wrong' banners are displayed."
       },
       {
         "id": 3,
         "description": "Roadmap intent \u2014 verify 'Global Notes (global): 5 endpoints, 0 sub-sections, 4 error references'. Locate the Global Notes section in the UI (sidebar link, top navigation, or dedicated /notes route) and assert that the entry point is reachable.",
-        "action": "look for a 'Notes', 'Global Notes', or equivalent link in the sidebar/navigation; click it or navigate to the expected route (e.g. http://localhost:3002/notes)",
+        "action": "look for a 'Notes', 'Global Notes', or equivalent link in the sidebar/navigation; click it or navigate to the expected route (e.g. https://app.phronex.com/notes)",
         "expected": "The Global Notes page renders without a 404 or access-denied error. A notes list container or empty-state message is visible."
       },
       {
@@ -2473,19 +2473,19 @@
       {
         "id": 11,
         "description": "Attempt to delete a non-existent or already-deleted note by manipulating the URL or using an invalid ID, to cover the remaining error references in Global Notes.",
-        "action": "navigate to a notes detail URL with a fabricated UUID (e.g. http://localhost:3002/notes/00000000-0000-0000-0000-000000000000)",
+        "action": "navigate to a notes detail URL with a fabricated UUID (e.g. https://app.phronex.com/notes/00000000-0000-0000-0000-000000000000)",
         "expected": "The UI renders a graceful 404 or 'Note not found' message. No unhandled JavaScript exception or blank white screen is shown. The error state is user-friendly and provides a navigation affordance back to the notes list."
       },
       {
         "id": 12,
         "description": "Roadmap intent \u2014 verify 'Authentication (auth): 0 endpoints, 0 sub-sections, 0 error references'. Navigate to the JP registration page to confirm the auth section UI surface exists, even though no custom endpoints are listed (the POST /auth/register endpoint is the entry point per USER-SPEC).",
-        "action": "log out the current session (click logout or navigate to http://localhost:3002/auth/logout); then navigate to http://localhost:3002/auth/login",
+        "action": "log out the current session (click logout or navigate to https://app.phronex.com/auth/logout); then navigate to https://app.phronex.com/auth/login",
         "expected": "The login page renders with email and password fields plus a submit button. A link or CTA to the registration page (/auth/register or equivalent) is visible. No console errors."
       },
       {
         "id": 13,
         "description": "Verify the registration page and its T&C acceptance gate as described in USER-SPEC (T&C must be accepted before AI features are available).",
-        "action": "navigate to http://localhost:3002/auth/register (or follow the 'Sign Up' link from the login page) and inspect the form",
+        "action": "navigate to https://app.phronex.com/auth/register (or follow the 'Sign Up' link from the login page) and inspect the form",
         "expected": "The registration form contains fields for email, password, and full_name. A Terms & Conditions checkbox or acceptance prompt is present. The Submit/Register button is disabled or blocked until the T&C checkbox is checked."
       },
       {
@@ -2497,7 +2497,7 @@
       {
         "id": 15,
         "description": "Re-authenticate as the superadmin QA user before continuing to the Agent section (session may have been invalidated by the logout in step 12).",
-        "action": "navigate to http://localhost:3002/auth/login; fill email=qa-test-journeyhawk@phronex.com; fill password=QA_SUPERADMIN_PASSWORD; submit the form",
+        "action": "navigate to https://app.phronex.com/auth/login; fill email=qa-test-journeyhawk@phronex.com; fill password=QA_SUPERADMIN_PASSWORD; submit the form",
         "expected": "Successful login; redirected to JP dashboard. Authenticated user identity is reflected in the UI header."
       },
       {
@@ -2521,13 +2521,13 @@
       {
         "id": 19,
         "description": "Cross-service integration check: verify that the JP API health endpoint responds correctly, confirming the backend is reachable and well throughout the Priority-2 journey.",
-        "action": "make a direct GET request to http://localhost:8001/health (JP backend port per project registry) and inspect the response body",
+        "action": "make a direct GET request to https://jobc.phronex.com/health (JP backend port per project registry) and inspect the response body",
         "expected": "HTTP 200 is returned with a JSON body of exactly {\"status\": \"healthy\"} \u2014 never {\"status\": \"ok\"} per the Phronex health endpoint invariant."
       },
       {
         "id": 20,
         "description": "Final state assertion: navigate back to the JP dashboard and confirm the session is still valid and no Priority-2 feature interaction has corrupted the UI state.",
-        "action": "navigate to http://localhost:3002 and inspect the dashboard",
+        "action": "navigate to https://app.phronex.com and inspect the dashboard",
         "expected": "Dashboard renders fully. No error banners, no broken navigation links, no blank panels. The authenticated user's identity is still reflected correctly in the header. No JavaScript console errors at the ERROR level are present."
       }
     ],
@@ -2540,14 +2540,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie expired, navigate to http://localhost:3002/auth/login, fill email=qa-test-journeyhawk@phronex.com and password=QA_SUPERADMIN_PASSWORD, click Sign In button, wait for navigation away from /auth/login.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie expired, navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com and password=QA_SUPERADMIN_PASSWORD, click Sign In button, wait for navigation away from /auth/login.",
         "expected": "Browser is authenticated as qa-test-journeyhawk@phronex.com. URL does not contain /auth/login. Sidebar is visible with at least Dashboard nav item. Amber-variant admin/SA tabs are visible confirming superadmin role."
       },
       {
         "id": 2,
         "description": "Navigate to the Dashboard to establish a baseline and confirm the sidebar Priority-3 section groups are accessible.",
-        "action": "Navigate to http://localhost:3002/dashboard. Wait for page to settle (networkidle or domcontentloaded). Capture sidebar nav items visible to the superadmin user.",
+        "action": "Navigate to https://app.phronex.com/dashboard. Wait for page to settle (networkidle or domcontentloaded). Capture sidebar nav items visible to the superadmin user.",
         "expected": "Dashboard page loads without 4xx/5xx. Sidebar contains pill-groups for Search (Jobs), Applications, Documents, Billing, Config. Amber admin-only tabs are visible. No 'Something went wrong' or blank panels."
       },
       {
@@ -2638,14 +2638,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, and submit the login form.",
-        "action": "storageState load or navigate to http://localhost:3002/auth/login \u2192 fill #email with qa-test-journeyhawk@phronex.com \u2192 fill #password with QA_SUPERADMIN_PASSWORD \u2192 click [type=submit]",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, and submit the login form.",
+        "action": "storageState load or navigate to https://app.phronex.com/auth/login \u2192 fill #email with qa-test-journeyhawk@phronex.com \u2192 fill #password with QA_SUPERADMIN_PASSWORD \u2192 click [type=submit]",
         "expected": "Redirect lands on /dashboard or /jobs. No error banner. Superadmin amber nav pills are visible in the sidebar (Admin/SA group rendered)."
       },
       {
         "id": 2,
         "description": "Confirm the Dashboard landing page renders all four expected summary widgets without network errors.",
-        "action": "Navigate to http://localhost:3002/dashboard. Intercept all XHR/fetch requests. Wait for page to reach networkidle.",
+        "action": "Navigate to https://app.phronex.com/dashboard. Intercept all XHR/fetch requests. Wait for page to reach networkidle.",
         "expected": "Page title contains 'Dashboard'. Four stat widgets visible: Scan Summary, Recent Jobs, Application Pipeline, AI Quota Status. No fetch() calls return 4xx or 5xx. No console errors of level ERROR."
       },
       {
@@ -2718,50 +2718,50 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie invalid, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, wait for redirect away from /auth/login",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie invalid, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, wait for redirect away from /auth/login",
         "expected": "User is authenticated. Current URL does not contain /auth/login. A dashboard or home page is visible with no auth error banners."
       },
       {
         "id": 2,
-        "description": "Navigate to the Job Portal application root (http://localhost:8001) and confirm the service is reachable.",
-        "action": "Navigate to http://localhost:8001. Wait for HTTP 200 response. Check for any error overlay or 5xx page.",
+        "description": "Navigate to the Job Portal application root (https://jobc.phronex.com) and confirm the service is reachable.",
+        "action": "Navigate to https://jobc.phronex.com. Wait for HTTP 200 response. Check for any error overlay or 5xx page.",
         "expected": "Page loads successfully with HTTP 200. No 'Service Unavailable' or error splash screen is present."
       },
       {
         "id": 3,
         "description": "Hit the backend health endpoint to confirm the FastAPI service (jobportal, port 8001) is healthy.",
-        "action": "Navigate to http://localhost:8001/health. Read the JSON response body.",
+        "action": "Navigate to https://jobc.phronex.com/health. Read the JSON response body.",
         "expected": "Response body is exactly {\"status\": \"healthy\"}. HTTP status code is 200."
       },
       {
         "id": 4,
         "description": "Verify the OpenAPI/Swagger docs are served, confirming FastAPI is the backend framework.",
-        "action": "Navigate to http://localhost:8001/docs. Wait for the Swagger UI iframe or #swagger-ui element to appear.",
+        "action": "Navigate to https://jobc.phronex.com/docs. Wait for the Swagger UI iframe or #swagger-ui element to appear.",
         "expected": "Swagger UI renders at /docs. The page title contains 'jobportal' or 'Job Portal'. At least one API route group is visible (e.g. /jobs, /applications, /users)."
       },
       {
         "id": 5,
         "description": "Confirm PostgreSQL persistence by hitting a data listing endpoint and asserting a valid (possibly empty) JSON array is returned \u2014 not a 500 or DB connection error.",
-        "action": "Navigate to http://localhost:8001/jobs or equivalent jobs-listing API endpoint. Inspect the response content-type and body.",
+        "action": "Navigate to https://jobc.phronex.com/jobs or equivalent jobs-listing API endpoint. Inspect the response content-type and body.",
         "expected": "HTTP 200 response. Content-Type header contains application/json. Body is a JSON array (may be empty []). No 'Internal Server Error' or 'could not connect to server' text in body."
       },
       {
         "id": 6,
         "description": "Confirm the portal frontend (Next.js 15) is running on port 3002 and the Job Portal section is accessible.",
-        "action": "Navigate to http://localhost:3002. Verify the page title or nav contains references to 'Phronex' or 'Job Portal'. Check for Next.js hydration \u2014 look for __NEXT_DATA__ script tag in DOM.",
+        "action": "Navigate to https://app.phronex.com. Verify the page title or nav contains references to 'Phronex' or 'Job Portal'. Check for Next.js hydration \u2014 look for __NEXT_DATA__ script tag in DOM.",
         "expected": "Page loads with HTTP 200. DOM contains a <script id='__NEXT_DATA__'> tag confirming Next.js rendering. No blank white screen or hydration error banner."
       },
       {
         "id": 7,
         "description": "Navigate to the Job Portal section within the portal frontend and confirm the technology stack renders UI correctly (jobs list page or dashboard card).",
-        "action": "From http://localhost:3002, locate the Job Portal navigation link or card (text like 'Job Portal', 'jobc', or 'Jobs'). Click it. Wait for the page to settle (networkidle or domcontentloaded).",
+        "action": "From https://app.phronex.com, locate the Job Portal navigation link or card (text like 'Job Portal', 'jobc', or 'Jobs'). Click it. Wait for the page to settle (networkidle or domcontentloaded).",
         "expected": "URL updates to a path under /job-portal or /jobs (or equivalent). A jobs list, empty-state, or dashboard widget is visible. No 404 or redirect-to-login occurs (session is still valid)."
       },
       {
         "id": 8,
         "description": "Verify TypeScript compilation integrity \u2014 confirm no runtime type errors are surfaced in the browser console on the Job Portal page.",
-        "action": "Open browser console. Navigate to the Job Portal page (http://localhost:3002 jobs section). Collect all console.error and console.warn messages after page load.",
+        "action": "Open browser console. Navigate to the Job Portal page (https://app.phronex.com jobs section). Collect all console.error and console.warn messages after page load.",
         "expected": "No TypeError, ReferenceError, or hydration mismatch errors appear in the console. Minor warnings from third-party libraries are acceptable, but zero errors originating from /job-portal or /jobs source paths."
       },
       {
@@ -2772,14 +2772,14 @@
       },
       {
         "id": 10,
-        "description": "Verify async API call from frontend to backend \u2014 trigger a data fetch (e.g. jobs listing) and confirm network request reaches localhost:8001.",
-        "action": "Intercept network requests (page.route or waitForResponse). Navigate to or reload the Job Portal jobs page. Wait for any XHR/fetch request targeting localhost:8001.",
-        "expected": "At least one network request is made to http://localhost:8001/* with status 200. No CORS error appears in the console. Response payload is JSON."
+        "description": "Verify async API call from frontend to backend \u2014 trigger a data fetch (e.g. jobs listing) and confirm network request reaches jobc.phronex.com.",
+        "action": "Intercept network requests (page.route or waitForResponse). Navigate to or reload the Job Portal jobs page. Wait for any XHR/fetch request targeting jobc.phronex.com.",
+        "expected": "At least one network request is made to https://jobc.phronex.com/* with status 200. No CORS error appears in the console. Response payload is JSON."
       },
       {
         "id": 11,
         "description": "Confirm phronex-common ProductSlug usage \u2014 verify that the frontend does not hardcode 'jp' or 'jobportal' as a raw string in any visible data-attribute or API URL visible in the network tab; slug should route through registry.",
-        "action": "On the Job Portal page, open DevTools Network tab and inspect API request URLs made to localhost:8001. Check for any request that encodes product identity. Also inspect page HTML for data-product or data-slug attributes.",
+        "action": "On the Job Portal page, open DevTools Network tab and inspect API request URLs made to jobc.phronex.com. Check for any request that encodes product identity. Also inspect page HTML for data-product or data-slug attributes.",
         "expected": "API calls use clean REST paths (e.g. /jobs, /applications) without exposing internal slug strings in URLs. If product identity is passed, it matches the canonical value 'jp' exactly \u2014 not 'jobportal', 'job-portal', or any other variant."
       },
       {
@@ -2804,8 +2804,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR goto('http://localhost:3002/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR goto('https://app.phronex.com/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
         "expected": "User is authenticated. The portal dashboard or a protected route loads without redirect to /auth/login. The sidebar is visible and the user avatar/email in the nav header reflects qa-test-journeyhawk@phronex.com."
       },
       {
@@ -2848,7 +2848,7 @@
         "id": 8,
         "description": "Test the cross-service integration point: if the job detail view contains an 'AI Analysis' or 'Match Score' section, trigger a re-analysis or score refresh action and verify the JP backend calls the phronex-auth or AI service correctly.",
         "action": "click('[data-testid=\"trigger-ai-analysis\"], [aria-label*=\"Analyse\"], button:has-text(\"Analyse\")') \u2192 waitForResponse(resp => resp.url().includes('/api/v1/jobs') && resp.status() === 200)",
-        "expected": "A network request is made to the JP backend API (jobc.phronex.com/api/v1 or localhost equivalent). The response returns HTTP 200 with a JSON body containing an updated match score or analysis status. The UI updates the displayed score/status without a full page reload. No 401 or 403 errors \u2014 confirming JWT is forwarded correctly."
+        "expected": "A network request is made to the JP backend API (jobc.phronex.com/api/v1 or the portal proxy). The response returns HTTP 200 with a JSON body containing an updated match score or analysis status. The UI updates the displayed score/status without a full page reload. No 401 or 403 errors \u2014 confirming JWT is forwarded correctly."
       },
       {
         "id": 9,
@@ -2884,8 +2884,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "action": "storageState load OR navigate to http://localhost:3002/auth/login and fill credentials",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login and fill credentials",
         "expected": "User is authenticated and redirected to the dashboard. The sidebar is visible with at least the Dashboard, Jobs, and admin pill groups present. No login error banners are shown."
       },
       {
@@ -2958,20 +2958,20 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) if file exists, else navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click submit/login button, wait for navigation to complete",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) if file exists, else navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click submit/login button, wait for navigation to complete",
         "expected": "User is authenticated and redirected to dashboard or home page. No login error is shown. Session cookies are set."
       },
       {
         "id": 2,
         "description": "Navigate to the JobPortal API health endpoint to confirm the backend is reachable and healthy before exercising the full API surface.",
-        "action": "Send GET request to http://localhost:8001/api/v1/health (or navigate browser to http://localhost:8001/api/v1/health) and observe the response body",
+        "action": "Send GET request to https://jobc.phronex.com/api/v1/health (or navigate browser to https://jobc.phronex.com/api/v1/health) and observe the response body",
         "expected": "Response body is exactly {\"status\": \"healthy\"} with HTTP 200. Any other status or body is a blocking failure."
       },
       {
         "id": 3,
         "description": "Navigate to the JobPortal config settings page at /jp/config (or equivalent portal config route) to verify the API key / BYOK configuration surface is reachable.",
-        "action": "Navigate to http://localhost:3002/jp/config, wait for page to fully load",
+        "action": "Navigate to https://app.phronex.com/jp/config, wait for page to fully load",
         "expected": "Config page loads at /jp/config with HTTP 200. At least one configurable setting is visible \u2014 toggles, text inputs, or API key fields are present in the DOM."
       },
       {
@@ -2983,13 +2983,13 @@
       {
         "id": 5,
         "description": "Verify the Authorization header contract: attempt to call a protected API endpoint (e.g. GET /api/v1/portals or equivalent list endpoint) without a Bearer token and confirm the server enforces authentication.",
-        "action": "Open browser DevTools network panel or use page.evaluate to send a fetch() to http://localhost:8001/api/v1/portals with no Authorization header, observe the HTTP response status and body",
+        "action": "Open browser DevTools network panel or use page.evaluate to send a fetch() to https://jobc.phronex.com/api/v1/portals with no Authorization header, observe the HTTP response status and body",
         "expected": "Server returns HTTP 401 Unauthorized. Response body contains an error or detail field. The endpoint does NOT return 200 or any data without a valid JWT."
       },
       {
         "id": 6,
         "description": "Verify the authenticated API surface: call the job portals list endpoint with the valid session JWT and confirm data is returned and scoped to the authenticated user.",
-        "action": "Use page.evaluate to send fetch('http://localhost:8001/api/v1/portals', { headers: { Authorization: 'Bearer ' + <session_token_from_cookie_or_storage> } }), observe status and response body",
+        "action": "Use page.evaluate to send fetch('https://jobc.phronex.com/api/v1/portals', { headers: { Authorization: 'Bearer ' + <session_token_from_cookie_or_storage> } }), observe status and response body",
         "expected": "HTTP 200 is returned. Response body is a JSON array or paginated object. All returned records belong to the authenticated user (no cross-user data leakage). An empty array [] is acceptable if no portals exist; a non-200 or non-JSON response is a failure."
       },
       {
@@ -3007,7 +3007,7 @@
       {
         "id": 9,
         "description": "Exercise the rate-limit bucket introduced in v1.2: make 6 or more rapid successive requests to a protected endpoint and confirm the server enforces rate limiting without crashing.",
-        "action": "Use page.evaluate to fire 7 sequential fetch() calls to http://localhost:8001/api/v1/portals with the valid Bearer token in quick succession, collect all HTTP status codes",
+        "action": "Use page.evaluate to fire 7 sequential fetch() calls to https://jobc.phronex.com/api/v1/portals with the valid Bearer token in quick succession, collect all HTTP status codes",
         "expected": "The first N requests (up to the bucket limit) return 200. Once the limit is exceeded, subsequent requests return HTTP 429 Too Many Requests. The server does not return 500 or drop the connection. Exact bucket size need not be asserted \u2014 presence of a 429 within 7 rapid calls is sufficient."
       },
       {
@@ -3031,7 +3031,7 @@
       {
         "id": 13,
         "description": "Verify the Razorpay webhook endpoint is reachable and rejects unsigned/malformed payloads \u2014 confirming the security surface of the one unauthenticated POST route.",
-        "action": "Use page.evaluate to send fetch('http://localhost:8001/api/v1/webhooks/razorpay', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'payment.captured', payload: {} }) }) without a valid Razorpay signature header",
+        "action": "Use page.evaluate to send fetch('https://jobc.phronex.com/api/v1/webhooks/razorpay', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'payment.captured', payload: {} }) }) without a valid Razorpay signature header",
         "expected": "Server returns HTTP 400 or 401 (signature validation failure). It does NOT return 200 or process the payload. The endpoint is reachable (no 404, no 500 crash), confirming routing is correct while the security gate is enforced."
       },
       {
@@ -3050,14 +3050,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState_load_or_navigate: attempt to load session state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if expired or missing, navigate to http://localhost:3002/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, and click the sign-in/submit button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState_load_or_navigate: attempt to load session state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if expired or missing, navigate to https://app.phronex.com/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, and click the sign-in/submit button",
         "expected": "User is authenticated and lands on the portal dashboard or home page without being redirected back to /auth/login. Session cookie or token is present in browser storage."
       },
       {
         "id": 2,
         "description": "Navigate to the JobPortal (jp) service base URL to confirm the application is reachable and the correct product is loaded.",
-        "action": "navigate to http://localhost:8001/ (or the configured jp frontend origin); verify the page title or nav brand contains 'Job' or the jp product identifier",
+        "action": "navigate to https://jobc.phronex.com/ (or the configured jp frontend origin); verify the page title or nav brand contains 'Job' or the jp product identifier",
         "expected": "HTTP 200 response. Page renders without blank screen or JS error in console. Nav or header identifies this as the JobPortal product, not a different Phronex product."
       },
       {
@@ -3069,13 +3069,13 @@
       {
         "id": 4,
         "description": "Verify that an unauthenticated request to a protected router-prefixed endpoint returns 401/403, not 200 or 404, confirming the prefix is wired to the auth middleware correctly.",
-        "action": "In a new browser tab (or via fetch in DevTools console), make a GET request to a known protected endpoint using the router prefix (e.g. fetch('http://localhost:8001/api/v1/jobs', {credentials:'omit'})) without any auth token",
+        "action": "In a new browser tab (or via fetch in DevTools console), make a GET request to a known protected endpoint using the router prefix (e.g. fetch('https://jobc.phronex.com/api/v1/jobs', {credentials:'omit'})) without any auth token",
         "expected": "Response status is 401 (Unauthorized) or 403 (Forbidden). Response body is a JSON object \u2014 not an HTML error page. The prefix resolves to the correct router, confirming routing is active."
       },
       {
         "id": 5,
         "description": "Log in as the superadmin user from the jp frontend login page to obtain an authenticated session for subsequent API-backed actions.",
-        "action": "Navigate to http://localhost:3002/auth/login (portal SSO) or the jp-native login if separate; fill email with 'qa-test-journeyhawk@phronex.com' and password with QA_SUPERADMIN_PASSWORD; submit the form",
+        "action": "Navigate to https://app.phronex.com/auth/login (portal SSO) or the jp-native login if separate; fill email with 'qa-test-journeyhawk@phronex.com' and password with QA_SUPERADMIN_PASSWORD; submit the form",
         "expected": "Redirect to the jp dashboard or jobs listing page. Auth cookie / bearer token is set. No error toast or validation message is shown."
       },
       {
@@ -3111,13 +3111,13 @@
       {
         "id": 11,
         "description": "Cross-service integration \u2014 Verify that the jp router prefix does not collide with phronex-auth (port 8002) or phronex-portal (port 3002) prefixes by confirming jp API calls are NOT accidentally routed to another service.",
-        "action": "In DevTools Network, filter requests to the jp backend host (localhost:8001); confirm no request returns a response body containing 'auth.phronex.com', 'portal', or JWT-decode errors caused by a wrong service handling the request",
+        "action": "In DevTools Network, filter requests to the jp backend host (jobc.phronex.com); confirm no request returns a response body containing 'auth.phronex.com', 'portal', or JWT-decode errors caused by a wrong service handling the request",
         "expected": "All /api/v1/* (or configured prefix) requests on port 8001 return jp-domain responses (jobs, applications, companies). No cross-product response body leakage. No CORS error in console from mismatched origin."
       },
       {
         "id": 12,
         "description": "Health endpoint \u2014 Confirm the jp backend health check is reachable and returns the correct shape, verifying the router prefix setup does not shadow the health route.",
-        "action": "In a new tab or via DevTools fetch, request http://localhost:8001/health",
+        "action": "In a new tab or via DevTools fetch, request https://jobc.phronex.com/health",
         "expected": "HTTP 200. Response body is exactly {\"status\": \"healthy\"} (per Phronex Non-Negotiable Invariants \u2014 never 'ok'). This confirms the health route is not accidentally prefixed and the server is up."
       },
       {
@@ -3148,14 +3148,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or the session is expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or the session is expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
         "expected": "User is authenticated. The portal dashboard or home route loads without a redirect back to /auth/login. A valid session cookie is present in the browser context."
       },
       {
         "id": 2,
         "description": "Navigate to the Professional Portrait section of the portal. This may be at /portrait or accessible from the main navigation sidebar or user profile menu.",
-        "action": "navigate('http://localhost:3002/portrait') OR locate and click the 'Portrait' or 'Professional Portrait' navigation link in the sidebar/header.",
+        "action": "navigate('https://app.phronex.com/portrait') OR locate and click the 'Portrait' or 'Professional Portrait' navigation link in the sidebar/header.",
         "expected": "The Portrait page loads. A heading containing 'Professional Portrait' or equivalent is visible. No 404 or 500 error is shown. The page is accessible to the qa-test-journeyhawk@phronex.com account (pro/enterprise tier)."
       },
       {
@@ -3203,7 +3203,7 @@
       {
         "id": 10,
         "description": "Navigate away from the Portrait page to the dashboard or another section of the portal, then navigate back to /portrait.",
-        "action": "navigate('http://localhost:3002') OR click('[data-testid=\"nav-dashboard\"], a:has-text(\"Dashboard\")') \u2192 navigate('http://localhost:3002/portrait')",
+        "action": "navigate('https://app.phronex.com') OR click('[data-testid=\"nav-dashboard\"], a:has-text(\"Dashboard\")') \u2192 navigate('https://app.phronex.com/portrait')",
         "expected": "The Portrait page reloads cleanly. The previously set display-mode (analytical, as set in step 6) is still active \u2014 the UI loads with the correct default layer. The portrait snapshot is still present and not reset. This confirms the display-mode preference persisted on the server across navigation."
       },
       {
@@ -3222,14 +3222,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState: load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If file missing or session cookie expired, navigate to http://localhost:3002/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click 'Sign In' button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState: load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If file missing or session cookie expired, navigate to https://app.phronex.com/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click 'Sign In' button.",
         "expected": "URL redirects to /jp/ (dashboard or jobs). No error banner visible. Session cookie is active."
       },
       {
         "id": 2,
         "description": "Navigate to the Jobs list page to establish baseline job count before triggering any scan.",
-        "action": "Navigate to http://localhost:3002/jp/jobs. Wait for the page to fully load (network idle). Count the number of job card or table-row elements rendered.",
+        "action": "Navigate to https://app.phronex.com/jp/jobs. Wait for the page to fully load (network idle). Count the number of job card or table-row elements rendered.",
         "expected": "Page loads at /jp/jobs with HTTP 200. Either a non-empty list of job cards/rows OR a meaningful empty-state message ('No jobs found', 'Start by running a scan', etc.) is visible. Page title or heading contains 'Jobs'."
       },
       {
@@ -3259,7 +3259,7 @@
       {
         "id": 7,
         "description": "Navigate to the Jobs list page and verify that newly discovered jobs from the scan_runner.py run are persisted and visible.",
-        "action": "Navigate to http://localhost:3002/jp/jobs. Wait for network idle. Count the number of job cards/rows. Compare against the baseline count captured in step 2.",
+        "action": "Navigate to https://app.phronex.com/jp/jobs. Wait for network idle. Count the number of job cards/rows. Compare against the baseline count captured in step 2.",
         "expected": "Job list page loads successfully. If new jobs were discovered in step 6, the count is greater than or equal to the baseline. Each job card displays at minimum: job title, company name, and a source/portal label. No duplicate job entries for the same external job ID are visible."
       },
       {
@@ -3277,13 +3277,13 @@
       {
         "id": 10,
         "description": "Navigate away from the jobs page to the dashboard, then return and verify job data and portal scan state persist (no phantom reset).",
-        "action": "Navigate to http://localhost:3002/jp/ (dashboard). Wait 2 seconds. Then navigate back to http://localhost:3002/jp/jobs. Wait for network idle.",
+        "action": "Navigate to https://app.phronex.com/jp/ (dashboard). Wait 2 seconds. Then navigate back to https://app.phronex.com/jp/jobs. Wait for network idle.",
         "expected": "Jobs list shows the same entries as after the scan (count unchanged). No jobs have disappeared or reverted to pre-scan state. Portal scan status (if visible from jobs list) still shows 'Completed' for the run triggered in step 5."
       },
       {
         "id": 11,
         "description": "Verify cross-service integration: the health endpoint of the JobPortal backend confirms the service is healthy during/after the scan flow.",
-        "action": "In a new tab (or via fetch in browser console), send a GET request to https://jobc.phronex.com/api/v1/health (or http://localhost:8001/health if running locally).",
+        "action": "In a new tab (or via fetch in browser console), send a GET request to https://jobc.phronex.com/api/v1/health (or https://jobc.phronex.com/health if running locally).",
         "expected": "Response body is exactly {\"status\": \"healthy\"} with HTTP 200. Response time is under 2 seconds. This confirms the backend remained stable through the scan_runner.py job discovery flow."
       }
     ],
@@ -3296,20 +3296,20 @@
     "steps": [
       {
         "id": 1,
-        "description": "Restore superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is absent or the session cookie is expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the form.",
-        "action": "loadStorageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
+        "description": "Restore superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is absent or the session cookie is expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the form.",
+        "action": "loadStorageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
         "expected": "Redirect to /dashboard. Sidebar renders with amber superadmin pill tabs visible. No error toast is shown."
       },
       {
         "id": 2,
         "description": "Navigate to the Dashboard landing page and confirm the AI quota status widget is present, indicating the backend Learning Loop integration is active.",
-        "action": "navigate('http://localhost:3002/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"], [aria-label*=\"AI quota\"], text=/quota/i')",
+        "action": "navigate('https://app.phronex.com/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"], [aria-label*=\"AI quota\"], text=/quota/i')",
         "expected": "Dashboard renders. An AI quota status panel is visible showing a numeric quota or percentage. No 500/503 error banners are displayed."
       },
       {
         "id": 3,
         "description": "Navigate to the Jobs section (Search group \u2192 Jobs tab) via the sidebar pill group and wait for the job listings table to load.",
-        "action": "click('nav >> text=/Jobs/i') OR navigate('http://localhost:3002/jobs') \u2192 waitForSelector('table, [data-testid=\"jobs-list\"], [role=\"table\"]')",
+        "action": "click('nav >> text=/Jobs/i') OR navigate('https://app.phronex.com/jobs') \u2192 waitForSelector('table, [data-testid=\"jobs-list\"], [role=\"table\"]')",
         "expected": "Jobs page renders. At least one job row is visible in the listing table. The page title or heading contains 'Jobs'. No loading spinner remains after 5 s."
       },
       {
@@ -3333,7 +3333,7 @@
       {
         "id": 7,
         "description": "Navigate to the Resume Guidelines section (if exposed in the sidebar under the Search group or a dedicated tab) to verify the UI surface for guideline persistence exists.",
-        "action": "click('nav >> text=/Guidelines/i, nav >> text=/Resume/i') OR navigate('http://localhost:3002/resume-guidelines') \u2192 waitForSelector('h1, h2, [data-testid=\"guidelines-heading\"]')",
+        "action": "click('nav >> text=/Guidelines/i, nav >> text=/Resume/i') OR navigate('https://app.phronex.com/resume-guidelines') \u2192 waitForSelector('h1, h2, [data-testid=\"guidelines-heading\"]')",
         "expected": "A Resume Guidelines page or modal loads. A heading containing 'Guidelines' or 'Resume' is visible. If the feature has a known UI gap (per v1.7 USER-SPEC), the page should render a placeholder or empty-state message rather than a 500 error."
       },
       {
@@ -3345,13 +3345,13 @@
       {
         "id": 9,
         "description": "Navigate away from the guidelines/jobs area to the Dashboard, then use the browser back button to return and assert that previously loaded data (AI score, guidelines list) persists without a full re-fetch error.",
-        "action": "navigate('http://localhost:3002/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"]') \u2192 goBack() \u2192 waitForSelector('[data-testid=\"guideline-item\"], [data-testid=\"ai-match-score\"]')",
+        "action": "navigate('https://app.phronex.com/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"]') \u2192 goBack() \u2192 waitForSelector('[data-testid=\"guideline-item\"], [data-testid=\"ai-match-score\"]')",
         "expected": "After returning via browser back, the previous page re-renders without a blank white screen or 404. Previously visible data (score value or guideline items) is still shown or re-fetched cleanly. No 'hydration error' or 'ChunkLoadError' in the browser console."
       },
       {
         "id": 10,
         "description": "Verify the superadmin audit log records an event related to the AI evaluation action triggered in step 5 (cross-service persistence check).",
-        "action": "navigate('http://localhost:3002/admin/audit-log') OR click('nav >> text=/Audit/i') \u2192 waitForSelector('table tbody tr') \u2192 filterRows(text=/ai|score|evaluate|guideline/i)",
+        "action": "navigate('https://app.phronex.com/admin/audit-log') OR click('nav >> text=/Audit/i') \u2192 waitForSelector('table tbody tr') \u2192 filterRows(text=/ai|score|evaluate|guideline/i)",
         "expected": "The audit log table contains at least one entry mentioning an AI evaluation or guideline synthesis action from this session. The entry has a timestamp, actor (qa-test-journeyhawk@phronex.com or system), and action description. No 403 or 500 on the audit log page."
       },
       {
@@ -3370,8 +3370,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if file missing or session cookie invalid, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In / Login submit button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if file missing or session cookie invalid, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In / Login submit button",
         "expected": "User is authenticated and redirected to the JP portal dashboard (URL contains /dashboard or /). No login error banner visible. Superadmin amber-variant sidebar tabs are visible (Admin group present in sidebar)."
       },
       {
@@ -3436,8 +3436,8 @@
       },
       {
         "id": 12,
-        "description": "Navigate away from the page to a non-JP route (e.g. back to the portal root at http://localhost:3002/) and then return to the JP dashboard, verifying data and state persist as required by the journey spec.",
-        "action": "Navigate the browser to http://localhost:3002/ (portal root). Wait for that page to load. Then navigate back to the JP dashboard (click JP-related nav or go directly to the JP dashboard URL).",
+        "description": "Navigate away from the page to a non-JP route (e.g. back to the portal root at https://app.phronex.com/) and then return to the JP dashboard, verifying data and state persist as required by the journey spec.",
+        "action": "Navigate the browser to https://app.phronex.com/ (portal root). Wait for that page to load. Then navigate back to the JP dashboard (click JP-related nav or go directly to the JP dashboard URL).",
         "expected": "JP Dashboard loads again without requiring re-authentication. Scan summary, recent jobs, application pipeline, and AI quota status all render with consistent data matching what was visible before navigation. No stale-state or hydration errors in console."
       }
     ],
@@ -3450,14 +3450,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
         "expected": "User is authenticated and redirected to the JP dashboard. No error banners. Auth cookies/session tokens are present in browser storage."
       },
       {
         "id": 2,
         "description": "Navigate to the JP Storage administration section (e.g. /admin/storage or equivalent settings page) and confirm the page loads without errors.",
-        "action": "navigate('http://localhost:3002/admin/storage') OR locate the Storage link in the sidebar/nav and click it",
+        "action": "navigate('https://app.phronex.com/admin/storage') OR locate the Storage link in the sidebar/nav and click it",
         "expected": "Storage page renders with HTTP 200. No JS console errors. Page heading or breadcrumb confirms 'Storage' context. Any existing storage records/buckets are listed in a table or card view."
       },
       {
@@ -3493,7 +3493,7 @@
       {
         "id": 8,
         "description": "PERSISTENCE CHECK \u2014 Navigate away from the Storage page to the JP dashboard, then navigate back to the Storage page.",
-        "action": "click('Dashboard' nav link OR navigate('http://localhost:3002/dashboard')) \u2192 then navigate back to the storage page",
+        "action": "click('Dashboard' nav link OR navigate('https://app.phronex.com/dashboard')) \u2192 then navigate back to the storage page",
         "expected": "The storage list still shows the 'qa-test-bucket-journeyhawk' entry with the 'QA-updated' description from step 5. No data loss. Page renders without errors on return."
       },
       {
@@ -3511,7 +3511,7 @@
       {
         "id": 11,
         "description": "POST-DELETE PERSISTENCE \u2014 Navigate away to the dashboard and return to the Storage page once more to confirm the deleted entry does not reappear.",
-        "action": "navigate('http://localhost:3002/dashboard') \u2192 navigate back to the storage page",
+        "action": "navigate('https://app.phronex.com/dashboard') \u2192 navigate back to the storage page",
         "expected": "'qa-test-bucket-journeyhawk' does not appear anywhere in the storage list. The list either shows remaining real entries or an empty state message. No ghost records."
       },
       {
@@ -3530,14 +3530,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') or navigate('http://localhost:3002/auth/login') then fill('#email', 'qa-test-journeyhawk@phronex.com') and fill('#password', 'QA_SUPERADMIN_PASSWORD') and click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') or navigate('https://app.phronex.com/auth/login') then fill('#email', 'qa-test-journeyhawk@phronex.com') and fill('#password', 'QA_SUPERADMIN_PASSWORD') and click('[type=submit]')",
         "expected": "User is authenticated. Dashboard or home page loads without a redirect back to /auth/login. Auth session cookie is present."
       },
       {
         "id": 2,
         "description": "Navigate to the applications list page (GET /applications/) and verify the page loads with a list of applications for the authenticated user.",
-        "action": "navigate('http://localhost:8001/applications/') or navigate to the portal applications route and await network idle",
+        "action": "navigate('https://jobc.phronex.com/applications/') or navigate to the portal applications route and await network idle",
         "expected": "HTTP 200 response. Page renders a list (table or card set) of applications. Each row/card shows at minimum: job title, company name, applied_at date, and a status badge. No 401/403 error. If no applications exist yet, an empty-state UI is shown rather than an error."
       },
       {
@@ -3573,7 +3573,7 @@
       {
         "id": 8,
         "description": "Navigate away to the dashboard, then return to /applications/ and re-open the same application detail to verify persistence across navigation.",
-        "action": "navigate('http://localhost:3002/') or click the Dashboard nav link. Wait for dashboard to load. Then navigate back to /applications/ and click the same application.",
+        "action": "navigate('https://app.phronex.com/') or click the Dashboard nav link. Wait for dashboard to load. Then navigate back to /applications/ and click the same application.",
         "expected": "The application detail still shows 'withdrawn' (the last status set in step 7). The info_provided, missing_info, and failure_reason fields are unchanged. Session is still active \u2014 no re-authentication prompt."
       },
       {
@@ -3591,8 +3591,8 @@
       {
         "id": 11,
         "description": "Verify authentication boundary: log out and attempt to access /applications/ directly to confirm unauthenticated access is blocked.",
-        "action": "Click logout in the UI nav. Await redirect to login page. Then navigate directly to http://localhost:8001/applications/ or the portal's /applications route.",
-        "expected": "Server returns 401 Unauthorized (API) and/or the UI redirects to http://localhost:3002/auth/login. No application data is exposed to unauthenticated requests. The login page renders correctly with email and password fields."
+        "action": "Click logout in the UI nav. Await redirect to login page. Then navigate directly to https://jobc.phronex.com/applications/ or the portal's /applications route.",
+        "expected": "Server returns 401 Unauthorized (API) and/or the UI redirects to https://app.phronex.com/auth/login. No application data is exposed to unauthenticated requests. The login page renders correctly with email and password fields."
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -3604,8 +3604,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
-        "action": "storageState load OR navigate('http://localhost:3002/auth/login') \u2192 fill email + password \u2192 click 'Sign In'",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "action": "storageState load OR navigate('https://app.phronex.com/auth/login') \u2192 fill email + password \u2192 click 'Sign In'",
         "expected": "User is authenticated and redirected to the dashboard. The sidebar is visible and the amber superadmin pill tabs (Admin, System) are rendered, confirming superadmin role is active."
       },
       {
@@ -3635,7 +3635,7 @@
       {
         "id": 6,
         "description": "Test rate-limit bucket enforcement: make rapid repeated requests to a rate-limited endpoint (e.g. login or job-search) by submitting the same form multiple times in quick succession.",
-        "action": "On a rate-limited form (e.g. the login form at http://localhost:3002/auth/login with wrong credentials, or the Jobs search filter), submit or trigger the action 6 times within 10 seconds.",
+        "action": "On a rate-limited form (e.g. the login form at https://app.phronex.com/auth/login with wrong credentials, or the Jobs search filter), submit or trigger the action 6 times within 10 seconds.",
         "expected": "After exceeding the threshold, the UI displays a rate-limit error message (e.g. 'Too many requests, please wait') or the server returns HTTP 429. The response must not be a generic 500."
       },
       {
@@ -3658,9 +3658,9 @@
       },
       {
         "id": 10,
-        "description": "Simulate an unauthenticated access attempt: open a new private/incognito browser context (no session) and attempt to navigate directly to a superadmin URL (e.g. http://localhost:3002/admin or http://localhost:3002/system).",
+        "description": "Simulate an unauthenticated access attempt: open a new private/incognito browser context (no session) and attempt to navigate directly to a superadmin URL (e.g. https://app.phronex.com/admin or https://app.phronex.com/system).",
         "action": "Open incognito context \u2192 navigate directly to a superadmin-only route URL.",
-        "expected": "The browser is redirected to http://localhost:3002/auth/login (or equivalent). The protected page content is NOT rendered. HTTP response for the direct URL is either 302 redirect or the client-side router intercepts and redirects before any admin data is fetched."
+        "expected": "The browser is redirected to https://app.phronex.com/auth/login (or equivalent). The protected page content is NOT rendered. HTTP response for the direct URL is either 302 redirect or the client-side router intercepts and redirects before any admin data is fetched."
       },
       {
         "id": 11,
@@ -3678,8 +3678,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, submit the form, and wait for redirect away from /auth/login.",
-        "action": "storageState load OR navigate to http://localhost:3002/auth/login \u2192 fill email=qa-test-journeyhawk@phronex.com, password=QA_SUPERADMIN_PASSWORD \u2192 click Sign In",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, submit the form, and wait for redirect away from /auth/login.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login \u2192 fill email=qa-test-journeyhawk@phronex.com, password=QA_SUPERADMIN_PASSWORD \u2192 click Sign In",
         "expected": "User is authenticated. URL does not contain /auth/login. A dashboard or home page is visible with no error banners."
       },
       {
@@ -3727,7 +3727,7 @@
       {
         "id": 9,
         "description": "Verify the health endpoint of the jobportal backend returns the correct response shape to confirm the service is up and multi-tenancy middleware is active.",
-        "action": "Send GET request to http://localhost:8001/health (or the equivalent internal health route).",
+        "action": "Send GET request to https://jobc.phronex.com/health (or the equivalent internal health route).",
         "expected": "Response body is exactly {\"status\": \"healthy\"}. HTTP status is 200. Response time is under 2 seconds."
       },
       {
@@ -3746,20 +3746,20 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if session cookie absent or expired, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the sign-in submit button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if session cookie absent or expired, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the sign-in submit button.",
         "expected": "User is authenticated and redirected to the portal dashboard. No login error banner is visible. The authenticated user's display name or avatar appears in the navigation header."
       },
       {
         "id": 2,
         "description": "Navigate to the dashboard home page and confirm the page loads without errors.",
-        "action": "Navigate to http://localhost:3002/ (or the portal root). Wait for the main content area to appear. Check the browser console for uncaught JS errors.",
+        "action": "Navigate to https://app.phronex.com/ (or the portal root). Wait for the main content area to appear. Check the browser console for uncaught JS errors.",
         "expected": "Dashboard renders successfully. No red error banners, no 'Failed to fetch' messages, no uncaught console errors. HTTP status for the page is 200."
       },
       {
         "id": 3,
         "description": "Call the scheduler status API endpoint directly to obtain the baseline list of registered APScheduler jobs for the QA user.",
-        "action": "Issue a GET request to http://localhost:8001/jobs/scheduler/status using the authenticated session cookie (via browser fetch or direct navigation). Capture the full JSON response body.",
+        "action": "Issue a GET request to https://jobc.phronex.com/jobs/scheduler/status using the authenticated session cookie (via browser fetch or direct navigation). Capture the full JSON response body.",
         "expected": "Response HTTP status is 200. Response body is a JSON array. Each element contains at minimum the fields: portal_name (string), next_run_time (ISO-8601 timestamp string or null), and job_id (string). If no jobs are scheduled the array may be empty \u2014 record this state as the baseline for later assertions."
       },
       {
@@ -3777,7 +3777,7 @@
       {
         "id": 6,
         "description": "Navigate to the Jobs list page in the portal UI and verify real job listings or a meaningful empty state are displayed.",
-        "action": "Navigate to the jobs listing page (e.g. http://localhost:3002/jobs or equivalent route). Wait for the job cards/rows to render. If the list is empty, verify an explicit empty-state message is shown (not a blank white page).",
+        "action": "Navigate to the jobs listing page (e.g. https://app.phronex.com/jobs or equivalent route). Wait for the job cards/rows to render. If the list is empty, verify an explicit empty-state message is shown (not a blank white page).",
         "expected": "The Jobs list page renders without a loading spinner stuck indefinitely. If jobs are present, at least one card/row is visible with a job title, company name, and either a match score or match explanation snippet. If no jobs are present, an actionable empty-state message is displayed (e.g. 'No jobs found \u2014 update your profile to get matched')."
       },
       {
@@ -3789,31 +3789,31 @@
       {
         "id": 8,
         "description": "Verify the AI Portrait page shows genuine personalised content or an actionably locked state \u2014 confirming the scheduler-driven portrait pipeline.",
-        "action": "Navigate to the AI Portrait page (e.g. http://localhost:3002/portrait or equivalent). Wait for content to load. Assess whether: (a) personalised portrait text is rendered with more than 50 characters of content, or (b) a locked/pending state is shown with a clear call-to-action (e.g. 'Complete your profile to generate your portrait'). Also check for the share link element.",
+        "action": "Navigate to the AI Portrait page (e.g. https://app.phronex.com/portrait or equivalent). Wait for content to load. Assess whether: (a) personalised portrait text is rendered with more than 50 characters of content, or (b) a locked/pending state is shown with a clear call-to-action (e.g. 'Complete your profile to generate your portrait'). Also check for the share link element.",
         "expected": "Portrait page loads without a 500 error. Either real personalised text is visible (not Lorem Ipsum or placeholder) or a clear locked/pending CTA is shown. If a share link is present it must be a valid URL format (not broken or empty). No raw JSON or Python traceback is visible in the page."
       },
       {
         "id": 9,
         "description": "Simulate a scheduler trigger scenario: navigate away from the portal to the dashboard, then return to the Jobs list and verify that previously loaded job data persists or re-fetches correctly.",
-        "action": "From the Jobs list page, navigate to http://localhost:3002/ (dashboard root). Wait 2 seconds. Then navigate back to the Jobs list page. Wait for the job cards/rows to re-render.",
+        "action": "From the Jobs list page, navigate to https://app.phronex.com/ (dashboard root). Wait 2 seconds. Then navigate back to the Jobs list page. Wait for the job cards/rows to re-render.",
         "expected": "On return, the Jobs list shows the same or updated set of jobs \u2014 no blank page, no 'Cannot read properties of undefined' JS error, no HTTP 500. If data was cached client-side it should render immediately; if re-fetched it should re-populate within 5 seconds."
       },
       {
         "id": 10,
         "description": "Re-call /jobs/scheduler/status after navigation round-trip to confirm scheduler state has not regressed.",
-        "action": "Issue a second GET request to http://localhost:8001/jobs/scheduler/status using the authenticated session. Compare the response array length and job_id set against the baseline captured in step 3.",
+        "action": "Issue a second GET request to https://jobc.phronex.com/jobs/scheduler/status using the authenticated session. Compare the response array length and job_id set against the baseline captured in step 3.",
         "expected": "Response is HTTP 200. The job_id set is identical to (or a superset of) the baseline \u2014 no previously registered jobs have been silently dropped. next_run_time values for persisted jobs are the same or further in the future (no regression to past timestamps)."
       },
       {
         "id": 11,
         "description": "Verify error handling: call /jobs/scheduler/status with an unauthenticated request to confirm the endpoint is protected.",
-        "action": "Issue a GET request to http://localhost:8001/jobs/scheduler/status without any authentication cookie or Authorization header (e.g. open in a fresh incognito context or strip the cookie header).",
+        "action": "Issue a GET request to https://jobc.phronex.com/jobs/scheduler/status without any authentication cookie or Authorization header (e.g. open in a fresh incognito context or strip the cookie header).",
         "expected": "Response HTTP status is 401 or 403. Response body contains an error message (e.g. {'detail': 'Not authenticated'} or similar). No scheduler job data is leaked to unauthenticated callers."
       },
       {
         "id": 12,
         "description": "Final state: return to the portal dashboard and confirm overall health \u2014 no degraded banners, no JS console errors, scheduler integration intact.",
-        "action": "Navigate to http://localhost:3002/. Open browser DevTools console. Scan for any uncaught errors or failed network requests (4xx/5xx) related to scheduler or jobs endpoints. Take a screenshot for evidence.",
+        "action": "Navigate to https://app.phronex.com/. Open browser DevTools console. Scan for any uncaught errors or failed network requests (4xx/5xx) related to scheduler or jobs endpoints. Take a screenshot for evidence.",
         "expected": "Dashboard renders cleanly. No error banners or toast notifications indicating a background scheduler failure. No 4xx or 5xx network requests appear in the DevTools Network panel for /jobs/* routes. Console is free of uncaught exceptions."
       }
     ],
@@ -3826,32 +3826,32 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if load fails or session cookie absent, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, wait for navigation to complete",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if load fails or session cookie absent, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, wait for navigation to complete",
         "expected": "User is authenticated. Page URL is NOT /auth/login. A dashboard or home route is visible. No error toast or 401 banner is present."
       },
       {
         "id": 2,
         "description": "Navigate to the JP dashboard root and confirm the page renders without console errors.",
-        "action": "Navigate to http://localhost:3002/. Wait for the main content container to be visible. Capture browser console messages.",
+        "action": "Navigate to https://app.phronex.com/. Wait for the main content container to be visible. Capture browser console messages.",
         "expected": "HTTP 200. Dashboard heading or onboarding section is visible. No uncaught JS errors in console. No 'Failed to fetch' or network-error toasts."
       },
       {
         "id": 3,
         "description": "Call the JobPortal health endpoint to confirm phronex-common integration is wired correctly and the service is reachable.",
-        "action": "Send GET request to http://localhost:8001/health (or the configured JP backend URL). Capture the JSON response body.",
+        "action": "Send GET request to https://jobc.phronex.com/health (or the configured JP backend URL). Capture the JSON response body.",
         "expected": "HTTP 200. Response body is exactly {\"status\": \"healthy\"}. No 'ok' string variant. Latency under 3 seconds."
       },
       {
         "id": 4,
         "description": "Confirm the JWT issued by phronex-auth is accepted by the JP backend \u2014 test cross-service token validation.",
-        "action": "From the authenticated browser session extract the Authorization Bearer token (via browser localStorage or cookie). Send GET request to http://localhost:8001/api/v1/portals with header Authorization: Bearer {token}.",
+        "action": "From the authenticated browser session extract the Authorization Bearer token (via browser localStorage or cookie). Send GET request to https://jobc.phronex.com/api/v1/portals with header Authorization: Bearer {token}.",
         "expected": "HTTP 200 or 204 (not 401 or 403). Response is valid JSON. This confirms the JP backend accepted a phronex-auth-signed JWT, proving cross-service token validation works."
       },
       {
         "id": 5,
         "description": "Navigate to the Job Portals list page in the portal UI and verify it loads data from the JP backend.",
-        "action": "Navigate to http://localhost:3002/portals (or the equivalent portals list route). Wait for the list container or 'no portals yet' empty state to appear. Observe any network requests in the browser.",
+        "action": "Navigate to https://app.phronex.com/portals (or the equivalent portals list route). Wait for the list container or 'no portals yet' empty state to appear. Observe any network requests in the browser.",
         "expected": "Page renders without a 500 or blank white screen. Either a list of portals or a clear empty-state message with a CTA is shown. No unhandled promise rejection in console."
       },
       {
@@ -3887,7 +3887,7 @@
       {
         "id": 11,
         "description": "Verify the audit log captures the credential-save action (v1.2 security hardening integration).",
-        "action": "Navigate to the Admin \u2192 Audit Log section (or equivalent route such as http://localhost:3002/admin/audit). Filter by the current user qa-test-journeyhawk@phronex.com or by action type 'credential'.",
+        "action": "Navigate to the Admin \u2192 Audit Log section (or equivalent route such as https://app.phronex.com/admin/audit). Filter by the current user qa-test-journeyhawk@phronex.com or by action type 'credential'.",
         "expected": "At least one audit log entry exists for the credential-save action performed in step 10. Entry contains a timestamp, actor identifier, and action description. Log is not empty or inaccessible."
       },
       {
@@ -3899,13 +3899,13 @@
       {
         "id": 13,
         "description": "Verify the Content Companion cross-sell CTA is present and links correctly (cross-product integration check).",
-        "action": "Navigate to the JP dashboard (http://localhost:3002/). Locate the Content Companion cross-sell banner or CTA. Capture the href of the link.",
+        "action": "Navigate to the JP dashboard (https://app.phronex.com/). Locate the Content Companion cross-sell banner or CTA. Capture the href of the link.",
         "expected": "Cross-sell CTA exists and is visible. The href points to the correct CC URL (cc.phronex.com or configured CC domain). Clicking the link opens a new tab or navigates correctly \u2014 it does not 404 or link to localhost:8001."
       },
       {
         "id": 14,
         "description": "Navigate away from the portals page to the dashboard, then navigate back to verify persistence of the created portal record.",
-        "action": "Navigate to http://localhost:3002/ (dashboard). Wait 2 seconds. Navigate back to http://localhost:3002/portals.",
+        "action": "Navigate to https://app.phronex.com/ (dashboard). Wait 2 seconds. Navigate back to https://app.phronex.com/portals.",
         "expected": "The 'JH-Integration-Test-Portal' created in step 6 is still present in the list after navigation. Data was persisted server-side, not just held in local React state. No stale-cache or 'undefined' row appears."
       },
       {
@@ -4127,14 +4127,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie expired, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, and wait for redirect away from /auth/login.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState({ path: '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' }) \u2014 if file missing or session cookie expired, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, and wait for redirect away from /auth/login.",
         "expected": "User is authenticated as qa-test-journeyhawk@phronex.com. Current URL does not contain /auth/login. No authentication error banner is visible."
       },
       {
         "id": 2,
         "description": "Navigate to the Jobs list page and locate at least one job card.",
-        "action": "Navigate to http://localhost:3002/jobs (or the equivalent jobs list route). Wait for the page to finish loading. Scan the DOM for at least one job card element.",
+        "action": "Navigate to https://app.phronex.com/jobs (or the equivalent jobs list route). Wait for the page to finish loading. Scan the DOM for at least one job card element.",
         "expected": "Jobs list page renders without a JavaScript console error. At least one job card is visible in the list. Job title and company name are non-empty strings \u2014 not 'undefined', not 'NaN', not blank."
       },
       {
@@ -4182,7 +4182,7 @@
       {
         "id": 10,
         "description": "Navigate away to the dashboard, then return to the same job detail view to verify persistence.",
-        "action": "Navigate to http://localhost:3002/dashboard (or the app's root/home route). Wait for the dashboard to load. Then navigate back to the same job detail URL captured in step 3.",
+        "action": "Navigate to https://app.phronex.com/dashboard (or the app's root/home route). Wait for the dashboard to load. Then navigate back to the same job detail URL captured in step 3.",
         "expected": "Dashboard loads without errors. Upon returning to the job detail view, the previously generated cover letter and tailored resume are still displayed \u2014 they were persisted server-side and are re-fetched on return. The user does not need to regenerate content."
       },
       {
@@ -4287,8 +4287,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session cookie is expired, navigate to http://localhost:3002/auth/login, fill the email field with 'qa-test-journeyhawk@phronex.com', fill the password field with QA_SUPERADMIN_PASSWORD, and submit the login form.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session cookie is expired, navigate to https://app.phronex.com/auth/login, fill the email field with 'qa-test-journeyhawk@phronex.com', fill the password field with QA_SUPERADMIN_PASSWORD, and submit the login form.",
         "expected": "User is authenticated and redirected to the portal dashboard. The sidebar is visible and no authentication error is displayed. The superadmin amber-variant tabs are visible in the sidebar."
       },
       {
@@ -4319,7 +4319,7 @@
         "id": 6,
         "description": "Verify the share link reflects the updated portrait state.",
         "action": "If a share link or 'Copy link' button is present on the portrait page, click it or read its href value. Compare it to the value captured in step 3.",
-        "expected": "The share link is present and is a well-formed, non-empty URL. If the portrait was regenerated, the link either remains stable (permalink) or has been updated consistently \u2014 it does not point to a broken or 404 route. No raw internal URL (e.g. 'http://localhost:8001') is exposed to the client."
+        "expected": "The share link is present and is a well-formed, non-empty URL. If the portrait was regenerated, the link either remains stable (permalink) or has been updated consistently \u2014 it does not point to a broken or 404 route. No raw internal URL (e.g. 'https://jobc.phronex.com') is exposed to the client."
       },
       {
         "id": 7,
@@ -4343,14 +4343,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on failure navigate to http://localhost:3002/auth/login and fill [name='email'] with 'qa-test-journeyhawk@phronex.com', fill [name='password'] with QA_SUPERADMIN_PASSWORD, click [type='submit']",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on failure navigate to https://app.phronex.com/auth/login and fill [name='email'] with 'qa-test-journeyhawk@phronex.com', fill [name='password'] with QA_SUPERADMIN_PASSWORD, click [type='submit']",
         "expected": "User is authenticated. The page redirects away from /auth/login. No authentication error banner is visible. The dashboard or home route loads within 5 seconds."
       },
       {
         "id": 2,
-        "description": "Navigate to the JP dashboard root (e.g. http://localhost:3002/ or /dashboard) and visually inspect the page for new-user onboarding cues.",
-        "action": "navigate to http://localhost:3002/; wait for network idle; take snapshot of page",
+        "description": "Navigate to the JP dashboard root (e.g. https://app.phronex.com/ or /dashboard) and visually inspect the page for new-user onboarding cues.",
+        "action": "navigate to https://app.phronex.com/; wait for network idle; take snapshot of page",
         "expected": "Dashboard loads with HTTP 200. At least one of the following is visible: an onboarding banner, a 'Get Started' CTA, a step-by-step wizard prompt, or meaningful explainer content. The page must NOT be a blank white screen or an unhandled error page."
       },
       {
@@ -4362,7 +4362,7 @@
       {
         "id": 4,
         "description": "Navigate to the Admin section to manage job portals (e.g. /admin/portals or equivalent admin route).",
-        "action": "navigate to http://localhost:3002/admin/portals; wait for network idle",
+        "action": "navigate to https://app.phronex.com/admin/portals; wait for network idle",
         "expected": "Admin portals list page loads. The page title or heading includes 'Portal' or 'Job Portal'. Any existing portals are listed in a table or card list."
       },
       {
@@ -4386,7 +4386,7 @@
       {
         "id": 8,
         "description": "Navigate to the Jobs list view (e.g. /jobs or /applications) and verify that real jobs or a meaningful empty state is displayed.",
-        "action": "navigate to http://localhost:3002/jobs; wait for network idle; take snapshot",
+        "action": "navigate to https://app.phronex.com/jobs; wait for network idle; take snapshot",
         "expected": "Jobs list renders. Either (a) at least one job card or row is visible with a job title, company name, and a match score or description, or (b) an empty state message is shown that explains why the list is empty (not a blank white area). No 404 or 500 error."
       },
       {
@@ -4404,19 +4404,19 @@
       {
         "id": 11,
         "description": "Navigate to the AI Portrait page (e.g. /portrait or /profile/portrait) and verify content state.",
-        "action": "navigate to http://localhost:3002/portrait; wait for network idle; take snapshot",
+        "action": "navigate to https://app.phronex.com/portrait; wait for network idle; take snapshot",
         "expected": "Portrait page loads. The page either (a) shows real personalised content (skills, experience summary, or similar generated content), or (b) shows a clear locked/upsell state explaining what is required to unlock it. A 'Share' link or button is visible if portrait content is shown. A blank white page or unhandled error is a failure."
       },
       {
         "id": 12,
         "description": "Locate the Content Companion cross-sell banner or CTA on the JP dashboard or jobs page and verify it links correctly.",
-        "action": "navigate to http://localhost:3002/; look for a Content Companion cross-sell banner or CTA element; hover over it to inspect the href; click it",
+        "action": "navigate to https://app.phronex.com/; look for a Content Companion cross-sell banner or CTA element; hover over it to inspect the href; click it",
         "expected": "The CTA element is present on the page. Its href points to a valid Content Companion URL (e.g. cc.phronex.com or /cc or a known CC entry point). Clicking the link does not result in a 404 or broken page. The flow from JP to CC is completable without authentication errors."
       },
       {
         "id": 13,
         "description": "Navigate to the BYOK / API key configuration settings page (e.g. /settings/api or /config/byok).",
-        "action": "navigate to http://localhost:3002/settings/api or equivalent config route; wait for network idle",
+        "action": "navigate to https://app.phronex.com/settings/api or equivalent config route; wait for network idle",
         "expected": "The configuration settings page loads. An API key input field is visible on the page. The field is labelled appropriately (e.g. 'API Key', 'Your API Key', 'BYOK')."
       },
       {
@@ -4428,13 +4428,13 @@
       {
         "id": 15,
         "description": "Navigate away from the settings page to the dashboard, then return to the settings page and verify the API key persists.",
-        "action": "navigate to http://localhost:3002/; wait for 1 second; navigate back to the API key settings page",
+        "action": "navigate to https://app.phronex.com/; wait for 1 second; navigate back to the API key settings page",
         "expected": "The API key field on return shows the previously saved value (or a masked representation). The value is not reset to empty, confirming persistence across navigation."
       },
       {
         "id": 16,
         "description": "Navigate to the dashboard one final time and verify that all previously interacted features remain reachable and the page renders without errors.",
-        "action": "navigate to http://localhost:3002/; wait for network idle; check browser console for uncaught JS errors; take final snapshot",
+        "action": "navigate to https://app.phronex.com/; wait for network idle; check browser console for uncaught JS errors; take final snapshot",
         "expected": "Dashboard renders successfully. No uncaught JS exceptions in console. Navigation links for Jobs, Portrait, Settings, Admin, and Help are all present and clickable. The session remains authenticated (no redirect to /auth/login)."
       }
     ],
@@ -4447,8 +4447,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "Load storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to http://localhost:3002/auth/login, fill the email field with qa-test-journeyhawk@phronex.com, fill the password field with QA_SUPERADMIN_PASSWORD, and click the login/submit button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "Load storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to https://app.phronex.com/auth/login, fill the email field with qa-test-journeyhawk@phronex.com, fill the password field with QA_SUPERADMIN_PASSWORD, and click the login/submit button.",
         "expected": "The browser lands on the JP dashboard (URL contains '/dashboard' or '/'). No login form is visible. The user avatar or account menu reflects the superadmin account."
       },
       {
@@ -4521,8 +4521,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or the session has expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
-        "action": "Navigate to http://localhost:3002/auth/login if session is expired; fill email field with qa-test-journeyhawk@phronex.com; fill password field with QA_SUPERADMIN_PASSWORD; click Sign In button; wait for redirect away from /auth/login.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or the session has expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "action": "Navigate to https://app.phronex.com/auth/login if session is expired; fill email field with qa-test-journeyhawk@phronex.com; fill password field with QA_SUPERADMIN_PASSWORD; click Sign In button; wait for redirect away from /auth/login.",
         "expected": "User is authenticated and redirected to the portal dashboard or JP home. No 401 or 403 error is visible. The top navigation shows the authenticated user's name or avatar."
       },
       {
@@ -4534,7 +4534,7 @@
       {
         "id": 3,
         "description": "Navigate to the JobPortal API configuration or settings page at the path '/jp/config' as described in TEST-ORACLES. Look for a config, settings, or API key section.",
-        "action": "Navigate to http://localhost:3002/jp/config (or equivalent) by clicking the Config or Settings link inside the JP section.",
+        "action": "Navigate to https://app.phronex.com/jp/config (or equivalent) by clicking the Config or Settings link inside the JP section.",
         "expected": "The config page loads at a URL matching /jp/config or equivalent. At least one configurable setting is visible \u2014 this may include toggles, text inputs, or API key / BYOK fields. No blank page or unhandled exception is rendered."
       },
       {
@@ -4601,14 +4601,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session file is absent or expired, navigate to http://localhost:3002/auth/login, locate the email input field and type qa-test-journeyhawk@phronex.com, locate the password input field and type QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('button[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session file is absent or expired, navigate to https://app.phronex.com/auth/login, locate the email input field and type qa-test-journeyhawk@phronex.com, locate the password input field and type QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('button[type=submit]')",
         "expected": "URL redirects to /jp/ (dashboard or jobs). No error toast or redirect back to /auth/login. Authenticated user identity (qa-test-journeyhawk@phronex.com) is visible in the UI header or account menu."
       },
       {
         "id": 2,
-        "description": "Assert the login page has both required form fields before submitting. Navigate to http://localhost:3002/auth/login and confirm that an email input field and a password input field are both rendered and visible in the viewport.",
-        "action": "navigate('http://localhost:3002/auth/login') \u2192 snapshot() \u2192 assert(locator('input[type=email]').isVisible()) \u2192 assert(locator('input[type=password]').isVisible())",
+        "description": "Assert the login page has both required form fields before submitting. Navigate to https://app.phronex.com/auth/login and confirm that an email input field and a password input field are both rendered and visible in the viewport.",
+        "action": "navigate('https://app.phronex.com/auth/login') \u2192 snapshot() \u2192 assert(locator('input[type=email]').isVisible()) \u2192 assert(locator('input[type=password]').isVisible())",
         "expected": "Both input[type=email] and input[type=password] are present and visible. Page title or heading indicates this is the sign-in screen. No console errors on load."
       },
       {
@@ -4632,37 +4632,37 @@
       {
         "id": 6,
         "description": "Test the negative auth path: open an incognito/fresh context and attempt to access a protected route (/jp/jobs or /jp/dashboard) without a valid JWT. Assert the application enforces auth guards.",
-        "action": "newContext() \u2192 navigate('http://localhost:3002/jp/jobs') \u2192 waitForNavigation()",
+        "action": "newContext() \u2192 navigate('https://app.phronex.com/jp/jobs') \u2192 waitForNavigation()",
         "expected": "Unauthenticated request to a protected route results in redirect to /auth/login OR an HTTP 401 response. The protected page content is NOT rendered. No user data is leaked to an unauthenticated visitor."
       },
       {
         "id": 7,
         "description": "Test invalid-credential rejection: on the login page, enter a syntactically valid email (qa-test-journeyhawk@phronex.com) but a wrong password (WRONG_PASSWORD_PLACEHOLDER), submit the form, and assert an error is surfaced to the user.",
-        "action": "navigate('http://localhost:3002/auth/login') \u2192 fill('input[type=email]', 'qa-test-journeyhawk@phronex.com') \u2192 fill('input[type=password]', 'WRONG_PASSWORD_PLACEHOLDER') \u2192 click('button:has-text(\"Sign In\")') \u2192 waitForResponse(r => r.url().includes('/auth') && r.status() === 401)",
+        "action": "navigate('https://app.phronex.com/auth/login') \u2192 fill('input[type=email]', 'qa-test-journeyhawk@phronex.com') \u2192 fill('input[type=password]', 'WRONG_PASSWORD_PLACEHOLDER') \u2192 click('button:has-text(\"Sign In\")') \u2192 waitForResponse(r => r.url().includes('/auth') && r.status() === 401)",
         "expected": "Auth API returns 401. An inline error message appears on the login form (e.g. 'Invalid credentials', 'Incorrect password', or equivalent). The URL remains /auth/login \u2014 no redirect to /jp/. No stack trace or internal detail is exposed in the UI."
       },
       {
         "id": 8,
         "description": "Test malformed-email rejection: enter a string that is not a valid email address (e.g. 'notanemail') in the email field and attempt to submit. Assert client-side or server-side validation blocks the request.",
-        "action": "navigate('http://localhost:3002/auth/login') \u2192 fill('input[type=email]', 'notanemail') \u2192 fill('input[type=password]', 'QA_SUPERADMIN_PASSWORD') \u2192 click('button:has-text(\"Sign In\")')",
+        "action": "navigate('https://app.phronex.com/auth/login') \u2192 fill('input[type=email]', 'notanemail') \u2192 fill('input[type=password]', 'QA_SUPERADMIN_PASSWORD') \u2192 click('button:has-text(\"Sign In\")')",
         "expected": "Either the browser's native email validation prevents form submission and shows a tooltip, OR the form submits and the server returns 422/400 with a validation error message visible in the UI. The user is not authenticated. URL stays at /auth/login."
       },
       {
         "id": 9,
         "description": "Test empty-field submission: clear both fields and click Sign In. Assert that submitting an empty form is blocked with clear user feedback.",
-        "action": "navigate('http://localhost:3002/auth/login') \u2192 fill('input[type=email]', '') \u2192 fill('input[type=password]', '') \u2192 click('button:has-text(\"Sign In\")')",
+        "action": "navigate('https://app.phronex.com/auth/login') \u2192 fill('input[type=email]', '') \u2192 fill('input[type=password]', '') \u2192 click('button:has-text(\"Sign In\")')",
         "expected": "Form submission is prevented (HTML5 required validation or JS guard). An error state or required-field indicator is shown on the empty inputs. No network request is fired to the auth endpoint, OR if it is, the server returns 422 and the UI shows an error. URL stays at /auth/login."
       },
       {
         "id": 10,
         "description": "Re-authenticate with valid credentials after the invalid/empty tests to restore the superadmin session. Fill in email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, click Sign In, and wait for navigation to /jp/.",
-        "action": "navigate('http://localhost:3002/auth/login') \u2192 fill('input[type=email]', 'qa-test-journeyhawk@phronex.com') \u2192 fill('input[type=password]', 'QA_SUPERADMIN_PASSWORD') \u2192 click('button:has-text(\"Sign In\")') \u2192 waitForURL('**/jp/**')",
+        "action": "navigate('https://app.phronex.com/auth/login') \u2192 fill('input[type=email]', 'qa-test-journeyhawk@phronex.com') \u2192 fill('input[type=password]', 'QA_SUPERADMIN_PASSWORD') \u2192 click('button:has-text(\"Sign In\")') \u2192 waitForURL('**/jp/**')",
         "expected": "Successful login. URL is /jp/ or a sub-route. Dashboard content renders. No error state remains from the prior negative-path steps."
       },
       {
         "id": 11,
         "description": "Navigate away from the authenticated landing page to an unrelated internal route (e.g., /jp/settings or /jp/profile if available), then use the browser back button to return to /jp/ and verify auth state and rendered content persisted.",
-        "action": "click('a[href*=\"/jp/settings\"]') OR navigate('http://localhost:3002/jp/settings') \u2192 waitForLoadState('networkidle') \u2192 goBack() \u2192 waitForLoadState('networkidle')",
+        "action": "click('a[href*=\"/jp/settings\"]') OR navigate('https://app.phronex.com/jp/settings') \u2192 waitForLoadState('networkidle') \u2192 goBack() \u2192 waitForLoadState('networkidle')",
         "expected": "After navigating back, the URL is /jp/ (or the prior page). The user remains authenticated \u2014 no redirect to /auth/login. Dashboard content re-renders without a full page reload error. The user identity in the header is still visible and correct."
       },
       {
@@ -4693,8 +4693,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session cookie is expired, navigate to http://localhost:3002/auth/login, fill the email field with 'qa-test-journeyhawk@phronex.com', fill the password field with QA_SUPERADMIN_PASSWORD, and click the Sign In button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session cookie is expired, navigate to https://app.phronex.com/auth/login, fill the email field with 'qa-test-journeyhawk@phronex.com', fill the password field with QA_SUPERADMIN_PASSWORD, and click the Sign In button.",
         "expected": "The browser is authenticated as qa-test-journeyhawk@phronex.com. The portal dashboard is visible with the sidebar present, including amber-variant Admin/SA tabs that confirm superadmin role."
       },
       {
@@ -4730,7 +4730,7 @@
       {
         "id": 7,
         "description": "Return to the Billing page and verify Pro tier label and feature limits display correctly for a pro-tier context.",
-        "action": "Navigate back to http://localhost:3002/billing (or use the sidebar). If the test account is pro tier, verify the label reads 'Pro Seeker'. Check that pro-tier feature limits (e.g. increased AI quota, portal count) are shown. If the account is not pro tier, verify the upgrade prompt references pro-tier benefits accurately.",
+        "action": "Navigate back to https://app.phronex.com/billing (or use the sidebar). If the test account is pro tier, verify the label reads 'Pro Seeker'. Check that pro-tier feature limits (e.g. increased AI quota, portal count) are shown. If the account is not pro tier, verify the upgrade prompt references pro-tier benefits accurately.",
         "expected": "If account is pro: page displays 'Pro Seeker' tier label; feature limits reflect pro entitlements; billing management link is functional and non-localhost (satisfies jp-verify-tier-pro oracle). If account is free/standard: upgrade prompt mentions pro features without exposing internal URLs."
       },
       {
@@ -4779,14 +4779,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') \u2014 if file missing or session cookie expired, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, wait for navigation to complete.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') \u2014 if file missing or session cookie expired, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button, wait for navigation to complete.",
         "expected": "User is authenticated as qa-test-journeyhawk@phronex.com. Portal sidebar is visible with at least the Dashboard item rendered. No login error banner is shown."
       },
       {
         "id": 2,
         "description": "Navigate directly to the Config page at /jp/config.",
-        "action": "Navigate to http://localhost:3002/jp/config and wait for the page to reach network-idle state.",
+        "action": "Navigate to https://app.phronex.com/jp/config and wait for the page to reach network-idle state.",
         "expected": "URL is /jp/config. Page heading or sidebar active pill indicates 'Config'. No 404, no error boundary, no blank body."
       },
       {
@@ -4822,13 +4822,13 @@
       {
         "id": 8,
         "description": "Navigate away from the Config page to the Dashboard.",
-        "action": "Click the 'Dashboard' link in the sidebar (or navigate to http://localhost:3002/jp/dashboard). Wait for the Dashboard page to fully load.",
+        "action": "Click the 'Dashboard' link in the sidebar (or navigate to https://app.phronex.com/jp/dashboard). Wait for the Dashboard page to fully load.",
         "expected": "URL changes to /jp or /jp/dashboard. Dashboard content (scan summary, recent jobs, or application pipeline) is visible. No errors."
       },
       {
         "id": 9,
         "description": "Return to the Config page and verify that all saved settings persisted.",
-        "action": "Click the 'Config' link in the sidebar or navigate to http://localhost:3002/jp/config. Wait for page to reach network-idle.",
+        "action": "Click the 'Config' link in the sidebar or navigate to https://app.phronex.com/jp/config. Wait for page to reach network-idle.",
         "expected": "The Config page re-renders without error. The YAML editor still contains the '# qa-journeyhawk-test-comment' line added in step 7. The API key field shows the previously saved value (masked or unmasked depending on UI design, but not blank and not reset to a default placeholder)."
       },
       {
@@ -4847,14 +4847,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on expiry navigate to http://localhost:3002/auth/login and fill credentials qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD then click submit",
+        "description": "Session bootstrap: load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on expiry navigate to https://app.phronex.com/auth/login and fill credentials qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD then click submit",
         "expected": "User is authenticated. Current URL does not contain '/auth/login'. A user avatar or account indicator is visible in the navigation header."
       },
       {
         "id": 2,
         "description": "Navigate to the JP dashboard root. Confirm the dashboard loads with no JavaScript console errors and that an onboarding path or primary CTA is visible to orient a new user.",
-        "action": "navigate to http://localhost:3002; wait for network idle; capture console errors",
+        "action": "navigate to https://app.phronex.com; wait for network idle; capture console errors",
         "expected": "HTTP 200. Dashboard heading or welcome panel is visible. No uncaught JS errors in console. At least one actionable element (button, link, or CTA) is present that guides the user toward a first meaningful action."
       },
       {
@@ -4890,7 +4890,7 @@
       {
         "id": 8,
         "description": "Navigate to the Professional Portrait section. Verify the page is accessible to a superadmin/pro-tier user and the portrait generation control is present.",
-        "action": "navigate to http://localhost:3002/portrait or click the Portrait nav item; wait for page load",
+        "action": "navigate to https://app.phronex.com/portrait or click the Portrait nav item; wait for page load",
         "expected": "Page loads (HTTP 200). A 'Generate Portrait' button or equivalent trigger control is visible. The page does not show a tier-gate error for the superadmin account."
       },
       {
@@ -4913,8 +4913,8 @@
       },
       {
         "id": 12,
-        "description": "Persistence check: navigate away from the current page to the dashboard (http://localhost:3002), then return to the Scan History page for the portal created in step 3.",
-        "action": "navigate to http://localhost:3002; then navigate back to the scan history page for the portal added in step 3",
+        "description": "Persistence check: navigate away from the current page to the dashboard (https://app.phronex.com), then return to the Scan History page for the portal created in step 3.",
+        "action": "navigate to https://app.phronex.com; then navigate back to the scan history page for the portal added in step 3",
         "expected": "The portal entry and at least one scan history record (or empty state) are still visible after the round-trip navigation. No data was lost due to client-side-only state. The API key saved in step 7 persists (field is pre-populated or masked but not blank)."
       },
       {
@@ -4939,14 +4939,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "action": "storageState load OR navigate to http://localhost:3002/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click submit",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing or the session is expired, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click submit",
         "expected": "User is authenticated and redirected to the JP dashboard. No login error banner is visible. Session cookie is present."
       },
       {
         "id": 2,
         "description": "Navigate to the JP dashboard home page and confirm the authenticated user's name or avatar is visible, confirming the session is active.",
-        "action": "navigate to http://localhost:3002/dashboard (or the JP root route), observe the top navigation bar",
+        "action": "navigate to https://app.phronex.com/dashboard (or the JP root route), observe the top navigation bar",
         "expected": "Dashboard page renders without a 401/403 redirect. The authenticated user identity (name or avatar) is visible in the nav. No 'Session expired' or 'Unauthorized' toast appears."
       },
       {
@@ -5019,14 +5019,14 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to http://localhost:3002/auth/login, fill email field with qa-test-journeyhawk@phronex.com and password field with QA_SUPERADMIN_PASSWORD, then click Sign In.",
-        "action": "storageState load OR navigate to http://localhost:3002/auth/login \u2192 fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click Sign In button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or file is missing, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com and password field with QA_SUPERADMIN_PASSWORD, then click Sign In.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login \u2192 fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click Sign In button",
         "expected": "URL becomes /jp/ (dashboard or jobs). No error toast. Sidebar is visible with at least Dashboard and Jobs navigation items."
       },
       {
         "id": 2,
         "description": "Navigate to the Jobs page.",
-        "action": "Click the 'Jobs' sidebar link OR navigate directly to http://localhost:3002/jp/jobs",
+        "action": "Click the 'Jobs' sidebar link OR navigate directly to https://app.phronex.com/jp/jobs",
         "expected": "URL is /jp/jobs. Page title or heading contains 'Jobs'. Either a list of job cards/rows is rendered OR a meaningful empty-state message is displayed (no blank white screen, no unhandled JS error in console)."
       },
       {
@@ -5111,8 +5111,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "action": "Navigate to http://localhost:3002/auth/login if session is expired; fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In / Login button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
+        "action": "Navigate to https://app.phronex.com/auth/login if session is expired; fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In / Login button.",
         "expected": "User is authenticated and redirected to the portal dashboard. The top navigation or sidebar is visible, confirming superadmin session is active."
       },
       {
@@ -5267,8 +5267,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
-        "action": "storageState.load('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('http://localhost:3002/auth/login') THEN fill('#email', 'qa-test-journeyhawk@phronex.com') AND fill('#password', 'QA_SUPERADMIN_PASSWORD') AND click('[type=submit]')",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState.load('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') THEN fill('#email', 'qa-test-journeyhawk@phronex.com') AND fill('#password', 'QA_SUPERADMIN_PASSWORD') AND click('[type=submit]')",
         "expected": "User is authenticated and redirected to the dashboard. No login error banners are visible. The sidebar is rendered with navigation groups including a 'Documents' entry."
       },
       {
