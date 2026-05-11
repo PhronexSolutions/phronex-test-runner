@@ -144,13 +144,22 @@ display. Uses the auth token from the login pre-check already performed by `run-
 
 ---
 
-## CC-01: EC2 deploy needed for IDOR fix + portal users filter (2026-05-11)
+## CC-01: EC2 deploy needed for IDOR fix + portal users filter (2026-05-11) — ⚠️ SECURITY CONFIRMED LIVE
 
 **What:** Two commits need an EC2 deploy to go live:
 1. CC `38617a1` — IDOR fix on `/api/v1/config/usage` (security)
 2. Portal `8e35075` — source filter in CC users panel + anonymous users now visible
 
-**Action needed:** Run EC2 deploy for `contentcompanion` and `phronex-portal` at next opportunity.
+**⚠️ IDOR CONFIRMED ACTIVELY EXPLOITABLE (Run 7 verified 2026-05-11 07:25 UTC):**
+JourneyHawk Run 7 journey `cc-sec-idor-cross-instance` confirmed: an anonymous token issued for
+`e2e-test-instance` returns HTTP 200 with real data (`tier`, `monthly_limit`, `messages_used`)
+when calling `/api/v1/config/usage?instance_id=maxine`. Cross-instance data is accessible to
+any user with a valid CC token — just change the `instance_id` query parameter.
+
+**Fix is in local repo only:** CC `38617a1` closes this with an IDOR guard at the endpoint.
+EC2 still running pre-fix code.
+
+**Action needed:** Deploy CC to EC2 ASAP. This is a live security vulnerability, not a deferred item.
 No Alembic migrations required — API-only change.
 
 ---
