@@ -597,7 +597,7 @@
       },
       {
         "id": 3,
-        "description": "Verify BILLING response shape: (a) 'tier' field is present \u2014 a string like 'free', 'starter', 'pro', (b) 'limits' field is a non-null object (may be empty for unknown tiers), (c) if 'limits' is non-empty, verify 'limits[\"messages-per-month\"]' exists as an integer (the CC API uses hyphenated keys like 'messages-per-month', NOT underscore-separated flat fields like 'monthly_limit'). Note: 'messages_used' / 'usage' are NOT part of the billing/status contract \u2014 usage tracking is not implemented. A missing 'tier' or non-object 'limits' is a contract violation; missing 'messages_used' is NOT a violation."
+        "description": "Verify BILLING response shape matches the actual /api/v1/billing/status contract: (a) 'tier' field present \u2014 string like 'free', 'premium', 'custom', (b) 'monthly_limit' field present \u2014 integer or null (null means unlimited), (c) 'messages_used' field present \u2014 integer count of messages sent this month, (d) 'messages_remaining' field present \u2014 integer or null. PASS if all 4 fields exist with correct types. FAIL if response has a 'limits' nested object instead \u2014 that would indicate wrong endpoint was called. NOTE: the flat shape {tier, monthly_limit, messages_used, messages_remaining} is the correct contract for this endpoint."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
