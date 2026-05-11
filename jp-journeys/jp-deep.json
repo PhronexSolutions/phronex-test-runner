@@ -235,18 +235,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/dashboard if not already there"
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "Verify that stat cards display numeric values (not placeholder text or empty). Report the labels and values of each stat card."
+        "description": "Navigate to https://app.phronex.com/jp/dashboard if not already there"
       },
       {
         "id": 3,
-        "description": "Check the browser console for critical JavaScript errors that visibly break dashboard functionality (e.g. React crash, blank page, missing data). Ignore network errors from background health-checks (/api/auth/me, /billing/pending) that do not affect displayed content. PASS if the dashboard renders stat cards correctly even if background network requests show errors."
+        "description": "Verify that stat cards display numeric values (not placeholder text or empty). Report the labels and values of each stat card."
       },
       {
         "id": 4,
+        "description": "Check the browser console for critical JavaScript errors that visibly break dashboard functionality (e.g. React crash, blank page, missing data). Ignore network errors from background health-checks (/api/auth/me, /billing/pending) that do not affect displayed content. PASS if the dashboard renders stat cards correctly even if background network requests show errors."
+      },
+      {
+        "id": 5,
         "description": "Take an annotated screenshot showing the stat cards with their values"
       }
     ],
@@ -264,18 +268,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "Look for a search input or filter controls on the jobs list page. Report whether they are present."
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
       },
       {
         "id": 3,
-        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies \u2014 either showing filtered results or a meaningful empty state. Report the outcome."
+        "description": "Look for a search input or filter controls on the jobs list page. Report whether they are present."
       },
       {
         "id": 4,
+        "description": "If search/filter controls exist, type a keyword (e.g. 'engineer') and verify the filter applies \u2014 either showing filtered results or a meaningful empty state. Report the outcome."
+      },
+      {
+        "id": 5,
         "description": "Take a screenshot showing the search/filter state"
       }
     ],
@@ -293,18 +301,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "Look for thumbs-up (\ud83d\udc4d) and thumbs-down (\ud83d\udc4e) buttons on a job row. These are the feedback/save buttons. If no jobs are listed, report the empty state and end the test with a note."
+        "description": "Navigate to https://app.phronex.com/jp/jobs if not already there"
       },
       {
         "id": 3,
-        "description": "Click the thumbs-up button on the first job. Verify the button color changes from gray/muted to green (indicating the job is marked as a good match). The change is a color shift, not a popup or toast."
+        "description": "Look for thumbs-up (\ud83d\udc4d) and thumbs-down (\ud83d\udc4e) buttons on a job row. These are the feedback/save buttons. If no jobs are listed, report the empty state and end the test with a note."
       },
       {
         "id": 4,
+        "description": "Click the thumbs-up button on the first job. Verify the button color changes from gray/muted to green (indicating the job is marked as a good match). The change is a color shift, not a popup or toast."
+      },
+      {
+        "id": 5,
         "description": "Click the thumbs-up button again on the same job. NOTE: Clicking thumbs-up a second time RE-CONFIRMS the signal (idempotent) \u2014 it does NOT toggle off. PASS if the button stays green (still \"up\" signal). To clear feedback, click thumbs-DOWN on the same job and verify the button color changes to red/amber (indicating \"down\" signal). Then click thumbs-UP again to restore \"up\" state and verify green returns. Take a screenshot. PASS if signal state visually reflects the last-clicked button."
       }
     ],
@@ -322,18 +334,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "From the job detail view (or navigate to it via https://app.phronex.com/jp/jobs then click first job), look for an Apply button or CTA."
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "If an Apply button exists, click it. Verify the application flow starts \u2014 a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
+        "description": "From the job detail view (or navigate to it via https://app.phronex.com/jp/jobs then click first job), look for an Apply button or CTA."
       },
       {
         "id": 3,
-        "description": "If no jobs exist or no Apply button is present, report the state and PASS with a note that the feature could not be tested due to empty data."
+        "description": "If an Apply button exists, click it. Verify the application flow starts \u2014 a modal opens, a redirect occurs, or a confirmation message appears. Report the outcome."
       },
       {
         "id": 4,
+        "description": "If no jobs exist or no Apply button is present, report the state and PASS with a note that the feature could not be tested due to empty data."
+      },
+      {
+        "id": 5,
         "description": "Take a screenshot showing the apply button state or application flow initiation"
       }
     ]
@@ -348,18 +364,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/config if not already there. Click the 'Personal Info' tab button to switch to the personal information editor. This tab contains a JSON text editor (a single large textbox), not individual form fields."
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "The personal info is displayed as editable JSON in a textbox. Read the current JSON content. Find the 'location' field inside the 'basic' object and change its value to a unique test string like 'QA-City-YYYYMMDD-HHMM' using today's date and current time (e.g. 'QA-City-20260504-0730'). Make sure the resulting text is still valid JSON \u2014 only change the value string, not the structure. Click inside the textbox and carefully edit only that one field value."
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there. Click the 'Personal Info' tab button to switch to the personal information editor. This tab contains a JSON text editor (a single large textbox), not individual form fields."
       },
       {
         "id": 3,
-        "description": "Click the 'Save' button below the JSON textbox. Wait 2-3 seconds and look for a success confirmation message (text saying 'Configuration saved successfully' or similar). If a success message appears, this step passes. Take a snapshot showing the confirmation."
+        "description": "The personal info is displayed as editable JSON in a textbox. Read the current JSON content. Find the 'location' field inside the 'basic' object and change its value to a unique test string like 'QA-City-YYYYMMDD-HHMM' using today's date and current time (e.g. 'QA-City-20260504-0730'). Make sure the resulting text is still valid JSON \u2014 only change the value string, not the structure. Click inside the textbox and carefully edit only that one field value."
       },
       {
         "id": 4,
+        "description": "Click the 'Save' button below the JSON textbox. Wait 2-3 seconds and look for a success confirmation message (text saying 'Configuration saved successfully' or similar). If a success message appears, this step passes. Take a snapshot showing the confirmation."
+      },
+      {
+        "id": 5,
         "description": "Navigate away to https://app.phronex.com/jp/dashboard. Wait for the dashboard to load. Then navigate back to https://app.phronex.com/jp/config and click the 'Personal Info' tab. Read the JSON in the textbox and verify the 'location' field inside 'basic' still contains your QA-City test value from step 2. If the value persisted, this step passes. Take a screenshot showing the persisted value."
       }
     ]
@@ -374,18 +394,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/documents if not already there. Note the current document count."
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "Click the Upload button or file upload CTA. Use the file input to upload the file at './fixtures/test-resume.pdf' (relative to the test runner working directory)."
+        "description": "Navigate to https://app.phronex.com/jp/documents if not already there. Note the current document count."
       },
       {
         "id": 3,
-        "description": "Wait up to 10 seconds for the upload to complete. Verify a document named 'test-resume' or 'test-resume.pdf' now appears in the list. The document count should have increased by 1."
+        "description": "Click the Upload button or file upload CTA. Use the file input to upload the file at './fixtures/test-resume.pdf' (relative to the test runner working directory)."
       },
       {
         "id": 4,
+        "description": "Wait up to 10 seconds for the upload to complete. Verify a document named 'test-resume' or 'test-resume.pdf' now appears in the list. The document count should have increased by 1."
+      },
+      {
+        "id": 5,
         "description": "Find and delete the just-uploaded 'test-resume.pdf' to clean up test data. Confirm it is removed from the list. PASS if the full upload-verify-delete cycle works. Take a screenshot."
       }
     ]
@@ -400,18 +424,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "Look for a BYOK (Bring Your Own Key) section or any API key input field in the config page. Report whether it is present and what label it uses."
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
       },
       {
         "id": 3,
-        "description": "Do NOT submit or change any API key. Only verify the field is present and labeled correctly."
+        "description": "Look for a BYOK (Bring Your Own Key) section or any API key input field in the config page. Report whether it is present and what label it uses."
       },
       {
         "id": 4,
+        "description": "Do NOT submit or change any API key. Only verify the field is present and labeled correctly."
+      },
+      {
+        "id": 5,
         "description": "Take a screenshot showing the BYOK/API key section (or its absence)"
       }
     ],
@@ -429,18 +457,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "Look for a YAML editor, advanced config section, or raw configuration view. Report whether it is present."
+        "description": "Navigate to https://app.phronex.com/jp/config if not already there"
       },
       {
         "id": 3,
-        "description": "If a YAML editor is present, verify it renders without JavaScript errors and shows some content or placeholder. Report the contents."
+        "description": "Look for a YAML editor, advanced config section, or raw configuration view. Report whether it is present."
       },
       {
         "id": 4,
+        "description": "If a YAML editor is present, verify it renders without JavaScript errors and shows some content or placeholder. Report the contents."
+      },
+      {
+        "id": 5,
         "description": "Take a screenshot of the YAML editor or advanced config section (or its absence)"
       }
     ],
@@ -458,18 +490,22 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/jp/portrait"
+        "description": "Load browser session state from \"/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json\". If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session."
       },
       {
         "id": 2,
-        "description": "Check the current portrait state. If no portrait exists, verify a locked screen with clear instructions is shown. Report what the locked state says."
+        "description": "Navigate to https://app.phronex.com/jp/portrait"
       },
       {
         "id": 3,
-        "description": "If a portrait card exists, look for a Regenerate button. Click it and verify the regeneration process initiates (loading state, progress indicator, or confirmation message appears)."
+        "description": "Check the current portrait state. If no portrait exists, verify a locked screen with clear instructions is shown. Report what the locked state says."
       },
       {
         "id": 4,
+        "description": "If a portrait card exists, look for a Regenerate button. Click it and verify the regeneration process initiates (loading state, progress indicator, or confirmation message appears)."
+      },
+      {
+        "id": 5,
         "description": "Report the overall outcome: was the portrait locked or accessible? Did regeneration initiate successfully? Take a screenshot showing the portrait page state."
       }
     ]
