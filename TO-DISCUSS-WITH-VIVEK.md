@@ -399,3 +399,30 @@ generated journeys to fall back to heuristic (unmodified specs = zero enrichment
 **Recommendation:** Option B + C. Pre-flight avoids false positives; cron reliability check ensures the OAuth rotation doesn't silently stop.
 
 **Check cron health:** `cat /tmp/ec2-oauth-refresh.log | tail -5` on DevServer.
+
+---
+
+## JP-03: Thumbs feedback is not toggleable — "clear" state missing (2026-05-11)
+
+**What:** The thumbs-up/thumbs-down feedback in JP jobs list is idempotent but not toggleable.
+Clicking thumbs-up when a job is already marked "up" re-confirms (no change). There's no
+way to clear feedback once set. The backend uses `COALESCE(new, existing)` so `signal=null`
+preserves the existing signal.
+
+**Impact:** Users cannot undo a mistaken thumbs-up. Once marked "up", the signal is permanent
+until overridden by a thumbs-down. This affects the AI scoring bias — a mistakenly-upped job
+will continue to influence AI recommendations.
+
+**Options:**
+- A) Add `signal: null` clear path: modify backend to NOT use COALESCE for signal when new
+  value is explicitly null (use a sentinel like `"clear"` Literal). Requires migration if the
+  Enum changes (it won't — `signal` is a string column, not a DB enum).
+- B) Add `DELETE /{job_id}/feedback/signal` endpoint — leaves user_score intact.
+- C) Accept current behavior — document it as "mark as interest" not "toggle". Remove
+  the thumbs-down ability to override thumbs-up (currently works but not documented).
+
+**Recommendation:** Option A is lowest friction — change FeedbackRequest to accept
+`signal: Literal["up", "down", "clear"] | None` and in the upsert, when signal="clear",
+explicitly set `signal=null` (bypass COALESCE with a CASE expression). No migration needed.
+
+**Spec updated:** jp-verify-jobs-save step 4 now tests the idempotent behavior (not toggle-off).

@@ -305,7 +305,7 @@
       },
       {
         "id": 4,
-        "description": "Click the same thumbs-up button again to undo the feedback. Verify the button color reverts to gray/muted. Take a screenshot."
+        "description": "Click the thumbs-up button again on the same job. NOTE: Clicking thumbs-up a second time RE-CONFIRMS the signal (idempotent) \u2014 it does NOT toggle off. PASS if the button stays green (still \"up\" signal). To clear feedback, click thumbs-DOWN on the same job and verify the button color changes to red/amber (indicating \"down\" signal). Then click thumbs-UP again to restore \"up\" state and verify green returns. Take a screenshot. PASS if signal state visually reflects the last-clicked button."
       }
     ],
     "_shared_setup_steps": [
