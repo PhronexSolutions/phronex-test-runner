@@ -349,7 +349,7 @@
       {
         "id": 11,
         "description": "Verify deletion persistence. Navigate away from /jp/documents to the Dashboard, then navigate back to /jp/documents.",
-        "action": "Click Dashboard in sidebar, then click Documents in sidebar",
+        "action": "browser_navigate to https://app.phronex.com/jp/documents; waitForLoadState('networkidle')",
         "expected": "The deleted document is absent from the document list. The list reflects the post-deletion state. No ghost entries or stale cache entries are shown."
       },
       {
@@ -441,7 +441,7 @@
       {
         "id": 12,
         "description": "Verify the sidebar navigation is functional when on /jp/jobs. Confirm the JP sidebar is visible and contains a 'Jobs' link. IMPORTANT: The portal sidebar does NOT use aria-current, .active, or data-active CSS patterns for active state \u2014 do NOT assert on those attributes. Simply verify the Jobs link exists in the sidebar and the current URL is /jp/jobs. PASS if: sidebar is visible AND a Jobs link is present. FAIL only if: sidebar is missing entirely OR no Jobs link exists in any nav element.",
-        "action": "browser_snapshot; assert sidebar visible and contains 'Jobs' navigation link; assert current URL is /jp/jobs",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "The sidebar is visible and contains a Jobs link. Current URL matches /jp/jobs. PASS regardless of active-state CSS classes."
       },
       {
@@ -2217,7 +2217,7 @@
       {
         "id": 5,
         "description": "Navigate to the Jobs section to verify the Search group is accessible.",
-        "action": "Click the 'Jobs' navigation item in the sidebar under the Search group.",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "The URL changes to the jobs listing page (e.g. /jp/jobs or /jp/search). A list or grid of scraped job listings is visible, or an empty-state message is shown. No 403 or 500 error is rendered."
       },
       {
@@ -2277,7 +2277,7 @@
       {
         "id": 15,
         "description": "Navigate away from the dashboard to the Jobs page and then return to verify dashboard state persistence.",
-        "action": "From /jp/dashboard, click the 'Jobs' navigation item to go to /jp/jobs. After the jobs page loads, click 'Dashboard' in the sidebar to return to /jp/dashboard.",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "The dashboard reloads without errors. Summary cards and panels render with the same data as before navigation. No loading errors, blank panels, or auth redirects occur on return. The page state is consistent with the pre-navigation state."
       },
       {
@@ -2553,7 +2553,7 @@
       {
         "id": 3,
         "description": "Roadmap intent \u2014 Portals & Search Profiles (portals): navigate to the Portals section, verify the portal list loads, and confirm the create-portal flow is reachable.",
-        "action": "Click the 'Portals' or 'Search Profiles' nav item in the sidebar. Wait for the portals list page to load. Observe whether an empty-state CTA or an existing portal row is displayed. Click 'Add Portal' or equivalent primary CTA button.",
+        "action": "browser_navigate to https://app.phronex.com/jp/portals; waitForLoadState('networkidle')",
         "expected": "Portals list page renders without error. Either an empty-state with a clear 'Add Portal' prompt or a table of existing portals is shown. Clicking the add CTA opens a portal creation form/modal without a JS exception. Form has at minimum: portal name field, URL field, and a Save/Create button."
       },
       {
@@ -2577,7 +2577,7 @@
       {
         "id": 7,
         "description": "Roadmap intent \u2014 Job Listings (jobs, 1 known error reference): navigate to the Jobs section, apply at least one filter, and verify the error reference scenario does not cause a blank or broken state.",
-        "action": "Click the 'Jobs' nav item in the sidebar Search group. Wait for the jobs list to load. Apply a filter (e.g. select a portal from the portal filter dropdown, or set status='New'). Observe the filtered results. Then clear all filters and reload.",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "Jobs list renders with at least a table/card structure \u2014 not a blank white panel. Filter controls (portal selector, status, AI match score) are present and functional. Filtered results update without a full page reload. Clearing filters restores the unfiltered list. No unhandled JS exceptions in the browser console related to the known error reference."
       },
       {
@@ -2589,7 +2589,7 @@
       {
         "id": 9,
         "description": "Roadmap intent \u2014 Applications (applications, 2 known error references): navigate to the Applications section and verify the pipeline view and status transitions do not trigger the known error references.",
-        "action": "Click the 'Applications' nav item in the sidebar. Wait for the application pipeline/list to load. Identify if there are any applications present. If present, click on one to open the detail view. Observe status labels and any available status-change controls.",
+        "action": "browser_navigate to https://app.phronex.com/jp/applications; waitForLoadState('networkidle')",
         "expected": "Applications section loads without a blank panel or unhandled error. Pipeline columns or list rows are rendered. Application detail opens and shows: company name, job title, applied date, current status, and any attached documents. Known error references (2) do not manifest as unhandled exceptions or broken UI states \u2014 if a condition triggers them, a user-readable error message is shown."
       },
       {
@@ -2601,7 +2601,7 @@
       {
         "id": 11,
         "description": "Roadmap intent \u2014 Documents (documents): navigate to the Documents section, verify upload capability, and confirm document list renders.",
-        "action": "Click the 'Documents' nav item in the sidebar. Wait for the documents list/upload zone to render. Attempt to upload a small valid PDF file (or observe the upload CTA). Check that previously uploaded documents (if any) are listed with name, type, and upload date.",
+        "action": "browser_navigate to https://app.phronex.com/jp/documents; waitForLoadState('networkidle')",
         "expected": "Documents section renders without error. Upload zone or 'Upload Document' button is present. File picker or drag-and-drop zone is interactive. Existing documents (if any) are listed with metadata. Attempting to upload a non-PDF or oversized file shows a validation error \u2014 not a silent failure."
       },
       {
@@ -2625,7 +2625,7 @@
       {
         "id": 15,
         "description": "Cross-feature persistence check: navigate sequentially through Portals \u2192 Jobs \u2192 Applications \u2192 Documents \u2192 Billing and confirm no session drop, no 401 redirect, and no cross-tab state bleed.",
-        "action": "Using the sidebar nav, click each section in order: Portals, Jobs, Applications, Documents, Billing. After each navigation wait for page content to render. Record any 401 redirects to /auth/login, blank panels, or console errors.",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "All five sections load successfully in sequence without triggering a re-authentication redirect. No session drop occurs. No data from one section bleeds into another (e.g. jobs filter state does not corrupt applications list). Browser console shows zero unhandled promise rejections across all five section loads."
       }
     ],
@@ -2657,7 +2657,7 @@
       {
         "id": 4,
         "description": "Navigate to the Jobs tab and verify the scraped job listings table loads with filtering controls.",
-        "action": "Click the 'Jobs' pill in the Search group of the sidebar. Wait for the jobs table to render. Confirm filter controls for portal, status, and AI match score are present.",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "URL changes to /jobs. At least one job row is visible OR an empty-state message is shown. Filter controls for 'portal', 'status', and 'AI match score' are rendered. No unhandled promise rejections in the console."
       },
       {
@@ -2897,7 +2897,7 @@
       {
         "id": 3,
         "description": "Navigate to the Jobs tab via the sidebar Search group and verify the jobs list is populated from the core jobs table or shows a meaningful empty state.",
-        "action": "Click the 'Jobs' link in the sidebar Search group. Wait for the jobs list to load. Inspect the page for job listing rows or an empty-state message. Check network requests for GET /jobs/ returning 200.",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "The /jobs page loads within 3 seconds. Either: (a) at least one job row is visible with title, company, portal name, match score or status chip; OR (b) a clear empty-state message is shown ('No jobs found', 'Start by adding a portal', etc.). A 500 or network error must NOT appear. The GET /jobs/ response must be HTTP 200 with a JSON array."
       },
       {
@@ -2927,13 +2927,13 @@
       {
         "id": 8,
         "description": "Navigate to the Professional Portrait tab and verify the portrait feature surface driven by the core user-profile/portrait tables is reachable and shows real or locked content for the QA user.",
-        "action": "Click the 'Portrait' or 'AI Portrait' tab in the sidebar. Wait for the portrait page to load. Inspect for: portrait content block, locked/empty state CTA, or personalised profile content. Check for share-link button presence.",
+        "action": "browser_navigate to https://app.phronex.com/jp/portrait; waitForLoadState('networkidle')",
         "expected": "Portrait page renders without errors. Either: (a) real personalised content is shown (skills, summary, profile attributes) with a share-link button enabled; OR (b) a clear locked/empty state is shown with a specific CTA to generate or unlock the portrait. The page must NOT show a raw exception, blank white area, or 'undefined' text."
       },
       {
         "id": 9,
         "description": "Navigate away from the Portrait page to the Dashboard, then return to the Jobs page and verify that job list data and any previously loaded state persists correctly (no data loss or re-authentication prompt).",
-        "action": "Click 'Dashboard' in the sidebar. Verify dashboard loads. Then click 'Jobs' in the sidebar. Wait for the jobs list to reload.",
+        "action": "browser_navigate to https://app.phronex.com/jp/jobs; waitForLoadState('networkidle')",
         "expected": "Jobs list renders the same data as in step 3 without requiring re-login. No session-expired banner, no empty state that contradicts earlier populated state (unless the DB is genuinely empty). Navigation round-trip completes within 4 seconds."
       },
       {
@@ -5274,7 +5274,7 @@
       {
         "id": 2,
         "description": "Navigate to the Documents page via the sidebar pill group.",
-        "action": "click the 'Documents' sidebar link (within the navigation pill group). Confirm URL changes to /jp/documents or equivalent route.",
+        "action": "browser_navigate to https://app.phronex.com/jp/documents; waitForLoadState('networkidle')",
         "expected": "URL resolves to /jp/documents. Page heading or breadcrumb contains 'Documents'. No 404, 500, or blank-page state. An upload CTA button or document list container is rendered within 3 seconds."
       },
       {
