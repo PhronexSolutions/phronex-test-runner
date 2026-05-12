@@ -751,27 +751,27 @@
       },
       {
         "id": 5,
-        "description": "If applications are present, click the first application entry to open its detail view or drawer.",
-        "action": "mcp__playwright__browser_click on the first application row or card; wait for detail panel/drawer/modal to appear",
-        "expected": "A detail view opens (inline drawer or new route) showing at minimum: job title, portal name, application status, applied date, and any AI match score or notes if available. No error toast or blank panel."
+        "description": "Verify inline status editing: locate the status dropdown on the first application row. Change the status to a different value (e.g. from \"Applied\" to \"Shortlisted\") using the inline dropdown. Wait for the save confirmation.",
+        "action": "mcp__playwright__browser_snapshot; locate an inline status dropdown (select element) within the first application row of the table; select a different status value; wait for auto-save or success toast",
+        "expected": "The inline status dropdown updates the value immediately. A success toast or inline confirmation appears. No detail drawer or modal is expected \u2014 JP uses inline-editable table rows."
       },
       {
         "id": 6,
-        "description": "Verify application status can be updated (if an editable status control exists in the detail view).",
-        "action": "mcp__playwright__browser_snapshot the detail view; if a status dropdown or button group is present, select a different status value (e.g. change 'Applied' to 'Shortlisted'); wait for save confirmation",
-        "expected": "Status control is interactive. After selecting a new value, either an auto-save occurs (no explicit button needed) or a Save button is enabled. A success toast or inline confirmation is shown. The status label in the list/card updates to reflect the new value after closing the detail."
+        "description": "Verify the status update persists: navigate away from /jp/applications to /jp/dashboard, then navigate back to /jp/applications. Verify the status value saved in step 5 persists.",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp/dashboard; then mcp__playwright__browser_navigate to https://app.phronex.com/jp/applications; locate the same application row and verify the status dropdown shows the previously saved value",
+        "expected": "The status dropdown retains the value set in step 5. No revert to original status. No errors during navigation."
       },
       {
         "id": 7,
-        "description": "Test filter/sort controls on the Applications page if present. Apply a status filter.",
-        "action": "mcp__playwright__browser_navigate back to https://app.phronex.com/jp/applications if detail view is still open; locate a filter control (dropdown, pill, or chip) for status; select a specific status (e.g. 'Applied'); wait for list to update",
-        "expected": "After applying a status filter, only applications matching that status are shown. The filter chip or dropdown reflects the active filter. If no applications match, the empty state is shown \u2014 not a spinner or blank region."
+        "description": "Verify the Export CSV button is present and functional. Click the Export CSV button and verify it triggers a download or shows a success indicator.",
+        "action": "mcp__playwright__browser_snapshot; locate the Export CSV button; click it; wait for download event or success indicator",
+        "expected": "The Export CSV button is visible and clickable. Clicking it either triggers a file download (Content-Disposition header) or shows a success toast. No error toast or console errors."
       },
       {
         "id": 8,
-        "description": "Clear all active filters and verify the full unfiltered list is restored.",
-        "action": "mcp__playwright__browser_click on the clear-filter or reset button/chip; wait for list to re-render",
-        "expected": "All applications are shown again (or the empty state if none exist). No filter indicators remain active. The list count or pagination indicator (if present) matches the unfiltered total."
+        "description": "Verify the applications table data integrity: each row must show job title, company name, status dropdown, and applied date. No raw UUIDs or null values.",
+        "action": "mcp__playwright__browser_snapshot; inspect each visible application row for: job title text (non-empty), company name text (non-empty), status dropdown with selected value, date string in readable format",
+        "expected": "Every visible application row has a non-empty job title, non-empty company name, a status dropdown with a human-readable value, and a formatted date. No raw UUIDs, no \"null\", no \"undefined\"."
       },
       {
         "id": 9,
