@@ -14,7 +14,7 @@ last_activity: 2026-05-03 - Portal tree spec (21 nodes), v18.0 bug fixes, smoke 
 - **Phase:** Active development (v18.0 strategist + tree executor shipped)
 - **Status:** All Run 6 action items closed. Next: first run with tree spec to verify timing target.
 - **External milestone:** phronex-common v18.0 — Test Strategist Layer (Foundations)
-- **Last activity:** 2026-05-03 - Portal tree spec (21 nodes), v18.0 bug fixes, smoke consolidation
+- **Last activity:** 2026-05-13 - Replace TS SDK query() with direct claude -p subprocess call
 
 ## Stopped At
 
@@ -55,6 +55,7 @@ Then: **CC journeys tree spec** — no tree version exists yet. Use "apply tree 
 | 260503-5tp | TypeScript tree executor + jp-deep.json 26-node multi-level tree restructure | 2026-05-03 | ab78457 | Verified | [260503-5tp-typescript-tree-executor-jp-deep-json-26](./quick/260503-5tp-typescript-tree-executor-jp-deep-json-26/) |
 | 260503-v18bugs | v18.0 bug fixes: CTRF step-tracking + session bleed | 2026-05-03 | 56444f4 | Committed | — |
 | 260503-portal-tree | portal-tree.json 21-node tree + smoke consolidation | 2026-05-03 | 56444f4 | Committed | — |
+| 260513-5lf | Replace TS SDK query() with direct claude -p subprocess | 2026-05-13 | pending | Complete | [260513-5lf-replace-ts-sdk-query-with-direct-claude-](./quick/260513-5lf-replace-ts-sdk-query-with-direct-claude-/) |
 
 ## Notes
 
@@ -64,4 +65,4 @@ Then: **CC journeys tree spec** — no tree version exists yet. Use "apply tree 
 - Mode: YOLO — no interactive gates between phases (matches "tooling repo" expectations)
 
 ---
-*Last updated: 2026-05-03 — Run 6 action items closed; portal tree spec shipped*
+*Last updated: 2026-05-13 — TS SDK removed, direct claude -p subprocess call*

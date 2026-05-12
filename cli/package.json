@@ -20,8 +20,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@anthropic-ai/claude-code": "^1.0.128",
-    "@anthropic-ai/sdk": "^0.60.0",
     "@modelcontextprotocol/sdk": "^1.17.2",
     "@playwright/mcp": "0.0.70",
     "@types/express": "^5.0.3",
