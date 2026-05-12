@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v18.0
 milestone_name: milestone
 status: verifying
-last_updated: "2026-05-09T22:03:44.930Z"
-last_activity: 2026-05-03 - Portal tree spec (21 nodes), v18.0 bug fixes, smoke consolidation
+last_updated: "2026-05-13T05:00:00.000Z"
+last_activity: 2026-05-13 - Replace TS SDK query() with direct claude -p subprocess call
 ---
 
 # State — phronex-test-runner
@@ -55,7 +55,7 @@ Then: **CC journeys tree spec** — no tree version exists yet. Use "apply tree 
 | 260503-5tp | TypeScript tree executor + jp-deep.json 26-node multi-level tree restructure | 2026-05-03 | ab78457 | Verified | [260503-5tp-typescript-tree-executor-jp-deep-json-26](./quick/260503-5tp-typescript-tree-executor-jp-deep-json-26/) |
 | 260503-v18bugs | v18.0 bug fixes: CTRF step-tracking + session bleed | 2026-05-03 | 56444f4 | Committed | — |
 | 260503-portal-tree | portal-tree.json 21-node tree + smoke consolidation | 2026-05-03 | 56444f4 | Committed | — |
-| 260513-5lf | Replace TS SDK query() with direct claude -p subprocess | 2026-05-13 | pending | Complete | [260513-5lf-replace-ts-sdk-query-with-direct-claude-](./quick/260513-5lf-replace-ts-sdk-query-with-direct-claude-/) |
+| 260513-5lf | Replace TS SDK query() with direct claude -p subprocess | 2026-05-13 | 08bc5ec | Verified | [260513-5lf-replace-ts-sdk-query-with-direct-claude-](./quick/260513-5lf-replace-ts-sdk-query-with-direct-claude-/) |
 
 ## Notes
 
