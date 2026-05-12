@@ -603,6 +603,56 @@ rm -f "${_GEN_OUTPUT}"
 _STAGE_AFTER_GEN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
 fi  # end JOURNEYHAWK_SKIP_GENERATION check
 
+# Step 0b2: Tree optimization — restructure flat dependencies into deep branch trees.
+# The journey generator runs optimize_tree() internally, but static-spec journeys
+# (dependsOn=trunk) may not get grouped with generated journeys if they were loaded
+# separately.  This second pass ensures the MERGED spec is always tree-optimized
+# regardless of merge order or cache-hit paths inside the generator.
+# Fail-open: if the optimizer raises, TEMP_SPEC is unchanged.
+echo ""
+echo "[0b2/3] Tree optimization (post-merge)..."
+"${PYTHON}" - "${TEMP_SPEC}" <<'TREE_OPT_EOF' || true
+import json, sys
+spec_path = sys.argv[1] if len(sys.argv) > 1 else ""
+if not spec_path:
+    sys.exit(0)
+try:
+    from phronex_common.testing.tree_optimizer import optimize_tree
+    spec = json.load(open(spec_path))
+    before = len(spec)
+    # Count trunk-direct (non-root, non-branch) journeys before optimization
+    trunk_id = None
+    for j in spec:
+        if j.get("isSharedRoot") or j.get("role") == "root":
+            trunk_id = j.get("id")
+            break
+    trunk_direct_before = sum(
+        1 for j in spec
+        if j.get("dependsOn") == trunk_id
+        and j.get("role") not in ("root", "branch")
+        and not j.get("isSharedRoot")
+    ) if trunk_id else 0
+    optimized = optimize_tree(spec)
+    after = len(optimized)
+    branches_added = after - before
+    trunk_direct_after = sum(
+        1 for j in optimized
+        if j.get("dependsOn") == trunk_id
+        and j.get("role") not in ("root", "branch")
+        and not j.get("isSharedRoot")
+    ) if trunk_id else 0
+    rewired = trunk_direct_before - trunk_direct_after
+    with open(spec_path, "w") as f:
+        json.dump(optimized, f, indent=2)
+    if branches_added > 0 or rewired > 0:
+        print(f"[0b2/3] Tree optimizer: {branches_added} branches added, {rewired} journeys rewired to branches")
+    else:
+        print(f"[0b2/3] Tree optimizer: spec already optimized ({after} journeys, 0 changes)")
+except Exception as e:
+    print(f"[0b2/3] Tree optimizer failed (non-fatal): {e}", file=sys.stderr)
+TREE_OPT_EOF
+_STAGE_AFTER_GEN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
+
 # Step 0c: Resource verification (Phase 84 — pre-run resource inventory check)
 # Verifies all test resources (accounts, credentials, documents, infra) are available.
 # Populates _resource_cache used by fixture_guard's detect_seed_test_account.
