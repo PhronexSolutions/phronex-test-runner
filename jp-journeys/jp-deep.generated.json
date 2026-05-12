@@ -2,10 +2,7 @@
   {
     "id": "jp-branch-portrait",
     "description": "Branch node: navigate to /jp/portrait from trunk session and save state for child journeys",
-    "dependsOn": "jp-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/jp-branch-portrait-state.json",
+    "depth": 1,
     "steps": [
       {
         "id": 1,
@@ -15,15 +12,14 @@
         "id": 2,
         "description": "Navigate to https://app.phronex.com/jp/portrait and wait for the page to fully load. Verify the page renders without critical errors."
       }
-    ]
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-portrait-state.json"
   },
   {
     "id": "jp-branch-subscription",
     "description": "Branch node: navigate to /jp/subscription from trunk session and save state for child journeys",
-    "dependsOn": "jp-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/jp-branch-subscription-state.json",
+    "depth": 1,
     "steps": [
       {
         "id": 1,
@@ -33,15 +29,14 @@
         "id": 2,
         "description": "Navigate to https://app.phronex.com/jp/subscription and wait for the page to fully load. Verify the page renders without critical errors."
       }
-    ]
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-subscription-state.json"
   },
   {
     "id": "jp-branch-portals",
     "description": "Branch node: navigate to /jp/portals from trunk session and save state for child journeys",
-    "dependsOn": "jp-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/jp-branch-portals-state.json",
+    "depth": 1,
     "steps": [
       {
         "id": 1,
@@ -51,15 +46,14 @@
         "id": 2,
         "description": "Navigate to https://app.phronex.com/jp/portals and wait for the page to fully load. Verify the page renders without critical errors."
       }
-    ]
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-portals-state.json"
   },
   {
     "id": "jp-branch-settings",
     "description": "Branch node: navigate to /jp/settings from trunk session and save state for child journeys",
-    "dependsOn": "jp-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/jp-branch-settings-state.json",
+    "depth": 1,
     "steps": [
       {
         "id": 1,
@@ -69,7 +63,9 @@
         "id": 2,
         "description": "Navigate to https://app.phronex.com/jp/settings and wait for the page to fully load. Verify the page renders without critical errors."
       }
-    ]
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-settings-state.json"
   },
   {
     "id": "jp-biz-session-handling-revoked-token",
@@ -98,80 +94,6 @@
       }
     ],
     "dependsOn": "jp-branch-jobs-list"
-  },
-  {
-    "id": "jp-jp-verify-documents-upload",
-    "description": "Jp Verify Documents Upload \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
-    "depth": 4,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Verify the Documents page baseline state. Inspect the page for either (a) an empty-state message indicating no documents uploaded yet, or (b) a list of previously uploaded documents, and (c) an upload button or CTA.",
-        "action": "Assert presence of upload button/CTA and document list or empty-state region",
-        "expected": "An upload button, drag-and-drop zone, or equivalent CTA is visible and enabled. If documents exist from a prior run, at least one document row is present. No JavaScript console errors are emitted during render."
-      },
-      {
-        "id": 2,
-        "description": "Attempt to trigger the upload flow without selecting a file. Click the upload button/CTA without attaching any file to verify client-side validation fires.",
-        "action": "Click upload CTA without selecting a file",
-        "expected": "Upload action does not proceed to network request. A validation message, disabled submit state, or browser-native file picker opens without submitting. No 500 or unhandled promise rejection in console."
-      },
-      {
-        "id": 3,
-        "description": "Upload a valid PDF document. Use the file input or drag-and-drop zone to attach a small valid PDF (e.g., a synthetic 1-page resume PDF \u2264 200 KB). Submit the upload.",
-        "action": "Attach a valid PDF file via the file input and click Upload/Submit",
-        "expected": "Upload progress indicator or spinner is shown. On completion, a success toast or confirmation message appears. The newly uploaded document appears in the document list with correct filename and a status indicator (e.g., 'Uploaded', 'Processing')."
-      },
-      {
-        "id": 4,
-        "description": "Verify persistence of the uploaded document. After upload success, hard-reload the page (Ctrl+R / location.reload()) and re-navigate to /jp/documents.",
-        "action": "Hard-reload the browser tab and navigate back to /jp/documents",
-        "expected": "The document uploaded in step 5 is still present in the list after page reload, confirming server-side persistence. File name matches exactly what was uploaded. Status has not regressed to an error state."
-      },
-      {
-        "id": 5,
-        "description": "Test upload of an invalid file type. Attempt to upload a .exe or .txt file that is not a permitted document type to verify server or client-side type validation.",
-        "action": "Attach an invalid file type (e.g., test.exe or test.txt) and attempt to submit",
-        "expected": "Upload is rejected before or immediately after submission. An error message specifying the allowed file types is displayed. No file appears in the document list. No unhandled server error (5xx) occurs."
-      },
-      {
-        "id": 6,
-        "description": "Test upload of an oversized file. Attempt to upload a file exceeding the maximum permitted size (e.g., a file > 10 MB if limit is 10 MB) to verify size validation.",
-        "action": "Attach an oversized file and attempt to submit",
-        "expected": "Upload is rejected with a human-readable error message indicating the file size limit. The document list is unchanged. No browser crash or console uncaught exception."
-      },
-      {
-        "id": 7,
-        "description": "Verify document detail or preview. Click on the successfully uploaded document row from step 5 to open its detail view, preview pane, or download link.",
-        "action": "Click the uploaded document row or its detail/preview affordance",
-        "expected": "A detail panel, modal, or new route opens showing the document's metadata: filename, upload date, file type, and status. A download link or preview renders without error. No 404 on the document resource URL."
-      },
-      {
-        "id": 8,
-        "description": "Delete the uploaded document. Locate the delete action (trash icon, context menu, or 'Remove' button) on the uploaded document row. Click the delete/remove control. IMPORTANT: If a browser confirm() dialog appears, use page.on('dialog', d => d.accept()) registered BEFORE clicking the delete button \u2014 never use browser_run_code for this. Alternatively, if the UI shows an inline 'Confirm Delete' button after clicking trash, click that button directly without any dialog handler. After the delete action resolves, verify the document row is no longer visible in the list.",
-        "action": "browser_snapshot to locate delete/trash icon on uploaded document row; register dialog handler via page.on before clicking; browser_click on trash/delete icon; browser_snapshot to verify document removed; DO NOT use browser_run_code for this step",
-        "expected": "A confirmation prompt is shown before deletion (not instant delete). After confirmation, the document is removed from the list. A success toast or feedback message confirms deletion. The document does not reappear on list refresh."
-      },
-      {
-        "id": 9,
-        "description": "Verify deletion persistence. Navigate away from /jp/documents to the Dashboard, then navigate back to /jp/documents.",
-        "action": "browser_navigate to https://app.phronex.com/jp/documents; waitForLoadState('networkidle')",
-        "expected": "The deleted document is absent from the document list. The list reflects the post-deletion state. No ghost entries or stale cache entries are shown."
-      },
-      {
-        "id": 10,
-        "description": "Cross-service integration check: verify that the Documents section's state is consistent with the superadmin perspective. Navigate to an admin route (e.g., /jp/admin or the Admin tab visible to superadmin users) and confirm the same document state is reflected or that admin tooling shows no orphaned document records for this user.",
-        "action": "Navigate to the admin section via the amber-variant admin sidebar tab (visible to superadmin)",
-        "expected": "Admin view loads without error. Document records for qa-test-journeyhawk@phronex.com match the state observed on the Documents page (i.e., the document deleted in step 10 is not present as an orphaned record). No data inconsistency between user-facing and admin-facing views."
-      },
-      {
-        "id": 11,
-        "description": "Verify no JavaScript console errors across the full journey. Review browser console for any uncaught exceptions, React render errors, failed network requests (4xx/5xx), or NaN/undefined rendering issues introduced during the upload, delete, and navigation steps.",
-        "action": "Open browser DevTools console and review all logged errors from the full journey",
-        "expected": "Zero uncaught JavaScript exceptions. Zero unhandled promise rejections. Any 4xx responses are expected validation errors (not silent failures). No React key warnings or hydration mismatches."
-      }
-    ],
-    "dependsOn": "jp-branch-documents"
   },
   {
     "id": "jp-jp-audit-log-2",
@@ -1797,62 +1719,6 @@
     "dependsOn": "jp-trunk-main"
   },
   {
-    "id": "jp-jp-test-oracles-config-7-findings",
-    "description": "[general] Jp Test_Oracles Config 7 Findings \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
-    "depth": 5,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Assert that at least one configurable setting control is visible on the Config page (toggle, input, or API key field).",
-        "action": "Query the DOM for any of: input[type='text'], input[type='password'], input[type='toggle'], role='switch', a textarea labelled 'YAML' or 'Advanced Config'. Assert at least one such element is present and visible.",
-        "expected": "At least one configurable setting control is visible. The page is not empty or skeleton-only."
-      },
-      {
-        "id": 2,
-        "description": "Locate the BYOK / API Key input field within the Config settings section.",
-        "action": "Search for an input element whose label, placeholder, or aria-label contains 'API Key', 'BYOK', or 'key'. Scroll into view if needed.",
-        "expected": "An API key input field is present and visible. It may be masked (type='password') or plaintext. A save/submit button associated with this field is also present."
-      },
-      {
-        "id": 3,
-        "description": "Enter a synthetic test API key value into the BYOK/API Key input and save it.",
-        "action": "Clear the API key input field, type the test value 'sk-test-journeyhawk-qa-placeholder-key-001', then click the associated save/confirm button. Wait for any loading spinner or success toast to resolve.",
-        "expected": "No error banner, no validation error message. A success toast or confirmation indicator appears (e.g. 'Saved', 'Updated', check-mark). The input retains or masks the submitted value after save."
-      },
-      {
-        "id": 4,
-        "description": "Locate the YAML / Advanced Config editor section on the Config page.",
-        "action": "Scroll the page to find a textarea, CodeMirror editor, or section labelled 'YAML', 'Advanced Config', or 'Raw Config'. Assert it is rendered without a JS error boundary.",
-        "expected": "The YAML editor or advanced config section is visible and interactive. Its content area is non-empty or shows a valid placeholder."
-      },
-      {
-        "id": 5,
-        "description": "Edit the YAML content by appending a harmless comment line and save.",
-        "action": "Click into the YAML editor area. Move cursor to the end of the content. Type a new line '# qa-journeyhawk-test-comment'. Click the save/apply button for the YAML section. Wait for the network request to complete (observe XHR/fetch for the config save endpoint).",
-        "expected": "No error response from the save endpoint (HTTP 200 or 204). A success indicator is displayed. The comment line '# qa-journeyhawk-test-comment' remains visible in the editor after save."
-      },
-      {
-        "id": 6,
-        "description": "Navigate away from the Config page to the Dashboard.",
-        "action": "Click the 'Dashboard' link in the sidebar (or navigate to https://app.phronex.com/jp/dashboard). Wait for the Dashboard page to fully load.",
-        "expected": "URL changes to /jp or /jp/dashboard. Dashboard content (scan summary, recent jobs, or application pipeline) is visible. No errors."
-      },
-      {
-        "id": 7,
-        "description": "Return to the Config page and verify that all saved settings persisted.",
-        "action": "Click the 'Config' link in the sidebar or navigate to https://app.phronex.com/jp/config. Wait for page to reach network-idle.",
-        "expected": "The Config page re-renders without error. The YAML editor still contains the '# qa-journeyhawk-test-comment' line added in step 7. The API key field shows the previously saved value (masked or unmasked depending on UI design, but not blank and not reset to a default placeholder)."
-      },
-      {
-        "id": 8,
-        "description": "Verify that the sidebar Config pill is highlighted as active and no other pillar tab shows an unexpected error badge.",
-        "action": "Inspect the sidebar DOM for the active state on the Config nav item. Scan all sidebar items for any red error badge or warning indicator that was not present before the test.",
-        "expected": "Config sidebar pill has the active/selected CSS variant. No unexpected error badges appear on any sidebar items as a side-effect of the config save operations."
-      }
-    ],
-    "dependsOn": "jp-branch-config"
-  },
-  {
     "id": "jp-jp-test-oracles-ingestion-9-findings",
     "description": "[general] Jp Test_Oracles Ingestion 9 Findings \u2014 Full DEEP journey covering CRUD, validation, and persistence",
     "depth": 4,
@@ -1986,74 +1852,6 @@
     "dependsOn": "jp-branch-dashboard"
   },
   {
-    "id": "jp-jp-hld-4-resume-parsing-amp-document-management",
-    "description": "[general] Jp Hld 4 Resume Parsing Amp Document Management \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
-    "depth": 5,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Assert the upload button/CTA is present and interactive.",
-        "action": "querySelector('[data-testid=\"upload-document-btn\"]') OR a button whose visible text matches /upload/i. Check it is visible and not disabled.",
-        "expected": "Upload button is present in the DOM, has no 'disabled' attribute, and is fully visible in the viewport. Clicking it should open a file-picker dialog or a modal \u2014 assert the dialog/modal appears."
-      },
-      {
-        "id": 2,
-        "description": "Upload a valid PDF resume (\u2264 5 MB) via the upload CTA.",
-        "action": "Trigger file upload: setInputFiles on the hidden <input type='file'> with a test PDF fixture (e.g. 'test-resume.pdf', ~50 KB). Submit / confirm the upload if a modal confirm step is required.",
-        "expected": "A loading/progress indicator appears during upload. On completion, the uploaded filename ('test-resume.pdf') appears in the documents list without a page refresh. No error toast or banner is shown. HTTP response for the upload endpoint returns 200 or 201."
-      },
-      {
-        "id": 3,
-        "description": "Verify the newly uploaded document entry shows correct metadata in the list.",
-        "action": "Locate the list item for 'test-resume.pdf'. Read its displayed file name, upload date, and any status/type badge.",
-        "expected": "File name matches 'test-resume.pdf'. Upload date is today's date (2026-05-11) or 'just now'. A status badge (e.g. 'Processing', 'Ready', or 'Parsed') is visible. No 'undefined', 'null', or empty string placeholders are shown in any metadata cell."
-      },
-      {
-        "id": 4,
-        "description": "Attempt to upload an invalid file type (e.g. a .exe or .txt renamed as resume) to assert frontend validation.",
-        "action": "setInputFiles on the file input with a file whose MIME type is 'text/plain' or 'application/octet-stream'. Attempt to submit.",
-        "expected": "An inline validation error or toast appears with a human-readable message (e.g. 'Only PDF or DOCX files are accepted'). The invalid file does NOT appear in the documents list. The upload button remains accessible for a retry."
-      },
-      {
-        "id": 5,
-        "description": "Verify resume parsing output is surfaced for the successfully uploaded document.",
-        "action": "Click the uploaded document entry ('test-resume.pdf') in the list to open its detail view or expand its row. Wait for parsed fields to load.",
-        "expected": "A detail panel, modal, or expanded row appears showing parsed fields such as candidate name, skills, experience, or education \u2014 or a 'Parsing in progress' state if async. No raw JSON blobs, stack traces, or 'undefined' values are visible. At minimum, the document preview or parsed summary section is rendered."
-      },
-      {
-        "id": 6,
-        "description": "Delete the uploaded test document to validate the delete action.",
-        "action": "Locate the delete button or context-menu option for 'test-resume.pdf'. Click delete. Confirm in any confirmation dialog that appears.",
-        "expected": "The document row for 'test-resume.pdf' is removed from the list without a page reload. A success toast (e.g. 'Document deleted') appears. The list either shows other pre-existing documents or an empty-state message \u2014 it must NOT show a broken/partial list state."
-      },
-      {
-        "id": 7,
-        "description": "Verify empty-state UI when no documents exist (post-deletion or for a clean account).",
-        "action": "After deleting all documents (or if list is now empty), observe the documents list area.",
-        "expected": "An empty-state illustration or message is shown (e.g. 'No documents uploaded yet' or similar). The upload CTA is still visible and functional. No error messages, spinners, or blank white space are present."
-      },
-      {
-        "id": 8,
-        "description": "Navigate away to the Dashboard, then return to Documents to verify persistence and state.",
-        "action": "click the 'Dashboard' sidebar link. Wait for the dashboard to fully render (scan summary, recent jobs, application pipeline visible). Then click the 'Documents' sidebar link again.",
-        "expected": "The Dashboard loads correctly with expected widgets (scan summary, recent jobs, AI quota status). On returning to Documents, the page loads without error, the document list reflects the current persisted state (i.e. the deleted document is still absent), and no stale data or ghost entries appear."
-      },
-      {
-        "id": 9,
-        "description": "Verify no localhost URLs are exposed in any document management UI element (billing link cross-check from TEST-ORACLES).",
-        "action": "On the Documents page, inspect all anchor hrefs, button actions, and any displayed URLs in the page DOM for the pattern /localhost:\\d+/.",
-        "expected": "Zero occurrences of 'localhost' in any user-visible href, displayed text, or network request origin on the Documents page. All links to related features (e.g. billing, subscription) reference production-relative or correctly-configured URLs."
-      },
-      {
-        "id": 10,
-        "description": "Cross-service integration check: confirm upload triggers a backend parsing job and the status reflects in the UI without manual refresh.",
-        "action": "Upload a second valid PDF ('test-resume-2.pdf'). Observe the document entry's status badge over ~10 seconds without refreshing the page.",
-        "expected": "The status badge transitions from an initial state (e.g. 'Uploading' \u2192 'Processing' \u2192 'Ready'/'Parsed') via real-time update (WebSocket, SSE, or polling). The transition is visible in the UI without a manual page reload. If parsing is slow, a 'Processing' state is shown rather than an empty or error state."
-      }
-    ],
-    "dependsOn": "jp-branch-documents"
-  },
-  {
     "id": "jp-jp-hld-tier-gating",
     "description": "[general] Jp Hld Tier Gating \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 4,
@@ -2090,5 +1888,213 @@
       }
     ],
     "dependsOn": "jp-branch-subscription"
+  },
+  {
+    "id": "jp-jp-biz-session-handling-revoked-token",
+    "description": "[queued] Jp Biz Session Handling Revoked Token \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-verify-profile-update",
+    "description": "[queued] Jp Jp Verify Profile Update \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-user-spec-settings-group",
+    "description": "[queued] Jp Jp User Spec Settings Group \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-verify-documents-upload",
+    "description": "[queued] Jp Jp Verify Documents Upload \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-verify-jobs-search",
+    "description": "[queued] Jp Jp Verify Jobs Search \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-roadmap-narrative-summary",
+    "description": "[queued] Jp Jp Roadmap Narrative Summary \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-architecture-core-tables",
+    "description": "[queued] Jp Jp Architecture Core Tables \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-architecture-scan-runner-py-job-discovery",
+    "description": "[queued] Jp Jp Architecture Scan Runner Py Job Discovery \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-architecture-10-phronex-common-integration",
+    "description": "[queued] Jp Jp Architecture 10 Phronex Common Integration \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-test-oracles-api-1-findings",
+    "description": "[queued] Jp Jp Test Oracles Api 1 Findings \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-test-oracles-config-7-findings",
+    "description": "[queued] Jp Jp Test Oracles Config 7 Findings \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-test-oracles-jobs-14-findings",
+    "description": "[queued] Jp Jp Test Oracles Jobs 14 Findings \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
+  },
+  {
+    "id": "jp-jp-jp-hld-4-resume-parsing-amp-document-management",
+    "description": "[queued] Jp Jp Hld 4 Resume Parsing Amp Document Management \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "Navigate away from the page to the dashboard, then return and verify the data/state persists."
+      }
+    ],
+    "dependsOn": "jp-trunk-superadmin"
   }
 ]
