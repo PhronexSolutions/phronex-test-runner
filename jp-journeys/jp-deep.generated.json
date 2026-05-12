@@ -72,24 +72,6 @@
     ]
   },
   {
-    "id": "jp-branch-health",
-    "description": "Branch node: navigate to /health from trunk session and save state for child journeys",
-    "dependsOn": "jp-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/jp-branch-health-state.json",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved session from '.tmp/jp-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to https://app.phronex.com/health and wait for the page to fully load. Verify the page renders without critical errors."
-      }
-    ]
-  },
-  {
     "id": "jp-biz-session-handling-revoked-token",
     "description": "Session handling test: verify that signing out via the Auth.js signout endpoint correctly terminates the session and protected routes redirect to login. IMPORTANT: Auth.js v5 stores sessions in HttpOnly cookies \u2014 clearing localStorage/sessionStorage has NO effect on session validity. This journey tests actual signout, not storage clearing.",
     "depth": 1,
@@ -247,7 +229,7 @@
       {
         "id": 9,
         "description": "Navigate away to the Dashboard (/jp/) to test navigation persistence, then navigate back to /jp/jobs.",
-        "action": "goto('https://app.phronex.com/jp/'); waitForLoadState('networkidle'); goto('https://app.phronex.com/jp/jobs'); waitForLoadState('networkidle')",
+        "action": "goto('https://app.phronex.com/jp/dashboard'); waitForLoadState('networkidle'); goto('https://app.phronex.com/jp/jobs'); waitForLoadState('networkidle')",
         "expected": "After returning to /jp/jobs, the page loads correctly. Previously applied filters may or may not persist (document actual behaviour). The job list or empty state is visible with no error."
       },
       {
@@ -764,7 +746,7 @@
       {
         "id": 1,
         "description": "Navigate to the JobPortal base URL and confirm the authenticated dashboard loads correctly at /jp/.",
-        "action": "navigate('https://app.phronex.com/jp/')",
+        "action": "navigate('https://app.phronex.com/jp/dashboard')",
         "expected": "Page title or heading indicates JobPortal dashboard. No 401/403 redirect. Navigation sidebar or top-bar is visible. HTTP response status is 200."
       },
       {
@@ -830,7 +812,7 @@
       {
         "id": 12,
         "description": "Navigate away to the dashboard (/jp/) and then return to the previously edited configuration or admin section to verify persistence.",
-        "action": "navigate('https://app.phronex.com/jp/'), then navigate back to the page edited in step 12.",
+        "action": "navigate('https://app.phronex.com/jp/dashboard'), then navigate back to the page edited in step 12.",
         "expected": "The value submitted in step 12 is still present in the form/table after navigation away and back. No silent data loss. This validates backend write + read round-trip integrity."
       },
       {
@@ -1026,7 +1008,7 @@
       {
         "id": 13,
         "description": "Navigate away from the Feature Priority Matrix page \u2014 go to the JP dashboard or a clearly different route (e.g. /jp or /jp/profile). Confirm the navigation succeeds and the matrix page is no longer in view.",
-        "action": "navigate to https://app.phronex.com/jp or /jp/dashboard",
+        "action": "navigate to https://app.phronex.com/jp/dashboard or /jp/dashboard",
         "expected": "Dashboard or alternative page renders. Feature Priority Matrix content is not visible. No navigation error."
       },
       {
@@ -1051,134 +1033,6 @@
     "dependsOn": "jp-branch-dashboard"
   },
   {
-    "id": "jp-jp-roadmap-narrative-priority-2-planned-roadmap-features",
-    "description": "[general] Jp Roadmap_Narrative Priority 2 Planned Roadmap Features \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
-    "depth": 4,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session file is missing or expired, navigate to https://app.phronex.com/auth/login, fill the email field with qa-test-journeyhawk@phronex.com, fill the password field with QA_SUPERADMIN_PASSWORD, and submit the login form.",
-        "action": "storageState load '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; on failure navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click submit",
-        "expected": "User is authenticated and redirected to the JP dashboard or home page. No error banners are visible. The authenticated user's name or avatar is present in the top navigation."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to the JP dashboard root (https://app.phronex.com) and confirm the application is healthy before beginning the Priority-2 feature verification.",
-        "action": "navigate to https://app.phronex.com and inspect the page for a dashboard container, navigation bar, and absence of 500/404 error messages",
-        "expected": "Page loads with HTTP 200, dashboard shell is rendered, no JavaScript console errors at the ERROR level, and no 'Something went wrong' banners are displayed."
-      },
-      {
-        "id": 3,
-        "description": "Roadmap intent \u2014 verify 'Global Notes (global): 5 endpoints, 0 sub-sections, 4 error references'. Locate the Global Notes section in the UI (sidebar link, top navigation, or dedicated /notes route) and assert that the entry point is reachable.",
-        "action": "look for a 'Notes', 'Global Notes', or equivalent link in the sidebar/navigation; click it or navigate to the expected route (e.g. https://app.phronex.com/notes)",
-        "expected": "The Global Notes page renders without a 404 or access-denied error. A notes list container or empty-state message is visible."
-      },
-      {
-        "id": 4,
-        "description": "On the Global Notes page, assert that the Create Note affordance (button, FAB, or inline form) is present and opens a creation form on interaction.",
-        "action": "locate a 'New Note', 'Add Note', or '+' button; click it and observe the result",
-        "expected": "A note creation form or modal appears containing at minimum a title/content text field and a Save/Submit control. No JavaScript errors are thrown."
-      },
-      {
-        "id": 5,
-        "description": "Attempt to submit an empty note form to verify client-side and/or server-side validation (covers the 4 error references in the Global Notes section).",
-        "action": "with the note creation form open, leave all fields blank and click the Save/Submit button",
-        "expected": "At least one inline validation error message appears (e.g. 'Title is required' or 'Content cannot be empty'). The form does NOT submit successfully; no success toast appears; the route does not change."
-      },
-      {
-        "id": 6,
-        "description": "Fill in a valid note and submit it to exercise the POST /notes (or equivalent) endpoint \u2014 one of the 5 Global Notes endpoints.",
-        "action": "in the note creation form, type a unique title such as 'JourneyHawk Test Note 2026-05-11' and body text 'Automated QA test note for Priority-2 journey', then click Save/Submit",
-        "expected": "A success toast or confirmation message appears. The new note appears in the notes list. The note's title matches what was entered. HTTP network request to the notes creation endpoint returns 200 or 201."
-      },
-      {
-        "id": 7,
-        "description": "Open the newly created note to verify the Read/Detail endpoint (second of the 5 Global Notes endpoints).",
-        "action": "click the newly created note in the list to open its detail view",
-        "expected": "The note detail page or modal renders with the correct title ('JourneyHawk Test Note 2026-05-11') and body text. No loading spinners remain after 5 seconds. HTTP GET to the note detail endpoint returns 200."
-      },
-      {
-        "id": 8,
-        "description": "Edit the note to verify the Update endpoint (third of the 5 Global Notes endpoints) and persistence.",
-        "action": "click the Edit button on the note detail view; change the title to 'JourneyHawk Test Note EDITED 2026-05-11'; click Save",
-        "expected": "A success confirmation appears. The note list and/or detail header now shows the updated title 'JourneyHawk Test Note EDITED 2026-05-11'. A page reload or re-navigation to the notes list still shows the updated title, confirming server-side persistence."
-      },
-      {
-        "id": 9,
-        "description": "Attempt to update the note with invalid data to cover a second error reference (e.g. clearing the title entirely).",
-        "action": "click Edit on the note; clear the title field completely; click Save",
-        "expected": "A validation error is displayed inline (e.g. 'Title is required'). The note is NOT saved with an empty title. The previously saved title is still present after cancelling or refreshing."
-      },
-      {
-        "id": 10,
-        "description": "Delete the test note to verify the Delete endpoint (covers another of the 5 Global Notes endpoints) and confirm the record is removed from persistence.",
-        "action": "click Delete (or trash icon) on the 'JourneyHawk Test Note EDITED 2026-05-11' note; confirm the deletion dialog if one appears",
-        "expected": "The note is removed from the notes list. A success toast or confirmation message appears. Navigating back to the notes list (or refreshing) confirms the note is no longer present. HTTP DELETE to the notes endpoint returns 200 or 204."
-      },
-      {
-        "id": 11,
-        "description": "Attempt to delete a non-existent or already-deleted note by manipulating the URL or using an invalid ID, to cover the remaining error references in Global Notes.",
-        "action": "navigate to a notes detail URL with a fabricated UUID (e.g. https://app.phronex.com/notes/00000000-0000-0000-0000-000000000000)",
-        "expected": "The UI renders a graceful 404 or 'Note not found' message. No unhandled JavaScript exception or blank white screen is shown. The error state is user-friendly and provides a navigation affordance back to the notes list."
-      },
-      {
-        "id": 12,
-        "description": "Roadmap intent \u2014 verify 'Authentication (auth): 0 endpoints, 0 sub-sections, 0 error references'. Navigate to the JP registration page to confirm the auth section UI surface exists, even though no custom endpoints are listed (the POST /auth/register endpoint is the entry point per USER-SPEC).",
-        "action": "log out the current session (click logout or navigate to https://app.phronex.com/auth/logout); then navigate to https://app.phronex.com/auth/login",
-        "expected": "The login page renders with email and password fields plus a submit button. A link or CTA to the registration page (/auth/register or equivalent) is visible. No console errors."
-      },
-      {
-        "id": 13,
-        "description": "Verify the registration page and its T&C acceptance gate as described in USER-SPEC (T&C must be accepted before AI features are available).",
-        "action": "navigate to https://app.phronex.com/auth/register (or follow the 'Sign Up' link from the login page) and inspect the form",
-        "expected": "The registration form contains fields for email, password, and full_name. A Terms & Conditions checkbox or acceptance prompt is present. The Submit/Register button is disabled or blocked until the T&C checkbox is checked."
-      },
-      {
-        "id": 14,
-        "description": "Attempt to register without accepting T&C to verify the auth acceptance gate.",
-        "action": "fill in a test email (e.g. qa-reg-test-discard@phronex.com), a password, and a full name; ensure the T&C checkbox is unchecked; click Register/Submit",
-        "expected": "Registration is blocked. An error or disabled-state prevents form submission. The user is NOT redirected to the dashboard. A message indicating T&C acceptance is required is visible."
-      },
-      {
-        "id": 15,
-        "description": "Re-authenticate as the superadmin QA user before continuing to the Agent section (session may have been invalidated by the logout in step 12).",
-        "action": "navigate to https://app.phronex.com/auth/login; fill email=qa-test-journeyhawk@phronex.com; fill password=QA_SUPERADMIN_PASSWORD; submit the form",
-        "expected": "Successful login; redirected to JP dashboard. Authenticated user identity is reflected in the UI header."
-      },
-      {
-        "id": 16,
-        "description": "Roadmap intent \u2014 verify 'Agent & Auto-Apply (WebSocket + REST) (agent): 0 endpoints, 0 sub-sections, 2 error references'. Locate the Agent or Auto-Apply section in the JP UI (sidebar, settings panel, or dedicated route such as /agent or /auto-apply).",
-        "action": "scan the sidebar and top navigation for 'Agent', 'Auto-Apply', 'Job Agent', or equivalent link; click it or navigate directly to the expected route",
-        "expected": "The Agent/Auto-Apply page renders without a 404 or access-denied error. The section heading and feature description are visible. No console errors at the ERROR level."
-      },
-      {
-        "id": 17,
-        "description": "Verify the Agent feature entry point shows its configuration or activation controls, and that attempting to activate without required configuration triggers the first documented error reference.",
-        "action": "look for an 'Activate Agent', 'Enable Auto-Apply', or 'Start Agent' control; if present, click it without prior configuration (e.g. no resume, no search profile set up)",
-        "expected": "The system either prevents activation with a clear error message (e.g. 'Please complete your profile before enabling Auto-Apply') or shows a guided setup flow. A raw unhandled error or blank state is NOT acceptable. This validates the first of the 2 error references for the agent section."
-      },
-      {
-        "id": 18,
-        "description": "Verify the second Agent error reference by attempting an invalid agent action \u2014 such as submitting a WebSocket-backed action without a valid job target or with missing required fields.",
-        "action": "if the agent panel exposes a job URL or search criteria input, submit it empty or with a malformed value (e.g. 'not-a-url') and observe the response",
-        "expected": "A validation error or user-friendly error message appears describing what went wrong (e.g. 'Invalid job URL' or 'Search criteria are required'). The error is surfaced in the UI \u2014 not swallowed silently. This validates the second error reference for the agent section."
-      },
-      {
-        "id": 19,
-        "description": "Cross-service integration check: verify that the JP API health endpoint responds correctly, confirming the backend is reachable and well throughout the Priority-2 journey.",
-        "action": "make a direct GET request to https://jobc.phronex.com/health (JP backend port per project registry) and inspect the response body",
-        "expected": "HTTP 200 is returned with a JSON body of exactly {\"status\": \"healthy\"} \u2014 never {\"status\": \"ok\"} per the Phronex health endpoint invariant."
-      },
-      {
-        "id": 20,
-        "description": "Final state assertion: navigate back to the JP dashboard and confirm the session is still valid and no Priority-2 feature interaction has corrupted the UI state.",
-        "action": "navigate to https://app.phronex.com and inspect the dashboard",
-        "expected": "Dashboard renders fully. No error banners, no broken navigation links, no blank panels. The authenticated user's identity is still reflected correctly in the header. No JavaScript console errors at the ERROR level are present."
-      }
-    ],
-    "dependsOn": "jp-trunk-main"
-  },
-  {
     "id": "jp-jp-roadmap-narrative-priority-3-supporting-infrastructure-features",
     "description": "[general] Jp Roadmap_Narrative Priority 3 Supporting Infrastructure Features \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
@@ -1192,7 +1046,7 @@
       {
         "id": 2,
         "description": "Navigate to the Dashboard to establish a baseline and confirm the sidebar Priority-3 section groups are accessible.",
-        "action": "Navigate to https://app.phronex.com/dashboard. Wait for page to settle (networkidle or domcontentloaded). Capture sidebar nav items visible to the superadmin user.",
+        "action": "Navigate to https://app.phronex.com/jp/dashboard. Wait for page to settle (networkidle or domcontentloaded). Capture sidebar nav items visible to the superadmin user.",
         "expected": "Dashboard page loads without 4xx/5xx. Sidebar contains pill-groups for Search (Jobs), Applications, Documents, Billing, Config. Amber admin-only tabs are visible. No 'Something went wrong' or blank panels."
       },
       {
@@ -1290,7 +1144,7 @@
       {
         "id": 2,
         "description": "Confirm the Dashboard landing page renders all four expected summary widgets without network errors.",
-        "action": "Navigate to https://app.phronex.com/dashboard. Intercept all XHR/fetch requests. Wait for page to reach networkidle.",
+        "action": "Navigate to https://app.phronex.com/jp/dashboard. Intercept all XHR/fetch requests. Wait for page to reach networkidle.",
         "expected": "Page title contains 'Dashboard'. Four stat widgets visible: Scan Summary, Recent Jobs, Application Pipeline, AI Quota Status. No fetch() calls return 4xx or 5xx. No console errors of level ERROR."
       },
       {
@@ -1782,7 +1636,7 @@
       {
         "id": 2,
         "description": "Navigate to the Professional Portrait section of the portal. This may be at /portrait or accessible from the main navigation sidebar or user profile menu.",
-        "action": "navigate('https://app.phronex.com/portrait') OR locate and click the 'Portrait' or 'Professional Portrait' navigation link in the sidebar/header.",
+        "action": "navigate('https://app.phronex.com/jp/portrait') OR locate and click the 'Portrait' or 'Professional Portrait' navigation link in the sidebar/header.",
         "expected": "The Portrait page loads. A heading containing 'Professional Portrait' or equivalent is visible. No 404 or 500 error is shown. The page is accessible to the qa-test-journeyhawk@phronex.com account (pro/enterprise tier)."
       },
       {
@@ -1830,7 +1684,7 @@
       {
         "id": 10,
         "description": "Navigate away from the Portrait page to the dashboard or another section of the portal, then navigate back to /portrait.",
-        "action": "navigate('https://app.phronex.com') OR click('[data-testid=\"nav-dashboard\"], a:has-text(\"Dashboard\")') \u2192 navigate('https://app.phronex.com/portrait')",
+        "action": "navigate('https://app.phronex.com') OR click('[data-testid=\"nav-dashboard\"], a:has-text(\"Dashboard\")') \u2192 navigate('https://app.phronex.com/jp/portrait')",
         "expected": "The Portrait page reloads cleanly. The previously set display-mode (analytical, as set in step 6) is still active \u2014 the UI loads with the correct default layer. The portrait snapshot is still present and not reset. This confirms the display-mode preference persisted on the server across navigation."
       },
       {
@@ -1892,7 +1746,7 @@
       {
         "id": 8,
         "description": "Navigate away from the jobs page to the dashboard, then return and verify job data and portal scan state persist (no phantom reset).",
-        "action": "Navigate to https://app.phronex.com/jp/ (dashboard). Wait 2 seconds. Then navigate back to https://app.phronex.com/jp/jobs. Wait for network idle.",
+        "action": "Navigate to https://app.phronex.com/jp/dashboard (dashboard). Wait 2 seconds. Then navigate back to https://app.phronex.com/jp/jobs. Wait for network idle.",
         "expected": "Jobs list shows the same entries as after the scan (count unchanged). No jobs have disappeared or reverted to pre-scan state. Portal scan status (if visible from jobs list) still shows 'Completed' for the run triggered in step 5."
       },
       {
@@ -1918,13 +1772,13 @@
       {
         "id": 2,
         "description": "Navigate to the Dashboard landing page and confirm the AI quota status widget is present, indicating the backend Learning Loop integration is active.",
-        "action": "navigate('https://app.phronex.com/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"], [aria-label*=\"AI quota\"], text=/quota/i')",
+        "action": "navigate('https://app.phronex.com/jp/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"], [aria-label*=\"AI quota\"], text=/quota/i')",
         "expected": "Dashboard renders. An AI quota status panel is visible showing a numeric quota or percentage. No 500/503 error banners are displayed."
       },
       {
         "id": 3,
         "description": "Navigate to the Jobs section (Search group \u2192 Jobs tab) via the sidebar pill group and wait for the job listings table to load.",
-        "action": "click('nav >> text=/Jobs/i') OR navigate('https://app.phronex.com/jobs') \u2192 waitForSelector('table, [data-testid=\"jobs-list\"], [role=\"table\"]')",
+        "action": "click('nav >> text=/Jobs/i') OR navigate('https://app.phronex.com/jp/jobs') \u2192 waitForSelector('table, [data-testid=\"jobs-list\"], [role=\"table\"]')",
         "expected": "Jobs page renders. At least one job row is visible in the listing table. The page title or heading contains 'Jobs'. No loading spinner remains after 5 s."
       },
       {
@@ -1960,7 +1814,7 @@
       {
         "id": 9,
         "description": "Navigate away from the guidelines/jobs area to the Dashboard, then use the browser back button to return and assert that previously loaded data (AI score, guidelines list) persists without a full re-fetch error.",
-        "action": "navigate('https://app.phronex.com/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"]') \u2192 goBack() \u2192 waitForSelector('[data-testid=\"guideline-item\"], [data-testid=\"ai-match-score\"]')",
+        "action": "navigate('https://app.phronex.com/jp/dashboard') \u2192 waitForSelector('[data-testid=\"ai-quota-status\"]') \u2192 goBack() \u2192 waitForSelector('[data-testid=\"guideline-item\"], [data-testid=\"ai-match-score\"]')",
         "expected": "After returning via browser back, the previous page re-renders without a blank white screen or 404. Previously visible data (score value or guideline items) is still shown or re-fetched cleanly. No 'hydration error' or 'ChunkLoadError' in the browser console."
       },
       {
@@ -2054,86 +1908,6 @@
         "description": "Navigate away from the page to a non-JP route (e.g. back to the portal root at https://app.phronex.com/) and then return to the JP dashboard, verifying data and state persist as required by the journey spec.",
         "action": "Navigate the browser to https://app.phronex.com/ (portal root). Wait for that page to load. Then navigate back to the JP dashboard (click JP-related nav or go directly to the JP dashboard URL).",
         "expected": "JP Dashboard loads again without requiring re-authentication. Scan summary, recent jobs, application pipeline, and AI quota status all render with consistent data matching what was visible before navigation. No stale-state or hydration errors in console."
-      }
-    ],
-    "dependsOn": "jp-trunk-main"
-  },
-  {
-    "id": "jp-jp-architecture-storage",
-    "description": "[general] Jp Architecture Storage \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
-    "depth": 4,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "action": "storageState('/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json') OR navigate('https://app.phronex.com/auth/login') \u2192 fill('#email', 'qa-test-journeyhawk@phronex.com') \u2192 fill('#password', 'QA_SUPERADMIN_PASSWORD') \u2192 click('[type=submit]')",
-        "expected": "User is authenticated and redirected to the JP dashboard. No error banners. Auth cookies/session tokens are present in browser storage."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to the JP Storage administration section (e.g. /admin/storage or equivalent settings page) and confirm the page loads without errors.",
-        "action": "navigate('https://app.phronex.com/admin/storage') OR locate the Storage link in the sidebar/nav and click it",
-        "expected": "Storage page renders with HTTP 200. No JS console errors. Page heading or breadcrumb confirms 'Storage' context. Any existing storage records/buckets are listed in a table or card view."
-      },
-      {
-        "id": 3,
-        "description": "CREATE \u2014 Submit the form to add a new storage configuration entry. Fill all required fields with valid test data (e.g. bucket name 'qa-test-bucket-journeyhawk', region 'ap-south-1', type 'S3'). Submit the form.",
-        "action": "click('[data-testid=add-storage-btn]' OR 'button:has-text(\"Add\")') \u2192 fill required fields with valid test values \u2192 click('[type=submit]' OR 'button:has-text(\"Save\")')",
-        "expected": "Form submission succeeds. A success toast/banner appears. The newly created storage entry 'qa-test-bucket-journeyhawk' appears in the storage list without a page reload. No error state is shown."
-      },
-      {
-        "id": 4,
-        "description": "READ \u2014 Locate the newly created storage entry in the list and open its detail/edit view to confirm all saved values match what was entered.",
-        "action": "click the row or 'View'/'Edit' action for 'qa-test-bucket-journeyhawk'",
-        "expected": "Detail or edit form opens. All field values (bucket name, region, type) exactly match the values submitted in step 3. No blank or default-overridden fields."
-      },
-      {
-        "id": 5,
-        "description": "UPDATE \u2014 Modify the bucket description or a non-critical field (e.g. change region label or add a description 'QA-updated'). Save the change.",
-        "action": "clear and fill the description/label field with 'QA-updated' \u2192 click('[type=submit]' OR 'button:has-text(\"Save\")')",
-        "expected": "Update succeeds with a success toast. The list view reflects the updated value immediately. The previous value is no longer shown."
-      },
-      {
-        "id": 6,
-        "description": "VALIDATION \u2014 Attempt to create a second storage entry with an empty required field (e.g. leave bucket name blank) and submit.",
-        "action": "click('[data-testid=add-storage-btn]') \u2192 leave bucket name field empty \u2192 click('[type=submit]')",
-        "expected": "Form submission is blocked. An inline validation error appears on the empty required field (e.g. 'Bucket name is required'). No network request is fired. No partial record is created."
-      },
-      {
-        "id": 7,
-        "description": "VALIDATION \u2014 Attempt to create a storage entry with a duplicate bucket name ('qa-test-bucket-journeyhawk') that already exists.",
-        "action": "fill bucket name with 'qa-test-bucket-journeyhawk' \u2192 fill remaining required fields \u2192 click('[type=submit]')",
-        "expected": "Server returns a conflict/duplicate error. The UI surfaces a clear error message (e.g. 'A storage configuration with this name already exists'). The duplicate record does NOT appear in the list."
-      },
-      {
-        "id": 8,
-        "description": "PERSISTENCE CHECK \u2014 Navigate away from the Storage page to the JP dashboard, then navigate back to the Storage page.",
-        "action": "click('Dashboard' nav link OR navigate('https://app.phronex.com/dashboard')) \u2192 then navigate back to the storage page",
-        "expected": "The storage list still shows the 'qa-test-bucket-journeyhawk' entry with the 'QA-updated' description from step 5. No data loss. Page renders without errors on return."
-      },
-      {
-        "id": 9,
-        "description": "CROSS-SERVICE INTEGRATION \u2014 Trigger a storage connectivity test or scan (if available) on the 'qa-test-bucket-journeyhawk' entry to verify the backend can reach the configured storage.",
-        "action": "click 'Test Connection' or 'Scan' action on the 'qa-test-bucket-journeyhawk' row",
-        "expected": "The UI shows a pending/loading state during the test. The result (success indicator OR a clear, actionable error message) is displayed within 10 seconds. No silent failure or spinner that never resolves."
-      },
-      {
-        "id": 10,
-        "description": "DELETE \u2014 Delete the 'qa-test-bucket-journeyhawk' storage entry. Confirm any delete confirmation dialog.",
-        "action": "click 'Delete' action on 'qa-test-bucket-journeyhawk' \u2192 confirm modal if present (click 'Confirm' or 'Yes, delete')",
-        "expected": "Delete request succeeds. The entry is removed from the storage list immediately. A success toast confirms deletion. No orphaned entries remain for 'qa-test-bucket-journeyhawk'."
-      },
-      {
-        "id": 11,
-        "description": "POST-DELETE PERSISTENCE \u2014 Navigate away to the dashboard and return to the Storage page once more to confirm the deleted entry does not reappear.",
-        "action": "navigate('https://app.phronex.com/dashboard') \u2192 navigate back to the storage page",
-        "expected": "'qa-test-bucket-journeyhawk' does not appear anywhere in the storage list. The list either shows remaining real entries or an empty state message. No ghost records."
-      },
-      {
-        "id": 12,
-        "description": "BROWSER STORAGE AUDIT \u2014 Open browser DevTools (or use JS evaluation) to check localStorage and sessionStorage for any sensitive storage credentials or bucket keys inadvertently persisted client-side.",
-        "action": "browser_evaluate('JSON.stringify({ls: Object.keys(localStorage), ss: Object.keys(sessionStorage)})')",
-        "expected": "No raw bucket credentials, secret keys, or storage tokens appear in localStorage or sessionStorage. Auth tokens may be present but storage-layer secrets must not be client-side."
       }
     ],
     "dependsOn": "jp-trunk-main"
@@ -2392,7 +2166,7 @@
       {
         "id": 6,
         "description": "Navigate to the Jobs list page in the portal UI and verify real job listings or a meaningful empty state are displayed.",
-        "action": "Navigate to the jobs listing page (e.g. https://app.phronex.com/jobs or equivalent route). Wait for the job cards/rows to render. If the list is empty, verify an explicit empty-state message is shown (not a blank white page).",
+        "action": "Navigate to the jobs listing page (e.g. https://app.phronex.com/jp/jobs or equivalent route). Wait for the job cards/rows to render. If the list is empty, verify an explicit empty-state message is shown (not a blank white page).",
         "expected": "The Jobs list page renders without a loading spinner stuck indefinitely. If jobs are present, at least one card/row is visible with a job title, company name, and either a match score or match explanation snippet. If no jobs are present, an actionable empty-state message is displayed (e.g. 'No jobs found \u2014 update your profile to get matched')."
       },
       {
@@ -2404,7 +2178,7 @@
       {
         "id": 8,
         "description": "Verify the AI Portrait page shows genuine personalised content or an actionably locked state \u2014 confirming the scheduler-driven portrait pipeline.",
-        "action": "Navigate to the AI Portrait page (e.g. https://app.phronex.com/portrait or equivalent). Wait for content to load. Assess whether: (a) personalised portrait text is rendered with more than 50 characters of content, or (b) a locked/pending state is shown with a clear call-to-action (e.g. 'Complete your profile to generate your portrait'). Also check for the share link element.",
+        "action": "Navigate to the AI Portrait page (e.g. https://app.phronex.com/jp/portrait or equivalent). Wait for content to load. Assess whether: (a) personalised portrait text is rendered with more than 50 characters of content, or (b) a locked/pending state is shown with a clear call-to-action (e.g. 'Complete your profile to generate your portrait'). Also check for the share link element.",
         "expected": "Portrait page loads without a 500 error. Either real personalised text is visible (not Lorem Ipsum or placeholder) or a clear locked/pending CTA is shown. If a share link is present it must be a valid URL format (not broken or empty). No raw JSON or Python traceback is visible in the page."
       },
       {
@@ -2460,7 +2234,7 @@
       {
         "id": 4,
         "description": "Navigate to the Job Portals list page in the portal UI and verify it loads data from the JP backend.",
-        "action": "Navigate to https://app.phronex.com/portals (or the equivalent portals list route). Wait for the list container or 'no portals yet' empty state to appear. Observe any network requests in the browser.",
+        "action": "Navigate to https://app.phronex.com/jp/portals (or the equivalent portals list route). Wait for the list container or 'no portals yet' empty state to appear. Observe any network requests in the browser.",
         "expected": "Page renders without a 500 or blank white screen. Either a list of portals or a clear empty-state message with a CTA is shown. No unhandled promise rejection in console."
       },
       {
@@ -2514,7 +2288,7 @@
       {
         "id": 13,
         "description": "Navigate away from the portals page to the dashboard, then navigate back to verify persistence of the created portal record.",
-        "action": "Navigate to https://app.phronex.com/ (dashboard). Wait 2 seconds. Navigate back to https://app.phronex.com/portals.",
+        "action": "Navigate to https://app.phronex.com/ (dashboard). Wait 2 seconds. Navigate back to https://app.phronex.com/jp/portals.",
         "expected": "The 'JH-Integration-Test-Portal' created in step 6 is still present in the list after navigation. Data was persisted server-side, not just held in local React state. No stale-cache or 'undefined' row appears."
       },
       {
@@ -2728,7 +2502,7 @@
       {
         "id": 2,
         "description": "Navigate to the Jobs list page and locate at least one job card.",
-        "action": "Navigate to https://app.phronex.com/jobs (or the equivalent jobs list route). Wait for the page to finish loading. Scan the DOM for at least one job card element.",
+        "action": "Navigate to https://app.phronex.com/jp/jobs (or the equivalent jobs list route). Wait for the page to finish loading. Scan the DOM for at least one job card element.",
         "expected": "Jobs list page renders without a JavaScript console error. At least one job card is visible in the list. Job title and company name are non-empty strings \u2014 not 'undefined', not 'NaN', not blank."
       },
       {
@@ -2776,7 +2550,7 @@
       {
         "id": 10,
         "description": "Navigate away to the dashboard, then return to the same job detail view to verify persistence.",
-        "action": "Navigate to https://app.phronex.com/dashboard (or the app's root/home route). Wait for the dashboard to load. Then navigate back to the same job detail URL captured in step 3.",
+        "action": "Navigate to https://app.phronex.com/jp/dashboard (or the app's root/home route). Wait for the dashboard to load. Then navigate back to the same job detail URL captured in step 3.",
         "expected": "Dashboard loads without errors. Upon returning to the job detail view, the previously generated cover letter and tailored resume are still displayed \u2014 they were persisted server-side and are re-fetched on return. The user does not need to regenerate content."
       },
       {
@@ -2940,7 +2714,7 @@
       {
         "id": 4,
         "description": "Navigate to the Admin section to manage job portals (e.g. /admin/portals or equivalent admin route).",
-        "action": "navigate to https://app.phronex.com/admin/portals; wait for network idle",
+        "action": "navigate to https://app.phronex.com/jp/portals; wait for network idle",
         "expected": "Admin portals list page loads. The page title or heading includes 'Portal' or 'Job Portal'. Any existing portals are listed in a table or card list."
       },
       {
@@ -2964,7 +2738,7 @@
       {
         "id": 8,
         "description": "Navigate to the Jobs list view (e.g. /jobs or /applications) and verify that real jobs or a meaningful empty state is displayed.",
-        "action": "navigate to https://app.phronex.com/jobs; wait for network idle; take snapshot",
+        "action": "navigate to https://app.phronex.com/jp/jobs; wait for network idle; take snapshot",
         "expected": "Jobs list renders. Either (a) at least one job card or row is visible with a job title, company name, and a match score or description, or (b) an empty state message is shown that explains why the list is empty (not a blank white area). No 404 or 500 error."
       },
       {
@@ -2982,7 +2756,7 @@
       {
         "id": 11,
         "description": "Navigate to the AI Portrait page (e.g. /portrait or /profile/portrait) and verify content state.",
-        "action": "navigate to https://app.phronex.com/portrait; wait for network idle; take snapshot",
+        "action": "navigate to https://app.phronex.com/jp/portrait; wait for network idle; take snapshot",
         "expected": "Portrait page loads. The page either (a) shows real personalised content (skills, experience summary, or similar generated content), or (b) shows a clear locked/upsell state explaining what is required to unlock it. A 'Share' link or button is visible if portrait content is shown. A blank white page or unhandled error is a failure."
       },
       {
@@ -2994,7 +2768,7 @@
       {
         "id": 13,
         "description": "Navigate to the BYOK / API key configuration settings page (e.g. /settings/api or /config/byok).",
-        "action": "navigate to https://app.phronex.com/settings/api or equivalent config route; wait for network idle",
+        "action": "navigate to https://app.phronex.com/jp/settings or equivalent config route; wait for network idle",
         "expected": "The configuration settings page loads. An API key input field is visible on the page. The field is labelled appropriately (e.g. 'API Key', 'Your API Key', 'BYOK')."
       },
       {
@@ -3302,7 +3076,7 @@
       {
         "id": 7,
         "description": "Return to the Billing page and verify Pro tier label and feature limits display correctly for a pro-tier context.",
-        "action": "Navigate back to https://app.phronex.com/billing (or use the sidebar). If the test account is pro tier, verify the label reads 'Pro Seeker'. Check that pro-tier feature limits (e.g. increased AI quota, portal count) are shown. If the account is not pro tier, verify the upgrade prompt references pro-tier benefits accurately.",
+        "action": "Navigate back to https://app.phronex.com/jp/subscription (or use the sidebar). If the test account is pro tier, verify the label reads 'Pro Seeker'. Check that pro-tier feature limits (e.g. increased AI quota, portal count) are shown. If the account is not pro tier, verify the upgrade prompt references pro-tier benefits accurately.",
         "expected": "If account is pro: page displays 'Pro Seeker' tier label; feature limits reflect pro entitlements; billing management link is functional and non-localhost (satisfies jp-verify-tier-pro oracle). If account is free/standard: upgrade prompt mentions pro features without exposing internal URLs."
       },
       {
@@ -3450,7 +3224,7 @@
       {
         "id": 8,
         "description": "Navigate to the Professional Portrait section. Verify the page is accessible to a superadmin/pro-tier user and the portrait generation control is present.",
-        "action": "navigate to https://app.phronex.com/portrait or click the Portrait nav item; wait for page load",
+        "action": "navigate to https://app.phronex.com/jp/portrait or click the Portrait nav item; wait for page load",
         "expected": "Page loads (HTTP 200). A 'Generate Portrait' button or equivalent trigger control is visible. The page does not show a tier-gate error for the superadmin account."
       },
       {
@@ -3506,7 +3280,7 @@
       {
         "id": 2,
         "description": "Navigate to the JP dashboard home page and confirm the authenticated user's name or avatar is visible, confirming the session is active.",
-        "action": "navigate to https://app.phronex.com/dashboard (or the JP root route), observe the top navigation bar",
+        "action": "navigate to https://app.phronex.com/jp/dashboard (or the JP root route), observe the top navigation bar",
         "expected": "Dashboard page renders without a 401/403 redirect. The authenticated user identity (name or avatar) is visible in the nav. No 'Session expired' or 'Unauthorized' toast appears."
       },
       {

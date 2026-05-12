@@ -1288,7 +1288,7 @@ _RUNNER_START_SEC=${SECONDS}
     -o "${RESULTS_DIR}" \
     --maxTurns 150 \
     --statePort "${CCTR_STATE_PORT}" \
-    --model "claude-sonnet-4-6" \
+    --model "${JOURNEYHAWK_MODEL:-claude-sonnet-4-6}" \
   || CC_EXIT=$?
 export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
 if [[ ${CC_EXIT} -ne 0 ]]; then
