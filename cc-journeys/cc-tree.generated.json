@@ -283,23 +283,33 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify — greeting message, assistant name, or persona description. Record the original value."
+        "description": "Load saved superadmin session from .tmp/cc-trunk-superadmin-state.json. Navigate to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Wait for the settings form to load. Identify a safe text field to modify — greeting message, assistant name, or persona description. Record the original value.",
+        "action": "Load browser storage state from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. Navigate to https://app.phronex.com/cc/instance?instance=maxine. Wait for the instance settings page to load. Identify an editable text field (e.g. the branding welcome message or business name).",
+        "expected": "Instance settings page loads successfully. At least one editable text field is visible. No 401/403 errors in the Network tab."
       },
       {
         "id": 2,
-        "description": "Modify the chosen field by appending ' [JH-QA-2026]' to the existing value. The marker text must be visible in the field after editing. Click the 'Save' button."
+        "description": "Modify the chosen field by appending ' [JH-QA-2026]' to the existing value. The marker text must be visible in the field after editing. Click the 'Save' button.",
+        "action": "Click on the editable text field identified in step 0. Append ' [JH-QA-2026]' to the existing value. Click the Save button.",
+        "expected": "The field now shows the original value with ' [JH-QA-2026]' appended. Save action is triggered (button click or form submission)."
       },
       {
         "id": 3,
-        "description": "Wait for save confirmation — a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error."
+        "description": "Wait for save confirmation — a success toast, 'Saved' indicator, or button state change. Verify no 500 error in the Network tab. If PATCH /api/v1/instance-config/e2e-test-instance returns non-200, record the error.",
+        "action": "Wait for a success toast, 'Saved' indicator, or button state change (e.g. Save button becomes disabled). Check the Network tab for the save request — verify it returned 200 (not 500 or 422).",
+        "expected": "A success indicator is visible (toast message or button state). Network request returned HTTP 200. No error toasts or console errors."
       },
       {
         "id": 4,
-        "description": "Navigate away to https://app.phronex.com/cc/dashboard. Wait for dashboard to load. Navigate back to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Verify the edited field still contains '[JH-QA-2026]'. If the value reverted, this is a persistence failure."
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard. Wait for dashboard to load. Navigate back to https://app.phronex.com/cc/instance?instance=e2e-test-instance. Verify the edited field still contains '[JH-QA-2026]'. If the value reverted, this is a persistence failure.",
+        "action": "Navigate to https://app.phronex.com/cc/dashboard. Wait for the dashboard page to fully load. Then navigate back to https://app.phronex.com/cc/instance?instance=maxine. Wait for the settings page to reload.",
+        "expected": "After returning to the instance settings page, the field modified in step 1 still shows the ' [JH-QA-2026]' suffix. Data persisted across navigation."
       },
       {
         "id": 5,
-        "description": "CLEANUP (non-blocking): Restore the original value — remove the ' [JH-QA-2026]' suffix and save. IMPORTANT: This is a CLEANUP step only. If this step times out, returns a non-200, or does not execute, mark the overall journey PASS based on steps 1-4. Do NOT fail this journey solely because cleanup is incomplete. If the field no longer shows '[JH-QA-2026]' (already cleaned), that is also PASS."
+        "description": "CLEANUP (non-blocking): Restore the original value — remove the ' [JH-QA-2026]' suffix and save. IMPORTANT: This is a CLEANUP step only. If this step times out, returns a non-200, or does not execute, mark the overall journey PASS based on steps 1-4. Do NOT fail this journey solely because cleanup is incomplete. If the field no longer shows '[JH-QA-2026]' (already cleaned), that is also PASS.",
+        "action": "CLEANUP: Find the field with ' [JH-QA-2026]' suffix. Remove the suffix to restore the original value. Click Save. IMPORTANT: cleanup failure must NOT cause the overall journey to fail.",
+        "expected": "Field is restored to original value. Save completes without error. If cleanup fails, the journey should still be marked as PASS."
       }
     ],
     "dependsOn": "cc-trunk-superadmin"
@@ -1158,9 +1168,9 @@
       },
       {
         "id": 19,
-        "description": "Support ticket submission — verify POST /api/v1/support/ticket proxies to phronex-auth",
-        "action": "As an authenticated CC user, navigate to the support section or trigger the support form. Fill in subject ('Test ticket <timestamp>'), body, priority 'HIGH', and optionally a session_id. Submit. Capture the POST /api/v1/support/ticket network request.",
-        "expected": "HTTP 200 or 201. Response confirms ticket submission. No 500 or proxy errors. The ticket should appear in the phronex-auth support queue (verify via superadmin if accessible)."
+        "description": "Support ticket submission — verify POST /api/v1/support/ticket proxies to phronex-auth. IMPORTANT: instance_id is a REQUIRED query parameter, not a path parameter.",
+        "action": "As an authenticated CC user, use page.evaluate to submit a support ticket: fetch('/api/cc/user/api/v1/support/ticket?instance_id=maxine', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({subject:'Test ticket <timestamp>', body:'Automated JH test'})}). Verify the response status is 200 or 201.",
+        "expected": "HTTP 200 or 201. Response confirms ticket submission. No 422 (missing instance_id) or 500 errors."
       },
       {
         "id": 20,
@@ -1398,56 +1408,56 @@
       },
       {
         "id": 3,
-        "description": "Read the current file-based config (instance.yaml) via the GET /api/v1/instance/{id}/instance-config endpoint and verify the response structure.",
-        "action": "Trigger a GET request to /api/v1/instance/maxine/instance-config (either via the UI's 'View Config' action or directly via the browser network panel / fetch). Capture the response body.",
+        "description": "Read the current instance config via the admin proxy endpoint. GET /api/admin/cc/api/v1/admin/instance-config/maxine — this uses superadmin auth (X-Admin-Secret).",
+        "action": "Using page.evaluate(): fetch('/api/admin/cc/api/v1/admin/instance-config/maxine'). The portal admin proxy adds X-Admin-Secret automatically. Inspect the response JSON for business settings fields.",
         "expected": "HTTP 200. Response body is valid JSON or YAML-derived object. Contains at minimum: business settings fields and lead form configuration keys. No unexpected null or empty top-level keys."
       },
       {
         "id": 4,
-        "description": "Read the branding config (branding.json) via GET /api/v1/instance/{id}/branding and verify locale-aware fields are present.",
-        "action": "Trigger a GET request to /api/v1/instance/maxine/branding. Inspect the response for color fields, welcome_message (check for at least one locale key), and lead_capture config.",
+        "description": "Read the branding config via the public endpoint. GET /api/v1/config/branding?instance_id=maxine — no auth required. Do NOT call /api/v1/maxine/branding (that path does not exist as a public route).",
+        "action": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/branding?instance_id=maxine'). Inspect the response for colors object, welcome_message with locale keys, and lead_capture_fields.",
         "expected": "HTTP 200. Response contains 'colors' object, 'welcome_message' with at least one locale key (e.g. 'en'), and 'lead_capture' section. No missing required fields."
       },
       {
         "id": 5,
-        "description": "Perform a partial update (PUT) to branding.json — modify the welcome message for the 'en' locale to a unique test string.",
-        "action": "Send a PUT request to /api/v1/instance/maxine/branding with a body that sets welcome_message.en to a unique string (e.g. 'Welcome_TEST_TIMESTAMP'). Use the UI form if available, otherwise use fetch/XHR. Record the exact string used.",
-        "expected": "HTTP 200. Response body reflects the updated welcome_message.en value. No validation errors returned."
+        "description": "Perform a partial update to branding via the admin proxy. PATCH /api/admin/cc/api/v1/admin/instance-config/maxine with a body that includes branding changes. Alternatively, navigate to the CC instance settings page in the portal and edit via the UI.",
+        "action": "Navigate to https://app.phronex.com/cc/instance?instance=maxine. Click on the Branding tab. Find the welcome message field. Update the welcome message to 'JH-Config-Test-<timestamp>'. Click Save.",
+        "expected": "Save completes without error. The page shows the updated welcome message after save."
       },
       {
         "id": 6,
         "description": "Immediately re-read the branding config to verify the update was persisted to the file-based store.",
-        "action": "Send a GET request to /api/v1/instance/maxine/branding immediately after the PUT in step 5. Compare the returned welcome_message.en against the value written in step 5.",
+        "action": "Refresh the page or navigate away and back. Verify the branding tab still shows the updated welcome message from step 4.",
         "expected": "The GET response returns the exact string written in step 5. Confirms the file-based write was flushed and the read path reflects the updated state without requiring a server restart."
       },
       {
         "id": 7,
         "description": "Verify the public branding endpoint (no auth) returns the updated value — confirming the file-based config propagates to the anonymous-accessible layer.",
-        "action": "Clear auth headers and send a GET request to /api/v1/config/branding?instance_id=maxine&lang=en. This is the unauthenticated public endpoint. Check the welcome_message field in the response.",
+        "action": "Using page.evaluate(): fetch('https://cc.phronex.com/api/v1/config/branding?instance_id=maxine&lang=en'). Verify the welcome_message in the response matches the value written in step 4.",
         "expected": "HTTP 200 (no auth required). The welcome_message field in the public response matches the value written in step 5. Confirms file-based config is the single source of truth for both admin and public read paths."
       },
       {
         "id": 8,
-        "description": "Perform a partial update to instance-config (instance.yaml) — modify a business settings field to a known test value.",
-        "action": "Send a PUT request to /api/v1/instance/maxine/instance-config with a body that modifies one business settings field (e.g. a display name, a toggle, or a lead form field label). Record the field and value. Use the UI form if available.",
+        "description": "Update an instance-config field via the portal UI. Navigate to the instance settings page and modify a visible config field.",
+        "action": "Navigate to https://app.phronex.com/cc/instance?instance=maxine. Find an editable settings field (e.g. business name or allowed domains). Modify the value by appending ' [JH-QA-2026]'. Click Save.",
         "expected": "HTTP 200. Response reflects the updated field. No schema validation or file-write errors."
       },
       {
         "id": 9,
         "description": "Re-read instance-config to verify persistence of the updated business settings field.",
-        "action": "Send a GET request to /api/v1/instance/maxine/instance-config. Locate the field updated in step 8 in the response.",
+        "action": "Refresh the page. Verify the settings field still shows the ' [JH-QA-2026]' suffix.",
         "expected": "The field updated in step 8 contains the exact value written. Confirms YAML file write and re-read are consistent."
       },
       {
         "id": 10,
         "description": "Test validation — attempt a PUT to branding with a malformed payload (e.g. colors set to a non-object string) and verify the API rejects it.",
-        "action": "Send a PUT request to /api/v1/instance/maxine/branding with a body where 'colors' is set to the string 'INVALID' instead of an object. Capture the HTTP status and error body.",
+        "action": "Using page.evaluate(): fetch('/api/admin/cc/api/v1/admin/instance-config/maxine', {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({branding:{colors:'INVALID'}})}). Verify the response status is 422 or 400.",
         "expected": "HTTP 422 or 400. Response body contains a validation error message referencing the 'colors' field. The existing branding config is NOT overwritten — a subsequent GET still returns the value from step 5."
       },
       {
         "id": 11,
         "description": "Test validation — attempt a PUT to instance-config with a missing required field and verify the API rejects it.",
-        "action": "Send a PUT request to /api/v1/instance/maxine/instance-config with a body that omits a required top-level key (determine from schema or prior GET response). Capture the HTTP status and error body.",
+        "action": "Using page.evaluate(): fetch('/api/admin/cc/api/v1/admin/instance-config/maxine', {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({})}). Verify the response handles empty body gracefully (200 no-op or 422).",
         "expected": "HTTP 422 or 400. Response body contains a descriptive validation error. The existing instance config is NOT overwritten — a subsequent GET still returns the value from step 8."
       },
       {
@@ -1464,8 +1474,8 @@
       },
       {
         "id": 14,
-        "description": "Restore original config values — clean up by reverting the welcome_message.en and the instance-config field to their pre-test values.",
-        "action": "Send PUT requests to /api/v1/instance/maxine/branding and /api/v1/instance/maxine/instance-config restoring the original values captured in steps 3 and 4. Verify with a GET after each PUT.",
+        "description": "CLEANUP: Restore original config values via the portal UI. Remove any ' [JH-QA-2026]' suffixes and revert the welcome message.",
+        "action": "Navigate to https://app.phronex.com/cc/instance?instance=maxine. Revert any modified fields to their original values (remove JH-QA test markers). Click Save. Verify the save completes without error.",
         "expected": "Both PUT requests return HTTP 200. Subsequent GET responses confirm original values are restored. Test environment is left in its pre-test state."
       }
     ],
@@ -1754,8 +1764,8 @@
       },
       {
         "id": 6,
-        "description": "Attempt to access a deployment-sensitive admin route without superadmin privileges to verify access control.",
-        "action": "Open a new incognito/private browser context (no session). Attempt to navigate directly to the deployment info or system admin URL discovered in step 2.",
+        "description": "Attempt to access a deployment-sensitive admin route without superadmin privileges to verify access control. Use the portal admin endpoint /api/admin/cc/api/v1/admin/instances to test. Do NOT call /api/v1/instance/{id}/llm-keys — that is an owner-scoped route, not a deployment-admin route.",
+        "action": "Open a new incognito browser context with no authentication. Navigate to https://app.phronex.com/cc/dashboard. Verify the browser is redirected to the login page or shows a 401/403. Then try using page.evaluate to fetch('/api/admin/cc/api/v1/admin/instances') without auth headers. Verify the response is 401 or 403.",
         "expected": "The unauthenticated request is redirected to the login page or returns a 401/403 response. The deployment info page content is not rendered. No sensitive environment variables or internal URLs are leaked in the response body."
       },
       {
@@ -1840,8 +1850,8 @@
       },
       {
         "id": 9,
-        "description": "Verify rate limit on skill ops — 50/month per user",
-        "action": "Check the response headers from steps 4, 6, and 8 for rate-limit headers. Alternatively call GET /api/v1/skills/usage or inspect any quota endpoint to see remaining skill ops count.",
+        "description": "Verify rate limit on skill ops — 50/month per user. Inspect response headers from steps 3 and 5 for X-RateLimit-Limit or X-RateLimit-Remaining headers. Do NOT call /api/v1/skills/usage — this endpoint does not exist.",
+        "action": "Inspect the response headers from the POST /api/v1/skills/from-template calls in steps 3 and 5. Look for rate-limit headers (X-RateLimit-Limit, X-RateLimit-Remaining, Retry-After). If no rate-limit headers are present, verify that making 2+ skill creation calls did not return 429.",
         "expected": "Rate-limit headers or usage response shows quota consumed. Count incremented by at least 2 (one from step 4, one from step 6). Total used is less than 50. No 429 returned during normal testing flow."
       },
       {
@@ -1871,7 +1881,7 @@
       {
         "id": 14,
         "description": "Verify non-owner cannot delete another instance's skill",
-        "action": "Using a different instance's authenticated JWT (or anonymous token if no second instance available, use an unauthenticated request), attempt DELETE /api/v1/skills/{CUSTOM_SKILL_ID}.",
+        "action": "Open a new incognito browser context with no authentication. Attempt DELETE /api/v1/skills/{CUSTOM_SKILL_ID from step 5} without any auth headers. This verifies that unauthenticated users cannot delete skills.",
         "expected": "Response status 403 Forbidden or 401 Unauthorized. CUSTOM_SKILL_ID still exists and is accessible to the original instance owner."
       },
       {
