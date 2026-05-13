@@ -1,0 +1,585 @@
+[
+  {
+    "id": "jp-trunk-main",
+    "description": "Authenticate as the main QA user (qa-test-journeyhawk@phronex.com) and capture browser session state for dependent journeys",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/jp-trunk-main-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
+      },
+      {
+        "id": 2,
+        "description": "Enter the email address qa-test-journeyhawk@phronex.com into the email input field"
+      },
+      {
+        "id": 3,
+        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
+      },
+      {
+        "id": 4,
+        "description": "Click the Sign In button to submit the login form"
+      },
+      {
+        "id": 5,
+        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
+      }
+    ]
+  },
+  {
+    "id": "jp-branch-portals",
+    "description": "Branch node: navigate to /jp/portals from trunk session and save state for child journeys",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/jp-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/portals and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-portals-state.json"
+  },
+  {
+    "id": "jp-branch-portrait",
+    "description": "Branch node: navigate to /jp/portrait from trunk session and save state for child journeys",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/jp-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/portrait and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-portrait-state.json"
+  },
+  {
+    "id": "jp-branch-settings",
+    "description": "Branch node: navigate to /jp/settings from trunk session and save state for child journeys",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/jp-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/settings and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-settings-state.json"
+  },
+  {
+    "id": "jp-branch-subscription",
+    "description": "Branch node: navigate to /jp/subscription from trunk session and save state for child journeys",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/jp-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/subscription and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ],
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-subscription-state.json"
+  },
+  {
+    "id": "jp-branch-dashboard",
+    "description": "Navigate to the JP dashboard and verify stats/panels are visible",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-dashboard-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/dashboard"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the dashboard page to fully load (no loading spinners visible)"
+      },
+      {
+        "id": 3,
+        "description": "Verify that stats cards or summary panels are visible on the page. Report the names/labels of any stats shown."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the full dashboard page"
+      }
+    ]
+  },
+  {
+    "id": "jp-branch-config",
+    "description": "Navigate to the JP config settings page and verify at least one configurable setting is visible",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-config-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the configuration settings page to load"
+      },
+      {
+        "id": 3,
+        "description": "Verify that at least one configurable setting is visible (toggles, inputs, selects, or API key fields). Report the settings available."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the config page"
+      }
+    ]
+  },
+  {
+    "id": "jp-branch-jobs-list",
+    "description": "Navigate to the JP jobs list and verify the list or empty state renders correctly",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-jobs-list-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/jobs"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the jobs page to fully load"
+      },
+      {
+        "id": 3,
+        "description": "Verify the page renders either a list of job cards/rows OR a meaningful empty state. Report which state is shown and how many jobs are visible."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the jobs list page"
+      }
+    ]
+  },
+  {
+    "id": "jp-jp-subscription",
+    "description": "[billing] Jp Subscription \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 4,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "action": "storageState load; if expired, login"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/subscription. Verify the page loads without errors \u2014 no blank page, no 'Something went wrong', no console errors.",
+        "action": "page.goto('https://app.phronex.com/jp/subscription'); waitForLoadState('networkidle'); captureConsoleErrors()"
+      },
+      {
+        "id": 3,
+        "description": "Assert a tier label is visible on the page showing the QA account's current tier (e.g. 'Standard Seeker', 'Free Seeker', 'Superadmin', or similar plan name).",
+        "action": "browser_snapshot; assert visible text matching /Free Seeker|Standard Seeker|Pro Seeker|Superadmin/i"
+      },
+      {
+        "id": 4,
+        "description": "Verify upgrade CTA rendering is tier-appropriate. For a Standard/Pro/Superadmin account, no mandatory upgrade wall should block the page. For Free tier, an upgrade CTA should be present.",
+        "action": "browser_snapshot; assert no fullscreen upgrade block for non-Free tier; assert upgrade section is informational only"
+      },
+      {
+        "id": 5,
+        "description": "Verify pro-gated features: Portrait access, AI credits, and application limits should appear as unlocked or granted for Pro/Standard/Superadmin tier accounts.",
+        "action": "browser_snapshot; look for feature access indicators \u2014 either explicit 'Unlocked' labels or absence of lock icons on pro features"
+      },
+      {
+        "id": 6,
+        "description": "Navigate away from /jp/subscription to https://app.phronex.com/jp/dashboard then navigate back to /jp/subscription. Verify the page reloads cleanly and tier information is consistent.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/subscription'); browser_snapshot"
+      },
+      {
+        "id": 7,
+        "description": "Hard-reload the /jp/subscription page and verify server-side state is consistent \u2014 tier label should be the same after reload.",
+        "action": "browser_evaluate('location.reload(true)'); waitForLoadState; browser_snapshot; verify same tier label"
+      },
+      {
+        "id": 8,
+        "description": "Intercept the network request for subscription data and verify it returns HTTP 200. The response body should include at least a tier field.",
+        "action": "browser_network_requests; filter to /billing/ or /subscription; assert 200 and body contains tier"
+      },
+      {
+        "id": 9,
+        "description": "Check for cross-service integration: verify the subscription page does not produce any CORS errors, 401, or 500 responses when loading billing/quota data.",
+        "action": "browser_network_requests; browser_console_messages; assert no CORS errors, 401, or 500"
+      },
+      {
+        "id": 10,
+        "description": "Accessibility spot-check: verify the subscription page has a proper heading hierarchy (h1 or h2 for the section title), buttons have accessible labels, and no obvious a11y regressions.",
+        "action": "browser_snapshot; check for h1/h2 heading and accessible button labels"
+      }
+    ],
+    "dependsOn": "jp-trunk-main",
+    "_shared_setup_steps": [
+      "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired."
+    ]
+  },
+  {
+    "id": "jp-jp-verify-config-yaml",
+    "description": "Jp Verify Config Yaml \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration on the Config page at /jp/config",
+    "depth": 5,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Assert that at least one configurable setting is rendered on the page. Look for any of: toggle switches, text inputs, API key fields, portal credential fields, dropdown selects, or numeric inputs. Count the total number of visible interactive config controls and assert count >= 1.",
+        "action": "querySelectAll('[type=text],[type=password],[type=number],[role=switch],select,textarea').filter(visible) \u2192 assert length >= 1",
+        "expected": "One or more configuration controls are visible and not hidden. No 'No settings available' or empty-state placeholder occupies the main content area."
+      },
+      {
+        "id": 2,
+        "description": "Inspect each visible section heading or accordion panel on the Config page. Verify the page is structurally organised (e.g. sections for portal credentials, search profile settings, AI settings, or notification preferences) and that section labels are non-empty strings (not 'undefined', 'null', or blank).",
+        "action": "querySelectAll('h2,h3,[data-section-title],legend').map(el => el.innerText.trim()) \u2192 assert every entry is a non-empty string",
+        "expected": "All section headings render meaningful text. No heading reads 'undefined', 'NaN', or is an empty string."
+      },
+      {
+        "id": 3,
+        "description": "Locate a text-type configuration input field (e.g. an API key field, a label field, or a URL field). Record its current value. Clear the field and type a clearly invalid value (e.g. a single space character ' ' or the string '!!!INVALID!!!') and then attempt to blur/submit. Assert that an inline validation error or form-level error message appears.",
+        "action": "focus first visible text input \u2192 triple-click to select all \u2192 type '!!!INVALID!!!' \u2192 fireEvent blur OR click nearest Save button \u2192 await error message selector",
+        "expected": "An inline validation error message appears adjacent to the field, or a toast/banner error is shown. The invalid value is NOT silently saved. The error message is human-readable (not a raw stack trace or JSON blob)."
+      },
+      {
+        "id": 4,
+        "description": "Clear the invalid value entered in step 5. Restore or type a valid value appropriate to the field type (e.g. a plausible API key string 'test-api-key-12345' for a text field). Save the configuration using whatever save mechanism is present (a 'Save', 'Update', or 'Apply' button, or an auto-save behaviour). Wait for a success indicator.",
+        "action": "clear field \u2192 type 'test-api-key-12345' \u2192 click save button matching /save|update|apply/i \u2192 await success toast OR success aria-live region",
+        "expected": "A success toast, snackbar, or inline confirmation message appears (e.g. 'Settings saved', 'Configuration updated'). No error banners are shown. The save button returns to its non-loading state."
+      },
+      {
+        "id": 5,
+        "description": "Persistence check: without reloading, navigate away from /jp/config to the Dashboard page (click 'Dashboard' in the sidebar or navigate to /jp/dashboard). Wait for the dashboard to load completely (network idle). Then navigate back to /jp/config by clicking the Config sidebar item again.",
+        "action": "click sidebar nav 'Dashboard' OR navigate('/jp/dashboard') \u2192 waitForLoadState('networkidle') \u2192 click sidebar nav 'Config' OR navigate('/jp/config') \u2192 waitForLoadState('networkidle')",
+        "expected": "The Config page reloads without errors. The value saved in step 6 ('test-api-key-12345') is still present in the same input field \u2014 confirming the value was persisted to the backend and re-fetched, not merely held in local React state."
+      },
+      {
+        "id": 6,
+        "description": "Hard-refresh persistence check: perform a full browser page reload on /jp/config (Ctrl+R / location.reload()). Wait for network idle. Assert the previously saved value from step 6 is still visible in the field after a cold reload \u2014 this validates the backend GET /config (or equivalent) round-trip.",
+        "action": "page.reload() \u2192 waitForLoadState('networkidle') \u2192 querySelector(same input from step 6) \u2192 assert value === 'test-api-key-12345'",
+        "expected": "After a hard reload, the input field still displays the value saved in step 6. The page does not flash an error state or revert to a default placeholder. No console errors of severity 'error' are emitted during reload."
+      },
+      {
+        "id": 7,
+        "description": "Cross-service integration check: open the browser DevTools network panel (or intercept via Playwright route inspection) and re-save the config (trigger another save action). Assert that a network request is made to the backend config endpoint (expected pattern: POST or PATCH to /api/config, /jp/config, or the FastAPI backend at localhost:8001/config or similar). Assert the response status is 2xx.",
+        "action": "page.on('response', r => capture if r.url().includes('config') && r.request().method() in ['POST','PATCH','PUT']) \u2192 click save \u2192 assert captured response.status() is in [200,201,204]",
+        "expected": "At least one outbound HTTP request matching a config mutation endpoint is captured. The response status is 200, 201, or 204. The response body (if non-empty) does not contain an 'error' key at the top level."
+      },
+      {
+        "id": 8,
+        "description": "Role-visibility gate: verify that the Config page and its controls are visible to the currently authenticated superadmin user (qa-test-journeyhawk@phronex.com). Assert that there is no 'Access Denied', 'Forbidden', or '403' message on the page, and that the config controls are not disabled/locked with a tier-upgrade prompt (since superadmin bypasses tier restrictions).",
+        "action": "assertNotVisible('[data-testid=access-denied], [data-testid=upgrade-prompt], .tier-lock-overlay') \u2192 assertVisible(configInputSelector)",
+        "expected": "No access-denied overlay, 403 message, or tier-upgrade paywall is shown to the superadmin user. All configuration controls are interactive (not greyed out or aria-disabled='true')."
+      },
+      {
+        "id": 9,
+        "description": "Final state sanity check: assert no JavaScript console errors of level 'error' were emitted during the entire journey. Also assert the page title or document title is non-empty and does not contain 'Error', 'Not Found', or 'Undefined'.",
+        "action": "collect page.on('console', msg => if msg.type()==='error' push to errors[]) \u2192 at end assert errors.length === 0 OR all errors are known-safe third-party noise \u2192 document.title does not match /error|not found|undefined/i",
+        "expected": "Zero unhandled JavaScript console errors attributable to the application (network errors for third-party CDN assets are excluded). The page document title is a meaningful string such as 'Config | Job Portal' or similar."
+      }
+    ],
+    "dependsOn": "jp-branch-config"
+  },
+  {
+    "id": "jp-jp-user-spec-portals-amp-search-profiles",
+    "description": "[general] Jp User_Spec Portals Amp Search Profiles \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 4,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/portals and verify the page loads cleanly.",
+        "action": "page.goto('https://app.phronex.com/jp/portals'); waitForLoadState('networkidle'); captureConsoleErrors(); browser_snapshot"
+      },
+      {
+        "id": 2,
+        "description": "Verify the portals listing renders correctly \u2014 either portal cards/rows for configured portals OR a clear empty-state CTA. Assert no blank page or JS error.",
+        "action": "browser_snapshot; assert (portal cards OR empty-state CTA) visible"
+      },
+      {
+        "id": 3,
+        "description": "If portals are present: verify each portal card shows the portal type name, scan schedule (e.g. 'Scan: 08:00 UTC'), and a search profiles indicator.",
+        "action": "IF portals present: assert portal name + scan schedule + search profile section per card; ELSE: skip"
+      },
+      {
+        "id": 4,
+        "description": "Open the 'Add Portal' CTA (if visible) and inspect the portal-type picker. Assert the type picker shows predefined portal types (linkedin, indeed, naukri, adzuna, glassdoor) \u2014 not a free-text custom URL field. Dismiss the dialog without submitting.",
+        "action": "browser_click Add Portal CTA; browser_snapshot; assert portal type is picker not free-text; IF all 5 slots taken assert 'all portals configured' or button disabled; dismiss dialog"
+      },
+      {
+        "id": 5,
+        "description": "Click on any one portal card to open its edit/settings form. Verify the form renders with at least: portal type label, scan time picker, keywords field, locations field.",
+        "action": "IF portals present: click first portal; browser_snapshot; assert (portal type + scan time + keywords + locations) fields present"
+      },
+      {
+        "id": 6,
+        "description": "CONDITIONAL (skip if step 6 skipped): In the portal edit form, attempt to clear the scan time or set an invalid time \u2014 verify validation or graceful handling.",
+        "action": "IF edit form open: attempt invalid scan time; assert validation OR graceful error"
+      },
+      {
+        "id": 7,
+        "description": "CONDITIONAL (skip if step 6 skipped): Navigate away from the portal edit form without saving. Verify the listing page reloads correctly.",
+        "action": "IF edit form open: dismiss/navigate away; assert portal listing still intact"
+      },
+      {
+        "id": 8,
+        "description": "Navigate away to https://app.phronex.com/jp/dashboard then return to https://app.phronex.com/jp/portals. Verify the portal listing reloads consistently.",
+        "action": "page.goto('https://app.phronex.com/jp/dashboard'); page.goto('https://app.phronex.com/jp/portals'); browser_snapshot"
+      },
+      {
+        "id": 9,
+        "description": "Intercept network requests and verify GET /api/jp/user/api/v1/portals returns 200 with portal data.",
+        "action": "browser_network_requests; filter to /portals; assert 200"
+      },
+      {
+        "id": 10,
+        "description": "Hard reload https://app.phronex.com/jp/portals and verify consistent portal listing.",
+        "action": "browser_evaluate('location.reload(true)'); waitForLoadState; browser_snapshot"
+      },
+      {
+        "id": 11,
+        "description": "Check browser console for zero TypeErrors, hydration mismatches, or unhandled promise rejections.",
+        "action": "browser_console_messages; assert no TypeError or unhandled-rejection messages; React hydration #418 warnings are NON-FATAL and must not cause failure"
+      }
+    ],
+    "dependsOn": "jp-branch-portals"
+  },
+  {
+    "id": "jp-verify-dashboard-stats",
+    "description": "Verify dashboard stat cards show numeric values and no JS console errors",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "jp-branch-dashboard",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/dashboard if not already there"
+      },
+      {
+        "id": 3,
+        "description": "Verify that stat cards display numeric values (not placeholder text or empty). Report the labels and values of each stat card."
+      },
+      {
+        "id": 4,
+        "description": "Check the browser console for critical JavaScript errors that visibly break dashboard functionality (e.g. React crash, blank page, missing data). Ignore network errors from background health-checks (/api/auth/me, /billing/pending) that do not affect displayed content. PASS if the dashboard renders stat cards correctly even if background network requests show errors."
+      },
+      {
+        "id": 5,
+        "description": "Take an annotated screenshot showing the stat cards with their values"
+      }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to https://app.phronex.com/jp/dashboard if not already there",
+      "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'. If the file is missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password, click Sign In, wait for redirect to /jp/. This restores the authenticated session so subsequent steps do not trigger login rate limiting."
+    ]
+  },
+  {
+    "id": "jp-jp-applications",
+    "description": "[general] Jp Applications \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 4,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/auth/login if session file is absent or expired; fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the submit/login button",
+        "expected": "User is authenticated and redirected to the JP dashboard or portal home without any error banner. Session cookie is set."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/jp/applications. Verify the page loads without errors (no blank page, no 'Something went wrong', no console errors).",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp/applications; capture a snapshot; collect console messages",
+        "expected": "Page title or heading contains 'Applications'. No red error banners, no 'Something went wrong' text, zero console errors of severity ERROR. HTTP status 200."
+      },
+      {
+        "id": 3,
+        "description": "Inspect the Applications page initial state. Verify it shows either a meaningful empty state or real application entries \u2014 never a blank white region.",
+        "action": "mcp__playwright__browser_snapshot; assert presence of either an empty-state illustration/message with a CTA (e.g. 'Browse Jobs', 'Start applying') OR at least one application card/row in a list or table",
+        "expected": "If no applications exist: an empty-state message is visible and a CTA button is rendered and enabled. If applications exist: at least one application entry is visible with a human-readable status label (e.g. 'Applied', 'Shortlisted', 'Rejected') and a job title."
+      },
+      {
+        "id": 4,
+        "description": "Verify application entry detail labels. Each visible application row/card must expose human-readable metadata \u2014 not raw enum values or UUIDs.",
+        "action": "mcp__playwright__browser_snapshot; inspect each application card/row for text content \u2014 job title, company name or portal name, application status label, and applied date",
+        "expected": "No raw UUIDs, enum integers, or null/undefined values are rendered. Status label is one of the known human-readable strings (e.g. 'Applied', 'Shortlisted', 'Interview', 'Offer', 'Rejected'). Applied date is formatted as a readable date string."
+      },
+      {
+        "id": 5,
+        "description": "Verify inline status editing: locate the status dropdown on the first application row. Change the status to a different value (e.g. from \"Applied\" to \"Shortlisted\") using the inline dropdown. Wait for the save confirmation.",
+        "action": "mcp__playwright__browser_snapshot; locate an inline status dropdown (select element) within the first application row of the table; select a different status value; wait for auto-save or success toast",
+        "expected": "The inline status dropdown updates the value immediately. A success toast or inline confirmation appears. No detail drawer or modal is expected \u2014 JP uses inline-editable table rows."
+      },
+      {
+        "id": 6,
+        "description": "Verify the status update persists: navigate away from /jp/applications to /jp/dashboard, then navigate back to /jp/applications. Verify the status value saved in step 5 persists.",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp/dashboard; then mcp__playwright__browser_navigate to https://app.phronex.com/jp/applications; locate the same application row and verify the status dropdown shows the previously saved value",
+        "expected": "The status dropdown retains the value set in step 5. No revert to original status. No errors during navigation."
+      },
+      {
+        "id": 7,
+        "description": "Verify the Export CSV button is present and functional. Click the Export CSV button and verify it triggers a download or shows a success indicator.",
+        "action": "mcp__playwright__browser_snapshot; locate the Export CSV button; click it; wait for download event or success indicator",
+        "expected": "The Export CSV button is visible and clickable. Clicking it either triggers a file download (Content-Disposition header) or shows a success toast. No error toast or console errors."
+      },
+      {
+        "id": 8,
+        "description": "Verify the applications table data integrity: each row must show job title, company name, status dropdown, and applied date. No raw UUIDs or null values.",
+        "action": "mcp__playwright__browser_snapshot; inspect each visible application row for: job title text (non-empty), company name text (non-empty), status dropdown with selected value, date string in readable format",
+        "expected": "Every visible application row has a non-empty job title, non-empty company name, a status dropdown with a human-readable value, and a formatted date. No raw UUIDs, no \"null\", no \"undefined\"."
+      },
+      {
+        "id": 9,
+        "description": "Verify the Applications page correctly surfaces tier-related limits if the test account is on the Free tier. Check for any application-per-day cap messaging or upgrade CTA.",
+        "action": "mcp__playwright__browser_snapshot; scan page for any tier label ('Free Seeker'), daily-application-cap indicator, or upgrade CTA button",
+        "expected": "If the QA superadmin account is on the Free tier: a tier label or cap notice is visible and an upgrade CTA is rendered. If the account is on Pro/higher: no cap notice is shown. In all cases, no JavaScript error is thrown when rendering tier-specific UI."
+      },
+      {
+        "id": 10,
+        "description": "Verify cross-sell Content Companion (CC) banner behaviour on the Applications page if the QA account does not have CC access.",
+        "action": "mcp__playwright__browser_snapshot; look for a cross-sell banner or card referencing Content Companion; if found, click its CTA link",
+        "expected": "If present: the CC cross-sell banner is visible, correctly labelled (not a broken image or empty div), and its CTA link navigates to the correct CC signup/landing page without a 404. If the QA account already has CC access: the banner is suppressed and instead a CC navigation entry is present in the sidebar."
+      },
+      {
+        "id": 11,
+        "description": "Navigate away from /jp/applications to the dashboard (/jp or /jp/dashboard), then navigate back and verify data/state persists.",
+        "action": "mcp__playwright__browser_navigate to https://app.phronex.com/jp; then mcp__playwright__browser_navigate back to https://app.phronex.com/jp/applications",
+        "expected": "The Applications page re-renders with the same data as before navigation. Any previously applied filter is either preserved (if the product persists filter state) or reset to default \u2014 either behaviour is acceptable, but the page must not show a blank region or error. No re-authentication is required."
+      },
+      {
+        "id": 12,
+        "description": "Verify the sidebar navigation role-gating is correct for the QA superadmin session. The superadmin sidebar shows the amber admin group (Users, Security, Audit Log, Portrait) \u2014 NOT the regular user navigation (Jobs, Portals, Applications, etc.). Since the QA account is a superadmin, the Applications link will NOT appear in the sidebar. Confirm that the sidebar amber admin group IS visible, confirming correct role-adaptive rendering.",
+        "action": "browser_snapshot; assert amber admin nav group is visible with Users/Security/Portrait entries; assert 'Applications' is NOT in the amber admin sidebar (expected for superadmin role)",
+        "expected": "The 'Applications' sidebar entry has an active CSS class or aria-current='page' attribute. No other nav item is simultaneously marked active. Superadmin-only tabs (amber variant) are visible given the QA account role."
+      },
+      {
+        "id": 13,
+        "description": "Check browser console for any React hydration errors, unhandled promise rejections, or network 4xx/5xx responses during the entire Applications page session.",
+        "action": "mcp__playwright__browser_console_messages; mcp__playwright__browser_network_requests filtered to the /jp/applications route and its API calls",
+        "expected": "Zero console errors of level ERROR. Zero unhandled promise rejections. All API calls to /applications or related endpoints return 200 or 204. Any 401 response must trigger a redirect to login \u2014 not a silent failure. No 500 responses."
+      }
+    ],
+    "dependsOn": "jp-trunk-main",
+    "_shared_setup_steps": [
+      "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+    ]
+  },
+  {
+    "id": "jp-jp-user-spec-authentication",
+    "description": "[general] Jp User_Spec Authentication \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 7,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json'; if file missing or session invalid, navigate to https://app.phronex.com/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click the Sign In button",
+        "expected": "Either session is restored and user lands on /jp/ dashboard, OR login page loads with email and password fields visible, form submits without error, and URL redirects to /jp/"
+      },
+      {
+        "id": 2,
+        "description": "Verify the /auth/login page DOM structure \u2014 confirm the page renders required form elements before any interaction.",
+        "action": "Navigate to https://app.phronex.com/auth/login (without session); take a DOM snapshot; assert presence of: an <input> with type='email' or name containing 'email', an <input> with type='password', a submit button with visible label matching 'Sign In' or similar, and a page heading or logo identifying JobPortal",
+        "expected": "Login page renders at /auth/login with email input, password input, and a Sign In button all visible in the DOM; no console errors on page load; page title or heading identifies the product"
+      },
+      {
+        "id": 3,
+        "description": "Attempt login with an empty email and empty password to validate required-field enforcement.",
+        "action": "Navigate to https://app.phronex.com/auth/login; leave both email and password fields blank; click the Sign In button",
+        "expected": "Form does not submit; browser-native or application-level validation messages appear on both the email and password fields; URL remains /auth/login; no network request to POST /api/v1/auth/login is fired (or if fired, a 422 or 400 response is returned)"
+      },
+      {
+        "id": 4,
+        "description": "Attempt login with a valid email format but incorrect password to verify authentication rejection.",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with 'WrongPassword999!'; click the Sign In button",
+        "expected": "POST /api/v1/auth/login returns a 401 or 400 response; an error message is displayed in the UI (e.g. 'Invalid credentials' or similar); URL remains /auth/login; no JWT is stored in localStorage or cookies"
+      },
+      {
+        "id": 5,
+        "description": "Attempt login with an invalid email format (not a valid email address) to verify client-side email format validation.",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'notanemail'; fill password with 'SomePassword123'; click the Sign In button",
+        "expected": "Browser or application validation rejects the email field with a format error; form does not submit; URL remains /auth/login"
+      },
+      {
+        "id": 6,
+        "description": "Perform a successful login with valid superadmin credentials and verify the JWT is issued and stored.",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with QA_SUPERADMIN_PASSWORD; click the Sign In button; after redirect, inspect cookies and/or localStorage for a JWT token",
+        "expected": "POST /api/v1/auth/login returns 200 with a JWT in the response body; URL redirects to /jp/ (dashboard or jobs list); a JWT token is present in localStorage (key 'token' or similar) or as an HttpOnly cookie; the token is a valid JWT structure (three base64 segments separated by dots)"
+      },
+      {
+        "id": 7,
+        "description": "After successful login, verify the authenticated dashboard renders expected navigation and user-specific UI elements.",
+        "action": "After the redirect to /jp/, take a DOM snapshot; check for: a top navigation bar or sidebar, the logged-in user's identity (email or display name), at least one primary CTA (e.g. 'Jobs', 'Apply', 'Agent') visible, and absence of the login form",
+        "expected": "Dashboard at /jp/ renders without error; navigation elements are present; user identity is reflected in the UI; login form is not visible; no 401 errors in the network log"
+      },
+      {
+        "id": 8,
+        "description": "Verify that accessing a protected route without a session redirects unauthenticated users to the login page.",
+        "action": "Clear all cookies and localStorage; navigate directly to https://app.phronex.com/jp/ (a protected route) without any session",
+        "expected": "Browser is redirected to /auth/login (or equivalent auth gate URL); the login form is displayed; no protected content is visible; HTTP response or client-side redirect results in landing on the login page"
+      },
+      {
+        "id": 9,
+        "description": "Verify that the JWT accepted by the frontend is either a JP-local HS256 token or a phronex-auth-issued token (cross-service integration check).",
+        "action": "After successful login (step 6), retrieve the stored JWT; decode the header and payload (base64 decode, no signature verification); inspect the 'alg' field in the header and the 'iss' or 'sub' claim in the payload",
+        "expected": "JWT header contains 'alg': 'HS256' (JP-local) or an equivalent algorithm from phronex-auth; payload contains a 'sub' claim with a user identifier; payload does not expose raw passwords or secrets; token structure is consistent with phronex-auth cross-service JWT spec (sa: false for non-superadmin sessions)"
+      },
+      {
+        "id": 10,
+        "description": "Verify session persistence: navigate away from the dashboard to another route and back, confirming the user remains authenticated.",
+        "action": "From /jp/ (authenticated), navigate to a secondary route (e.g. /jp/profile or /jp/jobs); then navigate back to /jp/ using browser back or direct URL; inspect the DOM for user identity and authenticated UI elements",
+        "expected": "User remains authenticated after navigation; no re-login prompt appears; user identity and navigation elements persist; JWT in storage is unchanged; no 401 errors are triggered during navigation"
+      },
+      {
+        "id": 11,
+        "description": "Verify the health endpoint is publicly accessible without authentication, confirming the auth guard does not over-block.",
+        "action": "Navigate to https://app.phronex.com/api/v1/health (or send a GET request via browser); observe the response body",
+        "expected": "GET /health returns HTTP 200 with body {\"status\": \"healthy\"}; no authentication header is required; response time is under 2 seconds"
+      },
+      {
+        "id": 12,
+        "description": "Simulate rapid failed login attempts. Make 6+ failed login attempts in quick succession. If rate limiting is active (HTTP 429 or 'Too many requests' UI message), assert it fires. If no rate limit activates (all return HTTP 200), log this as an INFO note ('Rate limiting not currently active') but do NOT fail the step \u2014 the absence of rate limiting is a known product gap, not a regression. PASS in both cases.",
+        "action": "Submit login form 6+ times with wrong credentials; log HTTP response codes; PASS if 429 appears OR if all return 200 (rate limiting not implemented is acceptable)",
+        "expected": "Either: rate limit activates (HTTP 429 or error message) = PASS; OR all requests return HTTP 200 (no rate limiting) = also PASS. This step is informational only."
+      },
+      {
+        "id": 13,
+        "description": "Log out (if a logout action is available) and confirm the session is fully invalidated.",
+        "action": "While authenticated at /jp/, locate and click a logout button or link (in navigation bar, user menu, or profile dropdown); after logout action completes, attempt to navigate to /jp/ directly",
+        "expected": "After logout, the JWT is removed from localStorage and/or the session cookie is cleared; navigating to /jp/ redirects to /auth/login; the previous JWT is no longer accepted by protected API endpoints (optional: verify a GET /api/v1/jobs with the old token returns 401)"
+      },
+      {
+        "id": 14,
+        "description": "Final persistence and state check: log back in and confirm the dashboard state is clean (no stale data from previous session).",
+        "action": "Navigate to https://app.phronex.com/auth/login; fill email with 'qa-test-journeyhawk@phronex.com'; fill password with QA_SUPERADMIN_PASSWORD; click Sign In; after redirect to /jp/, take a screenshot and DOM snapshot",
+        "expected": "Login succeeds and redirects to /jp/; a fresh JWT is issued; dashboard renders with up-to-date user data; no stale error banners or session-conflict warnings are visible; the journey completes without any unhandled console errors"
+      }
+    ],
+    "dependsOn": "jp-trunk-main",
+    "_shared_setup_steps": [
+      "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+    ]
+  }
+]

@@ -1,0 +1,121 @@
+[
+  {
+    "id": "jp-trunk-main",
+    "description": "Authenticate as the main QA user (qa-test-journeyhawk@phronex.com) and capture browser session state for dependent journeys",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/jp-trunk-main-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to load"
+      },
+      {
+        "id": 2,
+        "description": "Enter the email address qa-test-journeyhawk@phronex.com into the email input field"
+      },
+      {
+        "id": 3,
+        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
+      },
+      {
+        "id": 4,
+        "description": "Click the Sign In button to submit the login form"
+      },
+      {
+        "id": 5,
+        "description": "Wait for the URL to contain /jp/ (dashboard or jobs page). Verify the redirect confirms successful login. Screenshot the post-login state."
+      }
+    ]
+  },
+  {
+    "id": "jp-branch-config",
+    "description": "Navigate to the JP config settings page and verify at least one configurable setting is visible",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "jp-trunk-main",
+    "stateOutputPath": ".tmp/jp-branch-config-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/jp/config"
+      },
+      {
+        "id": 2,
+        "description": "Wait for the configuration settings page to load"
+      },
+      {
+        "id": 3,
+        "description": "Verify that at least one configurable setting is visible (toggles, inputs, selects, or API key fields). Report the settings available."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the config page"
+      }
+    ]
+  },
+  {
+    "id": "jp-jp-verify-config-yaml",
+    "description": "Jp Verify Config Yaml \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration on the Config page at /jp/config",
+    "depth": 5,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Assert that at least one configurable setting is rendered on the page. Look for any of: toggle switches, text inputs, API key fields, portal credential fields, dropdown selects, or numeric inputs. Count the total number of visible interactive config controls and assert count >= 1.",
+        "action": "querySelectAll('[type=text],[type=password],[type=number],[role=switch],select,textarea').filter(visible) \u2192 assert length >= 1",
+        "expected": "One or more configuration controls are visible and not hidden. No 'No settings available' or empty-state placeholder occupies the main content area."
+      },
+      {
+        "id": 2,
+        "description": "Inspect each visible section heading or accordion panel on the Config page. Verify the page is structurally organised (e.g. sections for portal credentials, search profile settings, AI settings, or notification preferences) and that section labels are non-empty strings (not 'undefined', 'null', or blank).",
+        "action": "querySelectAll('h2,h3,[data-section-title],legend').map(el => el.innerText.trim()) \u2192 assert every entry is a non-empty string",
+        "expected": "All section headings render meaningful text. No heading reads 'undefined', 'NaN', or is an empty string."
+      },
+      {
+        "id": 3,
+        "description": "Locate a text-type configuration input field (e.g. an API key field, a label field, or a URL field). Record its current value. Clear the field and type a clearly invalid value (e.g. a single space character ' ' or the string '!!!INVALID!!!') and then attempt to blur/submit. Assert that an inline validation error or form-level error message appears.",
+        "action": "focus first visible text input \u2192 triple-click to select all \u2192 type '!!!INVALID!!!' \u2192 fireEvent blur OR click nearest Save button \u2192 await error message selector",
+        "expected": "An inline validation error message appears adjacent to the field, or a toast/banner error is shown. The invalid value is NOT silently saved. The error message is human-readable (not a raw stack trace or JSON blob)."
+      },
+      {
+        "id": 4,
+        "description": "Clear the invalid value entered in step 5. Restore or type a valid value appropriate to the field type (e.g. a plausible API key string 'test-api-key-12345' for a text field). Save the configuration using whatever save mechanism is present (a 'Save', 'Update', or 'Apply' button, or an auto-save behaviour). Wait for a success indicator.",
+        "action": "clear field \u2192 type 'test-api-key-12345' \u2192 click save button matching /save|update|apply/i \u2192 await success toast OR success aria-live region",
+        "expected": "A success toast, snackbar, or inline confirmation message appears (e.g. 'Settings saved', 'Configuration updated'). No error banners are shown. The save button returns to its non-loading state."
+      },
+      {
+        "id": 5,
+        "description": "Persistence check: without reloading, navigate away from /jp/config to the Dashboard page (click 'Dashboard' in the sidebar or navigate to /jp/dashboard). Wait for the dashboard to load completely (network idle). Then navigate back to /jp/config by clicking the Config sidebar item again.",
+        "action": "click sidebar nav 'Dashboard' OR navigate('/jp/dashboard') \u2192 waitForLoadState('networkidle') \u2192 click sidebar nav 'Config' OR navigate('/jp/config') \u2192 waitForLoadState('networkidle')",
+        "expected": "The Config page reloads without errors. The value saved in step 6 ('test-api-key-12345') is still present in the same input field \u2014 confirming the value was persisted to the backend and re-fetched, not merely held in local React state."
+      },
+      {
+        "id": 6,
+        "description": "Hard-refresh persistence check: perform a full browser page reload on /jp/config (Ctrl+R / location.reload()). Wait for network idle. Assert the previously saved value from step 6 is still visible in the field after a cold reload \u2014 this validates the backend GET /config (or equivalent) round-trip.",
+        "action": "page.reload() \u2192 waitForLoadState('networkidle') \u2192 querySelector(same input from step 6) \u2192 assert value === 'test-api-key-12345'",
+        "expected": "After a hard reload, the input field still displays the value saved in step 6. The page does not flash an error state or revert to a default placeholder. No console errors of severity 'error' are emitted during reload."
+      },
+      {
+        "id": 7,
+        "description": "Cross-service integration check: open the browser DevTools network panel (or intercept via Playwright route inspection) and re-save the config (trigger another save action). Assert that a network request is made to the backend config endpoint (expected pattern: POST or PATCH to /api/config, /jp/config, or the FastAPI backend at localhost:8001/config or similar). Assert the response status is 2xx.",
+        "action": "page.on('response', r => capture if r.url().includes('config') && r.request().method() in ['POST','PATCH','PUT']) \u2192 click save \u2192 assert captured response.status() is in [200,201,204]",
+        "expected": "At least one outbound HTTP request matching a config mutation endpoint is captured. The response status is 200, 201, or 204. The response body (if non-empty) does not contain an 'error' key at the top level."
+      },
+      {
+        "id": 8,
+        "description": "Role-visibility gate: verify that the Config page and its controls are visible to the currently authenticated superadmin user (qa-test-journeyhawk@phronex.com). Assert that there is no 'Access Denied', 'Forbidden', or '403' message on the page, and that the config controls are not disabled/locked with a tier-upgrade prompt (since superadmin bypasses tier restrictions).",
+        "action": "assertNotVisible('[data-testid=access-denied], [data-testid=upgrade-prompt], .tier-lock-overlay') \u2192 assertVisible(configInputSelector)",
+        "expected": "No access-denied overlay, 403 message, or tier-upgrade paywall is shown to the superadmin user. All configuration controls are interactive (not greyed out or aria-disabled='true')."
+      },
+      {
+        "id": 9,
+        "description": "Final state sanity check: assert no JavaScript console errors of level 'error' were emitted during the entire journey. Also assert the page title or document title is non-empty and does not contain 'Error', 'Not Found', or 'Undefined'.",
+        "action": "collect page.on('console', msg => if msg.type()==='error' push to errors[]) \u2192 at end assert errors.length === 0 OR all errors are known-safe third-party noise \u2192 document.title does not match /error|not found|undefined/i",
+        "expected": "Zero unhandled JavaScript console errors attributable to the application (network errors for third-party CDN assets are excluded). The page document title is a meaningful string such as 'Config | Job Portal' or similar."
+      }
+    ],
+    "dependsOn": "jp-branch-config"
+  }
+]
