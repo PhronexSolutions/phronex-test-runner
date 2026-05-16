@@ -21,6 +21,9 @@ export const testCaseSchema = z.object({
     steps: z.array(stepSchema),
     // Phronex depth classification — internal field, accepted and ignored at runtime
     depth: z.number().optional(),
+    // Per-journey turn budget — overrides the CLI --maxTurns global when present.
+    // Injected by run-journeyhawk.sh based on step count × depth multiplier.
+    maxTurns: z.number().int().positive().optional(),
     // Tree executor fields — all optional, backward compatible
     isSharedRoot: z.boolean().optional().default(false),
     role: z.enum(["root", "branch", "verify", "teardown", "observation"]).optional().default("verify"),

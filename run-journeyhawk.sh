@@ -1346,6 +1346,110 @@ except Exception as _e:
 NON_BROWSER_EOF
 # === End Phase 95 Gap-B non-browser dispatch ===
 
+# Step 0.96: Per-journey dynamic maxTurns injection.
+# Computes a turn budget per journey based on step count × depth multiplier and
+# writes it back into MUTATED_SPEC as a "maxTurns" field.  The cc-test-runner
+# Zod schema accepts this field and passes it to claude --max-turns, overriding
+# the CLI-level --maxTurns 150 ceiling for journeys that need more or less budget.
+#
+# Formula: budget = max(30, min(250, round(15 × steps × depth_multiplier)))
+# Depth multipliers: SMOKE=0.5, SURFACE=1.0, DEEP=1.5, BEHAVIORAL=2.0
+# Trunk journeys (isSharedRoot): fixed 40 turns (login + storage capture only)
+echo ""
+echo "[0.96/3] Injecting per-journey turn budgets..."
+"${PYTHON}" - <<'TURN_BUDGET_EOF' || true
+import json, os, re, sys
+
+spec_path = os.environ.get("MUTATED_SPEC", "")
+if not spec_path:
+    print("[turn_budget] skipped: MUTATED_SPEC not set", file=sys.stderr)
+    sys.exit(0)
+
+try:
+    with open(spec_path) as f:
+        journeys = json.load(f)
+except Exception as e:
+    print(f"[turn_budget] skipped: could not read spec — {e}", file=sys.stderr)
+    sys.exit(0)
+
+# Depth multipliers
+DEPTH_MULTIPLIER = {"SMOKE": 0.5, "SURFACE": 1.0, "DEEP": 1.5, "BEHAVIORAL": 2.0}
+TURNS_PER_STEP = 15
+MIN_TURNS = 30
+MAX_TURNS = 250
+TRUNK_TURNS = 40
+
+# Minimal depth classifier (mirrors phronex_common.testing.depth_scorer logic)
+PASSIVE_KW = {"navigate", "goto", "go to", "waitfor", "wait_for", "wait for",
+              "verify", "assert", "check", "expect", "see", "observe",
+              "screenshot", "capture"}
+ACTIVE_KW = {"click", "fill", "type", "submit", "select", "upload", "press",
+             "toggle", "drag", "drop", "input", "enter", "choose", "pick",
+             "scroll", "swipe", "tap"}
+PERSIST_KW = {"persistence", "persist", "navigate_away", "reload", "refresh",
+              "re-assert", "reassert", "still visible", "still present",
+              "still exists", "data saved", "saved successfully"}
+TPL_VAR = re.compile(r"\{\{.*?\}\}")
+
+def classify_depth(journey):
+    if journey.get("isSharedRoot") or journey.get("is_shared_root"):
+        return "DEEP"
+    steps = journey.get("steps", [])
+    if not steps:
+        return "SMOKE"
+    if any(s.get("human_required") for s in steps):
+        return "DEEP"
+    def step_text(s):
+        parts = []
+        for k in ("action", "type", "description", "instruction", "name"):
+            v = s.get(k)
+            if isinstance(v, str):
+                parts.append(v)
+        return " ".join(parts).lower()
+    texts = [step_text(s) for s in steps]
+    full = " ".join(texts)
+    has_active = any(any(kw in t for kw in ACTIVE_KW) for t in texts)
+    has_persist = any(kw in full for kw in PERSIST_KW) or journey.get("persistence") is not None
+    has_tpl = bool(TPL_VAR.search(full))
+    interactive = sum(1 for t in texts if any(kw in t for kw in ACTIVE_KW))
+    nav_count = sum(1 for t in texts if any(kw in t for kw in {"navigate", "goto", "go to"}))
+    assert_count = sum(1 for t in texts if any(kw in t for kw in {"verify", "assert", "check", "expect"}))
+    if interactive >= 5 and has_tpl:
+        return "BEHAVIORAL"
+    if has_active and has_persist:
+        return "DEEP"
+    if has_active and len(steps) >= 3 and nav_count >= 2 and assert_count >= 1:
+        return "DEEP"
+    if has_active:
+        return "SURFACE"
+    return "SMOKE"
+
+updated = 0
+budget_log = []
+for j in journeys:
+    jid = j.get("id", "?")
+    if j.get("isSharedRoot") or j.get("is_shared_root"):
+        budget = TRUNK_TURNS
+        depth = "TRUNK"
+    else:
+        depth = classify_depth(j)
+        mult = DEPTH_MULTIPLIER.get(depth, 1.0)
+        steps = len(j.get("steps", []))
+        budget = max(MIN_TURNS, min(MAX_TURNS, round(TURNS_PER_STEP * steps * mult)))
+    old = j.get("maxTurns")
+    if old != budget:
+        j["maxTurns"] = budget
+        updated += 1
+    budget_log.append(f"  {jid}: {depth} × {len(j.get('steps',[]))} steps → {budget} turns")
+
+with open(spec_path, "w") as f:
+    json.dump(journeys, f, indent=2)
+
+print(f"[turn_budget] {updated}/{len(journeys)} journeys updated", file=sys.stderr)
+for line in budget_log:
+    print(line, file=sys.stderr)
+TURN_BUDGET_EOF
+
 # Step 1: cc-test-runner (wrapped by run_arbiter)
 # run_arbiter spawns cc-test-runner as a child, streams its stdout, and
 # SIGTERMs the child on abort triggers (3 consecutive fails / >30 min runtime

@@ -124,7 +124,7 @@ export async function* startTest(testCase: TestCase, storageStatePath: string | 
         "-p", prompt,
         "--output-format", "stream-json",
         "--model", inputs.model,
-        "--max-turns", String(inputs.maxTurns),
+        "--max-turns", String(testCase.maxTurns ?? inputs.maxTurns),
         "--mcp-config", mcpConfigPath,
         "--strict-mcp-config",
         "--allowed-tools", allowedTools.join(","),
