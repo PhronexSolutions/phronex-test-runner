@@ -721,6 +721,7 @@ fi
 # HALTS with a recovery table if any dependency cannot be resolved.
 echo ""
 echo "[0c3/3] Dependency graph pre-flight..."
+TMP_DIR="${TMP_DIR:-/tmp}"
 "${PYTHON}" - "${TEMP_SPEC}" "${TMP_DIR}" <<'DEPGRAPH_EOF' || { echo "⛔ Dependency graph pre-flight failed (see above). Fix spec before re-running."; exit 4; }
 import json, sys, shutil, pathlib
 
