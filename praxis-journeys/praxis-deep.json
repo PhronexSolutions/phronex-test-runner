@@ -31,7 +31,7 @@
   },
   {
     "id": "praxis-dashboard",
-    "description": "Navigate to the Praxis dashboard and verify the Life Score, pillar cards, and today's brief summary are rendered \u2014 not blank or errored",
+    "description": "Navigate to the Praxis dashboard and verify the Life Score, pillar cards, and today's brief summary are rendered — not blank or errored",
     "isSharedRoot": false,
     "role": "branch",
     "dependsOn": "praxis-trunk-main",
@@ -44,11 +44,11 @@
       },
       {
         "id": 2,
-        "description": "Verify a Life Score is visible \u2014 either a numeric score or a placeholder prompting initial setup. Report the value shown."
+        "description": "Verify a Life Score is visible — either a numeric score or a placeholder prompting initial setup. Report the value shown."
       },
       {
         "id": 3,
-        "description": "Verify that pillar indicators (Wealth, Health, Happiness, Wisdom or similar) are visible on the page \u2014 as cards, tabs, or labels. Report what is rendered."
+        "description": "Verify that pillar indicators (Wealth, Health, Happiness, Wisdom or similar) are visible on the page — as cards, tabs, or labels. Report what is rendered."
       },
       {
         "id": 4,
@@ -66,7 +66,7 @@
   },
   {
     "id": "praxis-habits-log",
-    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit \u2014 confirming the streak counter updates",
+    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit — confirming the streak counter updates",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "praxis-trunk-main",
@@ -83,7 +83,7 @@
       },
       {
         "id": 3,
-        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds \u2014 a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
+        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds — a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
       },
       {
         "id": 4,
@@ -112,7 +112,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the quadrant view renders \u2014 four labelled quadrants (Urgent+Important, Not Urgent+Important, etc.) are visible. Report the labels shown."
+        "description": "Verify the quadrant view renders — four labelled quadrants (Urgent+Important, Not Urgent+Important, etc.) are visible. Report the labels shown."
       },
       {
         "id": 4,
@@ -143,7 +143,7 @@
       },
       {
         "id": 4,
-        "description": "Look for a Net Worth indicator anywhere on the page \u2014 a number, chart, or label. Report whether it is visible."
+        "description": "Look for a Net Worth indicator anywhere on the page — a number, chart, or label. Report whether it is visible."
       },
       {
         "id": 5,
@@ -173,7 +173,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the expenses section renders \u2014 either a list of expense entries, a chart, or a meaningful empty state. Report what is shown."
+        "description": "Verify the expenses section renders — either a list of expense entries, a chart, or a meaningful empty state. Report what is shown."
       },
       {
         "id": 4,
@@ -260,7 +260,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the brief section renders \u2014 either a today's brief with content, a 'brief will arrive at 7am' message, or a list of past briefs. Report what is shown."
+        "description": "Verify the brief section renders — either a today's brief with content, a 'brief will arrive at 7am' message, or a list of past briefs. Report what is shown."
       },
       {
         "id": 3,
@@ -274,7 +274,7 @@
   },
   {
     "id": "praxis-assessment",
-    "description": "Navigate to the User Assessment page and verify the assessment UI loads correctly \u2014 either showing results or prompting to take the assessment",
+    "description": "Navigate to the User Assessment page and verify the assessment UI loads correctly — either showing results or prompting to take the assessment",
     "isSharedRoot": false,
     "role": "branch",
     "dependsOn": "praxis-trunk-main",
@@ -319,7 +319,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the settings page renders \u2014 showing tabs, sections, or form fields for configuring Praxis. Report the main sections visible (e.g. profile, notifications, pillars, billing)."
+        "description": "Verify the settings page renders — showing tabs, sections, or form fields for configuring Praxis. Report the main sections visible (e.g. profile, notifications, pillars, billing)."
       },
       {
         "id": 3,
@@ -351,7 +351,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the coach/AI chat interface renders \u2014 a message thread area and an input field or send button should be visible. Report what is shown."
+        "description": "Verify the coach/AI chat interface renders — a message thread area and an input field or send button should be visible. Report what is shown."
       },
       {
         "id": 3,
@@ -381,7 +381,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the page renders \u2014 either a list of knowledge items/vault entries, a search bar, or a meaningful empty state. Report what is visible."
+        "description": "Verify the page renders — either a list of knowledge items/vault entries, a search bar, or a meaningful empty state. Report what is visible."
       },
       {
         "id": 3,
@@ -411,7 +411,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the calendar interface renders \u2014 a date grid, week view, or list of events. Report what view is shown and whether any events are displayed."
+        "description": "Verify the calendar interface renders — a date grid, week view, or list of events. Report what view is shown and whether any events are displayed."
       },
       {
         "id": 3,
@@ -447,7 +447,7 @@
   },
   {
     "id": "praxis-praxis-architecture-pillar-isolation-isol",
-    "description": "[general] Praxis Architecture Pillar Isolation Isol \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "description": "[general] Praxis Architecture Pillar Isolation Isol — Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
     "steps": [
       {
@@ -490,23 +490,23 @@
         "id": 7,
         "description": "Verify pillar group isolation: Wealth pillar (Finance tab) renders independently",
         "action": "Click the 'Wealth' pillar group in the sidebar. Wait for it to expand. Click the 'Finance' tab.",
-        "expected": "The Wealth sidebar group expands and highlights with its pillar accent colour. The active tab indicator moves to Finance. The URL updates to /praxis/finance or /praxis?ptab=finance (or equivalent). Finance content renders without navigation errors. Due to the known data backload limitation (tables are empty as of 2026-04-26), an empty-state UI (e.g. 'No data yet' or similar placeholder) is acceptable \u2014 a hard error or 500 is not acceptable."
+        "expected": "The Wealth sidebar group expands and highlights with its pillar accent colour. The active tab indicator moves to Finance. The URL updates to /praxis/finance or /praxis?ptab=finance (or equivalent). Finance content renders without navigation errors. Due to the known data backload limitation (tables are empty as of 2026-04-26), an empty-state UI (e.g. 'No data yet' or similar placeholder) is acceptable — a hard error or 500 is not acceptable."
       },
       {
         "id": 8,
         "description": "Verify pillar group isolation: switching pillars clears prior pillar state",
         "action": "With the Finance tab active (Wealth pillar), click the 'Health' pillar group. Click the 'Habits' tab.",
-        "expected": "The Wealth pillar group collapses (or loses active styling). The Health pillar group expands and highlights with its own accent. The Habits tab content renders. No Finance data or UI fragments remain visible. The URL updates to /praxis/habits or equivalent. This confirms pillar isolation \u2014 each pillar renders its own scoped state."
+        "expected": "The Wealth pillar group collapses (or loses active styling). The Health pillar group expands and highlights with its own accent. The Habits tab content renders. No Finance data or UI fragments remain visible. The URL updates to /praxis/habits or equivalent. This confirms pillar isolation — each pillar renders its own scoped state."
       },
       {
         "id": 9,
-        "description": "Navigate away from Praxis and return \u2014 verify persistence of config change",
+        "description": "Navigate away from Praxis and return — verify persistence of config change",
         "action": "Navigate away from the Praxis portal entirely by going to a non-Praxis page (e.g. http://localhost:3002 or the portal dashboard). Wait 2 seconds. Then navigate back to the Praxis admin config area (e.g. re-open /api/v1/admin/praxis-config via GET in dev-tools or re-open the admin config sub-tab).",
         "expected": "The configuration value updated in Step 4 is still reflected in the response from GET /api/v1/admin/praxis-config. The change was persisted to the database, not just held in memory. The updated value matches what was submitted in the PUT request."
       },
       {
         "id": 10,
-        "description": "Verify Admin group visibility is superadmin-only (pillar isolation \u2014 auth tier)",
+        "description": "Verify Admin group visibility is superadmin-only (pillar isolation — auth tier)",
         "action": "Log out of the superadmin session. Log in as a personal-tier user. Inspect the Praxis sidebar.",
         "expected": "The amber Admin group is NOT visible in the sidebar for the personal-tier user. The sidebar shows only the standard pillar groups (Today, Health, Wealth, Happiness, Wisdom, Tools, Settings). This confirms that admin pillar isolation is enforced at the UI layer in addition to the API layer verified in Step 5."
       }
@@ -515,7 +515,7 @@
   },
   {
     "id": "praxis-deep-praxis-hobbies-add",
-    "description": "[DEEP] praxis-happiness-interests \u2014 Add hobby interest and log an event, verify last_event_date updates",
+    "description": "[DEEP] praxis-happiness-interests — Add hobby interest and log an event, verify last_event_date updates",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "praxis-trunk-main",
@@ -527,11 +527,11 @@
       },
       {
         "id": 2,
-        "description": "Verify the Happiness page renders \u2014 either the Interests tab with a list of interests, or an empty state with an Add Interest CTA. Report what is shown. Take a screenshot."
+        "description": "Verify the Happiness page renders — either the Interests tab with a list of interests, or an empty state with an Add Interest CTA. Report what is shown. Take a screenshot."
       },
       {
         "id": 3,
-        "description": "POST /api/v1/hobbies with name=JH-Test-Hobby and category=Sport (capital S, required by enum). Verify 201 response with an interest_id. Then POST /api/v1/hobbies/{interest_id}/events with description='JH test event' and no event_date (server defaults to today). Verify 201 response. Then GET /api/v1/hobbies/{interest_id} and verify ALL three: (a) last_event_date is today's date (NOT null), (b) is_active is true, (c) dormancy_status is 'active' (not 'unknown' or 'dormant' \u2014 event just logged today)."
+        "description": "POST /api/v1/hobbies with name=JH-Test-Hobby and category=Sport (capital S, required by enum). Verify 201 response with an interest_id. Then POST /api/v1/hobbies/{interest_id}/events with description='JH test event' and no event_date (server defaults to today). Verify 201 response. Then GET /api/v1/hobbies/{interest_id} and verify ALL three: (a) last_event_date is today's date (NOT null), (b) is_active is true, (c) dormancy_status is 'active' (not 'unknown' or 'dormant' — event just logged today)."
       },
       {
         "id": 4,
@@ -545,7 +545,7 @@
   },
   {
     "id": "praxis-deep-praxis-skills-browse",
-    "description": "[DEEP] praxis-skills-browse \u2014 browse skill templates and draft a new skill (approval/sandbox in separate test)",
+    "description": "[DEEP] praxis-skills-browse — browse skill templates and draft a new skill (approval/sandbox in separate test)",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "praxis-trunk-main",
@@ -561,17 +561,17 @@
       },
       {
         "id": 3,
-        "description": "POST /api/v1/skills/draft with a test skill payload (e.g. name=JH-Test-Skill, description=Test, template_id from GET /api/v1/skills/templates if available). Verify the response is 201 with a skill_id and status=draft. Then GET /api/v1/skills/{skill_id} to confirm it exists in draft state."
+        "description": "POST /api/v1/skills/draft with name=JH-Test-Skill, description=A journeyhawk test skill. Verify 201 response with a skill_id and status=draft. Then GET /api/v1/skills/{skill_id} confirms draft state."
       },
       {
         "id": 4,
-        "description": "Navigate back to https://app.phronex.com/praxis and verify the dashboard loads without error. Data persists."
+        "description": "Navigate to /praxis/dashboard and back. Confirm no error boundary. The draft skill should still exist in GET /api/v1/skills/{skill_id}."
       }
     ]
   },
   {
     "id": "praxis-deep-praxis-share-pillar",
-    "description": "[DEEP] praxis-share-pillar \u2014 full token lifecycle: create (201), list, revoke (204), verify 410 Gone on revoked view, verify public view page accessible without auth",
+    "description": "[DEEP] praxis-share-pillar — full token lifecycle: create (201), list, revoke (204), verify 410 Gone on revoked view, verify public view page accessible without auth",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "praxis-trunk-superadmin",
@@ -583,7 +583,7 @@
       },
       {
         "id": 2,
-        "description": "POST /api/v1/share/pillar/token with JSON body {\"scope\": \"pillar:wealth\", \"ttl_seconds\": 86400}. Verify: (a) HTTP 201 (not 200 \u2014 this was fixed in commit a7d6ae5), (b) response JSON contains token_id field. Record the token_id for subsequent steps."
+        "description": "POST /api/v1/share/pillar/token with JSON body {\"scope\": \"pillar:wealth\", \"ttl_seconds\": 86400}. Verify: (a) HTTP 201 (not 200 — this was fixed in commit a7d6ae5), (b) response JSON contains token_id field. Record the token_id for subsequent steps."
       },
       {
         "id": 3,
@@ -591,11 +591,11 @@
       },
       {
         "id": 4,
-        "description": "Navigate in the SAME authenticated browser session to https://app.phronex.com/praxis/share/pillar/{token_id}. Verify the page loads (HTTP 200) and does NOT redirect to /auth/login. The page may show 'Pillar view not yet implemented' \u2014 this is acceptable Phase 43 WIP. The critical assertion is: no auth redirect."
+        "description": "Navigate in the SAME authenticated browser session to https://app.phronex.com/praxis/share/pillar/{token_id}. Verify the page loads (HTTP 200) and does NOT redirect to /auth/login. The page may show 'Pillar view not yet implemented' — this is acceptable Phase 43 WIP. The critical assertion is: no auth redirect."
       },
       {
         "id": 5,
-        "description": "DELETE /api/v1/share/pillar/token/{token_id} to revoke the token. Verify HTTP 204 (no body). Then GET /api/v1/share/pillar/{token_id}/view and verify HTTP 410 Gone (not 404) \u2014 this confirms revoked vs missing token distinction (fixed in commit a7d6ae5). Navigate back to dashboard."
+        "description": "DELETE /api/v1/share/pillar/token/{token_id} to revoke the token. Verify HTTP 204 (no body). Then GET /api/v1/share/pillar/{token_id}/view and verify HTTP 410 Gone (not 404) — this confirms revoked vs missing token distinction (fixed in commit a7d6ae5). Navigate back to dashboard."
       }
     ]
   }
