@@ -52,6 +52,12 @@ export const testCaseSchema = z.object({
         max_seconds: z.number().optional().default(30),
         after_step: z.string().optional(),
     }).optional(),
+    requires: z.array(z.object({
+        resource_key: z.string(),       // matches resource_key in the inventory dict
+        description: z.string(),        // human-readable: "Career ladder configured for QA account"
+        automatable: z.boolean(),       // can the runner provision this automatically?
+        blocker_message: z.string().optional(), // only required when automatable=false; shown pre-run
+    })).optional(),
 });
 
 /**
