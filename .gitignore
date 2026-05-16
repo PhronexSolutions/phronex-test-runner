@@ -160,6 +160,8 @@ cc-journeys/results/
 cc-journeys/results-*/
 portal-journeys/results-*/
 portal-journeys/retest-results/
+praxis-journeys/results-*/
+*.generated.json
 
 # Playwright session state files
 .tmp/
