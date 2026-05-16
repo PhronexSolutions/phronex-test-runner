@@ -531,7 +531,7 @@
       },
       {
         "id": 3,
-        "description": "POST /api/v1/hobbies with name=JH-Test-Hobby and category=sport. Verify 201 response with an interest_id. Then POST /api/v1/hobbies/{interest_id}/events with a description and today's date. Verify 201 response. Then GET /api/v1/hobbies/{interest_id} and verify: (a) last_event_date is today's date (NOT null), (b) is_active is true. The dormancy_status field does NOT exist in the schema \u2014 do not assert it."
+        "description": "POST /api/v1/hobbies with name=JH-Test-Hobby and category=Sport (capital S, required by enum). Verify 201 response with an interest_id. Then POST /api/v1/hobbies/{interest_id}/events with description='JH test event' and no event_date (server defaults to today). Verify 201 response. Then GET /api/v1/hobbies/{interest_id} and verify ALL three: (a) last_event_date is today's date (NOT null), (b) is_active is true, (c) dormancy_status is 'active' (not 'unknown' or 'dormant' \u2014 event just logged today)."
       },
       {
         "id": 4,
@@ -571,7 +571,7 @@
   },
   {
     "id": "praxis-deep-praxis-share-pillar",
-    "description": "[DEEP] praxis-share-pillar \u2014 token lifecycle (create/list/revoke); view is Phase 43 WIP",
+    "description": "[DEEP] praxis-share-pillar \u2014 full token lifecycle: create (201), list, revoke (204), verify 410 Gone on revoked view, verify public view page accessible without auth",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "praxis-trunk-superadmin",
@@ -583,19 +583,19 @@
       },
       {
         "id": 2,
-        "description": "POST /api/v1/share/pillar/token with scope='pillar:wealth'. Verify: (a) HTTP 201 (not 200), (b) response contains token_id. NOTE: the endpoint was previously returning 200 \u2014 this tests the fix."
+        "description": "POST /api/v1/share/pillar/token with JSON body {\"scope\": \"pillar:wealth\", \"ttl_seconds\": 86400}. Verify: (a) HTTP 201 (not 200 \u2014 this was fixed in commit a7d6ae5), (b) response JSON contains token_id field. Record the token_id for subsequent steps."
       },
       {
         "id": 3,
-        "description": "GET /api/v1/share/pillar/token to list active tokens. Verify the newly created token appears in the list. Token lifecycle is implemented correctly."
+        "description": "GET /api/v1/share/pillar/token to list active tokens. Verify the newly created token_id appears in the list. Also verify each item has scope and expires_at fields."
       },
       {
         "id": 4,
-        "description": "DELETE /api/v1/share/pillar/token/{token_id} to revoke the token. Verify HTTP 204. Then GET /api/v1/share/pillar/token/{token_id}/view and verify HTTP 410 Gone (not 404) \u2014 this confirms the revoked vs missing distinction works."
+        "description": "Navigate in the SAME authenticated browser session to https://app.phronex.com/praxis/share/pillar/{token_id}. Verify the page loads (HTTP 200) and does NOT redirect to /auth/login. The page may show 'Pillar view not yet implemented' \u2014 this is acceptable Phase 43 WIP. The critical assertion is: no auth redirect."
       },
       {
         "id": 5,
-        "description": "NOTE: The public share view page (/praxis/share/pillar/{token}) is Phase 43 WIP \u2014 it currently returns a placeholder message and is blocked by auth middleware. Do NOT assert that it shows pillar scores. Just verify the token lifecycle above passed. Navigate back to dashboard."
+        "description": "DELETE /api/v1/share/pillar/token/{token_id} to revoke the token. Verify HTTP 204 (no body). Then GET /api/v1/share/pillar/{token_id}/view and verify HTTP 410 Gone (not 404) \u2014 this confirms revoked vs missing token distinction (fixed in commit a7d6ae5). Navigate back to dashboard."
       }
     ]
   }
