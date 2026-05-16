@@ -1409,8 +1409,8 @@
       },
       {
         "id": 6,
-        "description": "Fill in new task details \u2014 title 'Draft Q3 review deck', due date 3 days out, priority High",
-        "action": "In the task creation form, enter title 'Draft Q3 review deck', set the due date to 3 days from today, and select priority 'High'. Then submit the form.",
+        "description": "Fill in new task details \u2014 title 'JH-Task-16May', due date 3 days out, priority High",
+        "action": "In the task creation form, enter title 'JH-Task-16May', set the due date to 3 days from today, and select priority 'High'. Then submit the form.",
         "expected": "The form accepts all inputs without validation errors. On submission, the modal/form closes and the new task 'Draft Q3 review deck' appears in the task list with the correct due date and 'High' priority indicator. A success toast or confirmation message may appear."
       },
       {
@@ -1421,14 +1421,14 @@
       },
       {
         "id": 8,
-        "description": "Edit an existing task \u2014 update the title of 'Draft Q3 review deck'",
-        "action": "Locate the task 'Draft Q3 review deck' in the task list. Click the edit action (pencil icon, context menu, or inline edit). Change the title to 'Draft Q3 Review Deck (Updated)' and save.",
+        "description": "Edit an existing task \u2014 update the title of 'JH-Task-16May'",
+        "action": "Locate the task 'JH-Task-16May' in the task list. Click the edit action (pencil icon, context menu, or inline edit). Change the title to 'JH-Task-16May (Updated)' and save.",
         "expected": "The task title updates to 'Draft Q3 Review Deck (Updated)' in the task list without a full page reload. A PATCH request to /api/v1/work/tasks/{task_id} is observed in the Network tab returning HTTP 200. No error messages are shown."
       },
       {
         "id": 9,
         "description": "Mark the task as complete \u2014 click 'Complete' on the updated task card",
-        "action": "Locate the task 'Draft Q3 Review Deck (Updated)' in the open task list. Click the 'Complete' button or checkbox on its card.",
+        "action": "Locate the task 'JH-Task-16May (Updated)' in the open task list. Click the 'Complete' button or checkbox on its card.",
         "expected": "A POST request to /api/v1/work/tasks/{task_id}/complete is made and returns HTTP 200. The task is immediately removed from the open task list in the UI. A success indicator (toast, animation, or visual feedback) confirms the completion."
       },
       {

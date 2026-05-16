@@ -1,81 +1,472 @@
 [
   {
-    "id": "praxis-habits-log",
-    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit — confirming the streak counter updates",
+    "id": "praxis-branch-people",
+    "description": "Branch node: navigate to /praxis/people from trunk session and save state for child journeys",
+    "dependsOn": "praxis-trunk-main",
+    "role": "branch",
+    "isSharedRoot": false,
+    "stateOutputPath": ".tmp/praxis-branch-people-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/praxis-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/praxis/people and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ]
+  },
+  {
+    "id": "praxis-people-contacts",
+    "description": "Navigate to the People page and verify the contact list renders with cadence status indicators",
     "depth": 1,
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com/praxis/habits and wait for the page to fully load"
+        "description": "Navigate to http://localhost:3002/praxis/people and wait for the page to fully load"
       },
       {
         "id": 2,
-        "description": "Verify the page renders either a list of habits (with names and streak indicators) OR a meaningful empty state with a CTA to add a first habit. Report which state is shown."
+        "description": "Verify the page renders either a contact list with names and last-contact indicators OR a meaningful empty state with a CTA to add contacts. Report which state is shown and how many contacts are visible."
       },
       {
         "id": 3,
-        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds — a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
+        "description": "Verify the page does NOT show an error boundary or 'Something went wrong' message."
       },
       {
         "id": 4,
-        "description": "Take a screenshot showing the logged habit or the newly created habit"
+        "description": "Take a screenshot of the People page"
+      }
+    ],
+    "dependsOn": "praxis-branch-people",
+    "stateOutputPath": ".tmp/praxis-people-state.json"
+  },
+  {
+    "id": "praxis-life-goals",
+    "description": "Navigate to the Life/Goals page and verify milestones or goals are rendered or have a meaningful empty state",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/life and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders either life goals/milestones content OR a meaningful empty state. Report what is visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify the page does NOT show a blank white screen or unhandled error."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Life/Goals page"
       }
     ],
     "dependsOn": "praxis-trunk-main",
-    "stateOutputPath": ".tmp/praxis-habits-log-state.json"
+    "stateOutputPath": ".tmp/praxis-life-state.json"
   },
   {
-    "id": "praxis-people",
-    "description": "People portal surface — contacts list, overdue sorting, contact detail, navigation round-trip, and auth gate. Sub-resource APIs (children, school-docs, interests, keys, meetings) are MCP-only and are not tested via browser.",
-    "depth": 2,
+    "id": "praxis-knowledge",
+    "description": "Navigate to the Knowledge/Wisdom page and verify content or vault renders correctly",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/knowledge or http://localhost:3002/praxis/wisdom and wait for the page to load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders \u2014 either a list of knowledge items/vault entries, a search bar, or a meaningful empty state. Report what is visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary or blank area appears."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Knowledge page"
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-calendar",
+    "description": "Navigate to the Calendar page and verify calendar events or empty state renders without error",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/calendar and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the calendar interface renders \u2014 a date grid, week view, or list of events. Report what view is shown and whether any events are displayed."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary, blank white screen, or 'Failed to load calendar' message appears."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Calendar page"
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-deep-praxis-hobbies-add",
+    "description": "[DEEP] praxis-happiness-interests \u2014 Add hobby interest and log an event, verify last_event_date updates",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/praxis/happiness and wait for the page to load. The Happiness pillar page hosts the Interests tab."
+      },
+      {
+        "id": 2,
+        "description": "Verify the Happiness page renders \u2014 either the Interests tab with a list of interests, or an empty state with an Add Interest CTA. Report what is shown. Take a screenshot."
+      },
+      {
+        "id": 3,
+        "description": "POST /api/v1/hobbies with name=JH-Test-Hobby and category=Sport (capital S, required by enum). Verify 201 response with an interest_id. Then POST /api/v1/hobbies/{interest_id}/events with description='JH test event' and no event_date (server defaults to today). Verify 201 response. Then GET /api/v1/hobbies/{interest_id} and verify ALL three: (a) last_event_date is today's date (NOT null), (b) is_active is true, (c) dormancy_status is 'active' (not 'unknown' or 'dormant' \u2014 event just logged today)."
+      },
+      {
+        "id": 4,
+        "description": "Navigate back to https://app.phronex.com/praxis/happiness and verify the interest appears in the Interests tab list (or locate the Interests section). Take a screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/praxis and verify the dashboard loads without error. Data persists check complete."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-deep-praxis-skills-browse",
+    "description": "[DEEP] praxis-skills-browse \u2014 browse skill templates and draft a new skill (approval/sandbox in separate test)",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/praxis/skills and wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "Verify the Skills page renders: either a list of skill templates, a list of user skills, or an empty state with a CTA to browse/add skills. Report what is shown. Take a screenshot."
+      },
+      {
+        "id": 3,
+        "description": "POST /api/v1/skills/draft with name=JH-Test-Skill, description=A journeyhawk test skill. Verify 201 response with a skill_id and status=draft. Then GET /api/v1/skills/{skill_id} confirms draft state."
+      },
+      {
+        "id": 4,
+        "description": "Navigate to /praxis/dashboard and back. Confirm no error boundary. The draft skill should still exist in GET /api/v1/skills/{skill_id}."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-deep-praxis-share-pillar",
+    "description": "[DEEP] praxis-share-pillar \u2014 full token lifecycle: create (201), list, revoke (204), verify 410 Gone on revoked view, verify public view page accessible without auth",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "POST /api/v1/share/pillar/token with JSON body {\"scope\": \"pillar:wealth\", \"ttl_seconds\": 86400}. Verify: (a) HTTP 201 (not 200 \u2014 this was fixed in commit a7d6ae5), (b) response JSON contains token_id field. Record the token_id for subsequent steps."
+      },
+      {
+        "id": 3,
+        "description": "GET /api/v1/share/pillar/token to list active tokens. Verify the newly created token_id appears in the list. Also verify each item has scope and expires_at fields."
+      },
+      {
+        "id": 4,
+        "description": "Navigate in the SAME authenticated browser session to https://app.phronex.com/praxis/share/pillar/{token_id}. Verify the page loads (HTTP 200) and does NOT redirect to /auth/login. The page may show 'Pillar view not yet implemented' \u2014 this is acceptable Phase 43 WIP. The critical assertion is: no auth redirect."
+      },
+      {
+        "id": 5,
+        "description": "DELETE /api/v1/share/pillar/token/{token_id} to revoke the token. Verify HTTP 204 (no body). Then GET /api/v1/share/pillar/{token_id}/view and verify HTTP 410 Gone (not 404) \u2014 this confirms revoked vs missing token distinction (fixed in commit a7d6ae5). Navigate back to dashboard."
+      }
+    ],
+    "dependsOn": "praxis-trunk-superadmin"
+  },
+  {
+    "id": "praxis-tasks",
+    "description": "[general] Tasks \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session or log in fresh",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "expected": "User is authenticated and lands on the Praxis portal dashboard. No login error is shown. The sidebar is visible with labelled pillar groups including the 'Today' group containing Tasks."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the Tasks page",
+        "action": "Navigate to http://localhost:3002/praxis/tasks.",
+        "expected": "The Tasks page loads without errors. No blank page, no 'Something went wrong' error boundary, and no unhandled console errors. The task list or an empty state with an 'Add task' CTA is visible on screen."
+      },
+      {
+        "id": 3,
+        "description": "Verify Tasks page structure \u2014 list or empty state renders correctly",
+        "action": "Inspect the rendered Tasks page for either a task list (with at least one task card) or an empty-state message with an 'Add task' call-to-action button.",
+        "expected": "Either: (a) one or more task cards are visible with titles, due dates, and priority indicators, or (b) an empty-state UI is shown with a clearly labelled 'Add task' button \u2014 no blank or broken UI."
+      },
+      {
+        "id": 4,
+        "description": "Verify open tasks are reflected in the backend \u2014 GET /api/v1/work/tasks",
+        "action": "Open browser DevTools Network tab, then reload http://localhost:3002/praxis/tasks and observe the network request to GET /api/v1/work/tasks.",
+        "expected": "A request to GET /api/v1/work/tasks is made and returns HTTP 200 with a JSON array. Each item in the array represents an open task. The count and titles in the response match what is shown in the UI task list."
+      },
+      {
+        "id": 5,
+        "description": "Create a new task \u2014 click 'Add task'",
+        "action": "Click the 'Add task' button (CTA visible on the Tasks page).",
+        "expected": "A task creation form or modal opens. Input fields for at minimum: task title, due date, and priority are visible and interactive."
+      },
+      {
+        "id": 6,
+        "description": "Fill in new task details \u2014 title 'Draft Q3 review deck', due date 3 days out, priority High",
+        "action": "In the task creation form, enter title 'Draft Q3 review deck', set the due date to 3 days from today, and select priority 'High'. Then submit the form.",
+        "expected": "The form accepts all inputs without validation errors. On submission, the modal/form closes and the new task 'Draft Q3 review deck' appears in the task list with the correct due date and 'High' priority indicator. A success toast or confirmation message may appear."
+      },
+      {
+        "id": 7,
+        "description": "Verify new task is persisted via backend \u2014 GET /api/v1/work/tasks post-create",
+        "action": "After task creation, observe the network request to GET /api/v1/work/tasks (or trigger a reload and inspect the request).",
+        "expected": "GET /api/v1/work/tasks returns HTTP 200 and the response array includes the newly created task 'Draft Q3 review deck' with status open, due date 3 days out, and priority High."
+      },
+      {
+        "id": 8,
+        "description": "Edit an existing task \u2014 update the title of 'Draft Q3 review deck'",
+        "action": "Locate the task 'Draft Q3 review deck' in the task list. Click the edit action (pencil icon, context menu, or inline edit). Change the title to 'Draft Q3 Review Deck (Updated)' and save.",
+        "expected": "The task title updates to 'Draft Q3 Review Deck (Updated)' in the task list without a full page reload. A PATCH request to /api/v1/work/tasks/{task_id} is observed in the Network tab returning HTTP 200. No error messages are shown."
+      },
+      {
+        "id": 9,
+        "description": "Mark the task as complete \u2014 click 'Complete' on the updated task card",
+        "action": "Locate the task 'Draft Q3 Review Deck (Updated)' in the open task list. Click the 'Complete' button or checkbox on its card.",
+        "expected": "A POST request to /api/v1/work/tasks/{task_id}/complete is made and returns HTTP 200. The task is immediately removed from the open task list in the UI. A success indicator (toast, animation, or visual feedback) confirms the completion."
+      },
+      {
+        "id": 10,
+        "description": "Verify completed task no longer appears in open tasks list",
+        "action": "Inspect the current task list on the page and observe the GET /api/v1/work/tasks response in the Network tab.",
+        "expected": "The task 'Draft Q3 Review Deck (Updated)' is absent from the visible open task list and is not present in the GET /api/v1/work/tasks response array. No stale data is shown."
+      },
+      {
+        "id": 11,
+        "description": "Verify planning hierarchy reflects updated task counts \u2014 GET /api/v1/work/planning-hierarchy",
+        "action": "Navigate to the Plan view (http://localhost:3002/praxis/plan) or observe a Network request to GET /api/v1/work/planning-hierarchy triggered after task completion.",
+        "expected": "GET /api/v1/work/planning-hierarchy returns HTTP 200. The task counts at the parent project level within the hierarchy reflect the completion of the task (i.e. the completed count has incremented or open count has decremented relative to pre-completion state)."
+      },
+      {
+        "id": 12,
+        "description": "Navigate away and return \u2014 verify state persistence",
+        "action": "Navigate away from /praxis/tasks to the dashboard (e.g. http://localhost:3002/praxis/dashboard or the root portal URL). Then navigate back to http://localhost:3002/praxis/tasks.",
+        "expected": "The Tasks page reloads without errors. The task list reflects the current backend state (completed task absent, any remaining open tasks present). No stale or phantom tasks from the previous session are shown. The sidebar navigation correctly highlights the Tasks tab as active."
+      },
+      {
+        "id": 13,
+        "description": "Verify Tasks tab is reachable from the sidebar navigation",
+        "action": "From any page within the Praxis portal, locate the 'Today' group in the sidebar and click the 'Tasks' tab link.",
+        "expected": "The user is navigated to /praxis/tasks. The Tasks tab is highlighted/active in the sidebar. The page renders correctly with the task list or empty state \u2014 no redirect to login, no 404, and no error boundary."
+      },
+      {
+        "id": 14,
+        "description": "Verify no console errors or broken network requests throughout the journey",
+        "action": "Review the browser DevTools Console and Network tabs for any unhandled JavaScript errors, failed XHR/fetch requests (4xx or 5xx), or React error boundaries triggered during the entire journey.",
+        "expected": "Zero unhandled JavaScript errors in the console. All API requests to /api/v1/work/* return 2xx status codes. No React error boundaries are triggered. Any non-critical warnings are acceptable but must not affect functionality."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-plan",
+    "description": "[general] Plan \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
     "steps": [
       {
         "id": 1,
         "description": "Load saved superadmin session or log in if session expired.",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9', then click Sign In.",
-        "expected": "Session is active. Browser URL contains '/praxis/' or the dashboard heading is visible. No authentication error is shown."
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if session is expired or missing, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "expected": "User is authenticated and redirected to the Praxis dashboard (e.g. http://localhost:3002/praxis or equivalent landing route). The sidebar is visible with pillar groups (Today, Health, Work, etc.) and no authentication error is shown."
       },
       {
         "id": 2,
-        "description": "Navigate to the People tab via the sidebar.",
-        "action": "Click the 'People' tab in the sidebar navigation, or navigate directly to https://app.phronex.com/praxis/people.",
-        "expected": "The People page loads without errors. No blank page, no 'Something went wrong' banner. The page heading or contact list container is visible."
+        "description": "Navigate to the Plan page under the Today pillar group.",
+        "action": "Navigate to http://localhost:3002/praxis/plan.",
+        "expected": "The Plan page loads without errors. No blank page, no 'Something went wrong' boundary, and no unhandled console errors. The page heading or tab title reflects 'Plan'. The sidebar highlights 'Plan' as the active item within the Today group."
       },
       {
         "id": 3,
-        "description": "Verify the contacts list loads from GET /api/v1/people/contacts (PX-O-PPL-01).",
-        "action": "Observe the contact list rendered on the People page. Open browser DevTools Network tab and confirm a GET request to /api/v1/people/contacts was made and returned HTTP 200.",
-        "expected": "The response contains contact objects. If any contacts have an overdue flag, they appear at the top with an 'Overdue' badge. No 500 or 4xx errors appear."
+        "description": "Verify the planning hierarchy is rendered on the Plan page.",
+        "action": "On http://localhost:3002/praxis/plan, observe the page content after it fully loads (wait for any loading spinners to resolve).",
+        "expected": "The page displays a planning hierarchy view. At least one level of hierarchy (vision, objectives, projects, or tasks) is visible. The list is not empty unless the test account genuinely has no data, in which case an empty-state message (e.g. 'No items yet' or similar) is shown rather than a blank or broken layout."
       },
       {
         "id": 4,
-        "description": "Verify empty state when no contacts exist, or verify list renders when contacts are present.",
-        "action": "Observe the People page. If the contact list is empty, verify an empty state message (e.g. 'No contacts yet') is shown. If contacts are present, verify the list renders with name and relationship information.",
-        "expected": "Either a meaningful empty state OR a populated list renders correctly. No blank white space or broken layout."
+        "description": "Verify the GET /api/v1/work/planning-hierarchy endpoint is called and returns a valid response.",
+        "action": "Open browser DevTools Network tab, reload http://localhost:3002/praxis/plan, and inspect the network request to /api/v1/work/planning-hierarchy.",
+        "expected": "A GET request to /api/v1/work/planning-hierarchy is made and returns HTTP 200. The response body is a JSON object or array representing the hierarchy (vision \u2192 objectives \u2192 projects \u2192 tasks). No 4xx or 5xx response codes appear."
       },
       {
         "id": 5,
-        "description": "Open a contact detail view (if any contacts exist).",
-        "action": "If at least one contact is present in the list, click on any contact entry to open its detail view. If the list is empty, mark this step as PASS — empty list is valid for the QA account.",
-        "expected": "If contacts exist: detail view loads with name, relationship type, email, and notes fields. HTTP 200 response in DevTools. If no contacts: PASS — empty state is acceptable."
+        "description": "Navigate to the Tasks tab to create a new task (prerequisite for plan hierarchy cross-check).",
+        "action": "Click the 'Tasks' item in the sidebar (under the Today group) to navigate to the Tasks view.",
+        "expected": "The Tasks page loads at a URL containing /tasks or equivalent. The page renders a task list (or empty-state if no tasks exist). No error boundary or blank screen is shown."
       },
       {
         "id": 6,
-        "description": "KNOWN ARCHITECTURE NOTE: Sub-resource APIs (children, school-docs, enrollment, interests, skills, keys, meetings) are accessed via Claude MCP tools (people_server), not via the browser portal. Steps testing these sub-resources would find no UI surface — this is correct MCP-first design, not a bug. Mark this step PASS.",
-        "action": "Note: GET /api/v1/children/, PATCH /{child_id}, DELETE /{child_id}/school-docs/{doc_id}, GET /{interest_id}, PUT /{interest_id}, DELETE /{key_id}, GET /{meeting_id} — all MCP-only. No portal UI surface exists by architectural design (people_server is an MCP server). Do not attempt to find UI controls for these endpoints.",
-        "expected": "PASS — this is a documentation step confirming MCP-first architecture."
+        "description": "Create a new task via the Tasks UI.",
+        "action": "Click 'Add task' (or equivalent CTA button) on the Tasks page. In the form or modal that appears, enter title 'Draft Q3 review deck', set due date to 3 days from today, set priority to 'High', then submit the form.",
+        "expected": "The form submits successfully (POST /api/v1/work/tasks or equivalent returns 200/201). The new task 'Draft Q3 review deck' appears in the open tasks list with priority 'High' and the correct due date. A success toast or confirmation message may appear. No error is shown."
       },
       {
         "id": 7,
-        "description": "Navigate away and return — verify state persistence (PX-O-NAV-01).",
-        "action": "From the People page, click the Dashboard tab in the sidebar to navigate away. Then click back on the People tab.",
-        "expected": "The People page reloads without errors. Contact list re-renders with same data. No stale or blank state."
+        "description": "Verify the newly created task is reflected in the planning hierarchy.",
+        "action": "Navigate back to http://localhost:3002/praxis/plan and observe the hierarchy view after it reloads.",
+        "expected": "The planning hierarchy reflects the updated task counts at the appropriate level. The task 'Draft Q3 review deck' is either directly visible or its parent project/objective shows an updated task count consistent with its addition. GET /api/v1/work/planning-hierarchy returns updated data."
       },
       {
         "id": 8,
-        "description": "Verify the People page is accessible only to authenticated users (session boundary check).",
-        "action": "Open a new incognito/private browser window (no session). Navigate directly to https://app.phronex.com/praxis/people.",
-        "expected": "Browser redirects to the login page or shows authentication error. People page content is NOT rendered to unauthenticated user."
+        "description": "Mark the newly created task as complete.",
+        "action": "Navigate back to the Tasks tab. Locate the 'Draft Q3 review deck' task card and click the 'Complete' button (or equivalent completion action) on it.",
+        "expected": "POST /api/v1/work/tasks/{task_id}/complete returns HTTP 200. The task 'Draft Q3 review deck' is removed from the open tasks list. A success toast or visual confirmation may appear. No error message is shown."
+      },
+      {
+        "id": 9,
+        "description": "Verify plan hierarchy updates after task completion.",
+        "action": "Navigate to http://localhost:3002/praxis/plan and observe the planning hierarchy.",
+        "expected": "The planning hierarchy reflects the task completion. Task counts at the relevant hierarchy level are decremented by 1 compared to step 7. GET /api/v1/work/planning-hierarchy returns data consistent with the completed task no longer being open."
+      },
+      {
+        "id": 10,
+        "description": "Test navigation persistence: navigate away from /praxis/plan and return.",
+        "action": "From http://localhost:3002/praxis/plan, click on a different sidebar item (e.g. 'Dashboard' or 'Calendar') to navigate away, then click 'Plan' in the sidebar to return to http://localhost:3002/praxis/plan.",
+        "expected": "The Plan page reloads without errors. Previously visible hierarchy data is re-fetched and displayed correctly. No stale or broken state is shown. The sidebar correctly re-highlights 'Plan' as active. No console errors or network failures appear."
+      },
+      {
+        "id": 11,
+        "description": "Verify the Plan page is accessible only to authenticated users (session guard).",
+        "action": "Open a new incognito/private browser window and navigate directly to http://localhost:3002/praxis/plan without logging in.",
+        "expected": "The user is redirected to the login page (http://localhost:3002/auth/login or equivalent). The Plan page content is not accessible without authentication. No sensitive data is exposed to unauthenticated users."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-family",
+    "description": "[general] Family \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session or log in if expired.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "expected": "User is authenticated and lands on the Praxis dashboard (URL is http://localhost:3002/praxis or similar); no login redirect occurs."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the Family tab.",
+        "action": "Navigate to http://localhost:3002/praxis/family.",
+        "expected": "Page loads without errors. No blank page, no 'Something went wrong' error boundary, no console errors. The Family section heading or 'Add child' affordance is visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify empty state before any child exists.",
+        "action": "Observe the Family page with no children added yet.",
+        "expected": "An empty state message or placeholder (e.g. 'No children added yet' or similar) is displayed. The 'Add child' button or control is visible and enabled."
+      },
+      {
+        "id": 4,
+        "description": "Open the Add Child form.",
+        "action": "Click the 'Add child' button on the Family page.",
+        "expected": "A form, modal, or drawer opens containing at minimum a 'Name' field and a 'Date of birth' field. A submit/save button is visible."
+      },
+      {
+        "id": 5,
+        "description": "Submit the Add Child form with valid data (PX-O-FAM-01).",
+        "action": "Enter name 'Test Child' in the name field. Enter a date of birth exactly 5 years before today's date (2021-05-16) in the date of birth field. Click the Save / Submit button.",
+        "expected": "The form submits successfully. POST /api/v1/children/ returns 201. A success toast or confirmation message appears. The new child card for 'Test Child' appears in the Family tab with a computed developmental stage label and the entered date of birth."
+      },
+      {
+        "id": 6,
+        "description": "Verify the child list includes the newly created child (GET /api/v1/children/).",
+        "action": "Observe the Family page after the successful save.",
+        "expected": "The child card for 'Test Child' is present. The card displays at minimum: the child's name, their date of birth or age, and a developmental stage label derived from the months-to-stage mapping."
+      },
+      {
+        "id": 7,
+        "description": "Verify computed developmental stage via child detail (GET /api/v1/children/{child_id}).",
+        "action": "Click on the 'Test Child' card or navigate to the child detail view.",
+        "expected": "The detail view loads without error. The child's profile includes a computed developmental stage field (e.g. 'Preschool', 'Early Childhood', or equivalent stage label). The DOB and name match what was entered."
+      },
+      {
+        "id": 8,
+        "description": "Edit the child profile (PATCH /api/v1/children/{child_id}).",
+        "action": "Click the Edit button on the 'Test Child' detail or card. Update the name to 'Test Child Updated'. Save the changes.",
+        "expected": "The form submits successfully. PATCH /api/v1/children/{child_id} returns 200. The child card or detail view now displays 'Test Child Updated'. No stale data or error message is shown."
+      },
+      {
+        "id": 9,
+        "description": "Upload a school document for the child (POST /api/v1/children/{child_id}/school-docs).",
+        "action": "Open the 'Test Child Updated' detail view. Locate the school documents section. Click the upload button and attach a small valid PDF or image file.",
+        "expected": "The upload completes. POST /api/v1/children/{child_id}/school-docs returns 201 or 200. The uploaded document appears in the school documents list for 'Test Child Updated'."
+      },
+      {
+        "id": 10,
+        "description": "List school documents for the child (GET /api/v1/children/{child_id}/school-docs).",
+        "action": "Observe the school documents section of the 'Test Child Updated' detail view after upload.",
+        "expected": "At least one document entry is visible in the list. The document name or filename is displayed. No error state or empty list is shown."
+      },
+      {
+        "id": 11,
+        "description": "Delete the uploaded school document (DELETE /api/v1/children/{child_id}/school-docs/{doc_id}).",
+        "action": "Click the delete or remove icon next to the uploaded school document. Confirm the deletion if a confirmation prompt appears.",
+        "expected": "The document is removed from the list. A success toast or visual confirmation is shown. The school documents section returns to an empty or placeholder state."
+      },
+      {
+        "id": 12,
+        "description": "Validation \u2014 attempt to add a child with an empty name.",
+        "action": "Click 'Add child'. Leave the name field blank. Enter a valid date of birth. Click Save.",
+        "expected": "The form does not submit. An inline validation error is shown on the name field (e.g. 'Name is required'). No POST request is fired. The form remains open."
+      },
+      {
+        "id": 13,
+        "description": "Validation \u2014 attempt to add a child with a future date of birth.",
+        "action": "Click 'Add child'. Enter name 'Future Child'. Enter a date of birth one year in the future (2027-05-16). Click Save.",
+        "expected": "The form does not submit or the API returns an error. A validation message is displayed indicating the date of birth cannot be in the future. No child card is added to the list."
+      },
+      {
+        "id": 14,
+        "description": "Delete the child profile (DELETE /api/v1/children/{child_id}).",
+        "action": "On the 'Test Child Updated' card or detail view, click the Delete button. Confirm the deletion when prompted.",
+        "expected": "DELETE /api/v1/children/{child_id} returns 200 or 204. The child card for 'Test Child Updated' is removed from the Family page. A success toast or confirmation is shown."
+      },
+      {
+        "id": 15,
+        "description": "Verify empty state is restored after deletion.",
+        "action": "Observe the Family page after deleting the only child.",
+        "expected": "The empty state message or placeholder reappears. No child cards are visible. The 'Add child' button remains accessible."
+      },
+      {
+        "id": 16,
+        "description": "Persistence check \u2014 navigate away and return to Family.",
+        "action": "Navigate to http://localhost:3002/praxis/dashboard (or any other Praxis tab). Then navigate back to http://localhost:3002/praxis/family.",
+        "expected": "The Family page reloads correctly without errors. The page reflects the current persisted state (empty state if no children, or child cards if children exist). No stale or corrupted data is shown."
+      },
+      {
+        "id": 17,
+        "description": "Verify Family tab appears in the correct sidebar pillar group.",
+        "action": "Observe the Praxis sidebar navigation layout on the Family page.",
+        "expected": "The Family tab is visible in the sidebar. It is grouped with other related People-domain tabs (e.g. People / PX-O-PPL-01 area). The sidebar renders without layout errors."
       }
     ],
     "dependsOn": "praxis-trunk-main"
