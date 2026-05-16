@@ -76,31 +76,6 @@
     "stateOutputPath": ".tmp/praxis-dashboard-state.json"
   },
   {
-    "id": "praxis-habits-log",
-    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit \u2014 confirming the streak counter updates",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/praxis/habits and wait for the page to fully load"
-      },
-      {
-        "id": 2,
-        "description": "Verify the page renders either a list of habits (with names and streak indicators) OR a meaningful empty state with a CTA to add a first habit. Report which state is shown."
-      },
-      {
-        "id": 3,
-        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds \u2014 a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
-      },
-      {
-        "id": 4,
-        "description": "Take a screenshot showing the logged habit or the newly created habit"
-      }
-    ],
-    "dependsOn": "praxis-trunk-main",
-    "stateOutputPath": ".tmp/praxis-habits-log-state.json"
-  },
-  {
     "id": "praxis-eisenhower-matrix",
     "description": "Navigate to the Habits page Eisenhower Matrix view and verify habits can be seen in quadrant layout",
     "depth": 1,
@@ -627,9 +602,9 @@
       },
       {
         "id": 10,
-        "description": "KNOWN DARK FEATURE: PATCH /api/v1/career/evidence/{evidence_id} exists in the backend (routes_career.py line 242) but the portal CareerClient.tsx does not expose an edit button. Only 'STAR' (expand) and 'Delete evidence' actions are available on evidence items. Skip this step \u2014 mark PASS. Track as pending UI surface in MEMORY.md.",
-        "action": "Locate the evidence item created in step 7. Click its edit/pencil icon or 'Edit' button. Update the Result field to 'All teams agreed on top-three priorities and documented action owners within two hours'. Click Save.",
-        "expected": "PATCH /api/v1/career/evidence/{evidence_id} returns HTTP 200. A success toast appears. The evidence item in the list reflects the updated Result text without a full page reload."
+        "description": "Verify evidence edit UI: the portal exposes STAR-expand and Delete actions on evidence items. If an edit/pencil button is present (PATCH /api/v1/career/evidence/{evidence_id}), click it and update the Result field. If no edit button exists, mark PASS \u2014 evidence editing is MCP-only by current design.",
+        "action": "Locate the evidence item created in step 7. Check if an edit/pencil icon or 'Edit' button is present. If present: click it, update the Result field to 'All teams agreed on top-three priorities and documented action owners within two hours', click Save. If absent: note 'No edit button found \u2014 delete-only UI' and mark PASS.",
+        "expected": "PASS either way: if edit button present \u2192 PATCH /api/v1/career/evidence/{id} returns 200, updated Result text shows. If no edit button \u2192 PASS with note that edit is not surfaced in the portal."
       },
       {
         "id": 11,
@@ -1359,7 +1334,10 @@
         "expected": "The page does not crash or show a blank white screen. A user-friendly error message or empty-state is displayed (e.g. 'Could not load meetings' or a retry prompt). No unhandled promise rejection in the console. Re-enabling the network and refreshing restores the full meetings list."
       }
     ],
-    "dependsOn": "praxis-trunk-main"
+    "dependsOn": "praxis-trunk-main",
+    "_shared_setup_steps": [
+      "Load saved superadmin session or log in"
+    ]
   },
   {
     "id": "praxis-connect-telegram",

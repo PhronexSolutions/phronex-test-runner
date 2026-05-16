@@ -1,0 +1,83 @@
+[
+  {
+    "id": "praxis-habits-log",
+    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit — confirming the streak counter updates",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/praxis/habits and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders either a list of habits (with names and streak indicators) OR a meaningful empty state with a CTA to add a first habit. Report which state is shown."
+      },
+      {
+        "id": 3,
+        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds — a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the logged habit or the newly created habit"
+      }
+    ],
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-habits-log-state.json"
+  },
+  {
+    "id": "praxis-people",
+    "description": "People portal surface — contacts list, overdue sorting, contact detail, navigation round-trip, and auth gate. Sub-resource APIs (children, school-docs, interests, keys, meetings) are MCP-only and are not tested via browser.",
+    "depth": 2,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session or log in if session expired.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9', then click Sign In.",
+        "expected": "Session is active. Browser URL contains '/praxis/' or the dashboard heading is visible. No authentication error is shown."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the People tab via the sidebar.",
+        "action": "Click the 'People' tab in the sidebar navigation, or navigate directly to https://app.phronex.com/praxis/people.",
+        "expected": "The People page loads without errors. No blank page, no 'Something went wrong' banner. The page heading or contact list container is visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify the contacts list loads from GET /api/v1/people/contacts (PX-O-PPL-01).",
+        "action": "Observe the contact list rendered on the People page. Open browser DevTools Network tab and confirm a GET request to /api/v1/people/contacts was made and returned HTTP 200.",
+        "expected": "The response contains contact objects. If any contacts have an overdue flag, they appear at the top with an 'Overdue' badge. No 500 or 4xx errors appear."
+      },
+      {
+        "id": 4,
+        "description": "Verify empty state when no contacts exist, or verify list renders when contacts are present.",
+        "action": "Observe the People page. If the contact list is empty, verify an empty state message (e.g. 'No contacts yet') is shown. If contacts are present, verify the list renders with name and relationship information.",
+        "expected": "Either a meaningful empty state OR a populated list renders correctly. No blank white space or broken layout."
+      },
+      {
+        "id": 5,
+        "description": "Open a contact detail view (if any contacts exist).",
+        "action": "If at least one contact is present in the list, click on any contact entry to open its detail view. If the list is empty, mark this step as PASS — empty list is valid for the QA account.",
+        "expected": "If contacts exist: detail view loads with name, relationship type, email, and notes fields. HTTP 200 response in DevTools. If no contacts: PASS — empty state is acceptable."
+      },
+      {
+        "id": 6,
+        "description": "KNOWN ARCHITECTURE NOTE: Sub-resource APIs (children, school-docs, enrollment, interests, skills, keys, meetings) are accessed via Claude MCP tools (people_server), not via the browser portal. Steps testing these sub-resources would find no UI surface — this is correct MCP-first design, not a bug. Mark this step PASS.",
+        "action": "Note: GET /api/v1/children/, PATCH /{child_id}, DELETE /{child_id}/school-docs/{doc_id}, GET /{interest_id}, PUT /{interest_id}, DELETE /{key_id}, GET /{meeting_id} — all MCP-only. No portal UI surface exists by architectural design (people_server is an MCP server). Do not attempt to find UI controls for these endpoints.",
+        "expected": "PASS — this is a documentation step confirming MCP-first architecture."
+      },
+      {
+        "id": 7,
+        "description": "Navigate away and return — verify state persistence (PX-O-NAV-01).",
+        "action": "From the People page, click the Dashboard tab in the sidebar to navigate away. Then click back on the People tab.",
+        "expected": "The People page reloads without errors. Contact list re-renders with same data. No stale or blank state."
+      },
+      {
+        "id": 8,
+        "description": "Verify the People page is accessible only to authenticated users (session boundary check).",
+        "action": "Open a new incognito/private browser window (no session). Navigate directly to https://app.phronex.com/praxis/people.",
+        "expected": "Browser redirects to the login page or shows authentication error. People page content is NOT rendered to unauthenticated user."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  }
+]
