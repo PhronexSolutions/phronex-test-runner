@@ -1,179 +1,5 @@
 [
   {
-    "id": "praxis-trunk-main",
-    "description": "Authenticate as the JourneyHawk QA superadmin user and capture browser session state for all dependent Praxis journeys",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/auth/login and wait for the login form to fully load"
-      },
-      {
-        "id": 2,
-        "description": "Enter the email address qa-test-journeyhawk@phronex.com into the email field"
-      },
-      {
-        "id": 3,
-        "description": "Enter the password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 into the password field"
-      },
-      {
-        "id": 4,
-        "description": "Click the Sign In button and wait for the redirect to complete"
-      },
-      {
-        "id": 5,
-        "description": "Verify the URL now includes /praxis/ or the dashboard is visible. Take a screenshot confirming successful login."
-      }
-    ],
-    "isSharedRoot": true,
-    "stateOutputPath": ".tmp/praxis-trunk-main-state.json"
-  },
-  {
-    "id": "praxis-branch-dashboard",
-    "description": "Branch node: navigate to /praxis/dashboard from trunk session and save state for child journeys",
-    "dependsOn": "praxis-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/praxis-branch-dashboard-state.json",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved session from '.tmp/praxis-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to https://app.phronex.com/praxis/dashboard and wait for the page to fully load. Verify the page renders without critical errors."
-      }
-    ]
-  },
-  {
-    "id": "praxis-dashboard",
-    "description": "Navigate to the Praxis dashboard and verify the Life Score, pillar cards, and today's brief summary are rendered \u2014 not blank or errored",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/praxis/dashboard and wait for the page to fully load (no spinners)"
-      },
-      {
-        "id": 2,
-        "description": "Verify a Life Score is visible \u2014 either a numeric score or a placeholder prompting initial setup. Report the value shown."
-      },
-      {
-        "id": 3,
-        "description": "Verify that pillar indicators (Wealth, Health, Happiness, Wisdom or similar) are visible on the page \u2014 as cards, tabs, or labels. Report what is rendered."
-      },
-      {
-        "id": 4,
-        "description": "Verify the page does NOT show a blank white screen, an unhandled error boundary message, or a 'Something went wrong' overlay."
-      },
-      {
-        "id": 5,
-        "description": "Take a full-page screenshot of the dashboard"
-      }
-    ],
-    "dependsOn": "praxis-branch-dashboard",
-    "stateOutputPath": ".tmp/praxis-dashboard-state.json"
-  },
-  {
-    "id": "praxis-habits-log",
-    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit \u2014 confirming the streak counter updates",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/praxis/habits and wait for the page to fully load"
-      },
-      {
-        "id": 2,
-        "description": "Verify the page renders either a list of habits (with names and streak indicators) OR a meaningful empty state with a CTA to add a first habit. Report which state is shown."
-      },
-      {
-        "id": 3,
-        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds \u2014 a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
-      },
-      {
-        "id": 4,
-        "description": "Take a screenshot showing the logged habit or the newly created habit"
-      }
-    ],
-    "dependsOn": "praxis-trunk-main",
-    "stateOutputPath": ".tmp/praxis-habits-log-state.json"
-  },
-  {
-    "id": "praxis-eisenhower-matrix",
-    "description": "Navigate to the Habits page Eisenhower Matrix view and verify habits can be seen in quadrant layout",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/praxis/habits and wait for the page to load"
-      },
-      {
-        "id": 2,
-        "description": "Look for an Eisenhower Matrix tab, toggle, or view button. Click it if visible. If no explicit toggle exists, look for Q1/Q2/Q3/Q4 quadrant labels on the page."
-      },
-      {
-        "id": 3,
-        "description": "Verify the quadrant view renders \u2014 four labelled quadrants (Urgent+Important, Not Urgent+Important, etc.) are visible. Report the labels shown."
-      },
-      {
-        "id": 4,
-        "description": "Take a screenshot of the quadrant/Eisenhower view"
-      }
-    ],
-    "dependsOn": "praxis-habits-log"
-  },
-  {
-    "id": "praxis-finance-expenses",
-    "description": "Navigate to the Finance Expenses tab and verify expenses section renders or has a meaningful empty state",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/praxis/finance and wait for the page to load"
-      },
-      {
-        "id": 2,
-        "description": "Click the Expenses tab (or Spending tab if labelled differently)"
-      },
-      {
-        "id": 3,
-        "description": "Verify the expenses section renders \u2014 either a list of expense entries, a chart, or a meaningful empty state. Report what is shown."
-      },
-      {
-        "id": 4,
-        "description": "Take a screenshot of the Expenses tab"
-      }
-    ],
-    "dependsOn": "praxis-finance-portfolio"
-  },
-  {
-    "id": "praxis-morning-brief",
-    "description": "Navigate to the morning brief or briefs section and verify a brief is displayed or the empty state for no briefs is meaningful",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Navigate to https://app.phronex.com/praxis/dashboard and look for a morning brief section, or navigate to https://app.phronex.com/praxis/review if there is a dedicated brief/review page. Wait for the page to load."
-      },
-      {
-        "id": 2,
-        "description": "Verify the brief section renders \u2014 either a today's brief with content, a 'brief will arrive at 7am' message, or a list of past briefs. Report what is shown."
-      },
-      {
-        "id": 3,
-        "description": "Verify no error boundary or blank state appears where brief content should be."
-      },
-      {
-        "id": 4,
-        "description": "Take a screenshot of the brief section"
-      }
-    ],
-    "dependsOn": "praxis-branch-dashboard",
-    "stateOutputPath": ".tmp/praxis-brief-state.json"
-  },
-  {
     "id": "praxis-tasks",
     "description": "[general] Tasks \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 3,
@@ -181,13 +7,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in fresh",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
         "expected": "Session is active: user is authenticated as qa-test-journeyhawk@phronex.com. No login redirect occurs when accessing protected routes."
       },
       {
         "id": 2,
         "description": "Navigate to the Tasks tab",
-        "action": "Navigate to https://app.phronex.com/praxis/tasks.",
+        "action": "Navigate to http://localhost:3002/praxis/tasks.",
         "expected": "Page loads without errors. No blank page, no 'Something went wrong' message, no unhandled console errors. The Tasks tab is highlighted as active in the sidebar under the 'Today' pillar group. A list of open tasks is visible (or an empty state message if no tasks exist)."
       },
       {
@@ -242,7 +68,7 @@
         "id": 11,
         "description": "Navigate away and return \u2014 state persistence check",
         "action": "From /praxis/tasks, click the Dashboard link in the sidebar to navigate to the dashboard. Then click the Tasks link in the sidebar to return to /praxis/tasks.",
-        "expected": "The Tasks page re-renders without errors. The open task list reflects the current server state (tasks created in this session, minus the one completed). No ghost entries or stale data from a previous render are visible. Page URL is https://app.phronex.com/praxis/tasks."
+        "expected": "The Tasks page re-renders without errors. The open task list reflects the current server state (tasks created in this session, minus the one completed). No ghost entries or stale data from a previous render are visible. Page URL is http://localhost:3002/praxis/tasks."
       },
       {
         "id": 12,
@@ -259,21 +85,17 @@
       {
         "id": 14,
         "description": "Unauthenticated access to Tasks page is blocked",
-        "action": "Open a new browser context (incognito window) without any session. Navigate directly to https://app.phronex.com/praxis/tasks.",
-        "expected": "The user is redirected to the login page (https://app.phronex.com/auth/login or equivalent). The Tasks page content is not visible. No task data is exposed without authentication."
+        "action": "Open a new browser context (incognito window) without any session. Navigate directly to http://localhost:3002/praxis/tasks.",
+        "expected": "The user is redirected to the login page (http://localhost:3002/auth/login or equivalent). The Tasks page content is not visible. No task data is exposed without authentication."
       },
       {
         "id": 15,
         "description": "Clean up \u2014 complete or delete remaining test tasks",
-        "action": "Return to https://app.phronex.com/praxis/tasks in the authenticated session. Locate 'Follow up on Q3 budget'. Click 'Complete' (or delete if a delete option is available) to remove the test task.",
+        "action": "Return to http://localhost:3002/praxis/tasks in the authenticated session. Locate 'Follow up on Q3 budget'. Click 'Complete' (or delete if a delete option is available) to remove the test task.",
         "expected": "The task is removed from the open task list. GET /api/v1/work/tasks no longer includes 'Follow up on Q3 budget'. The page shows an empty state or only pre-existing tasks that were present before this journey began."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load saved superadmin session or log in fresh",
-      "Navigate away and return \u2014 state persistence check"
-    ]
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-challenges",
@@ -283,13 +105,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in if expired",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
         "expected": "User is authenticated. The portal home or dashboard page is visible. No login redirect loop. Auth cookies are present in the browser session."
       },
       {
         "id": 2,
         "description": "Navigate to the Challenges page",
-        "action": "Navigate to https://app.phronex.com/praxis/challenges.",
+        "action": "Navigate to http://localhost:3002/praxis/challenges.",
         "expected": "The Challenges page loads without errors. No blank page, no 'Something went wrong' message, and no unhandled console errors. The page heading or tab label includes 'Challenges'. The page is rendered under the Health pillar group in the sidebar."
       },
       {
@@ -331,7 +153,7 @@
       {
         "id": 9,
         "description": "Verify the Enrol button is not shown while a challenge is already active (duplicate enrolment guard)",
-        "action": "Navigate back to the template list (e.g. click 'Browse Templates' or navigate to https://app.phronex.com/praxis/challenges).",
+        "action": "Navigate back to the template list (e.g. click 'Browse Templates' or navigate to http://localhost:3002/praxis/challenges).",
         "expected": "The Enrol button on templates is either hidden, disabled, or replaced with a label such as 'Already enrolled' while an active challenge exists. Attempting to enrol in a second challenge (if UI permits) should result in a clear error message \u2014 not a silent failure or a broken page."
       },
       {
@@ -355,7 +177,7 @@
       {
         "id": 13,
         "description": "Navigate away and return to verify persistence (state survives navigation)",
-        "action": "Click a different sidebar tab (e.g. Dashboard or Habits). Then navigate back to https://app.phronex.com/praxis/challenges.",
+        "action": "Click a different sidebar tab (e.g. Dashboard or Habits). Then navigate back to http://localhost:3002/praxis/challenges.",
         "expected": "The active challenge enrolment from step 12 is still present after returning. The streak calendar is re-rendered with the same state (1 check-in is NOT present since this is a fresh enrolment \u2014 all cells empty). No data is lost or reset due to navigation. No loading spinner is stuck indefinitely."
       },
       {
@@ -373,14 +195,103 @@
       {
         "id": 16,
         "description": "Verify page is inaccessible without authentication (auth scope: personal tier)",
-        "action": "Open an incognito/private browser window and navigate directly to https://app.phronex.com/praxis/challenges without logging in.",
-        "expected": "The user is redirected to the login page (https://app.phronex.com/auth/login) or an authentication error is shown. The Challenges page content is NOT rendered to unauthenticated users. No challenge data or templates are exposed without a valid session."
+        "action": "Open an incognito/private browser window and navigate directly to http://localhost:3002/praxis/challenges without logging in.",
+        "expected": "The user is redirected to the login page (http://localhost:3002/auth/login) or an authentication error is shown. The Challenges page content is NOT rendered to unauthenticated users. No challenge data or templates are exposed without a valid session."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load saved superadmin session or log in if expired"
-    ]
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-meetings",
+    "description": "[general] Meetings \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session or log in",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD",
+        "expected": "User is authenticated and the Praxis portal is visible (sidebar navigation rendered, no login redirect, no auth error)"
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the Meetings tab",
+        "action": "Navigate to http://localhost:3002/praxis/meetings",
+        "expected": "Page loads without errors. The Meetings page is visible with no blank page, no 'Something went wrong' banner, and no uncaught console errors. The sidebar shows 'Meetings' as the active tab under the 'Today' group."
+      },
+      {
+        "id": 3,
+        "description": "Verify meeting list loads from GET /api/v1/meetings/",
+        "action": "Observe the meetings list section on the Meetings page (allow up to 3 seconds for data fetch)",
+        "expected": "A list of meetings is rendered (or an empty-state placeholder if none exist). Each list item shows at minimum a meeting title or date. No spinner stuck indefinitely and no API error toast. Network tab shows GET /api/v1/meetings/ returning HTTP 200."
+      },
+      {
+        "id": 4,
+        "description": "Open the most recent meeting detail (PX-O-MTG-01 \u2014 list entry point)",
+        "action": "If the meetings list contains at least one meeting, click the most recent meeting to open its detail view. If the list is empty (showing 'No meetings yet'), verify the empty state message and mark as PASS \u2014 empty list is valid for QA account.",
+        "expected": "A meeting detail view opens (inline expand or page navigation). The detail includes extracted entities and open commitments sections. GET /api/v1/meetings/{meeting_id} is called and returns HTTP 200. UI renders both entity extraction and open commitments without error."
+      },
+      {
+        "id": 5,
+        "description": "Verify extracted entities are visible in meeting detail",
+        "action": "If the meetings list contains at least one meeting, click the most recent meeting to open its detail view. If the list is empty (showing 'No meetings yet'), verify the empty state message and mark as PASS \u2014 empty list is valid for QA account.",
+        "expected": "The extracted entities section is present and populated (or shows an empty-state if none were extracted). No layout broken elements, no raw JSON bleed-through, and no 'undefined' or '[object Object]' strings visible."
+      },
+      {
+        "id": 6,
+        "description": "Verify open commitments are visible in meeting detail",
+        "action": "If the meetings list contains at least one meeting, click the most recent meeting to open its detail view. If the list is empty (showing 'No meetings yet'), verify the empty state message and mark as PASS \u2014 empty list is valid for QA account.",
+        "expected": "The open commitments section renders without error. If commitments exist, each shows a description. If none exist, a clear empty-state message is shown. No console errors fired during render."
+      },
+      {
+        "id": 7,
+        "description": "Close meeting detail and verify list is still intact",
+        "action": "If the meetings list contains at least one meeting, click the most recent meeting to open its detail view. If the list is empty (showing 'No meetings yet'), verify the empty state message and mark as PASS \u2014 empty list is valid for QA account.",
+        "expected": "The meetings list is displayed again with the same entries visible. The previously opened meeting row is still present. No data loss or blank page on return."
+      },
+      {
+        "id": 8,
+        "description": "Verify Fathom-review list loads from GET /api/v1/meetings/fathom-reviews",
+        "action": "Check for a 'Fathom Reviews' or 'Pending Reviews' section on the Meetings page (may be a sub-tab or separate panel). If a dedicated UI section exists, navigate to it.",
+        "expected": "The section renders without error. If Fathom-sourced reviews are present, each entry is listed with a title or meeting date. If none exist, an empty-state is shown. Network tab shows GET /api/v1/meetings/fathom-reviews returning HTTP 200."
+      },
+      {
+        "id": 9,
+        "description": "Dismiss a Fathom review via DELETE /api/v1/meetings/{meeting_id}/fathom-review (if at least one review exists)",
+        "action": "Locate a Fathom review entry in the pending reviews list. Click its 'Dismiss' or 'Mark as reviewed' action button.",
+        "expected": "The dismissed review disappears from the pending reviews list immediately (optimistic update or refetch). A success toast or confirmation message is shown. Network tab shows DELETE /api/v1/meetings/{meeting_id}/fathom-review returning HTTP 200 or 204. The remaining reviews (if any) are still displayed correctly."
+      },
+      {
+        "id": 10,
+        "description": "Verify dismiss action does not affect the main meetings list",
+        "action": "After dismissing a Fathom review, scroll back to or navigate to the main meetings list",
+        "expected": "The main meetings list is unchanged \u2014 the dismissed meeting still appears in the list (dismiss removes the review flag, not the meeting itself). Meeting count in the list is the same as before dismissal."
+      },
+      {
+        "id": 11,
+        "description": "Navigate away and return \u2014 verify persistence (navigation round-trip)",
+        "action": "Click the 'Dashboard' tab or 'Calendar' tab in the sidebar to navigate away from Meetings, then click 'Meetings' again to return",
+        "expected": "The Meetings page reloads correctly. The meetings list is repopulated from the server (GET /api/v1/meetings/ fires again). No stale or blank state. Previously dismissed Fathom reviews remain dismissed (not re-appearing). No console errors."
+      },
+      {
+        "id": 12,
+        "description": "Verify Meetings tab is correctly placed in sidebar under 'Today' group",
+        "action": "Inspect the sidebar navigation while on the Meetings page",
+        "expected": "The 'Meetings' tab is visible under the 'Today' group alongside Dashboard, Calendar, Tasks, and Plan. The active tab is highlighted. No duplicate Meetings entries and no missing tabs in the group."
+      },
+      {
+        "id": 13,
+        "description": "Verify page is accessible without superadmin elevation (personal-tier user simulation check)",
+        "action": "Confirm the current session (qa-test-journeyhawk@phronex.com superadmin) can access the Meetings page, and note that PX-O-MTG-01 requires 'Personal+' tier. Verify no admin-only gate blocks the Meetings route for a personal-tier user by checking that the route does not redirect to an upgrade or admin-only page.",
+        "expected": "Meetings page is accessible at the personal tier and above. No 'Upgrade required' or 'Admin only' wall is shown for the Meetings tab. The superadmin session confirms the route is not locked behind a higher-than-personal gate."
+      },
+      {
+        "id": 14,
+        "description": "Verify error handling when GET /api/v1/meetings/ returns a non-200 response (resilience check)",
+        "action": "Using browser DevTools, throttle the network to 'Offline' or block the /api/v1/meetings/ request, then hard-refresh the Meetings page",
+        "expected": "The page does not crash or show a blank white screen. A user-friendly error message or empty-state is displayed (e.g. 'Could not load meetings' or a retry prompt). No unhandled promise rejection in the console. Re-enabling the network and refreshing restores the full meetings list."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-family",
@@ -390,13 +301,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in fresh",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
         "expected": "User is authenticated and the Praxis portal dashboard is visible. The sidebar shows pillar groups including the Family tab. No authentication errors or redirect loops."
       },
       {
         "id": 2,
         "description": "Navigate to the Family tab",
-        "action": "Navigate to https://app.phronex.com/praxis/family.",
+        "action": "Navigate to http://localhost:3002/praxis/family.",
         "expected": "The Family page loads without errors. No blank page, no 'Something went wrong' message, and no unhandled console errors. The page heading or tab label 'Family' is visible. Any existing child cards are rendered, or an empty-state message is shown if no children exist yet."
       },
       {
@@ -420,7 +331,7 @@
       {
         "id": 6,
         "description": "Verify child appears in the full list (GET /api/v1/children/)",
-        "action": "Reload the Family page by navigating away to https://app.phronex.com/praxis/dashboard and then back to https://app.phronex.com/praxis/family.",
+        "action": "Reload the Family page by navigating away to http://localhost:3002/praxis/dashboard and then back to http://localhost:3002/praxis/family.",
         "expected": "The Family page re-fetches and re-renders. The 'Test Child' card is present in the list \u2014 confirming GET /api/v1/children/ includes the newly created child. No data loss from the round-trip."
       },
       {
@@ -468,20 +379,115 @@
       {
         "id": 14,
         "description": "Verify deletion persists after navigation",
-        "action": "Navigate to https://app.phronex.com/praxis/dashboard and then back to https://app.phronex.com/praxis/family.",
+        "action": "Navigate to http://localhost:3002/praxis/dashboard and then back to http://localhost:3002/praxis/family.",
         "expected": "The Family page re-renders. 'Test Child Updated' is no longer present in the child list. If no other children exist, an empty-state message is shown. No stale data remains from the deleted record."
       },
       {
         "id": 15,
         "description": "Verify state persistence across navigation round-trip (original step 3 intent)",
-        "action": "If any children exist on the Family page, note their names. Navigate to https://app.phronex.com/praxis/habits, then return to https://app.phronex.com/praxis/family.",
+        "action": "If any children exist on the Family page, note their names. Navigate to http://localhost:3002/praxis/habits, then return to http://localhost:3002/praxis/family.",
         "expected": "The Family page re-loads and displays the same children that were present before navigating away. No data is lost, no duplicates appear, and the page does not show a loading spinner indefinitely or an error state."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load saved superadmin session or log in fresh"
-    ]
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-connect-telegram",
+    "description": "[general] Connect Telegram \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 3,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session or perform fresh login",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to http://localhost:3002/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "expected": "Session is active: the authenticated user menu or avatar is visible in the top navigation bar. No login redirect occurs when accessing protected routes."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to the Telegram connect page and verify initial page load",
+        "action": "Navigate to http://localhost:3002/praxis/connect/telegram.",
+        "expected": "Page renders without a blank screen, 'Something went wrong' message, or uncaught console errors. The Telegram integration section is visible \u2014 at minimum a heading or description referencing Telegram is present on the page."
+      },
+      {
+        "id": 3,
+        "description": "Verify the Telegram connection status UI renders correctly for a disconnected state",
+        "action": "Observe the current state of the Telegram connect page without taking any action.",
+        "expected": "A 'Connect Telegram' or equivalent call-to-action button is visible. No existing connected Telegram account is shown (disconnected state). A brief description of what Telegram integration enables (e.g. nudges, morning brief delivery) is visible."
+      },
+      {
+        "id": 4,
+        "description": "Verify GET /api/v1/integrations/telegram/status is called on page load",
+        "action": "Open browser DevTools \u2192 Network tab, reload http://localhost:3002/praxis/connect/telegram, and inspect outgoing requests.",
+        "expected": "A GET request to /api/v1/integrations/telegram/status (or equivalent endpoint) is fired on page load. The response returns a valid JSON body with a connection status field (e.g. connected: false). No 401 or 500 status is returned."
+      },
+      {
+        "id": 5,
+        "description": "Initiate Telegram connection flow by clicking the primary CTA",
+        "action": "Click the 'Connect Telegram' button (or equivalent primary CTA) on the page.",
+        "expected": "The UI responds to the click \u2014 either (a) a modal/drawer appears with Telegram bot instructions and a unique linking token/code, or (b) the user is redirected to a Telegram deep-link or bot URL (t.me/...), or (c) a QR code is shown. No unhandled error or blank state appears."
+      },
+      {
+        "id": 6,
+        "description": "Verify the linking token or bot instructions are displayed",
+        "action": "Inspect the content shown after clicking 'Connect Telegram' \u2014 read any displayed code, token, or instruction text.",
+        "expected": "A unique linking token, verification code, or step-by-step instruction (e.g. 'Send /start to @PraxisBot') is clearly visible. The token is non-empty and appears to be a valid alphanumeric string. A copy-to-clipboard button or selectable text is present."
+      },
+      {
+        "id": 7,
+        "description": "Verify the copy-to-clipboard interaction on the linking token",
+        "action": "Click the copy icon or 'Copy' button adjacent to the displayed linking token or bot command.",
+        "expected": "A success indicator appears \u2014 either a toast notification ('Copied!'), a checkmark icon replacing the copy icon, or a brief tooltip. The button reverts to its default state within 2\u20133 seconds."
+      },
+      {
+        "id": 8,
+        "description": "Dismiss or cancel the connection flow without completing it",
+        "action": "Click the 'Cancel', 'Close', or X button on the modal/drawer, or navigate away using the browser back button.",
+        "expected": "The modal/drawer closes cleanly. The Telegram connect page returns to its disconnected state. No partial connection record is created. The 'Connect Telegram' CTA is still visible and actionable."
+      },
+      {
+        "id": 9,
+        "description": "Verify nudge channel settings surface Telegram as an option",
+        "action": "Navigate to the nudge channels settings \u2014 either via a link on the Telegram connect page or directly via the Settings area. Look for PATCH /api/v1/helper/nudge-channels equivalent UI.",
+        "expected": "Telegram appears as a delivery channel option in the nudge channel settings. Its toggle is in a disabled/off state since the account is not yet connected. Hovering or clicking the disabled toggle shows a prompt to connect Telegram first."
+      },
+      {
+        "id": 10,
+        "description": "Verify unauthenticated access to the Telegram connect page is blocked",
+        "action": "Open a new incognito/private browser window and navigate directly to http://localhost:3002/praxis/connect/telegram without logging in.",
+        "expected": "The user is redirected to http://localhost:3002/auth/login (or equivalent auth gate). The Telegram connect page content is NOT rendered for unauthenticated users. The redirect preserves the original destination as a query param (e.g. ?callbackUrl=...) so login returns the user to the connect page."
+      },
+      {
+        "id": 11,
+        "description": "Return to the Telegram connect page as authenticated user and verify no state corruption after incognito session",
+        "action": "Switch back to the original authenticated browser session and navigate to http://localhost:3002/praxis/connect/telegram.",
+        "expected": "Page loads cleanly in the disconnected state. No stale error state, no ghost 'connecting' spinner, and no session cross-contamination from the incognito tab. The 'Connect Telegram' CTA is functional."
+      },
+      {
+        "id": 12,
+        "description": "Navigate away to the dashboard and verify no breadcrumb or back-navigation error",
+        "action": "Click the Home or Dashboard link in the main navigation to leave /praxis/connect/telegram.",
+        "expected": "The dashboard loads without error. No console errors related to the Telegram page are logged after leaving. The navigation breadcrumb (if present) updates to reflect the dashboard location."
+      },
+      {
+        "id": 13,
+        "description": "Return to the Telegram connect page and verify persistent disconnected state",
+        "action": "Navigate back to http://localhost:3002/praxis/connect/telegram (via browser back button or direct URL).",
+        "expected": "Page reloads in the same disconnected state as before. No stale token from the previous session is displayed. The UI correctly reflects that Telegram is not connected. A fresh GET to the status endpoint is fired on return."
+      },
+      {
+        "id": 14,
+        "description": "Verify the Telegram connect page is responsive at mobile viewport",
+        "action": "Open browser DevTools, switch to a mobile viewport (e.g. 375\u00d7812 iPhone SE), and reload http://localhost:3002/praxis/connect/telegram.",
+        "expected": "The page renders correctly at mobile width \u2014 no horizontal overflow, no text truncation cutting off key instructions, and the 'Connect Telegram' CTA button is fully visible and tappable (minimum 44\u00d744px touch target). The linking token or instructions remain readable."
+      },
+      {
+        "id": 15,
+        "description": "Verify page accessibility \u2014 heading hierarchy and interactive element labels",
+        "action": "On http://localhost:3002/praxis/connect/telegram, open the browser accessibility tree (DevTools \u2192 Accessibility tab) and inspect the heading structure and button labels.",
+        "expected": "There is at least one H1 or H2 heading on the page identifying the Telegram integration section. All interactive buttons have accessible labels (aria-label or visible text). No 'button' elements with empty accessible names are present."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-skills",
@@ -491,13 +497,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in fresh",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD",
         "expected": "User is authenticated as superadmin; portal sidebar is visible with pillar navigation groups (Today, Health, etc.); no redirect to login page"
       },
       {
         "id": 2,
         "description": "Navigate to the Skills page",
-        "action": "Navigate to https://app.phronex.com/praxis/skills",
+        "action": "Navigate to http://localhost:3002/praxis/skills",
         "expected": "Page loads without errors \u2014 no blank page, no 'Something went wrong', no console errors; the My Skills tab or Skills section heading is visible in the main content area"
       },
       {
@@ -551,7 +557,7 @@
       {
         "id": 11,
         "description": "Navigate away and verify state persistence (PX-O-NAV-01)",
-        "action": "Navigate to the Dashboard (https://app.phronex.com/praxis or the Dashboard tab in the sidebar), then navigate back to https://app.phronex.com/praxis/skills",
+        "action": "Navigate to the Dashboard (http://localhost:3002/praxis or the Dashboard tab in the sidebar), then navigate back to http://localhost:3002/praxis/skills",
         "expected": "The Skills page reloads without errors; the previously created and approved skill is still present in the list with its correct 'Approved'/'Active' status; no data loss or reset to empty state after navigation round-trip"
       },
       {
@@ -561,10 +567,7 @@
         "expected": "As a Pro-tier superadmin user, all Skills UI elements (New skill from template, Approve, Test in sandbox) are fully interactive with no paywall or locked-state overlay blocking access"
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load saved superadmin session or log in fresh"
-    ]
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-career",
@@ -574,13 +577,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
         "expected": "User is authenticated. The portal header or sidebar is visible. No login redirect occurs."
       },
       {
         "id": 2,
         "description": "Navigate to the Career tab",
-        "action": "Navigate to https://app.phronex.com/praxis/career.",
+        "action": "Navigate to http://localhost:3002/praxis/career.",
         "expected": "The Career page loads without errors. No blank screen, no 'Something went wrong' boundary, and no unhandled console errors. The Career section heading is visible in the main content area."
       },
       {
@@ -634,13 +637,13 @@
       {
         "id": 11,
         "description": "Validate STAR field \u2014 attempt submission with empty Situation field",
-        "action": "Click 'Log evidence'. Leave the Situation field empty. Fill in Task, Action, and Result. Select rubric 'Delivery'. Click Submit.",
+        "action": "Scroll down to the bottom of the Career page to find the 'Career Evidence' section. Click the 'Log evidence' button to open the evidence submission form.",
         "expected": "The form does not submit. A validation error is displayed on the Situation field (e.g., 'Situation is required'). No POST request is sent to /api/v1/career/evidence. The other field values are preserved in the form."
       },
       {
         "id": 12,
         "description": "Validate STAR field \u2014 attempt submission with no rubric selected",
-        "action": "Click 'Log evidence'. Fill in all four STAR fields. Leave the rubric selector unselected or at its default placeholder. Click Submit.",
+        "action": "Scroll down to the bottom of the Career page to find the 'Career Evidence' section. Click the 'Log evidence' button to open the evidence submission form.",
         "expected": "The form does not submit. A validation error is displayed on the rubric field (e.g., 'Rubric is required'). No POST request is sent to /api/v1/career/evidence."
       },
       {
@@ -658,7 +661,7 @@
       {
         "id": 15,
         "description": "Navigate away and return \u2014 verify persistence (PX-O-CAR-01 persistence check)",
-        "action": "Navigate to https://app.phronex.com/praxis/dashboard. Then navigate back to https://app.phronex.com/praxis/career.",
+        "action": "Navigate to http://localhost:3002/praxis/dashboard. Then navigate back to http://localhost:3002/praxis/career.",
         "expected": "The Career page reloads cleanly. The evidence list reflects the current server state (deleted item absent; any remaining items present). The readiness score is displayed. No stale cached data from before the deletion is shown."
       },
       {
@@ -668,11 +671,7 @@
         "expected": "The URL changes to /praxis/career. The Career page content loads. The Career sidebar link shows an active/selected state. No 404 or redirect occurs."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load saved superadmin session or log in",
-      "Navigate away and return \u2014 verify persistence (PX-O-CAR-01 persistence check)"
-    ]
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-praxis-user-spec-personalised-helper-and-nudges",
@@ -682,8 +681,8 @@
       {
         "id": 1,
         "description": "Load or establish superadmin session",
-        "action": "Attempt to load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session file does not exist or is expired, navigate to https://app.phronex.com/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
-        "expected": "The browser lands on the Praxis portal dashboard (URL is https://app.phronex.com or /dashboard). The sidebar is visible with pillar groups including 'Today', 'Health', and 'Admin'. No login error message is shown."
+        "action": "Attempt to load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session file does not exist or is expired, navigate to http://localhost:3002/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "expected": "The browser lands on the Praxis portal dashboard (URL is http://localhost:3002 or /dashboard). The sidebar is visible with pillar groups including 'Today', 'Health', and 'Admin'. No login error message is shown."
       },
       {
         "id": 2,
@@ -730,7 +729,7 @@
       {
         "id": 9,
         "description": "Verify unauthenticated access to coach/nudge route is blocked",
-        "action": "Open a new browser tab (or use the Network tab to craft a direct fetch). Make a GET request to https://app.phronex.com/api/praxis/user/api/v1/coach (or the identified coach endpoint) without any Authorization header or session cookie.",
+        "action": "Open a new browser tab (or use the Network tab to craft a direct fetch). Make a GET request to http://localhost:3003/api/v1/coach (or the identified coach endpoint) without any Authorization header or session cookie.",
         "expected": "The server returns HTTP 401 or 403. The response body contains an error message such as 'Not authenticated' or 'Unauthorized'. No nudge data is leaked to unauthenticated callers."
       },
       {
@@ -740,10 +739,7 @@
         "expected": "The helper/nudge surface loads correctly under the authenticated session. No stale error state from the unauthenticated probe is visible. The QA account's nudge state is intact as left after step 7."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load or establish superadmin session"
-    ]
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-praxis-roadmap-narrative-priority-3-supporting-infrastructure-features",
@@ -753,7 +749,7 @@
       {
         "id": 1,
         "description": "Load superadmin session or perform fresh login",
-        "action": "Load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "Load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
         "expected": "The authenticated portal home/dashboard page is displayed. The user is recognised as a superadmin. No login redirect occurs."
       },
       {
@@ -783,20 +779,20 @@
       {
         "id": 6,
         "description": "Verify Authentication and Health section \u2014 confirm /health endpoint responds",
-        "action": "In the authenticated browser session, navigate to https://app.phronex.com/api/praxis/user/api/v1/admin/health (the deep health endpoint accessible via the portal proxy with the authenticated session).",
-        "expected": "The response body contains {\"status\": \"healthy\"} (or similar health response). HTTP status is 200. The db.ok field is true."
+        "action": "In a new browser tab, navigate to http://localhost:8003/health (or the Praxis backend health URL if different). Observe the response body.",
+        "expected": "The response body is {\"status\": \"healthy\"} (exact string per Phronex health-endpoint invariant). HTTP status is 200. No authentication is required for this endpoint."
       },
       {
         "id": 7,
         "description": "Verify Authentication \u2014 confirm login page is accessible when unauthenticated",
-        "action": "Open a private/incognito browser window and navigate to https://app.phronex.com/auth/login.",
+        "action": "Open a private/incognito browser window and navigate to http://localhost:3002/auth/login.",
         "expected": "The Praxis login page renders fully with an email field, password field, and a submit button. No redirect loop occurs. The page title or heading references Praxis."
       },
       {
         "id": 8,
         "description": "Verify Authentication \u2014 confirm protected routes redirect unauthenticated users",
-        "action": "In the same private/incognito window (unauthenticated), navigate directly to https://app.phronex.com/dashboard or any known protected Praxis route.",
-        "expected": "The browser is redirected to https://app.phronex.com/auth/login (or an equivalent auth gate). No protected content is rendered. HTTP status resolves to the login page."
+        "action": "In the same private/incognito window (unauthenticated), navigate directly to http://localhost:3002/dashboard or any known protected Praxis route.",
+        "expected": "The browser is redirected to http://localhost:3002/auth/login (or an equivalent auth gate). No protected content is rendered. HTTP status resolves to the login page."
       },
       {
         "id": 9,
@@ -844,77 +840,6 @@
     "dependsOn": "praxis-trunk-main"
   },
   {
-    "id": "praxis-praxis-architecture-pillar-isolation-isol",
-    "description": "[general] Praxis Architecture Pillar Isolation Isol \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
-    "depth": 1,
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved superadmin session or log in",
-        "action": "Load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
-        "expected": "The Praxis layout renders with the sidebar visible and pillar groups present: Today, Health, Wealth, Happiness, Wisdom, Tools, Settings. An amber Admin group is also visible in the sidebar, confirming superadmin tier. No redirect to login occurs."
-      },
-      {
-        "id": 2,
-        "description": "Confirm superadmin identity via admin panel access",
-        "action": "Click the Admin group (amber) in the sidebar to expand it, then click into any admin sub-tab (e.g. Users or Audit Log).",
-        "expected": "The Admin section expands and renders without a 403 or redirect. The URL updates to an admin route (e.g. /praxis?ptab=admin-users or equivalent). This confirms the session holds superadmin privileges required for PUT /api/v1/admin/praxis-config."
-      },
-      {
-        "id": 3,
-        "description": "Navigate to Praxis config admin route and inspect current config",
-        "action": "In the browser, navigate directly to the admin config endpoint by opening the browser dev-tools Network tab, then from the admin UI trigger a GET to /api/v1/admin/praxis-config (or navigate to the admin Settings/Config sub-tab if surfaced in the UI).",
-        "expected": "A 200 response is returned from GET /api/v1/admin/praxis-config. The response body is a valid JSON object containing at least one Praxis configuration key (e.g. kill-switch states, feature flags, or tier settings). No 401, 403, or 404 is returned."
-      },
-      {
-        "id": 4,
-        "description": "Exercise PUT /api/v1/admin/praxis-config with a valid payload",
-        "action": "Using the browser dev-tools console (or the admin UI config form if present), issue a PUT request to /api/v1/admin/praxis-config with a valid JSON body representing an updated configuration value (e.g. toggling a non-critical feature flag or updating a threshold value that is present in the current config). Set Content-Type: application/json and include the session cookie.",
-        "expected": "The server returns HTTP 200. The response body confirms the updated configuration value is reflected back. No 422 Unprocessable Entity, 401 Unauthorized, or 500 error is returned."
-      },
-      {
-        "id": 5,
-        "description": "Validate that the PUT change is rejected for a non-superadmin user (auth isolation check)",
-        "action": "Using browser devtools console in the current superadmin session, verify admin endpoint protection: Run fetch('/api/praxis/admin/api/v1/admin/praxis-config', {method:'PUT', headers:{'Authorization':'Bearer invalid-token'}, body:'{}'}) A 401 or 403 response is a PASS (endpoint protected). A 200 is a FAIL (security defect).",
-        "expected": "The server returns HTTP 403 Forbidden (or 401 Unauthorized). The personal-tier user cannot modify Praxis config. No data is mutated. This confirms the admin route is properly gated."
-      },
-      {
-        "id": 6,
-        "description": "Verify pillar group isolation: Today pillar renders independently",
-        "action": "Return to the superadmin browser session. Click the 'Today' pillar group in the sidebar. Confirm Dashboard, Calendar, Meetings, Tasks, and Plan tabs are listed under it. Click the 'Dashboard' tab.",
-        "expected": "The Today pillar group expands and its accent colour is applied. The Dashboard tab content renders. The URL updates to reflect the active tab (e.g. /praxis or /praxis?ptab=dashboard). No content from other pillar groups (Health, Wealth, etc.) bleeds into this view."
-      },
-      {
-        "id": 7,
-        "description": "Verify pillar group isolation: Wealth pillar (Finance tab) renders independently",
-        "action": "Click the 'Wealth' pillar group in the sidebar. Wait for it to expand. Click the 'Finance' tab.",
-        "expected": "The Wealth sidebar group expands and highlights with its pillar accent colour. The active tab indicator moves to Finance. The URL updates to /praxis/finance or /praxis?ptab=finance (or equivalent). Finance content renders without navigation errors. Due to the known data backload limitation (tables are empty as of 2026-04-26), an empty-state UI (e.g. 'No data yet' or similar placeholder) is acceptable \u2014 a hard error or 500 is not acceptable."
-      },
-      {
-        "id": 8,
-        "description": "Verify pillar group isolation: switching pillars clears prior pillar state",
-        "action": "With the Finance tab active (Wealth pillar), click the 'Health' pillar group. Click the 'Habits' tab.",
-        "expected": "The Wealth pillar group collapses (or loses active styling). The Health pillar group expands and highlights with its own accent. The Habits tab content renders. No Finance data or UI fragments remain visible. The URL updates to /praxis/habits or equivalent. This confirms pillar isolation \u2014 each pillar renders its own scoped state."
-      },
-      {
-        "id": 9,
-        "description": "Navigate away from Praxis and return \u2014 verify persistence of config change",
-        "action": "Navigate away from the Praxis portal entirely by going to a non-Praxis page (e.g. https://app.phronex.com or the portal dashboard). Wait 2 seconds. Then navigate back to the Praxis admin config area (e.g. re-open /api/v1/admin/praxis-config via GET in dev-tools or re-open the admin config sub-tab).",
-        "expected": "The configuration value updated in Step 4 is still reflected in the response from GET /api/v1/admin/praxis-config. The change was persisted to the database, not just held in memory. The updated value matches what was submitted in the PUT request."
-      },
-      {
-        "id": 10,
-        "description": "Verify Admin group visibility is superadmin-only (pillar isolation \u2014 auth tier)",
-        "action": "Verify admin navigation is superadmin-only by inspecting the current sidebar. Confirm the amber 'Admin' section is visible in the sidebar for the superadmin QA account. This confirms admin UI scoping works. Personal-tier users do not see this section.",
-        "expected": "The amber Admin group is NOT visible in the sidebar for the personal-tier user. The sidebar shows only the standard pillar groups (Today, Health, Wealth, Happiness, Wisdom, Tools, Settings). This confirms that admin pillar isolation is enforced at the UI layer in addition to the API layer verified in Step 5."
-      }
-    ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load saved superadmin session or log in"
-    ]
-  },
-  {
     "id": "praxis-praxis-test-oracles-billing-amp-subscriptions",
     "description": "[general] Praxis Test_Oracles Billing Amp Subscriptions \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
     "depth": 1,
@@ -922,13 +847,13 @@
       {
         "id": 1,
         "description": "Restore or establish superadmin session",
-        "action": "Attempt to load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "action": "Attempt to load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
         "expected": "The browser lands on the authenticated home/dashboard page (URL does not contain '/auth/login'). No 401 or redirect-to-login occurs. The authenticated user's email or avatar is visible in the navigation header."
       },
       {
         "id": 2,
         "description": "Verify starting state: user is on free tier before subscribing",
-        "action": "Navigate to the Settings > Billing page (e.g. https://app.phronex.com/settings/billing) and inspect the displayed subscription tier badge or label.",
+        "action": "Navigate to the Settings > Billing page (e.g. http://localhost:3002/settings/billing) and inspect the displayed subscription tier badge or label.",
         "expected": "The page renders without error. The current plan is shown as 'Free' (or equivalent free-tier label). No active subscription date or cancellation option is displayed. The 'Upgrade' or 'Subscribe' call-to-action button is visible."
       },
       {
@@ -1000,14 +925,11 @@
       {
         "id": 14,
         "description": "Admin audit: verify tier change and cancellation are logged",
-        "action": "Navigate to the admin audit log (e.g. https://app.phronex.com/admin or the admin panel's audit-log section, which requires superadmin role). Filter or search for the test user qa-test-journeyhawk@phronex.com's recent activity.",
+        "action": "Navigate to the admin audit log (e.g. http://localhost:3002/admin or the admin panel's audit-log section, which requires superadmin role). Filter or search for the test user qa-test-journeyhawk@phronex.com's recent activity.",
         "expected": "The audit log (backed by GET /api/v1/admin/audit-log) shows at least two relevant entries for this user: one for the tier upgrade to 'personal' and one for the cancellation scheduling. Each entry has a timestamp, actor, and action description. HTTP 200 is returned from the admin endpoint."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Restore or establish superadmin session"
-    ]
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-praxis-test-oracles-accountability-buddy-amp-share-cards",
@@ -1017,7 +939,7 @@
       {
         "id": 1,
         "description": "Establish authenticated superadmin session",
-        "action": "Load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
+        "action": "Load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to http://localhost:3002/auth/login, enter email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the Sign In button.",
         "expected": "The Praxis portal dashboard is visible. The sidebar shows pillar groups (Today, Health, Finance, etc.). No login form is present. The authenticated user identity matches qa-test-journeyhawk@phronex.com."
       },
       {
@@ -1099,11 +1021,7 @@
         "expected": "A new token is returned (HTTP 200/201). The new token string is different from the previously revoked token. The UI displays a new share link URL. The system has cleanly recovered from the revoke state and is ready for a new share cycle. No stale-token error or conflict is shown."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Establish authenticated superadmin session",
-      "Navigate away to the dashboard and return to verify state persistence"
-    ]
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-praxis-test-oracles-health-profile-amp-metrics",
@@ -1113,7 +1031,7 @@
       {
         "id": 1,
         "description": "Load or establish superadmin session",
-        "action": "Attempt to load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the login/submit button.",
+        "action": "Attempt to load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD, then click the login/submit button.",
         "expected": "The Praxis portal loads and the authenticated user dashboard is visible. The sidebar shows pillar groups (Today, Health, Finance, etc.). No redirect back to /auth/login occurs, confirming a valid session is active."
       },
       {
@@ -1149,7 +1067,7 @@
       {
         "id": 7,
         "description": "Verify no PHI is rendered without an active health consent",
-        "action": "Open a new incognito/private browser window and navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with QA_SUPERADMIN_PASSWORD. Navigate directly to the Health section URL before any consent interaction.",
+        "action": "Open a new incognito/private browser window and navigate to http://localhost:3002/auth/login. Log in as qa-test-journeyhawk@phronex.com with QA_SUPERADMIN_PASSWORD. Navigate directly to the Health section URL before any consent interaction.",
         "expected": "The Health section either shows a consent gate/prompt before rendering any health data, or redirects to a consent flow. No raw health metrics, lab results, or personal health identifiers are visible in the DOM or network responses prior to consent being granted."
       },
       {
@@ -1197,14 +1115,11 @@
       {
         "id": 15,
         "description": "Verify the authenticated health API (GET /api/v1/admin/health) returns the correct health status",
-        "action": "Navigate to the browser address bar and open https://app.phronex.com/api/v1/admin/health (or observe the network panel for this request during any page load). No authentication header is required for this endpoint.",
+        "action": "Navigate to the browser address bar and open http://localhost:3002/api/v1/admin/health (or observe the network panel for this request during any page load). No authentication header is required for this endpoint.",
         "expected": "GET /api/v1/admin/health returns HTTP 200 with the JSON body {\"status\": \"healthy\"}. The response body must contain exactly 'healthy' \u2014 not 'ok', 'up', or any other variant."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load or establish superadmin session"
-    ]
+    "dependsOn": "praxis-trunk-main"
   },
   {
     "id": "praxis-praxis-test-oracles-qa-probe-env-gated-devserver-non-prod-only",
@@ -1214,37 +1129,37 @@
       {
         "id": 1,
         "description": "Load or establish superadmin session",
-        "action": "ENVIRONMENT GATE: This journey only runs on DevServer (PHRONEX_QA_PROBE_ENABLED=true). If running against app.phronex.com (EC2), mark ALL steps as PASS with note 'env-gated: DevServer only'. Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD, and submit the login form.",
+        "action": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to http://localhost:3002/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD, and submit the login form.",
         "expected": "The Praxis portal dashboard loads successfully. The sidebar is visible with pillar groups (Today, Health, etc.). No redirect back to /auth/login occurs. The active session JWT contains sa:true (verifiable via browser DevTools \u2192 Application \u2192 cookies or localStorage)."
       },
       {
         "id": 2,
         "description": "Verify QA probe route is present in OpenAPI on DevServer",
-        "action": "Navigate to https://app.phronex.com/api/praxis/user/api/v1/admin/health (or https://app.phronex.com/api/praxis/admin/api/v1/admin/health) and search for the path '/api/v1/qa/probe/observe'.",
+        "action": "Navigate to http://localhost:8003/openapi.json (or http://localhost:8003/docs) and search for the path '/api/v1/qa/probe/observe'.",
         "expected": "The OpenAPI JSON includes a POST entry for '/api/v1/qa/probe/observe'. The route is visible in the Swagger UI under the 'qa-probe' tag. This confirms PHRONEX_QA_PROBE_ENABLED=true is active in the current environment and the env-gate is open."
       },
       {
         "id": 3,
         "description": "POST a probe observe event as superadmin and verify 200 response with event ID",
-        "action": "Using the browser's fetch API (DevTools console) or a REST client pointed at https://app.phronex.com/api/praxis/user/api/v1/qa/probe/observe, send a POST request with the superadmin JWT in the Authorization header (Bearer <token>) and a JSON body: { \"tag\": \"journeyhawk-smoke\", \"source\": \"browser-journey\", \"payload\": { \"note\": \"enrichment probe step\" } }.",
+        "action": "Using the browser's fetch API (DevTools console) or a REST client pointed at http://localhost:8003/api/v1/qa/probe/observe, send a POST request with the superadmin JWT in the Authorization header (Bearer <token>) and a JSON body: { \"tag\": \"journeyhawk-smoke\", \"source\": \"browser-journey\", \"payload\": { \"note\": \"enrichment probe step\" } }.",
         "expected": "The response status is 200. The response body is a JSON object containing an 'id' field (a UUID or integer) representing the newly inserted event. No error fields are present. The response time is under 2000ms."
       },
       {
         "id": 4,
         "description": "Verify the probe event is persisted in system_error_log via GET query",
-        "action": "Immediately after step 3, send a GET request to https://app.phronex.com/api/praxis/user/api/v1/qa/probe/events?tag=journeyhawk-smoke with the superadmin JWT in the Authorization header.",
+        "action": "Immediately after step 3, send a GET request to http://localhost:8003/api/v1/qa/probe/events?tag=journeyhawk-smoke with the superadmin JWT in the Authorization header.",
         "expected": "The response status is 200. The response body is a JSON array or paginated object containing at least one entry whose 'id' matches the event ID returned in step 3. The entry's 'tag' field equals 'journeyhawk-smoke' and the 'source' field equals 'browser-journey' (or reflects the probe attribution). This confirms DB persistence in system_error_log."
       },
       {
         "id": 5,
         "description": "Attempt POST /api/v1/qa/probe/observe as a non-superadmin authenticated user and verify 403 rejection",
-        "action": "Log out of the superadmin session (navigate to https://app.phronex.com/auth/login and log in as a standard Personal-tier account \u2014 a non-sa user). Then send a POST request to https://app.phronex.com/api/praxis/user/api/v1/qa/probe/observe with the non-superadmin JWT in the Authorization header and the same JSON body from step 3.",
+        "action": "Log out of the superadmin session (navigate to http://localhost:3002/auth/login and log in as a standard Personal-tier account \u2014 a non-sa user). Then send a POST request to http://localhost:8003/api/v1/qa/probe/observe with the non-superadmin JWT in the Authorization header and the same JSON body from step 3.",
         "expected": "The response status is 403 Forbidden (or 401 Unauthorized). The response body contains an error message indicating insufficient permissions (e.g., 'superadmin required', 'sa grant missing', or similar). No event ID is returned. The probe event is NOT inserted into system_error_log (verifiable by re-running the GET from step 4 and confirming no new entry with a non-sa source appears)."
       },
       {
         "id": 6,
         "description": "Attempt POST /api/v1/qa/probe/observe with no authentication token and verify 401 rejection",
-        "action": "Send a POST request to https://app.phronex.com/api/praxis/user/api/v1/qa/probe/observe with no Authorization header and the same JSON body from step 3.",
+        "action": "Send a POST request to http://localhost:8003/api/v1/qa/probe/observe with no Authorization header and the same JSON body from step 3.",
         "expected": "The response status is 401 Unauthorized. The response body contains an authentication error (e.g., 'Not authenticated', 'Missing token'). No event ID is returned. This confirms the route requires a valid JWT even on DevServer."
       },
       {
@@ -1256,17 +1171,10 @@
       {
         "id": 8,
         "description": "Restore superadmin session for subsequent journeys",
-        "action": "Navigate to https://app.phronex.com/auth/login and log back in with email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD to restore the superadmin session used by dependent journeys.",
+        "action": "Navigate to http://localhost:3002/auth/login and log back in with email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD to restore the superadmin session used by dependent journeys.",
         "expected": "The Praxis portal dashboard loads. The sidebar displays all pillar groups including the amber 'Admin (SA-only)' group. The active JWT contains sa:true. The session state file at '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json' is refreshed for downstream journey reuse."
       }
     ],
-    "dependsOn": "praxis-trunk-main",
-    "_shared_setup_steps": [
-      "Load or establish superadmin session"
-    ],
-    "tags": [
-      "env-gated",
-      "devserver-only"
-    ]
+    "dependsOn": "praxis-trunk-main"
   }
 ]
