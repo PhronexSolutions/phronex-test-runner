@@ -31,7 +31,7 @@
   },
   {
     "id": "praxis-dashboard",
-    "description": "Navigate to the Praxis dashboard and verify the Life Score, pillar cards, and today's brief summary are rendered — not blank or errored",
+    "description": "Navigate to the Praxis dashboard and verify the Life Score, pillar cards, and today's brief summary are rendered \u2014 not blank or errored",
     "isSharedRoot": false,
     "role": "branch",
     "dependsOn": "praxis-trunk-main",
@@ -44,11 +44,11 @@
       },
       {
         "id": 2,
-        "description": "Verify a Life Score is visible — either a numeric score or a placeholder prompting initial setup. Report the value shown."
+        "description": "Verify a Life Score is visible \u2014 either a numeric score or a placeholder prompting initial setup. Report the value shown."
       },
       {
         "id": 3,
-        "description": "Verify that pillar indicators (Wealth, Health, Happiness, Wisdom or similar) are visible on the page — as cards, tabs, or labels. Report what is rendered."
+        "description": "Verify that pillar indicators (Wealth, Health, Happiness, Wisdom or similar) are visible on the page \u2014 as cards, tabs, or labels. Report what is rendered."
       },
       {
         "id": 4,
@@ -58,11 +58,15 @@
         "id": 5,
         "description": "Take a full-page screenshot of the dashboard"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/dashboard and wait for the page to fully load (no spinners)",
+      "Verify the page does NOT show a blank white screen, an unhandled error boundary message, or a 'Something went wrong' overlay."
     ]
   },
   {
     "id": "praxis-habits-log",
-    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit — confirming the streak counter updates",
+    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit \u2014 confirming the streak counter updates",
     "isSharedRoot": false,
     "role": "verify",
     "dependsOn": "praxis-trunk-main",
@@ -79,12 +83,15 @@
       },
       {
         "id": 3,
-        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds — a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
+        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds \u2014 a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
       },
       {
         "id": 4,
         "description": "Take a screenshot showing the logged habit or the newly created habit"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/habits and wait for the page to fully load"
     ]
   },
   {
@@ -105,7 +112,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the quadrant view renders — four labelled quadrants (Urgent+Important, Not Urgent+Important, etc.) are visible. Report the labels shown."
+        "description": "Verify the quadrant view renders \u2014 four labelled quadrants (Urgent+Important, Not Urgent+Important, etc.) are visible. Report the labels shown."
       },
       {
         "id": 4,
@@ -136,12 +143,16 @@
       },
       {
         "id": 4,
-        "description": "Look for a Net Worth indicator anywhere on the page — a number, chart, or label. Report whether it is visible."
+        "description": "Look for a Net Worth indicator anywhere on the page \u2014 a number, chart, or label. Report whether it is visible."
       },
       {
         "id": 5,
         "description": "Take a screenshot of the Finance page"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/finance and wait for the page to fully load",
+      "Take a screenshot of the Finance page"
     ]
   },
   {
@@ -162,7 +173,7 @@
       },
       {
         "id": 3,
-        "description": "Verify the expenses section renders — either a list of expense entries, a chart, or a meaningful empty state. Report what is shown."
+        "description": "Verify the expenses section renders \u2014 either a list of expense entries, a chart, or a meaningful empty state. Report what is shown."
       },
       {
         "id": 4,
@@ -195,6 +206,11 @@
         "id": 4,
         "description": "Take a screenshot of the People page"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/people and wait for the page to fully load",
+      "Verify the page does NOT show an error boundary or 'Something went wrong' message.",
+      "Take a screenshot of the People page"
     ]
   },
   {
@@ -222,6 +238,11 @@
         "id": 4,
         "description": "Take a screenshot of the Life/Goals page"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/life and wait for the page to fully load",
+      "Verify the page does NOT show a blank white screen or unhandled error.",
+      "Take a screenshot of the Life/Goals page"
     ]
   },
   {
@@ -239,7 +260,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the brief section renders — either a today's brief with content, a 'brief will arrive at 7am' message, or a list of past briefs. Report what is shown."
+        "description": "Verify the brief section renders \u2014 either a today's brief with content, a 'brief will arrive at 7am' message, or a list of past briefs. Report what is shown."
       },
       {
         "id": 3,
@@ -253,7 +274,7 @@
   },
   {
     "id": "praxis-assessment",
-    "description": "Navigate to the User Assessment page and verify the assessment UI loads correctly — either showing results or prompting to take the assessment",
+    "description": "Navigate to the User Assessment page and verify the assessment UI loads correctly \u2014 either showing results or prompting to take the assessment",
     "isSharedRoot": false,
     "role": "branch",
     "dependsOn": "praxis-trunk-main",
@@ -276,6 +297,11 @@
         "id": 4,
         "description": "Take a screenshot of the Assessment page"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/assessment and wait for the page to fully load",
+      "Verify no error boundary, blank white area, or 'Something went wrong' appears.",
+      "Take a screenshot of the Assessment page"
     ]
   },
   {
@@ -293,7 +319,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the settings page renders — showing tabs, sections, or form fields for configuring Praxis. Report the main sections visible (e.g. profile, notifications, pillars, billing)."
+        "description": "Verify the settings page renders \u2014 showing tabs, sections, or form fields for configuring Praxis. Report the main sections visible (e.g. profile, notifications, pillars, billing)."
       },
       {
         "id": 3,
@@ -303,6 +329,11 @@
         "id": 4,
         "description": "Take a screenshot of the Settings page"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/settings and wait for the page to fully load",
+      "Verify no error boundary or blank area appears.",
+      "Take a screenshot of the Settings page"
     ]
   },
   {
@@ -320,7 +351,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the coach/AI chat interface renders — a message thread area and an input field or send button should be visible. Report what is shown."
+        "description": "Verify the coach/AI chat interface renders \u2014 a message thread area and an input field or send button should be visible. Report what is shown."
       },
       {
         "id": 3,
@@ -330,6 +361,10 @@
         "id": 4,
         "description": "Take a screenshot of the Coach page"
       }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/coach and wait for the page to fully load",
+      "Take a screenshot of the Coach page"
     ]
   },
   {
@@ -346,7 +381,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the page renders — either a list of knowledge items/vault entries, a search bar, or a meaningful empty state. Report what is visible."
+        "description": "Verify the page renders \u2014 either a list of knowledge items/vault entries, a search bar, or a meaningful empty state. Report what is visible."
       },
       {
         "id": 3,
@@ -356,6 +391,10 @@
         "id": 4,
         "description": "Take a screenshot of the Knowledge page"
       }
+    ],
+    "_shared_setup_steps": [
+      "Verify no error boundary or blank area appears.",
+      "Take a screenshot of the Knowledge page"
     ]
   },
   {
@@ -372,7 +411,7 @@
       },
       {
         "id": 2,
-        "description": "Verify the calendar interface renders — a date grid, week view, or list of events. Report what view is shown and whether any events are displayed."
+        "description": "Verify the calendar interface renders \u2014 a date grid, week view, or list of events. Report what view is shown and whether any events are displayed."
       },
       {
         "id": 3,
@@ -381,6 +420,152 @@
       {
         "id": 4,
         "description": "Take a screenshot of the Calendar page"
+      }
+    ],
+    "_shared_setup_steps": [
+      "Navigate to http://localhost:3002/praxis/calendar and wait for the page to fully load",
+      "Take a screenshot of the Calendar page"
+    ]
+  },
+  {
+    "id": "praxis-branch-dashboard",
+    "description": "Branch node: navigate to /praxis/dashboard from trunk session and save state for child journeys",
+    "dependsOn": "praxis-trunk-main",
+    "role": "branch",
+    "isSharedRoot": false,
+    "stateOutputPath": ".tmp/praxis-branch-dashboard-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/praxis-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to https://app.phronex.com/praxis/dashboard and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ]
+  },
+  {
+    "id": "praxis-praxis-architecture-pillar-isolation-isol",
+    "description": "[general] Praxis Architecture Pillar Isolation Isol \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session or log in",
+        "action": "Load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If the session is expired or missing, navigate to http://localhost:3002/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password QA_SUPERADMIN_PASSWORD, then submit the login form.",
+        "expected": "The Praxis layout renders with the sidebar visible and pillar groups present: Today, Health, Wealth, Happiness, Wisdom, Tools, Settings. An amber Admin group is also visible in the sidebar, confirming superadmin tier. No redirect to login occurs."
+      },
+      {
+        "id": 2,
+        "description": "Confirm superadmin identity via admin panel access",
+        "action": "Click the Admin group (amber) in the sidebar to expand it, then click into any admin sub-tab (e.g. Users or Audit Log).",
+        "expected": "The Admin section expands and renders without a 403 or redirect. The URL updates to an admin route (e.g. /praxis?ptab=admin-users or equivalent). This confirms the session holds superadmin privileges required for PUT /api/v1/admin/praxis-config."
+      },
+      {
+        "id": 3,
+        "description": "Navigate to Praxis config admin route and inspect current config",
+        "action": "In the browser, navigate directly to the admin config endpoint by opening the browser dev-tools Network tab, then from the admin UI trigger a GET to /api/v1/admin/praxis-config (or navigate to the admin Settings/Config sub-tab if surfaced in the UI).",
+        "expected": "A 200 response is returned from GET /api/v1/admin/praxis-config. The response body is a valid JSON object containing at least one Praxis configuration key (e.g. kill-switch states, feature flags, or tier settings). No 401, 403, or 404 is returned."
+      },
+      {
+        "id": 4,
+        "description": "Exercise PUT /api/v1/admin/praxis-config with a valid payload",
+        "action": "Using the browser dev-tools console (or the admin UI config form if present), issue a PUT request to /api/v1/admin/praxis-config with a valid JSON body representing an updated configuration value (e.g. toggling a non-critical feature flag or updating a threshold value that is present in the current config). Set Content-Type: application/json and include the session cookie.",
+        "expected": "The server returns HTTP 200. The response body confirms the updated configuration value is reflected back. No 422 Unprocessable Entity, 401 Unauthorized, or 500 error is returned."
+      },
+      {
+        "id": 5,
+        "description": "Validate that the PUT change is rejected for a non-superadmin user (auth isolation check)",
+        "action": "Open a new incognito/private browser window. Navigate to http://localhost:3002/auth/login and log in with a known personal-tier test account (not the superadmin). Once logged in, attempt to issue a PUT request to /api/v1/admin/praxis-config via the dev-tools console with the same payload used in Step 4.",
+        "expected": "The server returns HTTP 403 Forbidden (or 401 Unauthorized). The personal-tier user cannot modify Praxis config. No data is mutated. This confirms the admin route is properly gated."
+      },
+      {
+        "id": 6,
+        "description": "Verify pillar group isolation: Today pillar renders independently",
+        "action": "Return to the superadmin browser session. Click the 'Today' pillar group in the sidebar. Confirm Dashboard, Calendar, Meetings, Tasks, and Plan tabs are listed under it. Click the 'Dashboard' tab.",
+        "expected": "The Today pillar group expands and its accent colour is applied. The Dashboard tab content renders. The URL updates to reflect the active tab (e.g. /praxis or /praxis?ptab=dashboard). No content from other pillar groups (Health, Wealth, etc.) bleeds into this view."
+      },
+      {
+        "id": 7,
+        "description": "Verify pillar group isolation: Wealth pillar (Finance tab) renders independently",
+        "action": "Click the 'Wealth' pillar group in the sidebar. Wait for it to expand. Click the 'Finance' tab.",
+        "expected": "The Wealth sidebar group expands and highlights with its pillar accent colour. The active tab indicator moves to Finance. The URL updates to /praxis/finance or /praxis?ptab=finance (or equivalent). Finance content renders without navigation errors. Due to the known data backload limitation (tables are empty as of 2026-04-26), an empty-state UI (e.g. 'No data yet' or similar placeholder) is acceptable \u2014 a hard error or 500 is not acceptable."
+      },
+      {
+        "id": 8,
+        "description": "Verify pillar group isolation: switching pillars clears prior pillar state",
+        "action": "With the Finance tab active (Wealth pillar), click the 'Health' pillar group. Click the 'Habits' tab.",
+        "expected": "The Wealth pillar group collapses (or loses active styling). The Health pillar group expands and highlights with its own accent. The Habits tab content renders. No Finance data or UI fragments remain visible. The URL updates to /praxis/habits or equivalent. This confirms pillar isolation \u2014 each pillar renders its own scoped state."
+      },
+      {
+        "id": 9,
+        "description": "Navigate away from Praxis and return \u2014 verify persistence of config change",
+        "action": "Navigate away from the Praxis portal entirely by going to a non-Praxis page (e.g. http://localhost:3002 or the portal dashboard). Wait 2 seconds. Then navigate back to the Praxis admin config area (e.g. re-open /api/v1/admin/praxis-config via GET in dev-tools or re-open the admin config sub-tab).",
+        "expected": "The configuration value updated in Step 4 is still reflected in the response from GET /api/v1/admin/praxis-config. The change was persisted to the database, not just held in memory. The updated value matches what was submitted in the PUT request."
+      },
+      {
+        "id": 10,
+        "description": "Verify Admin group visibility is superadmin-only (pillar isolation \u2014 auth tier)",
+        "action": "Log out of the superadmin session. Log in as a personal-tier user. Inspect the Praxis sidebar.",
+        "expected": "The amber Admin group is NOT visible in the sidebar for the personal-tier user. The sidebar shows only the standard pillar groups (Today, Health, Wealth, Happiness, Wisdom, Tools, Settings). This confirms that admin pillar isolation is enforced at the UI layer in addition to the API layer verified in Step 5."
+      }
+    ],
+    "dependsOn": "praxis-trunk-main"
+  },
+  {
+    "id": "praxis-deep-praxis-hobbies-add",
+    "description": "[DEEP] praxis-happiness-interests \u2014 Add hobby interest and log an event, verify last_event_date updates",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "praxis-trunk-main",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/praxis/happiness and wait for the page to load. The Happiness pillar page hosts the Interests tab."
+      },
+      {
+        "id": 2,
+        "description": "Verify the Happiness page renders \u2014 either the Interests tab with a list of interests, or an empty state with an Add Interest CTA. Report what is shown. Take a screenshot."
+      },
+      {
+        "id": 3,
+        "description": "POST /api/v1/hobbies with name=JH-Test-Hobby and category=sport. Verify 201 response with an interest_id. Then POST /api/v1/hobbies/{interest_id}/events with a description and today's date. Verify 201 response. Then GET /api/v1/hobbies/{interest_id} and verify: (a) last_event_date is today's date (NOT null), (b) is_active is true. The dormancy_status field does NOT exist in the schema \u2014 do not assert it."
+      },
+      {
+        "id": 4,
+        "description": "Navigate back to https://app.phronex.com/praxis/happiness and verify the interest appears in the Interests tab list (or locate the Interests section). Take a screenshot."
+      },
+      {
+        "id": 5,
+        "description": "Navigate to https://app.phronex.com/praxis and verify the dashboard loads without error. Data persists check complete."
+      }
+    ]
+  },
+  {
+    "id": "praxis-deep-praxis-skills-browse",
+    "description": "[DEEP] praxis-skills-browse \u2014 browse skill templates and draft a new skill (approval/sandbox in separate test)",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "praxis-trunk-main",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to https://app.phronex.com/praxis/skills and wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "Verify the Skills page renders: either a list of skill templates, a list of user skills, or an empty state with a CTA to browse/add skills. Report what is shown. Take a screenshot."
+      },
+      {
+        "id": 3,
+        "description": "POST /api/v1/skills/draft with a test skill payload (e.g. name=JH-Test-Skill, description=Test, template_id from GET /api/v1/skills/templates if available). Verify the response is 201 with a skill_id and status=draft. Then GET /api/v1/skills/{skill_id} to confirm it exists in draft state."
+      },
+      {
+        "id": 4,
+        "description": "Navigate back to https://app.phronex.com/praxis and verify the dashboard loads without error. Data persists."
       }
     ]
   }
