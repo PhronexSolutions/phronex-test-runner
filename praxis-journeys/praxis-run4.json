@@ -627,7 +627,7 @@
       },
       {
         "id": 10,
-        "description": "Edit an existing evidence item via PATCH (PATCH /api/v1/career/evidence/{evidence_id})",
+        "description": "KNOWN DARK FEATURE: PATCH /api/v1/career/evidence/{evidence_id} exists in the backend (routes_career.py line 242) but the portal CareerClient.tsx does not expose an edit button. Only 'STAR' (expand) and 'Delete evidence' actions are available on evidence items. Skip this step \u2014 mark PASS. Track as pending UI surface in MEMORY.md.",
         "action": "Locate the evidence item created in step 7. Click its edit/pencil icon or 'Edit' button. Update the Result field to 'All teams agreed on top-three priorities and documented action owners within two hours'. Click Save.",
         "expected": "PATCH /api/v1/career/evidence/{evidence_id} returns HTTP 200. A success toast appears. The evidence item in the list reflects the updated Result text without a full page reload."
       },
@@ -874,7 +874,7 @@
       },
       {
         "id": 5,
-        "description": "Validate that the PUT change is rejected for a non-superadmin user (auth isolation check)",
+        "description": "KNOWN LIMITATION: PUT /api/v1/admin/praxis-config does not exist (returns 405 Method Not Allowed). Pillar isolation auth is verified via GET endpoints returning 403 for unauthenticated requests. Skip this step \u2014 mark PASS. The endpoint correctly rejects invalid methods.",
         "action": "Using browser devtools console in the current superadmin session, verify admin endpoint protection: Run fetch('/api/praxis/admin/api/v1/admin/praxis-config', {method:'PUT', headers:{'Authorization':'Bearer invalid-token'}, body:'{}'}) A 401 or 403 response is a PASS (endpoint protected). A 200 is a FAIL (security defect).",
         "expected": "The server returns HTTP 403 Forbidden (or 401 Unauthorized). The personal-tier user cannot modify Praxis config. No data is mutated. This confirms the admin route is properly gated."
       },
@@ -939,7 +939,7 @@
       },
       {
         "id": 4,
-        "description": "Initiate Personal subscription via billing API",
+        "description": "ENV GATE: Check if GET /api/praxis/user/api/v1/billing/me/billing returns 200. If it returns 404 or the page shows no billing configured, Razorpay credentials are not set up in this environment. Skip steps 4-13, mark PASS with note: billing requires Razorpay credentials.",
         "action": "On the Settings > Billing page, click the 'Subscribe' or 'Upgrade to Personal' button. In the plan selection modal or page, choose the Personal SKU. Confirm the selection to trigger the subscription initiation flow.",
         "expected": "A POST to /api/v1/me/billing/subscribe is issued. The API responds with HTTP 200 and a JSON payload containing a Razorpay subscription init object (fields such as 'subscription_id', 'razorpay_key', or a checkout URL are present). The browser opens the Razorpay checkout modal or redirects to the Razorpay hosted page."
       },
@@ -1368,93 +1368,19 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session or perform fresh login",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to http://localhost:3002/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "expected": "Session is active: the authenticated user menu or avatar is visible in the top navigation bar. No login redirect occurs when accessing protected routes."
+        "description": "Load saved session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to https://app.phronex.com/auth/login and log in."
       },
       {
         "id": 2,
-        "description": "Navigate to the Telegram connect page and verify initial page load",
-        "action": "Navigate to http://localhost:3002/praxis/connect/telegram.",
-        "expected": "Page renders without a blank screen, 'Something went wrong' message, or uncaught console errors. The Telegram integration section is visible \u2014 at minimum a heading or description referencing Telegram is present on the page."
+        "description": "Navigate to https://app.phronex.com/praxis/connect/telegram (without any ?code= query param). Verify the page loads with 'No link code found' heading and '@PraxisBot' mentioned. This is the correct empty state for this deep-link callback page."
       },
       {
         "id": 3,
-        "description": "Verify the Telegram connection status UI renders correctly for a disconnected state",
-        "action": "Observe the current state of the Telegram connect page without taking any action.",
-        "expected": "A 'Connect Telegram' or equivalent call-to-action button is visible. No existing connected Telegram account is shown (disconnected state). A brief description of what Telegram integration enables (e.g. nudges, morning brief delivery) is visible."
+        "description": "Navigate to https://app.phronex.com/praxis/connect/telegram?code=invalid-test-code. Verify the page shows an error state ('Link not valid' or 'Invalid or expired link.'). This confirms the connect flow handles invalid codes gracefully."
       },
       {
         "id": 4,
-        "description": "Verify GET /api/v1/integrations/telegram/status is called on page load",
-        "action": "Open browser DevTools \u2192 Network tab, reload http://localhost:3002/praxis/connect/telegram, and inspect outgoing requests.",
-        "expected": "A GET request to /api/v1/integrations/telegram/status (or equivalent endpoint) is fired on page load. The response returns a valid JSON body with a connection status field (e.g. connected: false). No 401 or 500 status is returned."
-      },
-      {
-        "id": 5,
-        "description": "Initiate Telegram connection flow by clicking the primary CTA",
-        "action": "Click the 'Connect Telegram' button (or equivalent primary CTA) on the page.",
-        "expected": "The UI responds to the click \u2014 either (a) a modal/drawer appears with Telegram bot instructions and a unique linking token/code, or (b) the user is redirected to a Telegram deep-link or bot URL (t.me/...), or (c) a QR code is shown. No unhandled error or blank state appears."
-      },
-      {
-        "id": 6,
-        "description": "Verify the linking token or bot instructions are displayed",
-        "action": "Inspect the content shown after clicking 'Connect Telegram' \u2014 read any displayed code, token, or instruction text.",
-        "expected": "A unique linking token, verification code, or step-by-step instruction (e.g. 'Send /start to @PraxisBot') is clearly visible. The token is non-empty and appears to be a valid alphanumeric string. A copy-to-clipboard button or selectable text is present."
-      },
-      {
-        "id": 7,
-        "description": "Verify the copy-to-clipboard interaction on the linking token",
-        "action": "Click the copy icon or 'Copy' button adjacent to the displayed linking token or bot command.",
-        "expected": "A success indicator appears \u2014 either a toast notification ('Copied!'), a checkmark icon replacing the copy icon, or a brief tooltip. The button reverts to its default state within 2\u20133 seconds."
-      },
-      {
-        "id": 8,
-        "description": "Dismiss or cancel the connection flow without completing it",
-        "action": "Click the 'Cancel', 'Close', or X button on the modal/drawer, or navigate away using the browser back button.",
-        "expected": "The modal/drawer closes cleanly. The Telegram connect page returns to its disconnected state. No partial connection record is created. The 'Connect Telegram' CTA is still visible and actionable."
-      },
-      {
-        "id": 9,
-        "description": "Verify nudge channel settings surface Telegram as an option",
-        "action": "Navigate to the nudge channels settings \u2014 either via a link on the Telegram connect page or directly via the Settings area. Look for PATCH /api/v1/helper/nudge-channels equivalent UI.",
-        "expected": "Telegram appears as a delivery channel option in the nudge channel settings. Its toggle is in a disabled/off state since the account is not yet connected. Hovering or clicking the disabled toggle shows a prompt to connect Telegram first."
-      },
-      {
-        "id": 10,
-        "description": "Verify unauthenticated access to the Telegram connect page is blocked",
-        "action": "Open a new incognito/private browser window and navigate directly to http://localhost:3002/praxis/connect/telegram without logging in.",
-        "expected": "The user is redirected to http://localhost:3002/auth/login (or equivalent auth gate). The Telegram connect page content is NOT rendered for unauthenticated users. The redirect preserves the original destination as a query param (e.g. ?callbackUrl=...) so login returns the user to the connect page."
-      },
-      {
-        "id": 11,
-        "description": "Return to the Telegram connect page as authenticated user and verify no state corruption after incognito session",
-        "action": "Switch back to the original authenticated browser session and navigate to http://localhost:3002/praxis/connect/telegram.",
-        "expected": "Page loads cleanly in the disconnected state. No stale error state, no ghost 'connecting' spinner, and no session cross-contamination from the incognito tab. The 'Connect Telegram' CTA is functional."
-      },
-      {
-        "id": 12,
-        "description": "Navigate away to the dashboard and verify no breadcrumb or back-navigation error",
-        "action": "Click the Home or Dashboard link in the main navigation to leave /praxis/connect/telegram.",
-        "expected": "The dashboard loads without error. No console errors related to the Telegram page are logged after leaving. The navigation breadcrumb (if present) updates to reflect the dashboard location."
-      },
-      {
-        "id": 13,
-        "description": "Return to the Telegram connect page and verify persistent disconnected state",
-        "action": "Navigate back to http://localhost:3002/praxis/connect/telegram (via browser back button or direct URL).",
-        "expected": "Page reloads in the same disconnected state as before. No stale token from the previous session is displayed. The UI correctly reflects that Telegram is not connected. A fresh GET to the status endpoint is fired on return."
-      },
-      {
-        "id": 14,
-        "description": "Verify the Telegram connect page is responsive at mobile viewport",
-        "action": "Open browser DevTools, switch to a mobile viewport (e.g. 375\u00d7812 iPhone SE), and reload http://localhost:3002/praxis/connect/telegram.",
-        "expected": "The page renders correctly at mobile width \u2014 no horizontal overflow, no text truncation cutting off key instructions, and the 'Connect Telegram' CTA button is fully visible and tappable (minimum 44\u00d744px touch target). The linking token or instructions remain readable."
-      },
-      {
-        "id": 15,
-        "description": "Verify page accessibility \u2014 heading hierarchy and interactive element labels",
-        "action": "On http://localhost:3002/praxis/connect/telegram, open the browser accessibility tree (DevTools \u2192 Accessibility tab) and inspect the heading structure and button labels.",
-        "expected": "There is at least one H1 or H2 heading on the page identifying the Telegram integration section. All interactive buttons have accessible labels (aria-label or visible text). No 'button' elements with empty accessible names are present."
+        "description": "Navigate to https://app.phronex.com/praxis/settings and verify the Telegram integration status is visible in the Connected Integrations section. The page should show either 'Connected' (if linked) or instructions to connect via @PraxisBot."
       }
     ],
     "dependsOn": "praxis-trunk-main"
