@@ -568,5 +568,35 @@
         "description": "Navigate back to https://app.phronex.com/praxis and verify the dashboard loads without error. Data persists."
       }
     ]
+  },
+  {
+    "id": "praxis-deep-praxis-share-pillar",
+    "description": "[DEEP] praxis-share-pillar \u2014 token lifecycle (create/list/revoke); view is Phase 43 WIP",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "praxis-trunk-superadmin",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-superadmin-state.json' using the browser storage state tool. Verify the session is active by checking no login prompt appears."
+      },
+      {
+        "id": 2,
+        "description": "POST /api/v1/share/pillar/token with scope='pillar:wealth'. Verify: (a) HTTP 201 (not 200), (b) response contains token_id. NOTE: the endpoint was previously returning 200 \u2014 this tests the fix."
+      },
+      {
+        "id": 3,
+        "description": "GET /api/v1/share/pillar/token to list active tokens. Verify the newly created token appears in the list. Token lifecycle is implemented correctly."
+      },
+      {
+        "id": 4,
+        "description": "DELETE /api/v1/share/pillar/token/{token_id} to revoke the token. Verify HTTP 204. Then GET /api/v1/share/pillar/token/{token_id}/view and verify HTTP 410 Gone (not 404) \u2014 this confirms the revoked vs missing distinction works."
+      },
+      {
+        "id": 5,
+        "description": "NOTE: The public share view page (/praxis/share/pillar/{token}) is Phase 43 WIP \u2014 it currently returns a placeholder message and is blocked by auth middleware. Do NOT assert that it shows pillar scores. Just verify the token lifecycle above passed. Navigate back to dashboard."
+      }
+    ]
   }
 ]
