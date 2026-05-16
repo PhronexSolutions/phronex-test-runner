@@ -1,0 +1,387 @@
+[
+  {
+    "id": "praxis-trunk-main",
+    "description": "Authenticate as the JourneyHawk QA superadmin user and capture browser session state for all dependent Praxis journeys",
+    "isSharedRoot": true,
+    "role": "root",
+    "stateOutputPath": ".tmp/praxis-trunk-main-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/auth/login and wait for the login form to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Enter the email address qa-test-journeyhawk@phronex.com into the email field"
+      },
+      {
+        "id": 3,
+        "description": "Enter the password QA_SUPERADMIN_PASSWORD into the password field"
+      },
+      {
+        "id": 4,
+        "description": "Click the Sign In button and wait for the redirect to complete"
+      },
+      {
+        "id": 5,
+        "description": "Verify the URL now includes /praxis/ or the dashboard is visible. Take a screenshot confirming successful login."
+      }
+    ]
+  },
+  {
+    "id": "praxis-dashboard",
+    "description": "Navigate to the Praxis dashboard and verify the Life Score, pillar cards, and today's brief summary are rendered — not blank or errored",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-dashboard-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/dashboard and wait for the page to fully load (no spinners)"
+      },
+      {
+        "id": 2,
+        "description": "Verify a Life Score is visible — either a numeric score or a placeholder prompting initial setup. Report the value shown."
+      },
+      {
+        "id": 3,
+        "description": "Verify that pillar indicators (Wealth, Health, Happiness, Wisdom or similar) are visible on the page — as cards, tabs, or labels. Report what is rendered."
+      },
+      {
+        "id": 4,
+        "description": "Verify the page does NOT show a blank white screen, an unhandled error boundary message, or a 'Something went wrong' overlay."
+      },
+      {
+        "id": 5,
+        "description": "Take a full-page screenshot of the dashboard"
+      }
+    ]
+  },
+  {
+    "id": "praxis-habits-log",
+    "description": "Navigate to the Habits page, verify the habit list renders, and log a habit — confirming the streak counter updates",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-habits-log-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/habits and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders either a list of habits (with names and streak indicators) OR a meaningful empty state with a CTA to add a first habit. Report which state is shown."
+      },
+      {
+        "id": 3,
+        "description": "If at least one habit is visible: click the log/check-in button for any habit. Verify the UI responds — a checkmark, completion indicator, or success message appears. If no habits exist: click any 'Add Habit' or 'Create Habit' button, fill in a name (e.g. 'QA Test Habit'), and submit. Verify the new habit appears in the list."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot showing the logged habit or the newly created habit"
+      }
+    ]
+  },
+  {
+    "id": "praxis-eisenhower-matrix",
+    "description": "Navigate to the Habits page Eisenhower Matrix view and verify habits can be seen in quadrant layout",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "praxis-habits-log",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/habits and wait for the page to load"
+      },
+      {
+        "id": 2,
+        "description": "Look for an Eisenhower Matrix tab, toggle, or view button. Click it if visible. If no explicit toggle exists, look for Q1/Q2/Q3/Q4 quadrant labels on the page."
+      },
+      {
+        "id": 3,
+        "description": "Verify the quadrant view renders — four labelled quadrants (Urgent+Important, Not Urgent+Important, etc.) are visible. Report the labels shown."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the quadrant/Eisenhower view"
+      }
+    ]
+  },
+  {
+    "id": "praxis-finance-portfolio",
+    "description": "Navigate to the Finance page Portfolio tab and verify portfolio holdings and net worth are rendered or have a meaningful empty state",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-finance-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/finance and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the Portfolio tab is visible. Click it if not already active."
+      },
+      {
+        "id": 3,
+        "description": "Verify the portfolio section renders either a table/list of holdings OR a meaningful empty state (e.g. 'No holdings added yet' with a CTA). Report which state is shown."
+      },
+      {
+        "id": 4,
+        "description": "Look for a Net Worth indicator anywhere on the page — a number, chart, or label. Report whether it is visible."
+      },
+      {
+        "id": 5,
+        "description": "Take a screenshot of the Finance page"
+      }
+    ]
+  },
+  {
+    "id": "praxis-finance-expenses",
+    "description": "Navigate to the Finance Expenses tab and verify expenses section renders or has a meaningful empty state",
+    "isSharedRoot": false,
+    "role": "verify",
+    "dependsOn": "praxis-finance-portfolio",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/finance and wait for the page to load"
+      },
+      {
+        "id": 2,
+        "description": "Click the Expenses tab (or Spending tab if labelled differently)"
+      },
+      {
+        "id": 3,
+        "description": "Verify the expenses section renders — either a list of expense entries, a chart, or a meaningful empty state. Report what is shown."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Expenses tab"
+      }
+    ]
+  },
+  {
+    "id": "praxis-people-contacts",
+    "description": "Navigate to the People page and verify the contact list renders with cadence status indicators",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-people-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/people and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders either a contact list with names and last-contact indicators OR a meaningful empty state with a CTA to add contacts. Report which state is shown and how many contacts are visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify the page does NOT show an error boundary or 'Something went wrong' message."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the People page"
+      }
+    ]
+  },
+  {
+    "id": "praxis-life-goals",
+    "description": "Navigate to the Life/Goals page and verify milestones or goals are rendered or have a meaningful empty state",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-life-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/life and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders either life goals/milestones content OR a meaningful empty state. Report what is visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify the page does NOT show a blank white screen or unhandled error."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Life/Goals page"
+      }
+    ]
+  },
+  {
+    "id": "praxis-morning-brief",
+    "description": "Navigate to the morning brief or briefs section and verify a brief is displayed or the empty state for no briefs is meaningful",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-brief-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/dashboard and look for a morning brief section, or navigate to http://localhost:3002/praxis/review if there is a dedicated brief/review page. Wait for the page to load."
+      },
+      {
+        "id": 2,
+        "description": "Verify the brief section renders — either a today's brief with content, a 'brief will arrive at 7am' message, or a list of past briefs. Report what is shown."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary or blank state appears where brief content should be."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the brief section"
+      }
+    ]
+  },
+  {
+    "id": "praxis-assessment",
+    "description": "Navigate to the User Assessment page and verify the assessment UI loads correctly — either showing results or prompting to take the assessment",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-assessment-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/assessment and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders one of: (a) a completed assessment with persona/score, (b) an assessment questionnaire ready to answer, (c) a CTA to start the first assessment. Report which state is shown."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary, blank white area, or 'Something went wrong' appears."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Assessment page"
+      }
+    ]
+  },
+  {
+    "id": "praxis-settings",
+    "description": "Navigate to Praxis settings and verify the settings page renders with configurable options",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-settings-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/settings and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the settings page renders — showing tabs, sections, or form fields for configuring Praxis. Report the main sections visible (e.g. profile, notifications, pillars, billing)."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary or blank area appears."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Settings page"
+      }
+    ]
+  },
+  {
+    "id": "praxis-coach",
+    "description": "Navigate to the Coach (AI Goal Coaching) page and verify the chat interface renders and is interactive",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "stateOutputPath": ".tmp/praxis-coach-state.json",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/coach and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the coach/AI chat interface renders — a message thread area and an input field or send button should be visible. Report what is shown."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary or blank white screen appears where the chat should be."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Coach page"
+      }
+    ]
+  },
+  {
+    "id": "praxis-knowledge",
+    "description": "Navigate to the Knowledge/Wisdom page and verify content or vault renders correctly",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/knowledge or http://localhost:3002/praxis/wisdom and wait for the page to load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the page renders — either a list of knowledge items/vault entries, a search bar, or a meaningful empty state. Report what is visible."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary or blank area appears."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Knowledge page"
+      }
+    ]
+  },
+  {
+    "id": "praxis-calendar",
+    "description": "Navigate to the Calendar page and verify calendar events or empty state renders without error",
+    "isSharedRoot": false,
+    "role": "branch",
+    "dependsOn": "praxis-trunk-main",
+    "params": {},
+    "steps": [
+      {
+        "id": 1,
+        "description": "Navigate to http://localhost:3002/praxis/calendar and wait for the page to fully load"
+      },
+      {
+        "id": 2,
+        "description": "Verify the calendar interface renders — a date grid, week view, or list of events. Report what view is shown and whether any events are displayed."
+      },
+      {
+        "id": 3,
+        "description": "Verify no error boundary, blank white screen, or 'Failed to load calendar' message appears."
+      },
+      {
+        "id": 4,
+        "description": "Take a screenshot of the Calendar page"
+      }
+    ]
+  }
+]
