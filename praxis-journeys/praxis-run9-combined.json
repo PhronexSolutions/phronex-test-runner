@@ -856,13 +856,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to https://app.phronex.com/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD",
         "expected": "User is authenticated and the Praxis portal is visible (sidebar navigation rendered, no login redirect, no auth error)"
       },
       {
         "id": 2,
         "description": "Navigate to the Meetings tab",
-        "action": "Navigate to http://localhost:3002/praxis/meetings",
+        "action": "Navigate to https://app.phronex.com/praxis/meetings",
         "expected": "Page loads without errors. The Meetings page is visible with no blank page, no 'Something went wrong' banner, and no uncaught console errors. The sidebar shows 'Meetings' as the active tab under the 'Today' group."
       },
       {
@@ -1063,7 +1063,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/finance and wait for the page to fully load"
+        "description": "Navigate to https://app.phronex.com/praxis/finance and wait for the page to fully load"
       },
       {
         "id": 2,
@@ -1085,7 +1085,7 @@
     "dependsOn": "praxis-trunk-main",
     "stateOutputPath": ".tmp/praxis-finance-state.json",
     "_shared_setup_steps": [
-      "Navigate to http://localhost:3002/praxis/finance and wait for the page to fully load",
+      "Navigate to https://app.phronex.com/praxis/finance and wait for the page to fully load",
       "Take a screenshot of the Finance page"
     ]
   },
@@ -1096,7 +1096,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/assessment and wait for the page to fully load"
+        "description": "Navigate to https://app.phronex.com/praxis/assessment and wait for the page to fully load"
       },
       {
         "id": 2,
@@ -1114,7 +1114,7 @@
     "dependsOn": "praxis-trunk-main",
     "stateOutputPath": ".tmp/praxis-assessment-state.json",
     "_shared_setup_steps": [
-      "Navigate to http://localhost:3002/praxis/assessment and wait for the page to fully load",
+      "Navigate to https://app.phronex.com/praxis/assessment and wait for the page to fully load",
       "Take a screenshot of the Assessment page"
     ]
   },
@@ -1125,7 +1125,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/settings and wait for the page to fully load"
+        "description": "Navigate to https://app.phronex.com/praxis/settings and wait for the page to fully load"
       },
       {
         "id": 2,
@@ -1143,7 +1143,7 @@
     "dependsOn": "praxis-trunk-main",
     "stateOutputPath": ".tmp/praxis-settings-state.json",
     "_shared_setup_steps": [
-      "Navigate to http://localhost:3002/praxis/settings and wait for the page to fully load",
+      "Navigate to https://app.phronex.com/praxis/settings and wait for the page to fully load",
       "Take a screenshot of the Settings page"
     ]
   },
@@ -1154,7 +1154,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/coach and wait for the page to fully load"
+        "description": "Navigate to https://app.phronex.com/praxis/coach and wait for the page to fully load"
       },
       {
         "id": 2,
@@ -1172,7 +1172,7 @@
     "dependsOn": "praxis-trunk-main",
     "stateOutputPath": ".tmp/praxis-coach-state.json",
     "_shared_setup_steps": [
-      "Navigate to http://localhost:3002/praxis/coach and wait for the page to fully load",
+      "Navigate to https://app.phronex.com/praxis/coach and wait for the page to fully load",
       "Take a screenshot of the Coach page"
     ]
   },
@@ -1201,7 +1201,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/people and wait for the page to fully load"
+        "description": "Navigate to https://app.phronex.com/praxis/people and wait for the page to fully load"
       },
       {
         "id": 2,
@@ -1226,7 +1226,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/life and wait for the page to fully load"
+        "description": "Navigate to https://app.phronex.com/praxis/life and wait for the page to fully load"
       },
       {
         "id": 2,
@@ -1251,7 +1251,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/knowledge or http://localhost:3002/praxis/wisdom and wait for the page to load"
+        "description": "Navigate to https://app.phronex.com/praxis/knowledge or https://app.phronex.com/praxis/wisdom and wait for the page to load"
       },
       {
         "id": 2,
@@ -1275,7 +1275,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/praxis/calendar and wait for the page to fully load"
+        "description": "Navigate to https://app.phronex.com/praxis/calendar and wait for the page to fully load"
       },
       {
         "id": 2,
@@ -1380,13 +1380,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in fresh",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If expired, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
         "expected": "User is authenticated and lands on the Praxis portal dashboard. No login error is shown. The sidebar is visible with labelled pillar groups including the 'Today' group containing Tasks."
       },
       {
         "id": 2,
         "description": "Navigate to the Tasks page",
-        "action": "Navigate to http://localhost:3002/praxis/tasks.",
+        "action": "Navigate to https://app.phronex.com/praxis/tasks.",
         "expected": "The Tasks page loads without errors. No blank page, no 'Something went wrong' error boundary, and no unhandled console errors. The task list or an empty state with an 'Add task' CTA is visible on screen."
       },
       {
@@ -1398,7 +1398,7 @@
       {
         "id": 4,
         "description": "Verify open tasks are reflected in the backend \u2014 GET /api/v1/work/tasks",
-        "action": "Open browser DevTools Network tab, then reload http://localhost:3002/praxis/tasks and observe the network request to GET /api/v1/work/tasks.",
+        "action": "Open browser DevTools Network tab, then reload https://app.phronex.com/praxis/tasks and observe the network request to GET /api/v1/work/tasks.",
         "expected": "A request to GET /api/v1/work/tasks is made and returns HTTP 200 with a JSON array. Each item in the array represents an open task. The count and titles in the response match what is shown in the UI task list."
       },
       {
@@ -1440,13 +1440,13 @@
       {
         "id": 11,
         "description": "Verify planning hierarchy reflects updated task counts \u2014 GET /api/v1/work/planning-hierarchy",
-        "action": "Navigate to the Plan view (http://localhost:3002/praxis/plan) or observe a Network request to GET /api/v1/work/planning-hierarchy triggered after task completion.",
+        "action": "Navigate to the Plan view (https://app.phronex.com/praxis/plan) or observe a Network request to GET /api/v1/work/planning-hierarchy triggered after task completion.",
         "expected": "GET /api/v1/work/planning-hierarchy returns HTTP 200. The task counts at the parent project level within the hierarchy reflect the completion of the task (i.e. the completed count has incremented or open count has decremented relative to pre-completion state)."
       },
       {
         "id": 12,
         "description": "Navigate away and return \u2014 verify state persistence",
-        "action": "Navigate away from /praxis/tasks to the dashboard (e.g. http://localhost:3002/praxis/dashboard or the root portal URL). Then navigate back to http://localhost:3002/praxis/tasks.",
+        "action": "Navigate away from /praxis/tasks to the dashboard (e.g. https://app.phronex.com/praxis/dashboard or the root portal URL). Then navigate back to https://app.phronex.com/praxis/tasks.",
         "expected": "The Tasks page reloads without errors. The task list reflects the current backend state (completed task absent, any remaining open tasks present). No stale or phantom tasks from the previous session are shown. The sidebar navigation correctly highlights the Tasks tab as active."
       },
       {
@@ -1472,25 +1472,25 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in if session expired.",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if session is expired or missing, navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "expected": "User is authenticated and redirected to the Praxis dashboard (e.g. http://localhost:3002/praxis or equivalent landing route). The sidebar is visible with pillar groups (Today, Health, Work, etc.) and no authentication error is shown."
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if session is expired or missing, navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "expected": "User is authenticated and redirected to the Praxis dashboard (e.g. https://app.phronex.com/praxis or equivalent landing route). The sidebar is visible with pillar groups (Today, Health, Work, etc.) and no authentication error is shown."
       },
       {
         "id": 2,
         "description": "Navigate to the Plan page under the Today pillar group.",
-        "action": "Navigate to http://localhost:3002/praxis/plan.",
+        "action": "Navigate to https://app.phronex.com/praxis/plan.",
         "expected": "The Plan page loads without errors. No blank page, no 'Something went wrong' boundary, and no unhandled console errors. The page heading or tab title reflects 'Plan'. The sidebar highlights 'Plan' as the active item within the Today group."
       },
       {
         "id": 3,
         "description": "Verify the planning hierarchy is rendered on the Plan page.",
-        "action": "On http://localhost:3002/praxis/plan, observe the page content after it fully loads (wait for any loading spinners to resolve).",
+        "action": "On https://app.phronex.com/praxis/plan, observe the page content after it fully loads (wait for any loading spinners to resolve).",
         "expected": "The page displays a planning hierarchy view. At least one level of hierarchy (vision, objectives, projects, or tasks) is visible. The list is not empty unless the test account genuinely has no data, in which case an empty-state message (e.g. 'No items yet' or similar) is shown rather than a blank or broken layout."
       },
       {
         "id": 4,
         "description": "Verify the GET /api/v1/work/planning-hierarchy endpoint is called and returns a valid response.",
-        "action": "Open browser DevTools Network tab, reload http://localhost:3002/praxis/plan, and inspect the network request to /api/v1/work/planning-hierarchy.",
+        "action": "Open browser DevTools Network tab, reload https://app.phronex.com/praxis/plan, and inspect the network request to /api/v1/work/planning-hierarchy.",
         "expected": "A GET request to /api/v1/work/planning-hierarchy is made and returns HTTP 200. The response body is a JSON object or array representing the hierarchy (vision \u2192 objectives \u2192 projects \u2192 tasks). No 4xx or 5xx response codes appear."
       },
       {
@@ -1508,7 +1508,7 @@
       {
         "id": 7,
         "description": "Verify the newly created task is reflected in the planning hierarchy.",
-        "action": "Navigate back to http://localhost:3002/praxis/plan and observe the hierarchy view after it reloads.",
+        "action": "Navigate back to https://app.phronex.com/praxis/plan and observe the hierarchy view after it reloads.",
         "expected": "The planning hierarchy reflects the updated task counts at the appropriate level. The task 'Draft Q3 review deck' is either directly visible or its parent project/objective shows an updated task count consistent with its addition. GET /api/v1/work/planning-hierarchy returns updated data."
       },
       {
@@ -1520,20 +1520,20 @@
       {
         "id": 9,
         "description": "Verify plan hierarchy updates after task completion.",
-        "action": "Navigate to http://localhost:3002/praxis/plan and observe the planning hierarchy.",
+        "action": "Navigate to https://app.phronex.com/praxis/plan and observe the planning hierarchy.",
         "expected": "The planning hierarchy reflects the task completion. Task counts at the relevant hierarchy level are decremented by 1 compared to step 7. GET /api/v1/work/planning-hierarchy returns data consistent with the completed task no longer being open."
       },
       {
         "id": 10,
         "description": "Test navigation persistence: navigate away from /praxis/plan and return.",
-        "action": "From http://localhost:3002/praxis/plan, click on a different sidebar item (e.g. 'Dashboard' or 'Calendar') to navigate away, then click 'Plan' in the sidebar to return to http://localhost:3002/praxis/plan.",
+        "action": "From https://app.phronex.com/praxis/plan, click on a different sidebar item (e.g. 'Dashboard' or 'Calendar') to navigate away, then click 'Plan' in the sidebar to return to https://app.phronex.com/praxis/plan.",
         "expected": "The Plan page reloads without errors. Previously visible hierarchy data is re-fetched and displayed correctly. No stale or broken state is shown. The sidebar correctly re-highlights 'Plan' as active. No console errors or network failures appear."
       },
       {
         "id": 11,
         "description": "Verify the Plan page is accessible only to authenticated users (session guard).",
-        "action": "Open a new incognito/private browser window and navigate directly to http://localhost:3002/praxis/plan without logging in.",
-        "expected": "The user is redirected to the login page (http://localhost:3002/auth/login or equivalent). The Plan page content is not accessible without authentication. No sensitive data is exposed to unauthenticated users."
+        "action": "Open a new incognito/private browser window and navigate directly to https://app.phronex.com/praxis/plan without logging in.",
+        "expected": "The user is redirected to the login page (https://app.phronex.com/auth/login or equivalent). The Plan page content is not accessible without authentication. No sensitive data is exposed to unauthenticated users."
       }
     ],
     "dependsOn": "praxis-trunk-main"
@@ -1546,13 +1546,13 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in if expired.",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to http://localhost:3002/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
-        "expected": "User is authenticated and lands on the Praxis dashboard (URL is http://localhost:3002/praxis or similar); no login redirect occurs."
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'; if expired, navigate to https://app.phronex.com/auth/login and sign in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD.",
+        "expected": "User is authenticated and lands on the Praxis dashboard (URL is https://app.phronex.com/praxis or similar); no login redirect occurs."
       },
       {
         "id": 2,
         "description": "Navigate to the Family tab.",
-        "action": "Navigate to http://localhost:3002/praxis/family.",
+        "action": "Navigate to https://app.phronex.com/praxis/family.",
         "expected": "Page loads without errors. No blank page, no 'Something went wrong' error boundary, no console errors. The Family section heading or 'Add child' affordance is visible."
       },
       {
@@ -1636,7 +1636,7 @@
       {
         "id": 16,
         "description": "Persistence check \u2014 navigate away and return to Family.",
-        "action": "Navigate to http://localhost:3002/praxis/dashboard (or any other Praxis tab). Then navigate back to http://localhost:3002/praxis/family.",
+        "action": "Navigate to https://app.phronex.com/praxis/dashboard (or any other Praxis tab). Then navigate back to https://app.phronex.com/praxis/family.",
         "expected": "The Family page reloads correctly without errors. The page reflects the current persisted state (empty state if no children, or child cards if children exist). No stale or corrupted data is shown."
       },
       {
