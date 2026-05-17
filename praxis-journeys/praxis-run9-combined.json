@@ -846,7 +846,9 @@
     "tags": [
       "env-gated",
       "devserver-only"
-    ]
+    ],
+    "retired": true,
+    "retiredReason": "QA probe is intentionally disabled on EC2 production (PHRONEX_QA_PROBE_ENABLED=false). This journey tests a DevServer-only feature."
   },
   {
     "id": "praxis-meetings",
