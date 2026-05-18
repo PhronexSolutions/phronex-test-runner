@@ -455,6 +455,34 @@ A schema migration checklist item must accompany any `TiersConfig` field rename.
 
 ---
 
+
+### Praxis
+
+| Item | Value |
+|------|-------|
+| Deep spec | `praxis-journeys/praxis-deep.json` |
+| Backend URL | `https://praxis.phronex.com` (EC2 port 8003) |
+| Frontend URL | `https://praxis.phronex.com` (EC2 port 3003, Next.js) |
+| Portal URL | `http://localhost:3002/praxis/*` (DevServer — production build required) |
+| QA account | `qa-test-journeyhawk@phronex.com` (praxis grant required) |
+| Stack | FastAPI backend (8003) + Next.js frontend (3003) — both on EC2 |
+
+**Praxis Portal URL map:**
+
+| Feature | Correct URL |
+|---------|-------------|
+| Dashboard / Home | `/praxis` or `/praxis/dashboard` |
+| Tasks / Task list | `/praxis/tasks` |
+| Planning | `/praxis/planning` |
+| Goals | `/praxis/goals` |
+| Settings | `/praxis/settings` |
+
+**Praxis backend runs on EC2 (not DevServer):** Unlike ComC, Praxis has no local DevServer instance. All API calls go to `https://praxis.phronex.com`. The portal at `localhost:3002` proxies to the EC2 praxis backend — do NOT use `localhost:8003` in specs.
+
+**TaskPatchBody fields (as of b5ba5d2, 2026-05-17):** Accepts `due_date` (ISO date string, not `deadline`) and `notes` (text). Earlier specs using `deadline` get a 422 validation error.
+
+**No QA cleanup endpoint yet:** Test data accumulates between runs. Use timestamped names (e.g. "JH-Task-{date}") in specs.
+
 ## Wiki Integration Status
 
 `qa_wiki_articles` is written by the pipeline after every run (one article per `GapFinding`). As of 2026-04-29: 10 articles (8 CC + 2 JP).
