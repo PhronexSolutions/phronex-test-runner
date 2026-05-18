@@ -53,13 +53,7 @@ echo ""
 # Do NOT auto-reinstall here. This script is called by _invoke_refresh_script()
 # on every OAuthCredentialsExpired, which would re-arm the cron after Phase 0 disabled it.
 # To install: crontab -e and add the desired schedule manually.
-if ! crontab -l 2>/dev/null | grep -qF "refresh-ec2-oauth-key.sh"; then
-  echo "[0/5] Installing cron job (every 20 minutes)..."
-  (crontab -l 2>/dev/null; echo "$CRON_ENTRY") | crontab -
-  echo "   Cron installed: $CRON_ENTRY"
-else
-  echo "[0/5] Cron already installed — skipping"
-fi
+echo "[0/5] Cron self-install removed — managed manually (see PLAN.md Step 1.1)"
 
 # ── Step 1: Force Claude Code to refresh OAuth token if near expiry ────────
 echo "[1/5] Refreshing OAuth token via claude CLI..."
