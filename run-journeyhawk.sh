@@ -276,6 +276,40 @@ else
 fi
 echo "[env] Python: ${PYTHON}"
 
+# ---------- Step 0a-pre: Context Budget Gate (overnight-safety guard) ----------
+# Calculates total context that JourneyHawk skill will load (SKILL.md + CLAUDE.md
+# files + MEMORY.md + LEARNINGS.md + USER-SPEC.html + TEST-ORACLES.html).
+#
+# Stream-idle timeouts have been observed when context exceeds ~120K tokens
+# (~480KB raw bytes). This gate refuses to start a run if RED — far better
+# than silent failure on an overnight unattended invocation.
+#
+# Tunable via env vars (default GREEN<150KB, YELLOW 150-300KB, RED>=300KB):
+#   JOURNEYHAWK_CONTEXT_BUDGET_YELLOW
+#   JOURNEYHAWK_CONTEXT_BUDGET_RED
+#
+# Override (NOT recommended — only for emergency debugging):
+#   JOURNEYHAWK_CONTEXT_BUDGET_BYPASS=1
+echo ""
+echo "[0a-pre/budget] Context budget pre-flight for ${PRODUCT}..."
+_BUDGET_EXIT=0
+"${PYTHON}" -m phronex_common.testing.context_budget --product "${PRODUCT}" || _BUDGET_EXIT=$?
+if [[ "${_BUDGET_EXIT}" -eq 3 ]]; then
+  if [[ "${JOURNEYHAWK_CONTEXT_BUDGET_BYPASS:-0}" -eq 1 ]]; then
+    echo "[0a-pre/budget] ⚠️  RED verdict bypassed via JOURNEYHAWK_CONTEXT_BUDGET_BYPASS=1"
+    echo "[0a-pre/budget] ⚠️  Stream-idle timeout risk accepted by operator"
+  else
+    echo ""
+    echo "⛔ JOURNEYHAWK HALT — context budget RED"
+    echo "   See abort log in /tmp/journeyhawk-${PRODUCT}-aborted-budget-*.json"
+    echo "   Suggested fixes are printed above."
+    echo "   To bypass (NOT recommended): JOURNEYHAWK_CONTEXT_BUDGET_BYPASS=1 $0 $*"
+    exit 3
+  fi
+elif [[ "${_BUDGET_EXIT}" -eq 1 ]]; then
+  echo "[0a-pre/budget] ⚠️  YELLOW verdict — proceeding but watch for slow first-token latency"
+fi
+
 # Portal URL substitution — replace localhost:3002 with PORTAL_URL so specs
 # can run against any portal instance (production, staging, or local).
 # Default: https://app.phronex.com (production — safe while no paying customers).
