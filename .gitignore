@@ -163,6 +163,18 @@ portal-journeys/retest-results/
 praxis-journeys/results-*/
 *.generated.json
 
+# JourneyHawk results dirs at repo root (legacy location)
+results-praxis-run*/
+results-jp-run*/
+results-cc-run*/
+results-comc-run*/
+results-portal-run*/
+
+# JourneyHawk per-product LEARNINGS slices — derived from
+# JOURNEYHAWK-LEARNINGS.md by phronex_common.testing.learnings_slicer.
+# Regenerated at runtime by run-journeyhawk.sh auto-slice.
+JOURNEYHAWK-LEARNINGS-*.md
+
 # Playwright session state files
 .tmp/
 

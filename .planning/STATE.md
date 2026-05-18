@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v18.0
 milestone_name: milestone
 status: verifying
-last_updated: "2026-05-13T05:00:00.000Z"
+last_updated: "2026-05-17T19:24:09.368Z"
 last_activity: 2026-05-13 - Replace TS SDK query() with direct claude -p subprocess call
 ---
 
