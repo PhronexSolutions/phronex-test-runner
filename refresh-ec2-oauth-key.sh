@@ -49,7 +49,10 @@ echo "=== EC2 OAuth Key Refresh === $(date '+%Y-%m-%d %H:%M:%S IST')"
 echo ""
 
 # ── Step 0: Install cron if not already present ────────────────────────────
-CRON_ENTRY="*/20 * * * * ${SCRIPT_DIR}/refresh-ec2-oauth-key.sh >> ${LOG_FILE} 2>&1"
+# Step 0: Cron entry is managed manually (or via systemd timer).
+# Do NOT auto-reinstall here. This script is called by _invoke_refresh_script()
+# on every OAuthCredentialsExpired, which would re-arm the cron after Phase 0 disabled it.
+# To install: crontab -e and add the desired schedule manually.
 if ! crontab -l 2>/dev/null | grep -qF "refresh-ec2-oauth-key.sh"; then
   echo "[0/5] Installing cron job (every 20 minutes)..."
   (crontab -l 2>/dev/null; echo "$CRON_ENTRY") | crontab -
