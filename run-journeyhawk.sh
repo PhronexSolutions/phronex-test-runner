@@ -281,8 +281,9 @@ echo "[env] Python: ${PYTHON}"
 # files + MEMORY.md + LEARNINGS.md + USER-SPEC.html + TEST-ORACLES.html).
 #
 # Stream-idle timeouts have been observed when context exceeds ~120K tokens
-# (~480KB raw bytes). This gate refuses to start a run if RED — far better
-# than silent failure on an overnight unattended invocation.
+# (~480KB raw bytes). On YELLOW/RED, this gate AUTO-SLICES large files
+# (TEST-ORACLES.html via oracle_slicer, LEARNINGS.md via learnings_slicer)
+# then re-measures. Only halts if still RED after auto-slicing.
 #
 # Tunable via env vars (default GREEN<150KB, YELLOW 150-300KB, RED>=300KB):
 #   JOURNEYHAWK_CONTEXT_BUDGET_YELLOW
@@ -290,24 +291,102 @@ echo "[env] Python: ${PYTHON}"
 #
 # Override (NOT recommended — only for emergency debugging):
 #   JOURNEYHAWK_CONTEXT_BUDGET_BYPASS=1
+#
+# Skip auto-slicing (debugging only):
+#   JOURNEYHAWK_CONTEXT_BUDGET_NO_AUTOSLICE=1
 echo ""
 echo "[0a-pre/budget] Context budget pre-flight for ${PRODUCT}..."
 _BUDGET_EXIT=0
 "${PYTHON}" -m phronex_common.testing.context_budget --product "${PRODUCT}" || _BUDGET_EXIT=$?
+
+# If GREEN, we're done — proceed.
+# If YELLOW or RED, attempt auto-slicing then re-measure.
+if [[ "${_BUDGET_EXIT}" -ne 0 ]] && [[ "${JOURNEYHAWK_CONTEXT_BUDGET_NO_AUTOSLICE:-0}" -ne 1 ]]; then
+  echo ""
+  echo "[0a-pre/budget] Non-GREEN verdict — running auto-slicers..."
+
+  # Map product slug → repo dir (matches context_budget._PRODUCT_REPO_MAP)
+  case "${PRODUCT}" in
+    praxis)  _REPO_DIR="praxis" ;;
+    cc)      _REPO_DIR="contentcompanion" ;;
+    jp)      _REPO_DIR="jobportal" ;;
+    portal)  _REPO_DIR="phronex-portal" ;;
+    comc)    _REPO_DIR="phronex-command-centre" ;;
+    website) _REPO_DIR="phronex-website" ;;
+    *)       _REPO_DIR="${PRODUCT}" ;;
+  esac
+  _DOCS_SLICES="${SCRIPT_DIR}/../${_REPO_DIR}/.docs/slices"
+  _LEARNINGS_SLICE_OUT="${SCRIPT_DIR}/JOURNEYHAWK-LEARNINGS-${_REPO_DIR}.md"
+
+  # Auto-slice 1: LEARNINGS.md → product-scoped slice
+  # Drops other-products' per-product sections. Safe & cheap (always re-runnable).
+  echo "[0a-pre/autoslice] LEARNINGS slicer..."
+  "${PYTHON}" -m phronex_common.testing.learnings_slicer \
+    --product "${PRODUCT}" \
+    --out "${_LEARNINGS_SLICE_OUT}" \
+    --stats-only 2>&1 | sed 's/^/  /' || true
+  # The --stats-only flag suppresses content emission but we still want the file
+  # written, so re-run without it suppressing only stdout.
+  "${PYTHON}" -m phronex_common.testing.learnings_slicer \
+    --product "${PRODUCT}" \
+    --out "${_LEARNINGS_SLICE_OUT}" > /dev/null 2>&1 || true
+
+  # Auto-slice 2: TEST-ORACLES.html → journey-scoped slice
+  # Reads journey IDs from the spec file and extracts only relevant <section id="ora-X">
+  # blocks. The slicer's authoritative resolver scans all tokens in each journey ID
+  # against actual oracle sections — no manual feature mapping needed.
+  if [[ -f "${SPEC_FILE}" ]]; then
+    mkdir -p "${_DOCS_SLICES}"
+    echo "[0a-pre/autoslice] Oracle slicer (reading journey IDs from ${SPEC_FILE})..."
+    _JOURNEY_IDS=$("${PYTHON}" -c "
+import json, sys
+try:
+    with open('${SPEC_FILE}') as f:
+        spec = json.load(f)
+    journeys = spec if isinstance(spec, list) else spec.get('journeys', [])
+    ids = [j.get('id','') for j in journeys if j.get('id')]
+    print(','.join(ids))
+except Exception as e:
+    print(f'ERROR: {e}', file=sys.stderr)
+    sys.exit(1)
+" 2>/dev/null) || true
+
+    if [[ -n "${_JOURNEY_IDS}" ]]; then
+      "${PYTHON}" -m phronex_common.testing.oracle_slicer \
+        --product "${PRODUCT}" \
+        --journeys "${_JOURNEY_IDS}" \
+        --out "${_DOCS_SLICES}/TEST-ORACLES-active-journeys.html" 2>&1 | sed 's/^/  /' || true
+    else
+      echo "  (no journey IDs extracted — skipping oracle slicer)"
+    fi
+  else
+    echo "[0a-pre/autoslice] Spec file not found (${SPEC_FILE}) — skipping oracle slicer"
+  fi
+
+  # Re-measure after auto-slicing
+  echo ""
+  echo "[0a-pre/budget] Re-measuring after auto-slicing..."
+  _BUDGET_EXIT=0
+  "${PYTHON}" -m phronex_common.testing.context_budget --product "${PRODUCT}" || _BUDGET_EXIT=$?
+fi
+
+# Final verdict handling
 if [[ "${_BUDGET_EXIT}" -eq 3 ]]; then
   if [[ "${JOURNEYHAWK_CONTEXT_BUDGET_BYPASS:-0}" -eq 1 ]]; then
     echo "[0a-pre/budget] ⚠️  RED verdict bypassed via JOURNEYHAWK_CONTEXT_BUDGET_BYPASS=1"
     echo "[0a-pre/budget] ⚠️  Stream-idle timeout risk accepted by operator"
   else
     echo ""
-    echo "⛔ JOURNEYHAWK HALT — context budget RED"
+    echo "⛔ JOURNEYHAWK HALT — context budget RED (even after auto-slicing)"
     echo "   See abort log in /tmp/journeyhawk-${PRODUCT}-aborted-budget-*.json"
     echo "   Suggested fixes are printed above."
     echo "   To bypass (NOT recommended): JOURNEYHAWK_CONTEXT_BUDGET_BYPASS=1 $0 $*"
     exit 3
   fi
 elif [[ "${_BUDGET_EXIT}" -eq 1 ]]; then
-  echo "[0a-pre/budget] ⚠️  YELLOW verdict — proceeding but watch for slow first-token latency"
+  echo "[0a-pre/budget] ⚠️  YELLOW verdict — proceeding (under RED threshold)"
+else
+  echo "[0a-pre/budget] ✅ GREEN — context budget healthy"
 fi
 
 # Portal URL substitution — replace localhost:3002 with PORTAL_URL so specs
