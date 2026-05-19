@@ -80,42 +80,6 @@
     ]
   },
   {
-    "id": "praxis-branch-people",
-    "description": "Branch node: navigate to /praxis/people from trunk session and save state for child journeys",
-    "dependsOn": "praxis-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/praxis-branch-people-state.json",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved session from '.tmp/praxis-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to https://app.phronex.com/praxis/people and wait for the page to fully load. Verify the page renders without critical errors."
-      }
-    ]
-  },
-  {
-    "id": "praxis-branch-skills",
-    "description": "Branch node: navigate to /praxis/skills from trunk session and save state for child journeys",
-    "dependsOn": "praxis-trunk-main",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/praxis-branch-skills-state.json",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved session from '.tmp/praxis-trunk-main-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to https://app.phronex.com/praxis/skills and wait for the page to fully load. Verify the page renders without critical errors."
-      }
-    ]
-  },
-  {
     "id": "praxis-calendar",
     "description": "Navigate to the Calendar page and verify calendar events or empty state renders without error",
     "isSharedRoot": false,
@@ -249,7 +213,8 @@
     ],
     "dependsOn": "praxis-trunk-main",
     "_shared_setup_steps": [
-      "Load saved superadmin session or log in"
+      "Load saved superadmin session or log in",
+      "Navigate away and return \u2014 verify persistence (PX-O-CAR-01 persistence check)"
     ]
   },
   {
@@ -356,7 +321,8 @@
     ],
     "dependsOn": "praxis-trunk-main",
     "_shared_setup_steps": [
-      "Load saved superadmin session or log in if expired"
+      "Load saved superadmin session or log in if expired",
+      "Navigate away and return to verify persistence (state survives navigation)"
     ]
   },
   {
@@ -507,6 +473,33 @@
         "id": 5,
         "description": "DELETE /api/v1/share/pillar/token/{token_id} to revoke the token. Verify HTTP 204 (no body). Then GET /api/v1/share/pillar/{token_id}/view and verify HTTP 410 Gone (not 404) \u2014 this confirms revoked vs missing token distinction (fixed in commit a7d6ae5). Navigate back to dashboard."
       }
+    ]
+  },
+  {
+    "id": "praxis-branch-skills",
+    "title": "Praxis Branch \u2014 Skills",
+    "description": "Branch journey covering the Skills section of the Praxis app.",
+    "steps": [
+      {
+        "step": 1,
+        "description": "Navigate to the Skills section at https://praxis.phronex.com/skills",
+        "expectedOutcome": "Skills page loads showing the user's current skills"
+      },
+      {
+        "step": 2,
+        "description": "Verify the skills list at https://praxis.phronex.com/skills is populated",
+        "expectedOutcome": "At least one skill category is visible with correct names and levels"
+      },
+      {
+        "step": 3,
+        "description": "Open the skills browser at https://praxis.phronex.com/skills/browse",
+        "expectedOutcome": "Skills browser opens with a searchable list of available skills"
+      }
+    ],
+    "tags": [
+      "branch",
+      "skills",
+      "praxis"
     ]
   },
   {
@@ -675,7 +668,11 @@
         "expected": "The Family tab is visible in the sidebar. It is grouped with other related People-domain tabs (e.g. People / PX-O-PPL-01 area). The sidebar renders without layout errors."
       }
     ],
-    "dependsOn": "praxis-trunk-main"
+    "dependsOn": "praxis-trunk-main",
+    "_shared_setup_steps": [
+      "Load saved superadmin session or log in if expired.",
+      "Persistence check \u2014 navigate away and return to Family."
+    ]
   },
   {
     "id": "praxis-finance-expenses",
@@ -925,7 +922,8 @@
     ],
     "dependsOn": "praxis-trunk-main",
     "_shared_setup_steps": [
-      "Load saved superadmin session or log in"
+      "Load saved superadmin session or log in",
+      "Navigate away and return \u2014 verify persistence (navigation round-trip)"
     ]
   },
   {
@@ -1119,7 +1117,10 @@
         "expected": "The user is redirected to the login page (https://app.phronex.com/auth/login or equivalent). The Plan page content is not accessible without authentication. No sensitive data is exposed to unauthenticated users."
       }
     ],
-    "dependsOn": "praxis-trunk-main"
+    "dependsOn": "praxis-trunk-main",
+    "_shared_setup_steps": [
+      "Load saved superadmin session or log in if session expired."
+    ]
   },
   {
     "id": "praxis-praxis-architecture-pillar-isolation-isol",
@@ -1872,6 +1873,10 @@
         "expected": "Zero unhandled JavaScript errors in the console. All API requests to /api/v1/work/* return 2xx status codes. No React error boundaries are triggered. Any non-critical warnings are acceptable but must not affect functionality."
       }
     ],
-    "dependsOn": "praxis-trunk-main"
+    "dependsOn": "praxis-trunk-main",
+    "_shared_setup_steps": [
+      "Load saved superadmin session or log in fresh",
+      "Navigate away and return \u2014 verify state persistence"
+    ]
   }
 ]
