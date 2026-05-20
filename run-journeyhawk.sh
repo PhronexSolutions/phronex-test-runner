@@ -1355,6 +1355,7 @@ else:
     cap_source = "disabled (silence timeout protects against stuck processes)"
 
 silence_sec = int(os.environ.get("STRATEGIST_ABORT_SILENCE_SEC", "900") or 900)
+per_journey_sec = int(os.environ.get("STRATEGIST_ABORT_PER_JOURNEY_SEC", "0") or 0)
 
 # Write computed cap back to shell
 if cap_file:
@@ -1367,6 +1368,10 @@ print(f"  Avg per journey  : ~{avg_sec:.0f}s (historical)")
 print(f"  Estimated total  : ~{estimated_min:.0f} min  ({estimated_sec:.0f}s)")
 print(f"  Runtime cap      : {cap_source}")
 print(f"  Silence timeout  : {silence_sec}s (kills stuck processes only)")
+if per_journey_sec > 0:
+    print(f"  Per-journey cap  : {per_journey_sec}s (one hung journey can't poison the suite)")
+else:
+    print(f"  Per-journey cap  : disabled (set STRATEGIST_ABORT_PER_JOURNEY_SEC to enable)")
 print(f"  ✓ No runtime caps — genuinely running journeys will complete.")
 FORECAST_EOF
 _FORECAST_EXIT=$?
