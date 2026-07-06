@@ -18,6 +18,9 @@
         "id": 3,
         "description": "IMPORTANT \u2014 Save browser session: Call the mcp__cctr-playwright__browser_storage_state tool with filename set to \"/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json\" to save cookies and localStorage for downstream test nodes. This step is critical \u2014 without it, dependent journeys will fail."
       }
+    ],
+    "_shared_setup_steps": [
+      "TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Do NOT call browser_set_storage_state. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
     ]
   },
   {
@@ -43,50 +46,6 @@
     ]
   },
   {
-    "id": "comc-branch-meetings",
-    "description": "Branch node: navigate to /command-centre/meetings from trunk session and save state for child meetings journeys",
-    "dependsOn": "comc-trunk-superadmin",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/comc-branch-meetings-state.json",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/meetings and wait for the page to fully load. Verify the page renders without critical errors."
-      }
-    ],
-    "_shared_setup_steps": [
-      "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met).",
-      "Navigate to http://localhost:3002/command-centre/meetings and wait for the page to fully load. Verify the page renders without critical errors."
-    ]
-  },
-  {
-    "id": "comc-branch-agents",
-    "description": "Branch node: navigate to /command-centre/agents from trunk session and save state for child agents journeys",
-    "dependsOn": "comc-trunk-superadmin",
-    "role": "branch",
-    "isSharedRoot": false,
-    "stateOutputPath": ".tmp/comc-branch-agents-state.json",
-    "steps": [
-      {
-        "id": 1,
-        "description": "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
-      },
-      {
-        "id": 2,
-        "description": "Navigate to http://localhost:3002/command-centre/agents and wait for the page to fully load. Verify the page renders without critical errors."
-      }
-    ],
-    "_shared_setup_steps": [
-      "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met).",
-      "Navigate to http://localhost:3002/command-centre/agents and wait for the page to fully load. Verify the page renders without critical errors."
-    ]
-  },
-  {
     "id": "comc-trunk-ceo",
     "description": "CEO trunk: login as qa-test-journeyhawk@phronex.com (cc_ceo role, ComC premium grant). Saves browser state for all per-org leaf journeys.",
     "isSharedRoot": true,
@@ -104,6 +63,9 @@
         "id": 3,
         "description": "CRITICAL \u2014 Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed \u2014 use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-ceo-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies \u2014 an empty state file will cause all 3 dependent CEO leaf journeys to fail."
       }
+    ],
+    "_shared_setup_steps": [
+      "CEO TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
     ]
   },
   {
@@ -124,6 +86,9 @@
         "id": 3,
         "description": "CRITICAL \u2014 Save browser session state with cookies. Call the mcp__cctr-playwright__browser_storage_state tool with filename \"/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json\". After calling the tool, VERIFY the file was correctly saved by using browser_run_code to execute: const fs = require('fs'); const d = JSON.parse(fs.readFileSync('/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', 'utf8')); console.log('cookies:', d.cookies ? d.cookies.length : 0); If the cookies count is 0 (empty state), the primary tool failed \u2014 use browser_run_code as the FALLBACK to save actual storage state: const fs = require('fs'); const state = await page.context().storageState(); fs.writeFileSync('/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-manager-state.json', JSON.stringify(state)); console.log('saved cookies:', state.cookies.length); Mark this step FAILED if the final file still has 0 cookies \u2014 an empty state file will cause the dependent non-admin permission-boundary journey to fail."
       }
+    ],
+    "_shared_setup_steps": [
+      "MANAGER TRUNK FRESH LOGIN \u2014 DO NOT load any browser state file. This journey CREATES the session. Start fresh: use browser_tabs to close all tabs except the current one. Use browser_evaluate to wipe the service worker cache: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))'. Then navigate directly to http://localhost:3002/auth/login?t=Date.now() (cache-bust). VERIFY the login form is visible (email+password fields must be present in the snapshot). Fill email 'qa-comc-manager@phronex.com' and password '${PHRONEX_QA_MANAGER_PASSWORD}' (the runner injects the manager password from the QA environment). Submit and wait for the portal sidebar to appear. Mark failed if redirected to a non-login page before credentials are submitted."
     ]
   },
   {
@@ -902,5 +867,76 @@
       }
     ],
     "dependsOn": "comc-trunk-manager"
+  },
+  {
+    "id": "comc-comc-test-oracles-agent-pause-resume",
+    "description": "[general] Comc Test_Oracles Agent Pause Resume \u2014 Full DEEP journey covering CRUD, validation, and persistence + cross-service integration",
+    "depth": 1,
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved superadmin session from '/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+      },
+      {
+        "id": 2,
+        "description": "PATCH /api/v1/agents/{agent_id}/pause \u2192 expect: HTTP 200; agent.status becomes \"paused_ceo\"; updated_at refreshed"
+      },
+      {
+        "id": 3,
+        "description": "PATCH /api/v1/agents/{agent_id}/resume \u2192 expect: HTTP 200; agent.status becomes \"active\"; updated_at refreshed"
+      },
+      {
+        "id": 4,
+        "description": "PATCH /api/v1/agents/{agent_id}/pause \u2192 expect: HTTP 404 (agent not found within caller's org scope)"
+      }
+    ],
+    "dependsOn": "comc-trunk-superadmin",
+    "_shared_setup_steps": [
+      "Load saved superadmin session from '/home/phronex/code/phronex-test-runner/.tmp/comc-trunk-superadmin-state.json' or navigate to http://localhost:3002/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
+    ]
+  },
+  {
+    "id": "comc-branch-meetings",
+    "description": "[branch] Meetings setup \u2014 navigate to /command-centre/meetings and save branch session state for meetings journeys.",
+    "dependsOn": "comc-trunk-superadmin",
+    "role": "branch",
+    "isSharedRoot": false,
+    "stateOutputPath": ".tmp/comc-branch-meetings-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/meetings and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ],
+    "_shared_setup_steps": [
+      "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met).",
+      "Navigate to http://localhost:3002/command-centre/initiatives and wait for the page to fully load. Verify the page renders without critical errors."
+    ]
+  },
+  {
+    "id": "comc-branch-agents",
+    "description": "[branch] Agents setup \u2014 navigate to /command-centre/agents and save branch session state for agents journeys.",
+    "dependsOn": "comc-trunk-superadmin",
+    "role": "branch",
+    "isSharedRoot": false,
+    "stateOutputPath": ".tmp/comc-branch-agents-state.json",
+    "steps": [
+      {
+        "id": 1,
+        "description": "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met)."
+      },
+      {
+        "id": 2,
+        "description": "Navigate to http://localhost:3002/command-centre/agents and wait for the page to fully load. Verify the page renders without critical errors."
+      }
+    ],
+    "_shared_setup_steps": [
+      "Load saved session from '.tmp/comc-trunk-superadmin-state.json' using the browser storageState. If the file does not exist, skip this journey (dependency not met).",
+      "Navigate to http://localhost:3002/command-centre/initiatives and wait for the page to fully load. Verify the page renders without critical errors."
+    ]
   }
 ]
