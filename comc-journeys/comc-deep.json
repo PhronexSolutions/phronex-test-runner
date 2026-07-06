@@ -838,7 +838,7 @@
   },
   {
     "id": "comc-perm-boundary-non-admin-dashboard-access",
-    "description": "[BEHAVIORAL] Non-admin user attempts to navigate to admin-only dashboard page; verify 403 error or redirect to permitted page, NOT blank state or data leak.",
+    "description": "[BEHAVIORAL] Non-admin user attempts to navigate to admin-only dashboard page; verify 403 error or redirect to permitted page, NOT blank state or data leak. Also asserts the manager read/write boundary: cc_manager READS Scorecard KPIs and briefs (200) but is DENIED write/dispatch (403).",
     "depth": 2,
     "steps": [
       {
@@ -864,6 +864,14 @@
       {
         "id": 6,
         "description": "Navigate to 'http://localhost:3002/command-centre/briefs' (non-admin page). Verify page loads successfully and displays brief data without permission errors."
+      },
+      {
+        "id": 7,
+        "description": "MANAGER READ-ACCESS (Scorecard + Briefs) \u2014 backend-state assertion. As the cc_manager session, confirm the manager can READ the Balanced Scorecard and briefs. Using browser_run_code issue authenticated GET requests to the proxied API: http://localhost:3002/api/admin/command-centre/api/v1/kpis/ and http://localhost:3002/api/admin/command-centre/api/v1/briefs. VERIFY both return HTTP 200 (NOT 403) with a JSON array body. A 403 here is a defect \u2014 cc_manager is granted read access to Scorecard KPIs and briefs."
+      },
+      {
+        "id": 8,
+        "description": "MANAGER WRITE-DENIED (CEO-only boundary) \u2014 backend-state assertion. As the SAME cc_manager session, confirm create/edit/dispatch stay CEO-only. Using browser_run_code issue a DELETE to http://localhost:3002/api/admin/command-centre/api/v1/kpis/00000000-0000-0000-0000-000000000000 and a POST to http://localhost:3002/api/admin/command-centre/api/v1/briefs/send. VERIFY BOTH return HTTP 403 Forbidden. A 200/204/404 on either is a permission-boundary defect (manager must not create, edit, delete KPIs or dispatch briefs)."
       }
     ],
     "dependsOn": "comc-trunk-manager"
