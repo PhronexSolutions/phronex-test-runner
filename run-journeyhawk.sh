@@ -1499,7 +1499,7 @@ except Exception as e:
 DEPTH_MULTIPLIER = {"SMOKE": 0.5, "SURFACE": 1.0, "DEEP": 1.5, "BEHAVIORAL": 2.0}
 TURNS_PER_STEP = 15
 MIN_TURNS = 30
-MAX_TURNS = 250
+MAX_TURNS = int(os.environ.get("JOURNEYHAWK_MAX_TURNS_CAP", "250"))
 TRUNK_TURNS = 40
 
 # Minimal depth classifier (mirrors phronex_common.testing.depth_scorer logic)
