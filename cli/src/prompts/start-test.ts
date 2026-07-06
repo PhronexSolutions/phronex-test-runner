@@ -19,7 +19,9 @@ import { logger } from "../utils/logger";
  * declared `bin.playwright-mcp` entry point and join.
  */
 const playwrightMcpCliPath = (): string => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- package path resolution
     const pkgPath = require.resolve("@playwright/mcp/package.json");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- package path resolution
     const pkg = require("@playwright/mcp/package.json");
     const binEntry =
         typeof pkg.bin === "string"
