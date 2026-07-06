@@ -29,7 +29,10 @@
 #                       ensure_*() CREATE/ALTER calls succeed as role phronex_qa.
 #   3. QA accounts    — box-local phronex_auth: superadmin QA account + a
 #                       command-centre cc_ceo/premium grant on a qa-comc-org
-#                       instance (idempotent upserts).
+#                       instance, PLUS a non-admin manager account
+#                       (qa-comc-manager@phronex.com, is_superadmin=false) with a
+#                       cc_manager/premium grant on the same instance — used by
+#                       JourneyHawk's permission-boundary journeys (idempotent).
 #   4. Auth↔ComC align — ensures auth JWT_SECRET == ComC CC_INTERNAL_TOKEN so
 #                        grant tokens minted by auth validate at ComC.
 #
@@ -379,6 +382,123 @@ WHERE g.account_id = a.id AND a.email = :qa_email
   AND g.product_slug = 'command-centre';
 SQL
     echo "  ok: account + qa-comc-org instance + cc_ceo/premium grant ensured"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Section 3b — QA MANAGER (non-admin) account for permission-boundary journeys
+# ---------------------------------------------------------------------------
+# JourneyHawk's comc-trunk-manager trunk + comc-perm-boundary-non-admin-dashboard
+# -access leaf need a NON-ADMIN manager session: a cc_manager-role grant with
+# is_superadmin=false. This proves a manager is correctly BLOCKED from admin-only
+# ComC pages. Mirrors Section 3 exactly (canonical bcrypt hash_password, no
+# inlined/printed secret, fully idempotent). Reuses the same qa-comc-org instance.
+#
+# The manager password is read from QA_MANAGER_PASSWORD or PHRONEX_QA_MANAGER_
+# PASSWORD (env or .qa.env / KEYS.md) — never inlined here. If absent, this
+# section is skipped with a KEYS.md pointer (no fabricated password).
+# ---------------------------------------------------------------------------
+echo ""
+echo "== Section 3b: QA manager (non-admin) account =="
+
+QA_MANAGER_EMAIL="${PHRONEX_QA_MANAGER_EMAIL:-qa-comc-manager@phronex.com}"
+QA_MANAGER_PW="${QA_MANAGER_PASSWORD:-${PHRONEX_QA_MANAGER_PASSWORD:-}}"
+
+# Fall back to .qa.env (subshell read; never leaked into this shell's env log).
+if [[ -z "${QA_MANAGER_PW}" && -f "${QA_ENV_FILE}" ]]; then
+  QA_MANAGER_PW="$(dotenv_get "${QA_ENV_FILE}" "PHRONEX_QA_MANAGER_PASSWORD" || true)"
+  [[ -z "${QA_MANAGER_PW}" ]] && QA_MANAGER_PW="$(dotenv_get "${QA_ENV_FILE}" "QA_MANAGER_PASSWORD" || true)"
+fi
+
+if [[ -z "${QA_MANAGER_PW}" ]]; then
+  echo "  WARNING: QA manager password not found in env or .qa.env."
+  echo "           Set QA_MANAGER_PASSWORD / PHRONEX_QA_MANAGER_PASSWORD from"
+  echo "           KEYS.md (PhronexSolutions/secrets/KEYS.md) and re-run."
+  echo "           Skipping manager account upsert (no fabricated password)."
+elif [[ ! -x "${AUTH_VENV_PY}" ]]; then
+  echo "  WARNING: auth venv python not found at ${AUTH_VENV_PY} — cannot hash password."
+  echo "           Skipping manager account upsert."
+else
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    echo "  [dry-run] would ensure cc_manager role exists (is_system=false, QA-seeded)"
+    echo "  [dry-run] would hash QA manager password via phronex_common.auth.password.hash_password"
+    echo "  [dry-run] would upsert account ${QA_MANAGER_EMAIL} (is_superadmin=false)"
+    echo "  [dry-run] would upsert cc_manager/premium grant on qa-comc-org (command-centre)"
+  else
+    # Canonical bcrypt hash; capture ONLY the hash (never the plaintext).
+    QA_MGR_PW_HASH="$(QA_PW="${QA_MANAGER_PW}" "${AUTH_VENV_PY}" - <<'PYEOF'
+import os
+from phronex_common.auth.password import hash_password
+print(hash_password(os.environ["QA_PW"]), end="")
+PYEOF
+)"
+    # Idempotent upserts. cc_manager role is ensured by slug (created if absent,
+    # mirroring how cc_ceo was QA-seeded: is_system=false). No UUID hardcoded.
+    QA_MGR_PW_HASH="${QA_MGR_PW_HASH}" \
+      sudo -u postgres psql -v ON_ERROR_STOP=1 -d phronex_auth \
+        -v qa_email="'${QA_MANAGER_EMAIL}'" -v qa_hash="'${QA_MGR_PW_HASH}'" <<'SQL'
+-- 3b-i. Ensure the cc_manager ComC role exists (QA-seeded, non-system).
+--       role_id is later resolved by slug so no UUID is ever hardcoded.
+INSERT INTO roles (id, slug, name, description, is_system, created_at)
+VALUES (gen_random_uuid(), 'cc_manager', 'ComC Manager',
+        'Command Centre manager role (QA-seeded, non-admin)', false, now())
+ON CONFLICT (slug) DO NOTHING;
+
+-- 3b-ii. Upsert the NON-ADMIN manager account (idempotent on email).
+--        is_superadmin=false is the whole point of this account.
+INSERT INTO accounts (id, email, password_hash, full_name, is_active, is_superadmin,
+                      created_at, updated_at, consent_purposes, rate_limit_exempt)
+VALUES (gen_random_uuid(), :qa_email, :qa_hash, 'JourneyHawk QA Manager',
+        true, false, now(), now(), '{}'::jsonb, true)
+ON CONFLICT (email) DO UPDATE
+  SET password_hash = EXCLUDED.password_hash,
+      is_active     = true,
+      is_superadmin = false,
+      updated_at    = now();
+
+-- 3b-iii. Ensure the shared qa-comc-org instance exists even if Section 3
+--         (superadmin) was skipped — so the manager account is usable stand-
+--         alone. If it already exists (created in Section 3), this is a no-op
+--         and its existing owner is preserved. Owned by the manager account
+--         only when it must be freshly created here.
+WITH acct AS (SELECT id FROM accounts WHERE email = :qa_email)
+INSERT INTO instances (id, product_slug, owner_account_id, slug, display_name,
+                       tier_config, widget_config, is_active, created_at, updated_at)
+SELECT gen_random_uuid(), 'command-centre', acct.id, 'qa-comc-org', 'QA ComC Org',
+       '{}'::jsonb, '{}'::jsonb, true, now(), now()
+FROM acct
+ON CONFLICT (slug) DO UPDATE
+  SET is_active  = true,
+      updated_at = now();
+
+-- 3b-iv. Upsert the cc_manager / premium grant on the shared qa-comc-org
+--         instance. Idempotent.
+WITH acct AS (SELECT id FROM accounts WHERE email = :qa_email),
+     inst AS (SELECT id FROM instances WHERE slug = 'qa-comc-org'),
+     rl   AS (SELECT id FROM roles WHERE slug = 'cc_manager')
+INSERT INTO access_grants (id, account_id, product_slug, instance_id, tier,
+                           is_active, granted_at, updated_at, role_id)
+SELECT gen_random_uuid(), acct.id, 'command-centre', inst.id, 'premium',
+       true, now(), now(), rl.id
+FROM acct, inst, rl
+WHERE NOT EXISTS (
+  SELECT 1 FROM access_grants g
+  WHERE g.account_id = acct.id
+    AND g.product_slug = 'command-centre'
+    AND g.instance_id = inst.id
+);
+
+-- 3b-v. If the manager grant already existed, ensure it is active + correctly
+--        roled/tiered as cc_manager/premium.
+UPDATE access_grants g
+SET is_active = true, tier = 'premium', updated_at = now(),
+    role_id = (SELECT id FROM roles WHERE slug = 'cc_manager')
+FROM accounts a, instances i
+WHERE g.account_id = a.id AND a.email = :qa_email
+  AND g.instance_id = i.id AND i.slug = 'qa-comc-org'
+  AND g.product_slug = 'command-centre';
+SQL
+    echo "  ok: manager account + cc_manager role + cc_manager/premium grant ensured (is_superadmin=false)"
   fi
 fi
 
