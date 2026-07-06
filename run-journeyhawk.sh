@@ -358,6 +358,11 @@ except Exception as e:
         --product "${PRODUCT}" \
         --journeys "${_JOURNEY_IDS}" \
         --out "${_DOCS_SLICES}/TEST-ORACLES-active-journeys.html" 2>&1 | sed 's/^/  /' || true
+      # Auto-slice 3: USER-SPEC.html -> journey-scoped slice (context budget).
+      "${PYTHON}" -m phronex_common.testing.user_spec_slicer \
+        --product "${PRODUCT}" \
+        --journeys "${_JOURNEY_IDS}" \
+        --out "${_DOCS_SLICES}/USER-SPEC-active.html" 2>&1 | sed 's/^/  /' || true
     else
       echo "  (no journey IDs extracted — skipping oracle slicer)"
     fi
