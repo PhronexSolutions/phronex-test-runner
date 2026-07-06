@@ -1,6 +1,7 @@
 [
   {
     "id": "cc-J01",
+    "feature": "general",
     "description": "Creator dashboard is meaningful, not an empty blank: verify the CC dashboard shows instance status and meaningful navigation, or an instructive empty state if no instance exists.",
     "steps": [
       {
@@ -31,6 +32,7 @@
   },
   {
     "id": "cc-J02",
+    "feature": "admin",
     "description": "CC dashboard navigation works for a superadmin: verify all four superadmin-visible tabs (Overview, Analytics, Info & Connections, Sessions) load without errors. The QA account qa-test-journeyhawk@phronex.com is is_superadmin=true, so all 4 tabs MUST be present \u2014 their absence would be a regression.",
     "steps": [
       {
@@ -61,6 +63,7 @@
   },
   {
     "id": "cc-J03",
+    "feature": "ingestion",
     "description": "Creator can view knowledge base content status: verify ingested content is listed with source and sync metadata, and the sync trigger is functional.",
     "steps": [
       {
@@ -91,6 +94,7 @@
   },
   {
     "id": "cc-J04",
+    "feature": "config",
     "description": "Creator can update instance settings and they save: verify the instance settings/configuration page loads, accepts changes, and persists them after navigation.",
     "steps": [
       {
@@ -111,7 +115,7 @@
       },
       {
         "id": 5,
-        "description": "Navigate away to https://app.phronex.com/cc/dashboard, wait for it to load, then navigate back to https://app.phronex.com/cc/instance?instance=e2e-test-instance (the ?instance= query param is required for superadmin context — without it, the portal redirects to a different instance). Verify the field edited in step 3 still contains the QA marker ('QA-TEST-2026' or '-QA'). If the value reverted to the original, this is a persistence failure."
+        "description": "Navigate away to https://app.phronex.com/cc/dashboard, wait for it to load, then navigate back to https://app.phronex.com/cc/instance?instance=e2e-test-instance (the ?instance= query param is required for superadmin context \u2014 without it, the portal redirects to a different instance). Verify the field edited in step 3 still contains the QA marker ('QA-TEST-2026' or '-QA'). If the value reverted to the original, this is a persistence failure."
       },
       {
         "id": 6,
@@ -121,6 +125,7 @@
   },
   {
     "id": "cc-J05",
+    "feature": "general",
     "description": "Creator sees analytics that mean something: verify the CC analytics tab loads, shows non-trivial data or an informative empty state, and interactive elements work.",
     "steps": [
       {
@@ -151,11 +156,12 @@
   },
   {
     "id": "cc-J06",
+    "feature": "chat",
     "description": "Widget responds to visitor questions using content knowledge: verify the CC API returns a substantive, content-relevant answer about Phronex Solutions for the e2e-test-instance.",
     "steps": [
       {
         "id": 1,
-        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls from the browser context: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify the response has HTTP status 200 and contains an 'access_token' or 'token' field. Store the token value. Note: 404 on the root URL is expected (CC serves no homepage) — only the API needs to respond correctly."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls from the browser context: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with Content-Type: application/json and body {\"instance_id\": \"e2e-test-instance\"}. Verify the response has HTTP status 200 and contains an 'access_token' or 'token' field. Store the token value. Note: 404 on the root URL is expected (CC serves no homepage) \u2014 only the API needs to respond correctly."
       },
       {
         "id": 2,
@@ -177,11 +183,12 @@
   },
   {
     "id": "cc-J07",
+    "feature": "chat",
     "description": "AI stays in character for off-topic questions: verify the widget politely declines off-topic queries and redirects without breaking character or exposing system internals.",
     "steps": [
       {
         "id": 1,
-        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected — CC serves no homepage, only the API matters."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected \u2014 CC serves no homepage, only the API matters."
       },
       {
         "id": 2,
@@ -207,11 +214,12 @@
   },
   {
     "id": "cc-J08",
+    "feature": "chat",
     "description": "Widget handles conversation context (multi-turn): verify the AI maintains context across multiple messages in the same conversation, not starting fresh each time.",
     "steps": [
       {
         "id": 1,
-        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected — CC serves no homepage, only the API matters."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected \u2014 CC serves no homepage, only the API matters."
       },
       {
         "id": 2,
@@ -237,11 +245,12 @@
   },
   {
     "id": "cc-J09",
+    "feature": "api",
     "description": "Rate limiting is graceful for visitors: verify that when the message limit is hit, the error response is human-readable and helpful rather than raw technical JSON.",
     "steps": [
       {
         "id": 1,
-        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected — CC serves no homepage, only the API matters."
+        "description": "First navigate to https://cc.phronex.com/ to establish a page context (needed before page.evaluate() can run). Then using Playwright's page.evaluate() to make fetch calls: send a POST request to https://cc.phronex.com/api/v1/auth/anonymous with body {\"instance_id\": \"e2e-test-instance\"} to obtain a fresh anonymous token. Verify HTTP 200 and extract the token. Note: 404 on the root URL is expected \u2014 CC serves no homepage, only the API matters."
       },
       {
         "id": 2,
@@ -267,6 +276,7 @@
   },
   {
     "id": "cc-J10",
+    "feature": "billing",
     "description": "Creator's billing tier and limits are visible: verify the CC subscription page shows the current tier, message limit, and a functional upgrade path.",
     "steps": [
       {

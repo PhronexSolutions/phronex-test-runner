@@ -344,7 +344,9 @@ try:
     with open('${SPEC_FILE}') as f:
         spec = json.load(f)
     journeys = spec if isinstance(spec, list) else spec.get('journeys', [])
-    ids = [j.get('id','') for j in journeys if j.get('id')]
+    # Prefer an explicit oracle feature token when a journey declares one
+    # (lets opaque IDs like cc-J01 still drive oracle slicing); fall back to id.
+    ids = [(j.get('feature') or j.get('id') or '') for j in journeys if (j.get('feature') or j.get('id'))]
     print(','.join(ids))
 except Exception as e:
     print(f'ERROR: {e}', file=sys.stderr)
