@@ -401,6 +401,21 @@ fi
 #   PHRONEX_QA_ALLOWED_HOSTS=app.phronex.com,jobc.phronex.com,cc.phronex.com
 PORTAL_URL="${PORTAL_URL:-https://app.phronex.com}"
 echo "[env] Portal URL: ${PORTAL_URL}"
+
+# --- ComC production-target guard (additive safety gate, added during stabilization) ---
+# ComC QA MUST target the LOCAL stack (portal :3002 -> local :8004/:8002). PORTAL_URL
+# defaults to production app.phronex.com (correct for CC/JP/Praxis, which have no local
+# stack). A ComC run that forgets `PORTAL_URL=http://localhost:3002` silently hits prod:
+# trunks pass (qa user exists on prod) but leaves fail against prod data -> misleading ~6/32.
+# Fail fast instead of producing a false result.
+if [[ "${PRODUCT}" == "comc" ]] && [[ "${PORTAL_URL}" == *"app.phronex.com"* ]] && [[ "${JOURNEYHAWK_ALLOW_PROD_COMC:-0}" != "1" ]]; then
+  echo "" >&2
+  echo "⛔ ComC QA must target the LOCAL stack, not production (${PORTAL_URL})." >&2
+  echo "   ComC has no production QA data; running against prod yields a false ~6/32." >&2
+  echo "   Fix:      PORTAL_URL=http://localhost:3002 ./run-journeyhawk.sh comc <spec> <results-dir>" >&2
+  echo "   Override: JOURNEYHAWK_ALLOW_PROD_COMC=1  (only if you truly intend a prod run)" >&2
+  exit 2
+fi
 TEMP_SPEC=$(mktemp /tmp/jh-spec-XXXXXX.json)
 FILTERED_SPEC=$(mktemp /tmp/jh-spec-filtered-XXXXXX.json)
 _SPEC_ACTIVE=$(mktemp /tmp/jh-spec-active-XXXXXX.json)
@@ -442,6 +457,8 @@ json.dump(active, sys.stdout, ensure_ascii=False)
 echo "[pre] Active journeys after filtering retired+skipped: $("${PYTHON}" -c "import json; print(len(json.load(open('${_SPEC_ACTIVE}'))))" 2>/dev/null || echo '?')"
 sed \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
+  -e "s|https://app.phronex.com|${PORTAL_URL}|g" \
+  -e "s|http://app.phronex.com|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
   -e "s|qa-test-journeyhawk@phronex\.com|${_PORTAL_EMAIL}|g" \
   -e "s|QA_OWNER_EMAIL|${_OWNER_EMAIL}|g" \
@@ -593,7 +610,7 @@ fi
 # Product slug → repo name mapping (slug != repo name for jp and cc)
 declare -A _PRODUCT_REPO_MAP=(["jp"]="jobportal" ["cc"]="contentcompanion" ["comc"]="phronex-command-centre" ["website"]="phronex-website" ["portal"]="phronex-portal" ["praxis"]="praxis")
 _PRODUCT_REPO="${_PRODUCT_REPO_MAP[${PRODUCT}]:-${PRODUCT}}"
-_DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/ouroborous/code}/${_PRODUCT_REPO}/.docs"
+_DOCS_DIR="${PHRONEX_CODE_ROOT:-/home/phronex/code}/${_PRODUCT_REPO}/.docs"
 _DOCCHAIN_CHANGED=0
 if [[ -d "${_DOCS_DIR}" ]]; then
   echo ""
@@ -1243,6 +1260,8 @@ APPROVED_HEURISTICS_EOF
 # they carry leak through.  This pass catches them all.
 sed -i \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
+  -e "s|https://app.phronex.com|${PORTAL_URL}|g" \
+  -e "s|http://app.phronex.com|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
   -e "s|qa-test-journeyhawk@phronex\.com|${_PORTAL_EMAIL}|g" \
   -e "s|QA_OWNER_EMAIL|${_OWNER_EMAIL}|g" \
@@ -1495,7 +1514,7 @@ except Exception as e:
 DEPTH_MULTIPLIER = {"SMOKE": 0.5, "SURFACE": 1.0, "DEEP": 1.5, "BEHAVIORAL": 2.0}
 TURNS_PER_STEP = 15
 MIN_TURNS = 30
-MAX_TURNS = 250
+MAX_TURNS = int(os.environ.get("JOURNEYHAWK_MAX_TURNS_CAP", "250"))
 TRUNK_TURNS = 40
 
 # Minimal depth classifier (mirrors phronex_common.testing.depth_scorer logic)
