@@ -442,6 +442,8 @@ json.dump(active, sys.stdout, ensure_ascii=False)
 echo "[pre] Active journeys after filtering retired+skipped: $("${PYTHON}" -c "import json; print(len(json.load(open('${_SPEC_ACTIVE}'))))" 2>/dev/null || echo '?')"
 sed \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
+  -e "s|https://app.phronex.com|${PORTAL_URL}|g" \
+  -e "s|http://app.phronex.com|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
   -e "s|qa-test-journeyhawk@phronex\.com|${_PORTAL_EMAIL}|g" \
   -e "s|QA_OWNER_EMAIL|${_OWNER_EMAIL}|g" \
@@ -1243,6 +1245,8 @@ APPROVED_HEURISTICS_EOF
 # they carry leak through.  This pass catches them all.
 sed -i \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
+  -e "s|https://app.phronex.com|${PORTAL_URL}|g" \
+  -e "s|http://app.phronex.com|${PORTAL_URL}|g" \
   -e "s|QA_SUPERADMIN_PASSWORD|${_PORTAL_PASS}|g" \
   -e "s|qa-test-journeyhawk@phronex\.com|${_PORTAL_EMAIL}|g" \
   -e "s|QA_OWNER_EMAIL|${_OWNER_EMAIL}|g" \
