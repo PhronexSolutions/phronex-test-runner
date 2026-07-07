@@ -961,7 +961,7 @@
       {
         "id": 1,
         "description": "Load saved superadmin session or log in if session expired.",
-        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9', then click Sign In.",
+        "action": "Load session from '/home/ouroborous/code/phronex-test-runner/.tmp/praxis-trunk-main-state.json'. If session is expired or missing, navigate to https://app.phronex.com/auth/login, enter email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD', then click Sign In.",
         "expected": "Session is active. Browser URL contains '/praxis/' or the dashboard heading is visible. No authentication error is shown."
       },
       {

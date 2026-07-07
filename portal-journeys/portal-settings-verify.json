@@ -9,7 +9,7 @@
       },
       {
         "id": 2,
-        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait until URL no longer contains /auth/login."
+        "description": "Navigate to https://app.phronex.com/auth/login. Log in as qa-test-journeyhawk@phronex.com with password QA_SUPERADMIN_PASSWORD. Wait until URL no longer contains /auth/login."
       },
       {
         "id": 3,
