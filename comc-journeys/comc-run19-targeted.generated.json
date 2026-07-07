@@ -6,7 +6,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to http://localhost:3002/auth/login \u2014 append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal to load \u2014 verify no 500 error and the sidebar is visible."
+        "description": "BROWSER RESET AND CACHE CLEAR: Use browser_tabs to list all open tabs. Close every tab except the current one. Then use browser_evaluate to run: 'await caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))' to wipe the service worker cache. Next navigate to http://localhost:3002/auth/login \u2014 append '?t=' + Date.now() as a cache-bust query param if the page does not reload fresh. Wait for the login page to load. Log in with email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD'. Wait for the portal to load \u2014 verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,

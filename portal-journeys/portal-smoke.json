@@ -13,7 +13,7 @@
       },
       {
         "id": 3,
-        "description": "Enter password: HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Enter password: QA_SUPERADMIN_PASSWORD"
       },
       {
         "id": 4,
@@ -43,7 +43,7 @@
       },
       {
         "id": 2,
-        "description": "Log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD"
       },
       {
         "id": 3,
@@ -111,7 +111,7 @@
       },
       {
         "id": 2,
-        "description": "Log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9"
+        "description": "Log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD"
       },
       {
         "id": 3,

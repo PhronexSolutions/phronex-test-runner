@@ -6,7 +6,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load."
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD'. Wait for the portal dashboard to load."
       },
       {
         "id": 2,
@@ -37,7 +37,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load."
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD'. Wait for the portal dashboard to load."
       },
       {
         "id": 2,
@@ -68,7 +68,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load."
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD'. Wait for the portal dashboard to load."
       },
       {
         "id": 2,
@@ -99,7 +99,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load."
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD'. Wait for the portal dashboard to load."
       },
       {
         "id": 2,
@@ -130,7 +130,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load."
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD'. Wait for the portal dashboard to load."
       },
       {
         "id": 2,
@@ -281,7 +281,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9'. Wait for the portal dashboard to load."
+        "description": "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com. Wait for the login page or dashboard to load, then log in with email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD'. Wait for the portal dashboard to load."
       },
       {
         "id": 2,

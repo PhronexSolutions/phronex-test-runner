@@ -185,7 +185,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
         "action": "storageState load; if expired, login"
       },
       {
@@ -236,7 +236,7 @@
     ],
     "dependsOn": "jp-trunk-main",
     "_shared_setup_steps": [
-      "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired."
+      "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/jp-trunk-main-state.json' or navigate to https://app.phronex.com/auth/login with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired."
     ]
   },
   {

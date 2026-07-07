@@ -6,7 +6,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to https://app.phronex.com. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load — verify no 500 error and the sidebar is visible."
+        "description": "Navigate to https://app.phronex.com. Wait for the login page to load. Enter email 'qa-test-journeyhawk@phronex.com' and password 'QA_SUPERADMIN_PASSWORD' into the login form fields. Click the sign-in button. Wait for the portal dashboard to load — verify no 500 error and the sidebar is visible."
       },
       {
         "id": 2,
@@ -1906,8 +1906,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
-        "action": "page.goto('https://app.phronex.com/auth/login') if session expired; fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "page.goto('https://app.phronex.com/auth/login') if session expired; fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click submit button",
         "expected": "User is authenticated and redirected to dashboard or home page without errors"
       },
       {
@@ -2022,8 +2022,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
-        "action": "Load session file at '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. If expired or missing, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click the login button, and wait for redirect.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "Load session file at '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'. If expired or missing, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, click the login button, and wait for redirect.",
         "expected": "Session is active. User is authenticated as superadmin. Dashboard or home page is visible. No auth error banners appear."
       },
       {
@@ -2102,8 +2102,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
-        "action": "storageState: load from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'; if session cookie missing or expired, navigate to https://app.phronex.com/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit button",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState: load from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'; if session cookie missing or expired, navigate to https://app.phronex.com/auth/login, fill email field with 'qa-test-journeyhawk@phronex.com', fill password field with QA_SUPERADMIN_PASSWORD, click submit button",
         "expected": "User is authenticated and redirected to dashboard. No login error visible. Auth cookie present in browser storage."
       },
       {
@@ -2164,8 +2164,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
-        "action": "storageState load OR navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load OR navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com, fill password=QA_SUPERADMIN_PASSWORD, click submit",
         "expected": "Dashboard or authenticated page loads without redirect to login. Session cookie is present."
       },
       {
@@ -2250,8 +2250,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
-        "action": "storageState load or navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com and password=HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, click submit",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "storageState load or navigate to https://app.phronex.com/auth/login, fill email=qa-test-journeyhawk@phronex.com and password=QA_SUPERADMIN_PASSWORD, click submit",
         "expected": "User is authenticated and redirected to the dashboard. No auth errors visible."
       },
       {
@@ -2342,8 +2342,8 @@
     "steps": [
       {
         "id": 1,
-        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9 if session expired.",
-        "action": "Load session storage from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'; if session is invalid or expired, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9, and click the login button.",
+        "description": "Load saved superadmin session from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json' or navigate to https://app.phronex.com/auth/login and log in with email qa-test-journeyhawk@phronex.com and password QA_SUPERADMIN_PASSWORD if session expired.",
+        "action": "Load session storage from '/home/ouroborous/code/phronex-test-runner/.tmp/cc-trunk-superadmin-state.json'; if session is invalid or expired, navigate to https://app.phronex.com/auth/login, fill email field with qa-test-journeyhawk@phronex.com, fill password field with QA_SUPERADMIN_PASSWORD, and click the login button.",
         "expected": "User is authenticated and redirected to the dashboard. Navigation bar shows superadmin identity. No 401 or redirect loop occurs."
       },
       {
@@ -2397,7 +2397,7 @@
       {
         "id": 10,
         "description": "Re-authenticate cleanly after the brute-force probe to restore a valid session for persistence testing.",
-        "action": "Navigate to https://app.phronex.com/auth/login. Fill email with qa-test-journeyhawk@phronex.com and password with HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Submit the form.",
+        "action": "Navigate to https://app.phronex.com/auth/login. Fill email with qa-test-journeyhawk@phronex.com and password with QA_SUPERADMIN_PASSWORD. Submit the form.",
         "expected": "Successful login. Redirected to the authenticated dashboard. Session is valid."
       },
       {

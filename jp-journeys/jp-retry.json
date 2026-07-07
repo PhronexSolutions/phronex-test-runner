@@ -5,7 +5,7 @@
     "steps": [
       {
         "id": 1,
-        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / HMqt4kH5loXkeAtvQSndQ7zNmow!Phx#9. Wait for the dashboard to load."
+        "description": "Navigate to http://localhost:3002/auth/login and log in with qa-test-journeyhawk@phronex.com / QA_SUPERADMIN_PASSWORD. Wait for the dashboard to load."
       },
       {
         "id": 2,
