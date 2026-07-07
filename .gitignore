@@ -203,3 +203,8 @@ superadmin-session.json
 *-session.json
 *-state.json
 storage-state-*.json
+
+# Portal JourneyHawk run output (was tracked + leaked QA password in test-summary.md)
+portal-journeys/results/
+portal-journeys/results-*/
+portal-journeys/retest-results/
