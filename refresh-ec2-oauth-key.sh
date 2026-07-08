@@ -146,11 +146,22 @@ if [ "$DEPLOY_EC2" = "true" ]; then
   ssh -i "$SSH_KEY" -o ConnectTimeout=15 -o BatchMode=yes "$EC2_HOST" bash << ENDSSH
     set -e
     TOKEN="${ACCESS_TOKEN}"
+    FORCE_FLAG="${FORCE}"
     TS=\$(date +%Y%m%d_%H%M%S)
 
     deploy_service() {
       local ENV_FILE="\$1"
       local SERVICE="\$2"
+
+      # Idempotency: skip backup+restart if the deployed token already matches (unless --force)
+      local CURRENT_KEY NEW_HASH CUR_HASH
+      CURRENT_KEY=\$(sudo grep '^ANTHROPIC_API_KEY=' "\$ENV_FILE" 2>/dev/null | cut -d= -f2- || echo "")
+      NEW_HASH=\$(printf '%s' "\$TOKEN" | sha256sum | cut -d' ' -f1)
+      CUR_HASH=\$(printf '%s' "\$CURRENT_KEY" | sha256sum | cut -d' ' -f1)
+      if [ "\$NEW_HASH" = "\$CUR_HASH" ] && [ "\$FORCE_FLAG" != "--force" ]; then
+        echo "  [skip] \$SERVICE - token unchanged, no restart"
+        return 0
+      fi
 
       echo ""
       echo "  → \$SERVICE"
@@ -178,6 +189,13 @@ fi
 echo ""
 echo "[5/5] DevServer command-centre target..."
 if [ -f "$COMC_ENV" ]; then
+  # Idempotency: skip backup+restart if the token already matches (unless --force)
+  CURRENT_COMC_KEY=$(grep '^ANTHROPIC_API_KEY=' "$COMC_ENV" 2>/dev/null | cut -d= -f2- || echo "")
+  COMC_NEW_HASH=$(printf '%s' "$ACCESS_TOKEN" | sha256sum | cut -d' ' -f1)
+  COMC_CUR_HASH=$(printf '%s' "$CURRENT_COMC_KEY" | sha256sum | cut -d' ' -f1)
+  if [ "$COMC_NEW_HASH" = "$COMC_CUR_HASH" ] && [ "$FORCE" != "--force" ]; then
+    echo "   Token unchanged - skipping ComC restart."
+  else
   cp "$COMC_ENV" "${COMC_ENV}.bak-$(date +%Y%m%d_%H%M%S)"
   ls -t "${COMC_ENV}.bak-"* 2>/dev/null | tail -n +4 | xargs -r python3 -c "import sys,os; [os.unlink(p) for p in sys.argv[1:]]" 2>/dev/null || true
 
@@ -196,6 +214,7 @@ if [ -f "$COMC_ENV" ]; then
   sleep 3
   COMC_STATUS=$(sudo systemctl is-active command-centre 2>/dev/null || echo "unknown")
   echo "   ✅ DevServer command-centre updated. Status: $COMC_STATUS"
+  fi
 else
   echo "   ⚠️  $COMC_ENV not found — ComC not installed on this machine, skipping."
 fi
