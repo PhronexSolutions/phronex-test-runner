@@ -270,12 +270,6 @@ else
     echo "[mode] MAINTAIN: SKIP_PASSED=1 auto-set (regression anchors only)"
   fi
 
-  # COLD_START or MAINTAIN → skip LLM journey generation.
-  if [[ "${STRATEGY_MODE}" == "COLD_START" ]] || [[ "${STRATEGY_MODE}" == "MAINTAIN" ]]; then
-    JOURNEYHAWK_SKIP_GENERATION="${JOURNEYHAWK_SKIP_GENERATION:-1}"
-    export JOURNEYHAWK_SKIP_GENERATION
-    echo "[mode] ${STRATEGY_MODE}: JOURNEYHAWK_SKIP_GENERATION=${JOURNEYHAWK_SKIP_GENERATION} (auto-set if unset)"
-  fi
 fi
 export STRATEGY_MODE
 
@@ -287,6 +281,34 @@ else
   PYTHON=$(command -v python3 || command -v python)
 fi
 echo "[env] Python: ${PYTHON}"
+
+# Phase 5: Auto-determine JOURNEYHAWK_SKIP_GENERATION via should_generate() policy.
+# Only runs when not already set by user or --force-active.
+# Policy (STRATEGIST-WIRING-PLAN.md):
+#   COLD_START / EXPAND / FOCUS → generate (SKIP=0)
+#   MAINTAIN + <3 boring runs   → skip    (SKIP=1)
+#   MAINTAIN + 3+ boring runs   → generate (SKIP=0, anti-boring breadth expansion)
+if [[ -z "${JOURNEYHAWK_SKIP_GENERATION:-}" ]]; then
+  _SG_RESULT=$("${PYTHON}" -c "
+import os, sys
+try:
+    from phronex_common.testing.strategist.mode import should_generate
+    result = should_generate(
+        os.environ.get('STRATEGY_MODE', 'COLD_START'),
+        product_slug=os.environ.get('JOURNEYHAWK_PRODUCT') or None,
+        db_url=os.environ.get('PHRONEX_QA_DATABASE_URL_SYNC') or None,
+    )
+    print('0' if result else '1')
+except Exception as e:
+    print(f'[mode] should_generate() unavailable ({e}) — using legacy policy', file=sys.stderr)
+    # Legacy fallback: only MAINTAIN skips generation; COLD_START generates
+    mode = os.environ.get('STRATEGY_MODE', 'COLD_START')
+    print('1' if mode == 'MAINTAIN' else '0')
+" 2>/dev/null || echo "0")
+  JOURNEYHAWK_SKIP_GENERATION="${_SG_RESULT}"
+  export JOURNEYHAWK_SKIP_GENERATION
+  echo "[mode] ${STRATEGY_MODE}: JOURNEYHAWK_SKIP_GENERATION=${JOURNEYHAWK_SKIP_GENERATION} (should_generate() auto-policy)"
+fi
 
 # ---------- Step 0a-pre: Context Budget Gate (overnight-safety guard) ----------
 # Calculates total context that JourneyHawk skill will load (SKILL.md + CLAUDE.md
