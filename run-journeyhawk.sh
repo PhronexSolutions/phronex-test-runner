@@ -269,12 +269,6 @@ else
     echo "[mode] MAINTAIN: SKIP_PASSED=1 auto-set (regression anchors only)"
   fi
 
-  # COLD_START or MAINTAIN → skip LLM journey generation.
-  if [[ "${STRATEGY_MODE}" == "COLD_START" ]] || [[ "${STRATEGY_MODE}" == "MAINTAIN" ]]; then
-    JOURNEYHAWK_SKIP_GENERATION="${JOURNEYHAWK_SKIP_GENERATION:-1}"
-    export JOURNEYHAWK_SKIP_GENERATION
-    echo "[mode] ${STRATEGY_MODE}: JOURNEYHAWK_SKIP_GENERATION=${JOURNEYHAWK_SKIP_GENERATION} (auto-set if unset)"
-  fi
 fi
 export STRATEGY_MODE
 
@@ -286,6 +280,34 @@ else
   PYTHON=$(command -v python3 || command -v python)
 fi
 echo "[env] Python: ${PYTHON}"
+
+# Phase 5: Auto-determine JOURNEYHAWK_SKIP_GENERATION via should_generate() policy.
+# Only runs when not already set by user or --force-active.
+# Policy (STRATEGIST-WIRING-PLAN.md):
+#   COLD_START / EXPAND / FOCUS → generate (SKIP=0)
+#   MAINTAIN + <3 boring runs   → skip    (SKIP=1)
+#   MAINTAIN + 3+ boring runs   → generate (SKIP=0, anti-boring breadth expansion)
+if [[ -z "${JOURNEYHAWK_SKIP_GENERATION:-}" ]]; then
+  _SG_RESULT=$("${PYTHON}" -c "
+import os, sys
+try:
+    from phronex_common.testing.strategist.mode import should_generate
+    result = should_generate(
+        os.environ.get('STRATEGY_MODE', 'COLD_START'),
+        product_slug=os.environ.get('JOURNEYHAWK_PRODUCT') or None,
+        db_url=os.environ.get('PHRONEX_QA_DATABASE_URL_SYNC') or None,
+    )
+    print('0' if result else '1')
+except Exception as e:
+    print(f'[mode] should_generate() unavailable ({e}) — using legacy policy', file=sys.stderr)
+    # Legacy fallback: only MAINTAIN skips generation; COLD_START generates
+    mode = os.environ.get('STRATEGY_MODE', 'COLD_START')
+    print('1' if mode == 'MAINTAIN' else '0')
+" 2>/dev/null || echo "0")
+  JOURNEYHAWK_SKIP_GENERATION="${_SG_RESULT}"
+  export JOURNEYHAWK_SKIP_GENERATION
+  echo "[mode] ${STRATEGY_MODE}: JOURNEYHAWK_SKIP_GENERATION=${JOURNEYHAWK_SKIP_GENERATION} (should_generate() auto-policy)"
+fi
 
 # ---------- Step 0a-pre: Context Budget Gate (overnight-safety guard) ----------
 # Calculates total context that JourneyHawk skill will load (SKILL.md + CLAUDE.md
@@ -799,6 +821,42 @@ try:
 except Exception as e:
     print(f"[0b2/3] Tree optimizer failed (non-fatal): {e}", file=sys.stderr)
 TREE_OPT_EOF
+_STAGE_AFTER_GEN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
+
+# Step 0b3: Journey merger — SUBTREE_GRAFT + PREFIX_MERGE on TEMP_SPEC.
+# Consolidates overlapping journeys: common prefix tails are grafted,
+# near-duplicate journeys are merged into one with sequential steps.
+# Runs AFTER tree_optimizer so it merges already-structured branch trees.
+# Fail-open: TEMP_SPEC unchanged on any error.
+echo ""
+echo "[0b3/3] Journey merger (SUBTREE_GRAFT + PREFIX_MERGE)..."
+"${PYTHON}" - "${TEMP_SPEC}" <<'MERGER_EOF' || true
+import json, sys
+spec_path = sys.argv[1] if len(sys.argv) > 1 else ""
+if not spec_path:
+    sys.exit(0)
+try:
+    from phronex_common.testing.journey_merger import merge_journeys
+    with open(spec_path) as f:
+        journeys = json.load(f)
+    before = len(journeys)
+    result = merge_journeys(journeys)
+    # Remove retired journeys (merge_journeys marks but does not remove them)
+    journeys = [j for j in journeys if not j.get("_retired_at")]
+    after = len(journeys)
+    with open(spec_path, "w") as f:
+        json.dump(journeys, f, indent=2)
+    if result.total_merged > 0:
+        print(
+            f"[0b3/3] Journey merger: {result.grafted} SUBTREE_GRAFT, "
+            f"{result.prefix_merged} PREFIX_MERGE, "
+            f"{before - after} journeys retired ({after} remaining)"
+        )
+    else:
+        print(f"[0b3/3] Journey merger: no overlapping journeys found ({after} journeys, 0 changes)")
+except Exception as e:
+    print(f"[0b3/3] Journey merger failed (non-fatal): {e}", file=sys.stderr)
+MERGER_EOF
 _STAGE_AFTER_GEN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
 
 # Step 0c: Resource verification (Phase 84 — pre-run resource inventory check)

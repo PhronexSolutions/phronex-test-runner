@@ -14,8 +14,16 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   qa-gate:
+    # This file is a template meant to be copied into product repos (see header).
+    # phronex-test-runner is the QA tooling itself, not a product with journeys —
+    # skip rather than fail when it accidentally runs here.
+    if: github.event.repository.name != 'phronex-test-runner'
     runs-on: [self-hosted, devserver]
     steps:
       - uses: actions/checkout@v4
