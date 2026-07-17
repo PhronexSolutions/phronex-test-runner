@@ -302,6 +302,10 @@
       {
         "id": 6,
         "description": "Look for an upgrade CTA \u2014 'Upgrade Plan', 'Get More Messages', 'Upgrade to Pro', or similar. Click it. Verify it navigates to a pricing page, a checkout flow, or a contact/booking link \u2014 NOT a 404 and NOT a blank page. Record the destination URL."
+      },
+      {
+        "id": 7,
+        "description": "STOP HERE \u2014 do NOT fill in any card number, CVV, expiry, or billing address field, and do NOT click any final \"Pay\" / \"Subscribe\" / \"Confirm payment\" button on the checkout page. Razorpay is configured in LIVE mode for this product (no test-mode keys exist) \u2014 completing this form would attempt a real charge. Recording the destination URL in the previous step is sufficient evidence the upgrade path works."
       }
     ]
   }
