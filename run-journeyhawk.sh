@@ -191,6 +191,18 @@ if [[ ! -f "${SPEC_FILE}" ]]; then
   exit 1
 fi
 
+# Prefer the curator-generated enriched file if it exists.
+# The enriched file (<stem>.enriched.json) is written by spec_curator after each run
+# and contains the base spec plus any promoted/extended nursery journeys.
+# The base spec is never modified by the curator — it stays the canonical authored source.
+_ENRICHED_SPEC="${SPEC_FILE%.json}.enriched.json"
+if [[ -f "${_ENRICHED_SPEC}" ]]; then
+  echo "[spec] Using enriched spec: ${_ENRICHED_SPEC} (base: ${SPEC_FILE})"
+  SPEC_FILE="${_ENRICHED_SPEC}"
+else
+  echo "[spec] No enriched spec found — using base spec: ${SPEC_FILE}"
+fi
+
 # Load QA env (provides PHRONEX_QA_DATABASE_URL_SYNC)
 QA_ENV="${SCRIPT_DIR}/../.qa.env"
 if [[ -f "${QA_ENV}" ]]; then
