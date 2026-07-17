@@ -802,6 +802,42 @@ except Exception as e:
 TREE_OPT_EOF
 _STAGE_AFTER_GEN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
 
+# Step 0b3: Journey merger — SUBTREE_GRAFT + PREFIX_MERGE on TEMP_SPEC.
+# Consolidates overlapping journeys: common prefix tails are grafted,
+# near-duplicate journeys are merged into one with sequential steps.
+# Runs AFTER tree_optimizer so it merges already-structured branch trees.
+# Fail-open: TEMP_SPEC unchanged on any error.
+echo ""
+echo "[0b3/3] Journey merger (SUBTREE_GRAFT + PREFIX_MERGE)..."
+"${PYTHON}" - "${TEMP_SPEC}" <<'MERGER_EOF' || true
+import json, sys
+spec_path = sys.argv[1] if len(sys.argv) > 1 else ""
+if not spec_path:
+    sys.exit(0)
+try:
+    from phronex_common.testing.journey_merger import merge_journeys
+    with open(spec_path) as f:
+        journeys = json.load(f)
+    before = len(journeys)
+    result = merge_journeys(journeys)
+    # Remove retired journeys (merge_journeys marks but does not remove them)
+    journeys = [j for j in journeys if not j.get("_retired_at")]
+    after = len(journeys)
+    with open(spec_path, "w") as f:
+        json.dump(journeys, f, indent=2)
+    if result.total_merged > 0:
+        print(
+            f"[0b3/3] Journey merger: {result.grafted} SUBTREE_GRAFT, "
+            f"{result.prefix_merged} PREFIX_MERGE, "
+            f"{before - after} journeys retired ({after} remaining)"
+        )
+    else:
+        print(f"[0b3/3] Journey merger: no overlapping journeys found ({after} journeys, 0 changes)")
+except Exception as e:
+    print(f"[0b3/3] Journey merger failed (non-fatal): {e}", file=sys.stderr)
+MERGER_EOF
+_STAGE_AFTER_GEN=$("${PYTHON}" -c "import json; print(len(json.load(open('${TEMP_SPEC}'))))" 2>/dev/null || echo "${_STAGE_AFTER_GEN}")
+
 # Step 0c: Resource verification (Phase 84 — pre-run resource inventory check)
 # Verifies all test resources (accounts, credentials, documents, infra) are available.
 # Populates _resource_cache used by fixture_guard's detect_seed_test_account.
