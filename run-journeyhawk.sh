@@ -191,6 +191,17 @@ if [[ ! -f "${SPEC_FILE}" ]]; then
   exit 1
 fi
 
+# Prefer enriched spec (curator output from a previous run) for all DATA-READING
+# steps. SPEC_FILE is kept as the canonical anchor for cache-key stability
+# (--base-spec in journey_generator) and the post-run runner.py pipeline.
+_ENRICHED_SPEC="${SPEC_FILE%.json}.enriched.json"
+if [[ -f "${_ENRICHED_SPEC}" ]]; then
+  echo "[spec] Enriched spec found — loading journeys from ${_ENRICHED_SPEC}"
+  _READ_SPEC="${_ENRICHED_SPEC}"
+else
+  _READ_SPEC="${SPEC_FILE}"
+fi
+
 # Load QA env (provides PHRONEX_QA_DATABASE_URL_SYNC)
 QA_ENV="${SCRIPT_DIR}/../.qa.env"
 if [[ -f "${QA_ENV}" ]]; then
@@ -341,7 +352,7 @@ if [[ "${_BUDGET_EXIT}" -ne 0 ]] && [[ "${JOURNEYHAWK_CONTEXT_BUDGET_NO_AUTOSLIC
     _JOURNEY_IDS=$("${PYTHON}" -c "
 import json, sys
 try:
-    with open('${SPEC_FILE}') as f:
+    with open('${_READ_SPEC}') as f:
         spec = json.load(f)
     journeys = spec if isinstance(spec, list) else spec.get('journeys', [])
     # Prefer an explicit oracle feature token when a journey declares one
@@ -457,10 +468,10 @@ _JP_PRO_PASS="${QA_JP_PRO_PASSWORD:-${_PORTAL_PASS}}"
 # the browser session that all leaf journeys depend on.
 "${PYTHON}" -c "
 import json, sys
-spec = json.load(open('${SPEC_FILE}'))
+spec = json.load(open('${_READ_SPEC}'))
 active = [j for j in spec if (not j.get('_retired_at') and not j.get('_skip')) or j.get('isSharedRoot')]
 json.dump(active, sys.stdout, ensure_ascii=False)
-" > "${_SPEC_ACTIVE}" 2>/dev/null || cp "${SPEC_FILE}" "${_SPEC_ACTIVE}"
+" > "${_SPEC_ACTIVE}" 2>/dev/null || cp "${_READ_SPEC}" "${_SPEC_ACTIVE}"
 echo "[pre] Active journeys after filtering retired+skipped: $("${PYTHON}" -c "import json; print(len(json.load(open('${_SPEC_ACTIVE}'))))" 2>/dev/null || echo '?')"
 sed \
   -e "s|http://localhost:3002|${PORTAL_URL}|g" \
@@ -950,7 +961,7 @@ allow_smoke = os.environ.get('JH_ALLOW_SMOKE', '0') == '1'
 # Retired journeys (_retired_at set) are excluded from the static_ids set so they
 # do not receive the "always run" exemption and are dropped by the depth gate.
 try:
-    static_ids = {j.get('id', '') for j in json.load(open('${SPEC_FILE}'))
+    static_ids = {j.get('id', '') for j in json.load(open('${_READ_SPEC}'))
                   if not j.get('_retired_at')}
 except Exception:
     static_ids = set()
