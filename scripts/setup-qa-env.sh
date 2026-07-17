@@ -503,6 +503,75 @@ SQL
 fi
 
 # ===========================================================================
+# SECTION 3c — ContentCompanion (CC) instance grant for the QA superadmin
+# ===========================================================================
+# JourneyHawk CC journeys (J03 KB content, J04 settings, J05 analytics, J09
+# billing) require the QA superadmin to have a content-companion instance.
+# Without this, the portal's instance selector shows "No instances found" and
+# the journeys fail at step 1.
+#
+# We provision the 'e2e-test-instance' CC instance (matching the config file
+# at contentcompanion/config/instances/e2e-test-instance/) with the system
+# 'owner' role. phronex-auth maps 'owner' → CC JWT role 'instance_owner' and
+# sets owner_instance_id='e2e-test-instance' in the token, which CC requires.
+#
+# The QA_ACCOUNT_EMAIL from Section 3 is reused — no new credentials needed.
+# Idempotent: safe to run multiple times.
+# ---------------------------------------------------------------------------
+echo ""
+echo "== Section 3c: ContentCompanion 'e2e-test-instance' grant for QA account =="
+
+if [[ -z "${QA_ACCOUNT_EMAIL}" ]]; then
+  echo "  WARNING: QA_ACCOUNT_EMAIL not set — skipping CC instance grant."
+elif [[ "${DRY_RUN}" -eq 1 ]]; then
+  echo "  [dry-run] would upsert content-companion instance 'e2e-test-instance'"
+  echo "  [dry-run] would upsert owner/free grant on e2e-test-instance for ${QA_ACCOUNT_EMAIL}"
+else
+  sudo -u postgres psql -v ON_ERROR_STOP=1 -d phronex_auth \
+      -v qa_email="'${QA_ACCOUNT_EMAIL}'" <<'SQL'
+-- 3c-i. Upsert the content-companion 'e2e-test-instance' instance.
+--       owner_account_id = the QA superadmin (must already exist from Section 3).
+--       Idempotent on slug — if the instance already exists, mark it active.
+WITH acct AS (SELECT id FROM accounts WHERE email = :qa_email)
+INSERT INTO instances (id, product_slug, owner_account_id, slug, display_name,
+                       tier_config, widget_config, is_active, created_at, updated_at)
+SELECT gen_random_uuid(), 'content-companion', acct.id, 'e2e-test-instance',
+       'Phronex Solutions (QA)', '{}'::jsonb, '{}'::jsonb, true, now(), now()
+FROM acct
+ON CONFLICT (slug) DO UPDATE
+  SET is_active  = true,
+      updated_at = now();
+
+-- 3c-ii. Upsert the owner/free grant for the QA superadmin on e2e-test-instance.
+--        'owner' is a system role (is_system=true, always present). No role creation needed.
+WITH acct AS (SELECT id FROM accounts WHERE email = :qa_email),
+     inst AS (SELECT id FROM instances WHERE slug = 'e2e-test-instance'),
+     rl   AS (SELECT id FROM roles WHERE slug = 'owner')
+INSERT INTO access_grants (id, account_id, product_slug, instance_id, tier,
+                           is_active, granted_at, updated_at, role_id)
+SELECT gen_random_uuid(), acct.id, 'content-companion', inst.id, 'free',
+       true, now(), now(), rl.id
+FROM acct, inst, rl
+WHERE NOT EXISTS (
+  SELECT 1 FROM access_grants g
+  WHERE g.account_id = acct.id
+    AND g.product_slug = 'content-companion'
+    AND g.instance_id = inst.id
+);
+
+-- 3c-iii. If the grant already existed, ensure it is active + correctly roled/tiered.
+UPDATE access_grants g
+SET is_active = true, tier = 'free', updated_at = now(),
+    role_id = (SELECT id FROM roles WHERE slug = 'owner')
+FROM accounts a, instances i
+WHERE g.account_id = a.id AND a.email = :qa_email
+  AND g.instance_id = i.id AND i.slug = 'e2e-test-instance'
+  AND g.product_slug = 'content-companion';
+SQL
+  echo "  ok: content-companion e2e-test-instance + owner/free grant ensured"
+fi
+
+# ===========================================================================
 # SECTION 4 — Auth ↔ ComC secret alignment
 # ===========================================================================
 # ComC validates grant tokens minted by phronex-auth using a shared secret:
@@ -563,4 +632,4 @@ PYEOF
 fi
 
 echo ""
-echo "[setup-qa-env] Done${DRY_RUN:+ (dry-run)}. QA environment is provisioned/idempotent."
+echo "[setup-qa-env] Done$([[ "${DRY_RUN}" == "1" ]] && echo " (dry-run)" || true). QA environment is provisioned/idempotent."
