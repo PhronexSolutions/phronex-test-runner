@@ -4,7 +4,7 @@ milestone: v18.0
 milestone_name: milestone
 status: verifying
 last_updated: "2026-05-17T19:24:09.368Z"
-last_activity: 2026-07-18 - Completed quick task 260718-fk2: Add regression test for nested-worktree path-resolution bug class in run-journeyhawk.sh (QA_ENV/VENV/DOCS_SLICES)
+last_activity: 2026-07-18 - Completed quick task 260718-fz2: Add run-summary extractor for JourneyHawk sprint logs (Overnight Plan Phase 4)
 ---
 
 # State — phronex-test-runner
@@ -14,7 +14,7 @@ last_activity: 2026-07-18 - Completed quick task 260718-fk2: Add regression test
 - **Phase:** Active development (v18.0 strategist + tree executor shipped)
 - **Status:** All Run 6 action items closed. Next: first run with tree spec to verify timing target.
 - **External milestone:** phronex-common v18.0 — Test Strategist Layer (Foundations)
-- **Last activity:** 2026-05-13 - Replace TS SDK query() with direct claude -p subprocess call
+- **Last activity:** 2026-07-18 - Completed quick task 260718-fz2: Add run-summary extractor for JourneyHawk sprint logs (Overnight Plan Phase 4)
 
 ## Stopped At
 
@@ -57,6 +57,7 @@ Then: **CC journeys tree spec** — no tree version exists yet. Use "apply tree 
 | 260503-portal-tree | portal-tree.json 21-node tree + smoke consolidation | 2026-05-03 | 56444f4 | Committed | — |
 | 260513-5lf | Replace TS SDK query() with direct claude -p subprocess | 2026-05-13 | 08bc5ec | Verified | [260513-5lf-replace-ts-sdk-query-with-direct-claude-](./quick/260513-5lf-replace-ts-sdk-query-with-direct-claude-/) |
 | 260718-fk2 | Nested-worktree path-resolution regression test (QA_ENV/VENV/DOCS_SLICES) | 2026-07-18 | 9586e5a | Verified | [260718-fk2-add-regression-test-for-nested-worktree-](./quick/260718-fk2-add-regression-test-for-nested-worktree-/) |
+| 260718-fz2 | Run-summary extractor for JourneyHawk sprint logs (Overnight Plan Phase 4) | 2026-07-18 | 028708f | Verified | [260718-fz2-add-run-summary-extractor-for-journeyhaw](./quick/260718-fz2-add-run-summary-extractor-for-journeyhaw/) |
 
 ## Notes
 
