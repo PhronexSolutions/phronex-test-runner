@@ -149,3 +149,18 @@ straightforward bug (SDK has a dedicated `auth_token=` param for exactly
 this, the code just wasn't using it), well within "grow completeness,
 don't reduce functionality, no third-party cost" bounds. Fixed directly
 rather than deferred.
+
+---
+
+## 2026-07-18 — cc-J03 scope correction: per-source date needs new instrumentation
+
+Earlier logged as "minor completeness gap." Checked the actual data path:
+sources come from ChromaDB collection metadata
+(`contentcompanion/api/routes_instance.py` ~line 765, `doc_name`/
+`source_name` from `meta.get(...)`) — there's no timestamp field in that
+metadata at all. The frontend `ContentSource` type has no date field
+either. This isn't a quick "expose existing data" fix — it needs new
+instrumentation at ingestion time (stamp each chunk's metadata with an
+indexed date), a backend field to expose it, and a frontend column. Real,
+two-sided feature work. Not attempting tonight; still low priority (soft
+failure, not a crash/blocker) but bigger than initially scoped.
