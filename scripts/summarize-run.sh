@@ -1,0 +1,123 @@
+#!/bin/bash
+# summarize-run.sh — extract run metrics from a JourneyHawk sprint log and append
+# one row to overnight-runs/RUN-LOG.md (Overnight Plan Phase 4 — visibility).
+#
+# Today the key run numbers (curator counts, CrossRepoSweep signals, strategy
+# defect_rate, readiness, and the Summary block) are only visible by grepping raw
+# sprint logs. This tool turns each run into a single markdown row so future
+# diagnosis is minutes, not an investigation.
+#
+# Pure-text tool: NO DB connection, NO LLM calls, NO phronex-common import, NO
+# sourcing of .qa.env. It only reads the passed log file and appends to RUN-LOG.md.
+#
+# Usage:
+#   ./scripts/summarize-run.sh <logfile>
+#
+# Behaviour:
+#   - Missing/nonexistent log file is the ONLY hard error (exit 1).
+#   - An incomplete/malformed log (no metric lines) renders every field as an
+#     em dash "—" and still exits 0 (never crashes).
+#   - Always appends exactly one data row; never truncates/overwrites RUN-LOG.md.
+#   - Bootstraps the RUN-LOG.md title + table header on first run.
+#
+set -euo pipefail
+
+EMDASH="—"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+LOG="${1:-}"
+if [[ -z "${LOG}" || ! -f "${LOG}" ]]; then
+    echo "[summarize] ERROR: log file not found: ${LOG:-<none>}" >&2
+    exit 1
+fi
+
+RUN_LOG="${SCRIPT_DIR}/../overnight-runs/RUN-LOG.md"
+
+# Return the value if non-empty, else the em dash. Guards against set -e aborts.
+default_dash() {
+    local v="${1:-}"
+    if [[ -z "${v}" ]]; then
+        printf '%s' "${EMDASH}"
+    else
+        printf '%s' "${v}"
+    fi
+}
+
+# Extract a Summary-block field value (everything after "Label:"). Last match wins.
+summary_field() {
+    local label="$1"
+    local line
+    line="$(grep -E "^[[:space:]]*${label}:" "${LOG}" | tail -n1 || true)"
+    # Strip up to and including the label + colon, then trim surrounding whitespace.
+    line="$(printf '%s' "${line}" | sed -E "s/^[[:space:]]*${label}:[[:space:]]*//; s/[[:space:]]+$//")"
+    default_dash "${line}"
+}
+
+# --- Summary block fields ---------------------------------------------------
+product="$(summary_field 'Product')"
+run_id="$(summary_field 'Run ID')"
+journeys="$(summary_field 'Journeys run')"
+passed="$(summary_field 'Passed')"
+failed="$(summary_field 'Failed')"
+gaps="$(summary_field 'Gaps found')"
+defects="$(summary_field 'Defects written')"
+
+# --- curator line (last occurrence) -----------------------------------------
+curator_line="$(grep -E '\[curator\]' "${LOG}" | tail -n1 || true)"
+promoted="$(printf '%s' "${curator_line}" | grep -oE 'promoted=[0-9]+' | cut -d= -f2 || true)"
+promoted="$(default_dash "${promoted}")"
+coverage="$(printf '%s' "${curator_line}" | grep -oE 'coverage=[^[:space:]]+' | cut -d= -f2 || true)"
+coverage="$(default_dash "${coverage}")"
+
+# --- strategy_state line (last occurrence) ----------------------------------
+strategy_line="$(grep -E '\[strategy_state\]' "${LOG}" | tail -n1 || true)"
+defect_rate="$(printf '%s' "${strategy_line}" | grep -oE 'defect_rate=[0-9.]+' | cut -d= -f2 || true)"
+defect_rate="$(default_dash "${defect_rate}")"
+# Fallback product from strategy_state ("[strategy_state] cc: ...") when Summary absent.
+if [[ "${product}" == "${EMDASH}" ]]; then
+    strat_product="$(printf '%s' "${strategy_line}" | grep -oE '\[strategy_state\][[:space:]]+[A-Za-z0-9_-]+' | awk '{print $NF}' || true)"
+    product="$(default_dash "${strat_product}")"
+fi
+
+# --- CrossRepoSweep line (last occurrence) ----------------------------------
+sweep_line="$(grep -E 'CrossRepoSweep' "${LOG}" | tail -n1 || true)"
+sweep="$(printf '%s' "${sweep_line}" | grep -oE '[0-9]+ high-confidence' | grep -oE '^[0-9]+' || true)"
+sweep="$(default_dash "${sweep}")"
+
+# --- readiness line (last occurrence) ---------------------------------------
+readiness_line="$(grep -E '\[readiness\]' "${LOG}" | tail -n1 || true)"
+readiness_level="$(printf '%s' "${readiness_line}" | grep -oE 'level=[A-Za-z]+' | cut -d= -f2 || true)"
+readiness_composite="$(printf '%s' "${readiness_line}" | grep -oE 'composite=[0-9.]+' | cut -d= -f2 || true)"
+if [[ -n "${readiness_level}" && -n "${readiness_composite}" ]]; then
+    readiness="${readiness_level}(${readiness_composite})"
+else
+    readiness="$(default_dash "${readiness_level}")"
+fi
+
+# --- context columns --------------------------------------------------------
+run_date="$(date -r "${LOG}" '+%Y-%m-%d %H:%M' || true)"
+run_date="$(default_dash "${run_date}")"
+log_name="$(basename "${LOG}")"
+
+# --- write RUN-LOG.md -------------------------------------------------------
+mkdir -p "$(dirname "${RUN_LOG}")"
+
+HEADER='| Date | Product | Run ID | Journeys | Pass | Fail | Gaps | Defects | Promoted | Coverage | defect_rate | Sweep | Readiness | Log |'
+SEPARATOR='| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |'
+
+if [[ ! -f "${RUN_LOG}" ]]; then
+    {
+        printf '# JourneyHawk Run Log\n\n'
+        printf 'Append-only, one row per run. Generated by scripts/summarize-run.sh.\n\n'
+        printf '%s\n' "${HEADER}"
+        printf '%s\n' "${SEPARATOR}"
+    } > "${RUN_LOG}"
+fi
+
+printf '| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
+    "${run_date}" "${product}" "${run_id}" "${journeys}" "${passed}" "${failed}" \
+    "${gaps}" "${defects}" "${promoted}" "${coverage}" "${defect_rate}" \
+    "${sweep}" "${readiness}" "${log_name}" >> "${RUN_LOG}"
+
+echo "[summarize] appended row for ${log_name} → overnight-runs/RUN-LOG.md" >&2
