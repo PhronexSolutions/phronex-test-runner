@@ -53,3 +53,37 @@ not overcharging.
 staying unset on EC2 is also unchanged — setting it wouldn't fix anything
 given the route doesn't accept that mechanism, so I didn't want to leave a
 red herring in the `.env`.
+
+---
+
+## 2026-07-18 — journey_generator LLM calls fail with 401 "invalid x-api-key" (OAuth token in wrong auth slot)
+
+**Context:** Sprint 4, launched with `JOURNEYHAWK_SKIP_GENERATION=0` to grow journey breadth per tonight's goal.
+
+**Issue:** `run-journeyhawk.sh` extracts the Claude Max OAuth access token from
+`~/.claude/.credentials.json` (format `sk-ant-oat01-...`) and exports it as
+`ANTHROPIC_API_KEY` before calling `journey_generator.py`, so
+`phronex_common.llm` picks it up. But every LLM call failed with
+`401 invalid x-api-key` (both STANDARD and CHEAP tiers, all retries) — the
+whole generation step produced zero journeys, and the run reported
+"Journeys run: 0" overall (nothing executed at all, not even the existing
+10).
+
+**Likely root cause:** OAuth access tokens and real Anthropic API keys are
+different auth schemes. Real keys go in the `x-api-key` header; OAuth tokens
+need `Authorization: Bearer <token>` instead. If `phronex_common.llm`'s
+client always sends whatever's in `ANTHROPIC_API_KEY` via `x-api-key`
+(standard `anthropic` Python SDK default), an OAuth token in that slot will
+always be rejected — this may explain why the whole generation step
+appears to have never worked with OAuth. `cc-test-runner` (the Claude Code
+subprocess wrapper) can consume this correctly because Claude Code's own
+SDK understands OAuth tokens; a raw `phronex_common.llm` → `anthropic`
+SDK call likely doesn't.
+
+**Not fixed:** this touches the shared, vendor-neutral LLM factory used by
+every product (`phronex_common.llm`) — not something to change without full
+context/review given it's genuinely shared infrastructure. Worked around by
+running remaining sprints with `JOURNEYHAWK_SKIP_GENERATION=1` (regression
+mode against the existing 10 journeys) so the loop keeps making progress on
+real product bugs rather than repeatedly failing here. Journey breadth growth
+is blocked until this is fixed.
