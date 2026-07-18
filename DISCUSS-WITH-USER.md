@@ -130,3 +130,22 @@ instead. Different component than the earlier instance-selector fix
 missing-null-guard class of bug as defect #251 (already fixed elsewhere),
 just a different call site. Not fixed tonight — logged for a future pass,
 low urgency since it degrades gracefully rather than crashing.
+
+---
+
+## 2026-07-18 — RESOLVED: OAuth auth bug (both entries above)
+
+Fixed and deployed: `phronex_common/llm/providers/anthropic.py` now uses
+`auth_token=` for OAuth-format tokens instead of `api_key=`
+(phronex-common PR #88, merged + deployed to EC2 + CC restarted).
+Verified live: direct `AnthropicProvider.chat()` call against the deployed
+OAuth token now gets past authentication (hits a legitimate rate limit
+instead of 401 — proof the auth mechanism now works). No new 401 errors
+in CC's logs since deploy. journey_generator should also work again next
+run since it uses the same code path.
+
+Turned out this didn't need a design decision after all — it was a
+straightforward bug (SDK has a dedicated `auth_token=` param for exactly
+this, the code just wasn't using it), well within "grow completeness,
+don't reduce functionality, no third-party cost" bounds. Fixed directly
+rather than deferred.
