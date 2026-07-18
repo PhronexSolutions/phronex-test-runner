@@ -42,6 +42,45 @@ set -euo pipefail
 # Claude Max subscription) which is the correct auth path for DevServer runs.
 unset ANTHROPIC_API_KEY
 
+# ---------- Path resolution helper (nested-worktree-safe) ----------
+# Root cause of the 2026-07-18 QA_ENV/VENV/DOCS_SLICES bugs (fix 782f4a8): paths
+# resolved via ${SCRIPT_DIR}/../X silently break when the script runs from a
+# nested git worktree (.claude/worktrees/<name>/ — two levels below repo root,
+# not one). Resolve via PHRONEX_CODE_ROOT first, falling back to the old relative
+# guess only if the primary path is absent. All three formerly-buggy sites and the
+# --print-paths dry-run share THIS single helper, so any revert of the
+# primary/fallback order at one site is caught by the regression test.
+_resolve_phronex_path() {
+  local REL="$1"
+  local p="${PHRONEX_CODE_ROOT:-${HOME}/code}/${REL}"
+  if [[ ! -e "$p" ]]; then
+    p="${SCRIPT_DIR}/../${REL}"
+  fi
+  printf '%s' "$p"
+}
+
+# --print-paths: dry-run that prints the three resolved paths and exits, without
+# touching flock, positional-arg requirements, python, or the intelligence
+# pipeline. Used by tests/test_path_resolution.sh to exercise the REAL resolution
+# logic from a simulated nested worktree. Placed BEFORE the EXIT/SIGTERM traps and
+# the flag while-loop so it never triggers the pipeline (RESULTS_DIR/PRODUCT unset).
+if [[ "${1:-}" == "--print-paths" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  case "${2:-cc}" in
+    cc)      _REPO_DIR="contentcompanion" ;;
+    jp)      _REPO_DIR="jobportal" ;;
+    comc)    _REPO_DIR="phronex-command-centre" ;;
+    portal)  _REPO_DIR="phronex-portal" ;;
+    website) _REPO_DIR="phronex-website" ;;
+    praxis)  _REPO_DIR="praxis" ;;
+    *)       _REPO_DIR="${2:-cc}" ;;
+  esac
+  printf 'QA_ENV=%s\n' "$(_resolve_phronex_path .qa.env)"
+  printf 'VENV=%s\n' "$(_resolve_phronex_path phronex-common/.venv/bin/python)"
+  printf 'DOCS_SLICES=%s/.docs/slices\n' "$(_resolve_phronex_path "${_REPO_DIR}")"
+  exit 0
+fi
+
 # ---------- Gap-6: concurrency guard — one run per product at a time ----------
 # flock is called after PRODUCT is parsed; see below.
 
@@ -208,10 +247,7 @@ fi
 # invoked from a nested git worktree (e.g. .claude/worktrees/<name>/), where
 # ".." is one level too shallow. Fall back to the old relative guess so a
 # machine without PHRONEX_CODE_ROOT set still works when run from repo root.
-QA_ENV="${PHRONEX_CODE_ROOT:-${HOME}/code}/.qa.env"
-if [[ ! -f "${QA_ENV}" ]]; then
-  QA_ENV="${SCRIPT_DIR}/../.qa.env"
-fi
+QA_ENV="$(_resolve_phronex_path .qa.env)"
 if [[ -f "${QA_ENV}" ]]; then
   set -a; source "${QA_ENV}"; set +a
   echo "[env] Loaded ${QA_ENV}"
@@ -284,10 +320,7 @@ export STRATEGY_MODE
 # Same nested-worktree issue as QA_ENV above: SCRIPT_DIR/../phronex-common
 # only resolves when this script runs from the repo root. Try
 # PHRONEX_CODE_ROOT first, fall back to the relative guess.
-VENV="${PHRONEX_CODE_ROOT:-${HOME}/code}/phronex-common/.venv/bin/python"
-if [[ ! -f "${VENV}" ]]; then
-  VENV="${SCRIPT_DIR}/../phronex-common/.venv/bin/python"
-fi
+VENV="$(_resolve_phronex_path phronex-common/.venv/bin/python)"
 if [[ -f "${VENV}" ]]; then
   PYTHON="${VENV}"
 else
@@ -426,10 +459,7 @@ if [[ "${_BUDGET_EXIT}" -ne 0 ]] && [[ "${JOURNEYHAWK_CONTEXT_BUDGET_NO_AUTOSLIC
     website) _REPO_DIR="phronex-website" ;;
     *)       _REPO_DIR="${PRODUCT}" ;;
   esac
-  _PRODUCT_REPO_ROOT="${PHRONEX_CODE_ROOT:-${HOME}/code}/${_REPO_DIR}"
-  if [[ ! -d "${_PRODUCT_REPO_ROOT}" ]]; then
-    _PRODUCT_REPO_ROOT="${SCRIPT_DIR}/../${_REPO_DIR}"
-  fi
+  _PRODUCT_REPO_ROOT="$(_resolve_phronex_path "${_REPO_DIR}")"
   _DOCS_SLICES="${_PRODUCT_REPO_ROOT}/.docs/slices"
   _LEARNINGS_SLICE_OUT="${SCRIPT_DIR}/JOURNEYHAWK-LEARNINGS-${_REPO_DIR}.md"
 

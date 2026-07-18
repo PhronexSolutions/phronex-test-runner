@@ -35,9 +35,19 @@ jobs:
       run: bun run build
       working-directory: ./cli
 
+  bash-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run path-resolution regression test
+      run: bash tests/test_path_resolution.sh
+
   docker-build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
