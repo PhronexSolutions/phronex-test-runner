@@ -163,6 +163,8 @@ portal-journeys/results-*/
 portal-journeys/retest-results/
 praxis-journeys/results-*/
 *.generated.json
+*.enriched.json
+*.provenance.jsonl
 
 # JourneyHawk results dirs at repo root (legacy location)
 results-praxis-run*/
