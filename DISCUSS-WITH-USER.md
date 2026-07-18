@@ -7,6 +7,76 @@ flag as ESCALATE).
 
 ---
 
+## 2026-07-18 — RESOLVED: CC production chat widget outage #2 — root cause was Anthropic OAuth grants rejecting sustained machine-to-machine traffic, not a code bug
+
+**Context:** Discovered live while sprint12 (Phase 3 broader/deeper run) was executing —
+cc-J06/J07/J08 all failed with `service_unavailable`. Confirmed via `journalctl` on
+EC2: 132 `anthropic.AuthenticationError: 401 invalid x-api-key` in a 20-minute window,
+hitting real (non-test) customer traffic too (external IPv6 source in the logs).
+
+**This looked identical to the earlier-tonight OAuth bug (PR #88) but wasn't.**
+Diagnosis ruled out, in order:
+1. Stale deploy — no. `/opt/phronex-common` HEAD is `24f0fc98` (the fix), and CC's
+   venv editable-installs directly from that path (confirmed via `__file__`
+   resolution + source inspection: `auth_token=` fix is present and loaded).
+2. Expired/invalid token — no. The exact token value from CC's `.env`, tested
+   directly against `api.anthropic.com` with `Authorization: Bearer` (mimicking
+   the fixed code path), returned `HTTP 200`. A single isolated call always worked.
+3. **Sustained load did not.** 132 failures in 20 minutes, all `invalid x-api-key`,
+   despite the code being provably correct. Vivek's hypothesis (correct): Anthropic
+   likely does not sanction non-interactive, high-volume, machine-to-machine use of
+   a Claude Max OAuth grant issued for the `claude` CLI — direct SDK calls via
+   `auth_token=` bypass the actual CLI binary the grant was issued for, and appear
+   to get throttled/rejected differently than genuine CLI-driven traffic once volume
+   goes up (my own concurrent sprint12 run was very likely compounding this).
+
+**Fix — not a workaround, an exercise of the vendor-neutral factory it was built for:**
+Switched CC's `chat` task to Groq (`llama-3.3-70b-versatile`) via the officially
+supported `phronex_common.llm.factory` routing:
+- `GROQ_API_KEY` added to `/opt/contentcompanion/.env` (existing key from
+  `KEYS.md`, verified healthy — HTTP 200 on direct probe).
+- `LLM_CHAT_PROVIDER=groq` + `LLM_CHAT_MODEL=llama-3.3-70b-versatile` — platform-level
+  env override, task-scoped (`task="chat"` only — other CC tasks like `summarise`
+  and journey/content generation are untouched).
+- `e2e-test-instance` additionally had a **DB-level per-instance override**
+  (`instance_llm_configs.provider='anthropic'`, pre-existing, unrelated to tonight)
+  that bypassed the platform env var entirely — fixed via the existing admin API
+  (`PATCH /api/v1/admin/instances/{id}/llm-config`). No other instance had a row
+  in that table, so this was the only one affected.
+- Had to `pip install --no-deps groq` into CC's venv on EC2 — the SDK wasn't
+  present, which crash-looped the service for ~1 minute after the first restart
+  (fixed immediately, service recovered).
+
+**Verified fixed:** live end-to-end test against `https://cc.phronex.com/api/v1/chat/message`
+returned a full, coherent, correctly-grounded streamed response. Zero new
+`invalid x-api-key` errors since. JobPortal and Praxis (same shared OAuth token)
+checked — 0 errors in the last 30 min, not currently affected, but worth watching
+since they're structurally exposed to the same risk if their traffic grows.
+
+**Bug found and NOT yet fixed (separate, smaller):** `refresh-ec2-oauth-key.sh`'s
+own printed instructions ("To restore EC2 permanent prepaid key... Run
+`./refresh-ec2-oauth-key.sh --force`") are **wrong** — the script has no code path
+that ever deploys the real prepaid key; `--force` only forces a redeploy of the
+OAuth token. KEYS.md repeats the same wrong instruction. This should be fixed
+(either add a real `--restore-prepaid` mode, or correct the docs) so a future
+session doesn't get misled the way this investigation initially was. Confirmed
+safe for now: the cron's idempotency check only touches the `ANTHROPIC_API_KEY`
+line via targeted `sed`, so it will not clobber the new `GROQ_API_KEY`/`LLM_CHAT_*`
+vars as long as the OAuth token itself doesn't rotate.
+
+**Also noticed, not fixed:** the prepaid Anthropic key on file in KEYS.md returns
+`"Your credit balance is too low"` from Anthropic directly — contradicts an
+expected ~$10 balance. Vivek is checking whether that's a different
+account/workspace than the one KEYS.md documents. Separately, `factory.py`'s
+docstring references `InstanceLLMConfig.oauth_mandate` as a real field — it does
+not exist as a column on `instance_llm_configs` (schema-vs-docs drift, dead code
+path, not exercised in practice but worth cleaning up). And there's an unrelated
+logging bug (`KeyError: 'request_id'` in `error_logger.py`'s formatter) plus a
+`POST /api/v1/support/requests` 401 from CC to phronex-auth, both pre-existing
+and independent of tonight's incident.
+
+---
+
 ## 2026-07-18 — CC's billing-mode poller has never actually authenticated against phronex-auth
 
 **Context:** Overnight Sprint 3 (salvage run), `cc-J10` (billing tier/upgrade journey) failed.
