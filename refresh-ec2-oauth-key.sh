@@ -38,7 +38,11 @@ unset ANTHROPIC_API_KEY
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CREDS_FILE="$HOME/.claude/.credentials.json"
-SSH_KEY="$HOME/code/AWSContentCompanion.pem"
+# AWSContentCompanion.pem was the Windows-machine key path; on Linux machines
+# (this one included) the working key is $PHRONEX_SSH_KEY from
+# ~/.phronex-machine.env. Fall back to the old .pem path for compatibility
+# with machines that still use it.
+SSH_KEY="${PHRONEX_SSH_KEY:-$HOME/code/AWSContentCompanion.pem}"
 EC2_HOST="ubuntu@43.204.79.39"
 COMC_ENV="/opt/command-centre/.env"
 LOG_FILE="/tmp/ec2-oauth-refresh.log"
