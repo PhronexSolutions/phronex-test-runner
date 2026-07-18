@@ -115,3 +115,18 @@ mechanism as the journey_generator issue above, but it's hitting the
 2. **Root cause:** fix `phronex_common/llm/providers/anthropic.py` to send OAuth-format tokens via `Authorization: Bearer` instead of `x-api-key` (detect token prefix `sk-ant-oat01-` vs `sk-ant-api03-`). This is shared infrastructure used by every product's LLM calls — real code, needs review, not something to improvise under tonight's context constraints.
 
 I'm not attempting either. Continuing the sprint loop in `JOURNEYHAWK_SKIP_GENERATION=1` mode (existing journeys only) since journey generation hits this same wall.
+
+---
+
+## 2026-07-18 — New finding: SuperadminInfoSection "recent issues" Object.entries(null)
+
+**Context:** Sprint 6, `cc-J02` (superadmin nav) — Info & Connections tab.
+
+Console error: `TypeError: Cannot convert undefined or null to object at
+Object.entries in React useState`. Page doesn't crash (unlike the earlier
+Analytics-tab bug) — degrades to a "Recent issues unavailable." fallback
+instead. Different component than the earlier instance-selector fix
+(`SuperadminInfoSection`, not `layout.tsx`/`CCAnalyticsSection`). Same
+missing-null-guard class of bug as defect #251 (already fixed elsewhere),
+just a different call site. Not fixed tonight — logged for a future pass,
+low urgency since it degrades gracefully rather than crashing.
