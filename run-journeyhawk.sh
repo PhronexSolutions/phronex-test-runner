@@ -202,8 +202,16 @@ else
   _READ_SPEC="${SPEC_FILE}"
 fi
 
-# Load QA env (provides PHRONEX_QA_DATABASE_URL_SYNC)
-QA_ENV="${SCRIPT_DIR}/../.qa.env"
+# Load QA env (provides PHRONEX_QA_DATABASE_URL_SYNC).
+# Resolve via PHRONEX_CODE_ROOT first -- SCRIPT_DIR/../.qa.env only resolves
+# correctly when this script runs from the repo root; it silently breaks when
+# invoked from a nested git worktree (e.g. .claude/worktrees/<name>/), where
+# ".." is one level too shallow. Fall back to the old relative guess so a
+# machine without PHRONEX_CODE_ROOT set still works when run from repo root.
+QA_ENV="${PHRONEX_CODE_ROOT:-${HOME}/code}/.qa.env"
+if [[ ! -f "${QA_ENV}" ]]; then
+  QA_ENV="${SCRIPT_DIR}/../.qa.env"
+fi
 if [[ -f "${QA_ENV}" ]]; then
   set -a; source "${QA_ENV}"; set +a
   echo "[env] Loaded ${QA_ENV}"
@@ -272,8 +280,14 @@ else
 fi
 export STRATEGY_MODE
 
-# Locate Python with phronex-common installed
-VENV="${SCRIPT_DIR}/../phronex-common/.venv/bin/python"
+# Locate Python with phronex-common installed.
+# Same nested-worktree issue as QA_ENV above: SCRIPT_DIR/../phronex-common
+# only resolves when this script runs from the repo root. Try
+# PHRONEX_CODE_ROOT first, fall back to the relative guess.
+VENV="${PHRONEX_CODE_ROOT:-${HOME}/code}/phronex-common/.venv/bin/python"
+if [[ ! -f "${VENV}" ]]; then
+  VENV="${SCRIPT_DIR}/../phronex-common/.venv/bin/python"
+fi
 if [[ -f "${VENV}" ]]; then
   PYTHON="${VENV}"
 else
@@ -348,7 +362,11 @@ if [[ "${_BUDGET_EXIT}" -ne 0 ]] && [[ "${JOURNEYHAWK_CONTEXT_BUDGET_NO_AUTOSLIC
     website) _REPO_DIR="phronex-website" ;;
     *)       _REPO_DIR="${PRODUCT}" ;;
   esac
-  _DOCS_SLICES="${SCRIPT_DIR}/../${_REPO_DIR}/.docs/slices"
+  _PRODUCT_REPO_ROOT="${PHRONEX_CODE_ROOT:-${HOME}/code}/${_REPO_DIR}"
+  if [[ ! -d "${_PRODUCT_REPO_ROOT}" ]]; then
+    _PRODUCT_REPO_ROOT="${SCRIPT_DIR}/../${_REPO_DIR}"
+  fi
+  _DOCS_SLICES="${_PRODUCT_REPO_ROOT}/.docs/slices"
   _LEARNINGS_SLICE_OUT="${SCRIPT_DIR}/JOURNEYHAWK-LEARNINGS-${_REPO_DIR}.md"
 
   # Auto-slice 1: LEARNINGS.md → product-scoped slice

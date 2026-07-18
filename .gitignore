@@ -155,6 +155,7 @@ cli/*.png
 
 # JourneyHawk run output directories
 journeys-output/
+overnight-runs/
 jp-journeys/results-*/
 cc-journeys/results/
 cc-journeys/results-*/
