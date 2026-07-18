@@ -152,6 +152,53 @@ rather than deferred.
 
 ---
 
+## 2026-07-18 — RESOLVED: growth loop proven end-to-end for the first time
+
+After merging phronex-common PR #88 (OAuth `auth_token=` fix) and PR #89
+(trunk journey synthesis) into main, a full `run-journeyhawk.sh cc
+cc-journeys/cc-deep.json` run with generation enabled completed
+successfully: 65 journeys generated, `cc-trunk-superadmin` synthesized
+cleanly, dependency graph validated (no abort), 19 journeys executed (11
+passed, 8 failed on real bugs), 8 defects written, 10 patterns promoted,
+curator coverage moved 69→82, `CycleCloseGate: PASSED`. This is the first
+successful lap of the full growth loop after 0-for-2 the previous two
+attempts. No operator decision needed here — just recording that the
+Phase 1 validation goal from `JOURNEYHAWK-OVERNIGHT-PLAN-2026-07-18.md` is
+met.
+
+---
+
+## 2026-07-18 — New finding: business_journey_generator LLM calls still 401 despite OAuth fix
+
+**Context:** Same verify-growth-loop run above. Not a blocker — the run
+still succeeded overall — but worth tracking since it's the same auth bug
+class that caused the production widget outage earlier tonight.
+
+`business_journey_generator.py`'s cross-feature-E2E and deep-feature LLM
+generation modes (the semantic "business logic journey" generator) failed
+every call with `401 invalid x-api-key`, even though phronex-common PR #88
+(the `auth_token=` fix for OAuth-format tokens) was merged and present in
+the code used for this run. In the same run, `journey_generator.py`'s
+enrichment step and the template-based surface generator succeeded using
+the same OAuth token — so the fix clearly works for some call sites but
+not this one.
+
+**Effect:** 0 business-logic journeys were generated this run (all 8
+cross-feature/deep-feature LLM calls 401'd), but the surface generator
+picked up the slack (52 surface journeys, 36 merged after sanitize) so the
+run still produced net-new coverage. Net effect was small, not zero —
+just degraded to a shallower generation mode than intended.
+
+**Not investigated yet:** which client-construction path
+`business_journey_generator.py`'s `_run_generation`/`GenerateJourneys`
+task uses to resolve credentials, and why it differs from the
+`AnthropicProvider` path that got fixed in PR #88. Given the last "quick
+fix" to this exact code area (`phronex_common.llm`) turned out to be
+simple once diagnosed, this is likely tractable — but deferring to a
+dedicated pass rather than improvising mid-verification.
+
+---
+
 ## 2026-07-18 — cc-J03 scope correction: per-source date needs new instrumentation
 
 Earlier logged as "minor completeness gap." Checked the actual data path:
