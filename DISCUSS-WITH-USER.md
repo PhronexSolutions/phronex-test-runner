@@ -87,3 +87,31 @@ running remaining sprints with `JOURNEYHAWK_SKIP_GENERATION=1` (regression
 mode against the existing 10 journeys) so the loop keeps making progress on
 real product bugs rather than repeatedly failing here. Journey breadth growth
 is blocked until this is fixed.
+
+---
+
+## 2026-07-18 (URGENT — production impact) — CC's live chat widget is down for real customers, not just JourneyHawk
+
+**Update to the entry above.** This is bigger than a JourneyHawk-only problem.
+
+Confirmed via `journalctl -u contentcompanion` on EC2, real (non-test) request
+traffic: `phronex_common/llm/providers/anthropic.py` throws
+`anthropic.AuthenticationError: 401 invalid x-api-key` on every call, and the
+CC chat endpoint is responding `429 Too Many Requests` to real visitors as a
+result. **The CC widget is non-functional for real customers right now.**
+
+My earlier "fix" (running `refresh-ec2-oauth-key.sh` to push a fresh OAuth
+token) could never have worked — it's not a staleness problem. OAuth access
+tokens (`sk-ant-oat01-...`) and real Anthropic API keys use different auth
+schemes: real keys go in `x-api-key`; OAuth tokens need
+`Authorization: Bearer <token>`. `phronex_common/llm/providers/anthropic.py`
+sends whatever's in `ANTHROPIC_API_KEY` via `x-api-key` — so an OAuth token
+there is *always* rejected, regardless of freshness. This is the identical
+mechanism as the journey_generator issue above, but it's hitting the
+**production widget**, not just my test tooling.
+
+**Two ways to restore the widget, both outside what I'll do autonomously:**
+1. **Fastest:** top up the real prepaid Anthropic API key (console.anthropic.com/settings/billing) and restore it to `/opt/contentcompanion/.env` — this is a direct third-party cost action, which you asked me not to take autonomously tonight.
+2. **Root cause:** fix `phronex_common/llm/providers/anthropic.py` to send OAuth-format tokens via `Authorization: Bearer` instead of `x-api-key` (detect token prefix `sk-ant-oat01-` vs `sk-ant-api03-`). This is shared infrastructure used by every product's LLM calls — real code, needs review, not something to improvise under tonight's context constraints.
+
+I'm not attempting either. Continuing the sprint loop in `JOURNEYHAWK_SKIP_GENERATION=1` mode (existing journeys only) since journey generation hits this same wall.
