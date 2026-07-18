@@ -103,17 +103,26 @@ background-job context, not normal interactive repo-root usage.
    instrumentation at ingestion time, not just exposing existing data.
 
 **Phase 3 — now unblocked, Phase 1 proved the growth loop works once:**
-6. Resume "broader and deeper every run." The growth loop (generate →
-   tree_optimize → merge → curator PROMOTE → coverage increase) has now
-   been observed to work once (69→82, 2026-07-18 ~11:11 UTC). Safe to
-   resume broader/deeper sprints — but watch for regressions, since this
-   is still only one successful lap, not a proven steady-state.
+6. ⏳ IN PROGRESS — "broader and deeper every run" resumed. Sprint 12
+   launched 2026-07-18 ~11:27 UTC (`overnight-runs/sprint12.log`),
+   generation enabled, 40 journeys detected (up from 19 in the
+   verify-growth-loop run) — proof this genuinely grows breadth run over
+   run, not just repeats the same 19. Still executing as of this writing;
+   update this line with the final coverage/defect numbers once it
+   completes (watch for regressions — this is still only the second
+   successful-generation lap, not a proven steady-state).
 
 **Phase 4 — visibility:**
-7. The `defect_rate` / `CrossRepoSweep` signal count / curator
-   promoted-collapsed-graph_merged numbers are only visible by grepping raw
-   sprint logs right now. A one-page summary per run (or a `STATE.md`-style
-   row) would make future diagnosis minutes instead of an investigation.
+7. ✅ DONE — `scripts/summarize-run.sh` added (quick task 260718-fz2).
+   Parses curator counts, CrossRepoSweep signals, `defect_rate`,
+   readiness, and the Summary block from any sprint log and appends one
+   row to `overnight-runs/RUN-LOG.md`. Validated end-to-end against three
+   real logs of very different shapes: a pre-fix aborted run (all zeros,
+   correctly extracted), an in-progress run (all em dashes, exits clean),
+   and the full successful verify-growth-loop run (19/11/8, coverage
+   69→82, defect_rate 0.42 — all fields matched manual inspection).
+   `run-journeyhawk.sh` itself was not touched. Usage: point it at any
+   `overnight-runs/*.log` after a run finishes.
 
 ## Where things live
 
