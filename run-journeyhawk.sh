@@ -295,6 +295,70 @@ else
 fi
 echo "[env] Python: ${PYTHON}"
 
+# Preflight: verify the pipeline's own critical dependencies BEFORE spending
+# 10+ minutes running the full journey suite. Added 2026-07-18 after a night
+# where a missing psycopg2 (wrong Python resolved) and a broken OAuth auth
+# mechanism each silently discarded a full run's results -- this surfaces
+# both classes of failure in seconds instead of after a full run completes.
+echo ""
+echo "[preflight] Verifying pipeline dependencies..."
+_PREFLIGHT_FAIL=0
+
+if ! "${PYTHON}" -c "import psycopg2" 2>/dev/null; then
+  echo "[preflight] ⛔ psycopg2 not importable via ${PYTHON} -- DB writes will fail after the full run completes."
+  echo "[preflight]    Fix: verify PHRONEX_CODE_ROOT/phronex-common/.venv has psycopg2 installed, and that VENV resolved correctly above."
+  _PREFLIGHT_FAIL=1
+fi
+
+if [[ -z "${PHRONEX_QA_DATABASE_URL_SYNC:-}" ]]; then
+  echo "[preflight] ⛔ PHRONEX_QA_DATABASE_URL_SYNC is unset -- .qa.env did not load correctly."
+  _PREFLIGHT_FAIL=1
+elif ! "${PYTHON}" -c "
+import sys
+import psycopg2
+from phronex_common.testing._qa_db import clean_dsn
+try:
+    conn = psycopg2.connect(clean_dsn('${PHRONEX_QA_DATABASE_URL_SYNC}'))
+    conn.close()
+except Exception as e:
+    print(f'[preflight]    {type(e).__name__}: {e}', file=sys.stderr)
+    sys.exit(1)
+" 2>&1; then
+  echo "[preflight] ⛔ Cannot connect to phronex_qa DB."
+  _PREFLIGHT_FAIL=1
+fi
+
+if [[ "${JOURNEYHAWK_SKIP_GENERATION:-0}" != "1" ]] && [[ -f "$HOME/.claude/.credentials.json" ]]; then
+  if ! "${PYTHON}" -c "
+import sys, json, asyncio
+creds = json.load(open('$HOME/.claude/.credentials.json'))
+token = creds.get('claudeAiOauth', {}).get('accessToken', '')
+if not token:
+    print('[preflight]    no OAuth access token in credentials file', file=sys.stderr)
+    sys.exit(1)
+from phronex_common.llm.providers.anthropic import AnthropicProvider
+async def check():
+    p = AnthropicProvider(api_key=token, model='claude-haiku-4-5', product='cc', task='preflight', tier='CHEAP')
+    await p.chat(system='reply with OK', messages=[{'role': 'user', 'content': 'hi'}])
+try:
+    asyncio.run(check())
+except Exception as e:
+    print(f'[preflight]    {type(e).__name__}: {e}', file=sys.stderr)
+    sys.exit(1)
+" 2>&1; then
+    echo "[preflight] ⛔ LLM auth check failed -- journey generation will produce zero output."
+    echo "[preflight]    Set JOURNEYHAWK_SKIP_GENERATION=1 to skip generation and run existing journeys only, or fix the auth issue above."
+    _PREFLIGHT_FAIL=1
+  fi
+fi
+
+if [[ "${_PREFLIGHT_FAIL}" -eq 1 ]]; then
+  echo ""
+  echo "[preflight] ⛔ One or more checks failed -- aborting before the expensive run. See errors above."
+  exit 4
+fi
+echo "[preflight] ✅ All checks passed."
+
 # Phase 5: Auto-determine JOURNEYHAWK_SKIP_GENERATION via should_generate() policy.
 # Only runs when not already set by user or --force-active.
 # Policy (STRATEGIST-WIRING-PLAN.md):
