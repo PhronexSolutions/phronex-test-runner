@@ -1,24 +1,44 @@
 #!/usr/bin/env bash
-# journeyhawk-ctl.sh — pause/kill/resume/status control for a running JourneyHawk sprint.
+# journeyhawk-ctl.sh — pause/kill/resume/status/list control for JourneyHawk sprints.
+#
+# MULTI-RUN SAFE: <id> is per-RUN (product + results-dir basename, e.g.
+# "cc-results-99-verify"), not just the product slug — run-journeyhawk.sh
+# passes --controlId "${PRODUCT}-$(basename "${RESULTS_DIR}")". Two concurrent
+# sprints of the same product (e.g. a live overnight sprint plus a separate
+# verification run) get distinct control files and never collide.
 #
 # The runner (cli/src/index.ts) checks /tmp/journeyhawk-<id>.control BETWEEN
 # journeys only — never mid-journey — so a signal always takes effect after
-# the current journey's execution finishes cleanly. <id> is the product slug
-# passed to run-journeyhawk.sh (--controlId), matching what index.ts derives.
+# the current journey's execution finishes cleanly.
 #
 # Usage:
-#   ./scripts/journeyhawk-ctl.sh pause  <id>   # stop after current journey, resumable
-#   ./scripts/journeyhawk-ctl.sh kill   <id>   # stop after current journey, purge run-transient state
-#   ./scripts/journeyhawk-ctl.sh resume <id>   # clear a pause signal (re-invoke run-journeyhawk.sh yourself)
-#   ./scripts/journeyhawk-ctl.sh status <id>   # show current signal, if any
+#   ./scripts/journeyhawk-ctl.sh list                # show <id> for every currently running sprint
+#   ./scripts/journeyhawk-ctl.sh pause  <id>          # stop after current journey, resumable
+#   ./scripts/journeyhawk-ctl.sh kill   <id>          # stop after current journey, purge run-transient state
+#   ./scripts/journeyhawk-ctl.sh resume <id>          # clear a pause signal (re-invoke run-journeyhawk.sh yourself)
+#   ./scripts/journeyhawk-ctl.sh status <id>          # show current signal, if any
 
 set -euo pipefail
 
 ACTION="${1:-}"
+
+if [[ "$ACTION" == "list" ]]; then
+  # Each running cc-test-runner process carries its own --controlId on the
+  # command line — scrape it directly rather than guessing from result dirs.
+  FOUND=$(ps -eo pid,args | grep -- '--controlId' | grep -v grep || true)
+  if [[ -z "$FOUND" ]]; then
+    echo "[journeyhawk-ctl] No running JourneyHawk sprints found."
+  else
+    echo "[journeyhawk-ctl] Running sprints:"
+    echo "$FOUND" | sed -E 's/.*--controlId[[:space:]]+([^ ]+).*/  id=\1/'
+  fi
+  exit 0
+fi
+
 ID="${2:-}"
 
 if [[ -z "$ACTION" || -z "$ID" ]]; then
-  echo "Usage: $0 {pause|kill|resume|status} <id>" >&2
+  echo "Usage: $0 {list|pause|kill|resume|status} [id]" >&2
   exit 1
 fi
 
@@ -49,7 +69,7 @@ case "$ACTION" in
     fi
     ;;
   *)
-    echo "Unknown action '${ACTION}'. Usage: $0 {pause|kill|resume|status} <id>" >&2
+    echo "Unknown action '${ACTION}'. Usage: $0 {list|pause|kill|resume|status} [id]" >&2
     exit 1
     ;;
 esac

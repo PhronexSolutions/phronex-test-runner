@@ -1827,7 +1827,7 @@ _RUNNER_START_SEC=${SECONDS}
     --maxTurns 150 \
     --statePort "${CCTR_STATE_PORT}" \
     --model "${JOURNEYHAWK_MODEL:-claude-sonnet-4-6}" \
-    --controlId "${PRODUCT}" \
+    --controlId "${PRODUCT}-$(basename "${RESULTS_DIR}")" \
   || CC_EXIT=$?
 export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
 # Exit 2 = KILL, 3 = PAUSE (scripts/journeyhawk-ctl.sh) — graceful stop between
