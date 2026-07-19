@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# refresh-ec2-oauth-key.sh
+# refresh-llm-oauth-key.sh
 # Reads the Claude Max OAuth access token from ~/.claude/.credentials.json and
 # deploys it as ANTHROPIC_API_KEY to all Phronex services that need it:
 #
@@ -8,44 +8,52 @@
 #     - jobportal         → /opt/jobportal/.env
 #     - praxis            → /opt/praxis/.env
 #
-#   DevServer services (this machine):
+#   phronex-main services (this machine):
 #     - command-centre    → /opt/command-centre/.env
 #
 # Designed to run as a cron job every 20 minutes so services never go dark
 # when prepaid API credits are exhausted. Claude Code auto-refreshes its own
 # OAuth token internally; this script just syncs the latest token to each service.
 #
-# Cron entry (installed automatically on first run):
-#   */20 * * * * /home/ouroborous/code/phronex-test-runner/refresh-ec2-oauth-key.sh >> /tmp/ec2-oauth-refresh.log 2>&1
+# Cron entry (managed manually — see RULES below, not auto-installed):
+#   */20 * * * * /home/phronex/code/phronex-test-runner/refresh-llm-oauth-key.sh >> /tmp/oauth-refresh.log 2>&1
 #
 # RULES:
 #   1. One shared health check: all three EC2 services use the same prepaid key.
 #      If that key is healthy, skip all EC2 deploys (no unnecessary restarts).
 #   2. If the prepaid key is exhausted or an OAuth token is already in place,
 #      deploy the OAuth token to all three EC2 services and restart each.
-#   3. DevServer ComC always gets the latest token (no prepaid key to protect).
+#   3. phronex-main's ComC always gets the latest token (no prepaid key to protect).
 #   4. Forces a claude CLI call first so Claude Code refreshes the OAuth token
 #      if it is within 30 minutes of expiry.
 #   5. Verifies the token works before deploying to any target.
-#   6. Logs all actions to /tmp/ec2-oauth-refresh.log for auditability.
+#   6. Logs all actions to /tmp/oauth-refresh.log for auditability.
 #
 # Usage:
-#   ./refresh-ec2-oauth-key.sh          # normal run (smart skip if prepaid key OK)
-#   ./refresh-ec2-oauth-key.sh --force  # always deploy to all targets
+#   ./refresh-llm-oauth-key.sh          # normal run (smart skip if prepaid key OK)
+#   ./refresh-llm-oauth-key.sh --force  # always deploy to all targets
 
 set -euo pipefail
 unset ANTHROPIC_API_KEY
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CREDS_FILE="$HOME/.claude/.credentials.json"
-# AWSContentCompanion.pem was the Windows-machine key path; on Linux machines
-# (this one included) the working key is $PHRONEX_SSH_KEY from
-# ~/.phronex-machine.env. Fall back to the old .pem path for compatibility
-# with machines that still use it.
+# cron runs with a minimal environment and does NOT source ~/.bashrc or
+# ~/.phronex-machine.env, so $PHRONEX_SSH_KEY is unset under cron even though
+# it's set in every interactive shell — source it explicitly here rather than
+# assuming it's inherited (this was silently broken under cron: the fallback
+# AWSContentCompanion.pem path doesn't exist on this machine, so the SSH-based
+# EC2 health check/deploy steps were failing on every single cron run).
+if [ -f "$HOME/.phronex-machine.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$HOME/.phronex-machine.env"
+  set +a
+fi
 SSH_KEY="${PHRONEX_SSH_KEY:-$HOME/code/AWSContentCompanion.pem}"
 EC2_HOST="ubuntu@43.204.79.39"
 COMC_ENV="/opt/command-centre/.env"
-LOG_FILE="/tmp/ec2-oauth-refresh.log"
+LOG_FILE="/tmp/oauth-refresh.log"
 FORCE="${1:-}"
 
 echo ""
@@ -189,9 +197,9 @@ else
   echo "[4/5] EC2 deploy skipped (prepaid key healthy)."
 fi
 
-# ── Step 5: Deploy to DevServer command-centre ────────────────────────────
+# ── Step 5: Deploy to phronex-main command-centre ────────────────────────────
 echo ""
-echo "[5/5] DevServer command-centre target..."
+echo "[5/5] phronex-main command-centre target..."
 if [ -f "$COMC_ENV" ]; then
   # Idempotency: skip backup+restart if the token already matches (unless --force)
   CURRENT_COMC_KEY=$(grep '^ANTHROPIC_API_KEY=' "$COMC_ENV" 2>/dev/null | cut -d= -f2- || echo "")
@@ -217,7 +225,7 @@ if [ -f "$COMC_ENV" ]; then
   fi
   sleep 3
   COMC_STATUS=$(sudo systemctl is-active command-centre 2>/dev/null || echo "unknown")
-  echo "   ✅ DevServer command-centre updated. Status: $COMC_STATUS"
+  echo "   ✅ phronex-main command-centre updated. Status: $COMC_STATUS"
   fi
 else
   echo "   ⚠️  $COMC_ENV not found — ComC not installed on this machine, skipping."
@@ -231,5 +239,5 @@ echo "   Next auto-refresh: within 20 minutes via cron"
 echo ""
 echo "   To restore EC2 permanent prepaid key after topping up credits:"
 echo "   1. Go to console.anthropic.com/settings/billing → add credits"
-echo "   2. Run: ./refresh-ec2-oauth-key.sh --force"
+echo "   2. Run: ./refresh-llm-oauth-key.sh --force"
 echo ""
