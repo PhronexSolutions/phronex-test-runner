@@ -5,10 +5,11 @@ import type { TestCase } from "../../types/test-case.js";
 import z from "zod";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import http from "http";
-import { writeFileSync } from "fs";
-import { join } from "path";
+import { writeFileSync, existsSync, readFileSync } from "fs";
+import { join, resolve } from "path";
 import { logger } from "../../utils/logger.js";
 import { updateTestPlanToolInput } from "./update-test-plan-tool-input.js";
+import { recordEntityToolInput } from "./record-entity-tool-input.js";
 
 class MCPStateServer {
     private app: express.Application;
@@ -62,6 +63,13 @@ class MCPStateServer {
                         name: "update_test_step",
                         description: "Update a test step with passed/failed status",
                         inputSchema: z.toJSONSchema(updateTestPlanToolInput),
+                    },
+                    {
+                        name: "record_entity",
+                        description:
+                            "Record a runtime-created value (e.g. a nonce or instance id) as {key: value} " +
+                            "so a dependent journey can consume it via {{key}} templating",
+                        inputSchema: z.toJSONSchema(recordEntityToolInput),
                     },
                 ],
             };
@@ -125,6 +133,53 @@ class MCPStateServer {
                             {
                                 type: "text",
                                 text: `Updated step ${stepId} (${step.description}) to ${status}${error ? `: ${error}` : ""}`,
+                            },
+                        ],
+                    };
+                }
+
+                case "record_entity": {
+                    const { key, value } = recordEntityToolInput.parse(args);
+
+                    if (!this.testState?.entityOutputPath) {
+                        throw new Error(
+                            "record_entity called but this journey declares no entityOutputPath"
+                        );
+                    }
+
+                    // V5/T-98-01 — resolve() the sidecar path before any read/write to
+                    // collapse any ../ traversal, mirroring index.ts's resolve(stateOutputPath).
+                    const sidecarPath = resolve(this.testState.entityOutputPath);
+
+                    // Merge {key: value} into the sidecar so multiple record_entity calls in
+                    // one journey accumulate (e.g. the nonce AND the instance id, per D-04).
+                    // Read-existing → parse → set key → write. Non-fatal on write failure,
+                    // mirroring the update_test_step step-outcomes flush pattern.
+                    try {
+                        let entities: Record<string, string> = {};
+                        if (existsSync(sidecarPath)) {
+                            try {
+                                const parsed = JSON.parse(readFileSync(sidecarPath, "utf-8"));
+                                if (parsed && typeof parsed === "object") {
+                                    entities = parsed as Record<string, string>;
+                                }
+                            } catch (readErr) {
+                                logger.debug("record_entity: existing sidecar unreadable, overwriting", {
+                                    readErr,
+                                });
+                            }
+                        }
+                        entities[key] = value;
+                        writeFileSync(sidecarPath, JSON.stringify(entities, null, 2));
+                    } catch (writeErr) {
+                        logger.debug("record_entity sidecar write failed (non-fatal)", { writeErr });
+                    }
+
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: `Recorded ${key}`,
                             },
                         ],
                     };

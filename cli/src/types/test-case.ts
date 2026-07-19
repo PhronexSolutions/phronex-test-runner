@@ -28,6 +28,7 @@ export const testCaseSchema = z.object({
     isSharedRoot: z.boolean().optional().default(false),
     role: z.enum(["root", "branch", "verify", "teardown", "observation"]).optional().default("verify"),
     stateOutputPath: z.string().optional(),
+    entityOutputPath: z.string().optional(),
     dependsOn: z.string().optional(),
     params: z.record(z.string(), z.unknown()).optional().default({}),
     cleanupSteps: z.array(stepSchema).optional(),
