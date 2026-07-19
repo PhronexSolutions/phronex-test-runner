@@ -1827,9 +1827,18 @@ _RUNNER_START_SEC=${SECONDS}
     --maxTurns 150 \
     --statePort "${CCTR_STATE_PORT}" \
     --model "${JOURNEYHAWK_MODEL:-claude-sonnet-4-6}" \
+    --controlId "${PRODUCT}" \
   || CC_EXIT=$?
 export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
-if [[ ${CC_EXIT} -ne 0 ]]; then
+# Exit 2 = KILL, 3 = PAUSE (scripts/journeyhawk-ctl.sh) — graceful stop between
+# journeys, not a crash. Partial results still flow into the pipeline below
+# (per the Catastrophic crash recovery doctrine: a partial run is intelligence,
+# never discard it), but the message must not read like a failure.
+if [[ ${CC_EXIT} -eq 2 ]]; then
+  echo "[1/3] cc-test-runner stopped: KILL requested via journeyhawk-ctl.sh (run-transient state cleaned)"
+elif [[ ${CC_EXIT} -eq 3 ]]; then
+  echo "[1/3] cc-test-runner stopped: PAUSE requested via journeyhawk-ctl.sh — resume with a normal re-invocation (--skip-passed relies on recorded verdicts)"
+elif [[ ${CC_EXIT} -ne 0 ]]; then
   echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
 fi
 echo "[1/3] cc-test-runner wall-clock: ${JH_RUNNER_DURATION_SEC}s"

@@ -13,6 +13,7 @@ interface CLIOptions {
     model?: string;
     runJourney?: string;
     statePort: number;
+    controlId?: string;
 }
 
 const program = new Command()
@@ -24,6 +25,7 @@ const program = new Command()
     .option("-m, --model <model>", "The model to use for the test run.")
     .option("--runJourney <id>", "Run only the journey with this id and its dependsOn ancestors")
     .option("--statePort <port>", "Port for MCPStateServer (default: 3001)", "3001")
+    .option("--controlId <id>", "Identifier for the pause/kill control file (defaults to resultsPath basename)")
     .parse(process.argv);
 
 const args = program.opts<CLIOptions>();
