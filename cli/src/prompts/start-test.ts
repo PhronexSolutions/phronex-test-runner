@@ -118,6 +118,7 @@ export async function* startTest(testCase: TestCase, storageStatePath: string | 
         "mcp__cctr-playwright__browser_set_storage_state",
         "mcp__cctr-state__get_test_plan",
         "mcp__cctr-state__update_test_step",
+        "mcp__cctr-state__record_entity",
     ];
 
     const prompt = "Query the test plan from mcp__cctr-state__get_test_plan MCP tool to get started.";

@@ -1,4 +1,4 @@
-import { mkdirSync } from "fs";
+import { mkdirSync, readFileSync, existsSync } from "fs";
 import { dirname, resolve } from "path";
 import { MCPStateServer } from "./mcp/test-state/server";
 import { inputs } from "./utils/args";
@@ -21,6 +21,12 @@ logger.info(`Detected ${inputs.testCases.length} test cases.`);
 
 // 1. State capture map: journeyId → saved state file path
 const capturedStates = new Map<string, string>();
+
+// 1b. Entity capture map: journeyId → recorded-entity sidecar file path.
+// capturedEntities mirrors capturedStates, but the child inherits DATA (merged
+// into params for {{var}} templating) rather than a browser session — which is
+// why a dependent journey stays anonymous (D-05/D-10).
+const capturedEntities = new Map<string, string>();
 
 // 2. Kahn's topological sort — parents before children
 function topoSort(cases: TestCase[]): TestCase[] {
@@ -68,13 +74,33 @@ async function runJourney(
     server: MCPStateServer,
     reporter: TestReporter,
     parentStatePath: string | null,
+    parentEntities: string | null,
 ): Promise<void> {
     const startTime = new Date();
     logger.info("Starting test case", { test_id: testCase.id });
     server.clearState();
 
+    // Merge the parent's recorded-entity sidecar into this journey's params BEFORE
+    // templating, so {{key}} substitution resolves the runtime value the parent
+    // recorded (D-07c). resolveParams itself is unchanged.
+    let mergedParams: Record<string, unknown> = { ...(testCase.params ?? {}) };
+    if (parentEntities && existsSync(parentEntities)) {
+        try {
+            const parsed = JSON.parse(readFileSync(parentEntities, "utf-8"));
+            if (parsed && typeof parsed === "object") {
+                mergedParams = { ...mergedParams, ...(parsed as Record<string, unknown>) };
+            }
+        } catch (entityErr) {
+            logger.warn("parent_entities_read_failed", {
+                test_id: testCase.id,
+                parentEntities,
+                entityErr: String(entityErr),
+            });
+        }
+    }
+
     // Resolve params before setting state — Claude sees substituted step text
-    const resolvedSteps = resolveParams(testCase.steps, testCase.params ?? {});
+    const resolvedSteps = resolveParams(testCase.steps, mergedParams);
 
     // Pre-mark SKIP=PASS steps as passed before Claude sees them.
     // Steps whose description starts with "SKIP=PASS" are out-of-scope or
@@ -146,6 +172,9 @@ for (const tc of inputs.testCases) {
     if (tc.stateOutputPath) {
         mkdirSync(dirname(resolve(tc.stateOutputPath)), { recursive: true });
     }
+    if (tc.entityOutputPath) {
+        mkdirSync(dirname(resolve(tc.entityOutputPath)), { recursive: true });
+    }
 }
 
 // 5. Main loop — topo-sorted so parents always run before children
@@ -156,11 +185,23 @@ for (const testCase of orderedCases) {
         ? (capturedStates.get(testCase.dependsOn) ?? null)
         : null;
 
-    await runJourney(testCase, server, reporter, parentStatePath);
+    // Resolve parent entities: if parent recorded an entity sidecar, pass it down.
+    // B consumes automatically when B.dependsOn === A.id AND A declared
+    // entityOutputPath — no opt-in field on B (Open Question 2 / D-05).
+    const parentEntities = testCase.dependsOn
+        ? (capturedEntities.get(testCase.dependsOn) ?? null)
+        : null;
+
+    await runJourney(testCase, server, reporter, parentStatePath, parentEntities);
 
     // Record output state path for downstream nodes
     if (testCase.stateOutputPath) {
         capturedStates.set(testCase.id, testCase.stateOutputPath);
+    }
+
+    // Record output entity sidecar path for downstream nodes
+    if (testCase.entityOutputPath) {
+        capturedEntities.set(testCase.id, testCase.entityOutputPath);
     }
 }
 
