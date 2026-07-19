@@ -105,6 +105,7 @@ _run_pipeline() {
     --results-dir "${RESULTS_DIR}" \
     --spec-file "${SPEC_FILE}" \
     --merge-depth "${MERGE_DEPTH}" \
+    ${ALLOW_RETIRE:+--allow-retire} \
     ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"} || true
 }
 
@@ -117,7 +118,14 @@ GATE_MODE=0
 # ---------- skip-passed flag — skip journeys that passed in prior runs ----------
 SKIP_PASSED=0
 FORCE_ACTIVE=0
-MERGE_DEPTH=5
+# GRAPH_MERGE was structurally unreachable at the old default of 5: the real
+# trunk journey is only 2 steps deep, so no pair could ever share a 5-step
+# common prefix. PR #97's graph-aware fingerprinting now prepends a shared
+# dependsOn ancestor's steps before prefix comparison, so a 2-step shared
+# trunk contributes toward min_prefix "for free" — 2 is the value that
+# actually matches the live spec's shape. Override with --merge-depth if needed.
+MERGE_DEPTH=2
+ALLOW_RETIRE=""
 
 # ---------- Phase 82 STRAT-16 — per-run mode override ----------
 while [[ $# -gt 0 ]]; do
@@ -161,6 +169,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --merge-depth=*)
       MERGE_DEPTH="${1#*=}"
+      shift
+      continue
+      ;;
+    --allow-retire)
+      ALLOW_RETIRE=1
       shift
       continue
       ;;
@@ -1954,6 +1967,7 @@ if [[ "${_pipeline_ran}" -eq 0 ]]; then
     --results-dir "${RESULTS_DIR}" \
     --spec-file "${SPEC_FILE}" \
     --merge-depth "${MERGE_DEPTH}" \
+    ${ALLOW_RETIRE:+--allow-retire} \
     ${_DOCS_DIR:+--docs-dir "${_DOCS_DIR}"}
   PIPE_EXIT=$?
   _pipeline_ran=1
