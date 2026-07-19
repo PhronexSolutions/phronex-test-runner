@@ -1,11 +1,17 @@
 import { mkdirSync, readFileSync, existsSync } from "fs";
-import { dirname, resolve } from "path";
+import { dirname, resolve, basename } from "path";
 import { MCPStateServer } from "./mcp/test-state/server";
 import { inputs } from "./utils/args";
 import { startTest, resolveParams } from "./prompts/start-test";
 import { logger } from "./utils/logger";
 import { TestReporter } from "./utils/test-reporter";
 import type { TestCase } from "./types/test-case";
+import { readControlSignal, cleanupTransientState, clearControlSignal } from "./control";
+
+// Identifier for this run's pause/kill control file. Explicit --controlId is
+// preferred (run-journeyhawk.sh passes the product slug); falls back to a
+// sanitized resultsPath basename so ad-hoc invocations still work.
+const controlId = inputs.controlId ?? basename(inputs.resultsPath).replace(/[^A-Za-z0-9_-]/g, "-");
 
 // Start the MCP state server.
 // This manages the state for the active test case.
@@ -203,9 +209,39 @@ for (const testCase of orderedCases) {
     if (testCase.entityOutputPath) {
         capturedEntities.set(testCase.id, testCase.entityOutputPath);
     }
+
+    // Pause/kill control check — evaluated ONLY between journeys, never
+    // mid-journey, so a signal always takes effect after the current
+    // journey's execution finishes cleanly.
+    const signal = readControlSignal(controlId);
+    if (signal === "KILL") {
+        logger.warn("control_signal_kill", {
+            after_journey: testCase.id,
+            remaining: orderedCases.length - (orderedCases.indexOf(testCase) + 1),
+        });
+        reporter.saveResults(inputs.resultsPath);
+        cleanupTransientState(controlId, inputs.testCases);
+        server.stop();
+        process.exit(2);
+    }
+    if (signal === "PAUSE") {
+        logger.warn("control_signal_pause", {
+            after_journey: testCase.id,
+            remaining: orderedCases.length - (orderedCases.indexOf(testCase) + 1),
+        });
+        // Save progress but leave storageState/entity sidecars intact —
+        // resuming re-invokes the same run with --skip-passed, which relies
+        // on the already-recorded phronex_qa verdicts, not these files, but
+        // deleting them would force every dependent journey to re-authenticate
+        // from scratch on resume for no benefit.
+        reporter.saveResults(inputs.resultsPath);
+        server.stop();
+        process.exit(3);
+    }
 }
 
 // Generate and save test reports
 reporter.saveResults(inputs.resultsPath);
+clearControlSignal(controlId); // clean completion — never leak a stale signal into the next run
 
 server.stop();
