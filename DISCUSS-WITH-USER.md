@@ -281,3 +281,44 @@ instrumentation at ingestion time (stamp each chunk's metadata with an
 indexed date), a backend field to expose it, and a frontend column. Real,
 two-sided feature work. Not attempting tonight; still low priority (soft
 failure, not a crash/blocker) but bigger than initially scoped.
+
+---
+
+## 2026-07-19 — Billing checkout 503 still recurring after the "verified live" fix
+
+**Context:** sprints 13, 14, 15, and 16 (spanning the whole overnight
+session) all independently hit the same failure: clicking "Continue to
+Payment" on the CC subscription/upgrade page produces a 503 from
+`POST /api/cc/user/api/v1/billing/checkout`, with the UI showing "Pro
+billing is not yet activated." The upgrade path has been broken for the
+entire night, across every sprint that exercised it.
+
+**Why this needs your attention specifically:** earlier tonight (Phase 2 of
+the overnight plan), the billing-mode poller's 403s were fixed — CC's
+`billing_mode.py` was switched from a shared-secret call to a
+service-account JWT against phronex-auth's `/admin/billing-mode` route
+(phronex-common PR #90) — and that fix was reported "verified live on CC."
+That fix addressed the **poller** (the background refresh that determines
+CC's billing_mode state). It did not, on this evidence, fix **real
+checkout** — the 503 that started tonight's investigation in the first
+place (`DISCUSS-WITH-USER.md`'s original billing-mode entry above) is still
+happening on every sprint since.
+
+**Not yet root-caused — three possibilities, ranked by likelihood:**
+1. The poller fix corrected billing_mode's *refresh* mechanism but
+   checkout's actual gate logic still fails closed for some other reason
+   (e.g. the now-successfully-refreshed billing_mode value itself still
+   evaluates to "not activated" for this instance).
+2. `e2e-test-instance` (the QA test instance) specifically lacks some
+   billing/tier configuration that real customer instances have, making
+   this a QA-fixture gap rather than a real customer-facing bug — would
+   need checking against a real paying customer's checkout flow to rule in
+   or out.
+3. A regression since the PR #90 deploy (unlikely given the poller fix is
+   narrowly scoped, but not ruled out).
+
+**Not touched tonight** — this needs the same kind of design-review
+attention as the original billing-mode entry (auth/billing changes are
+explicitly outside autonomous-mode boundaries), not an improvised fix.
+Recommend checking `billing_mode.py`'s actual gate condition against
+CC's live `billing_mode` value for `e2e-test-instance` as the first step.
