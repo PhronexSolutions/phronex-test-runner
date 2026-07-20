@@ -1831,13 +1831,22 @@ _RUNNER_START_SEC=${SECONDS}
   || CC_EXIT=$?
 export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
 # Exit 2 = KILL, 3 = PAUSE (scripts/journeyhawk-ctl.sh) — graceful stop between
-# journeys, not a crash. Partial results still flow into the pipeline below
-# (per the Catastrophic crash recovery doctrine: a partial run is intelligence,
-# never discard it), but the message must not read like a failure.
+# journeys, not a crash. Exit 4 = the runner detected its own Claude Code usage
+# quota was rejected (rate_limit_event, rateLimitType=five_hour) and aborted
+# immediately rather than grinding every remaining journey through an identical,
+# instant, guaranteed failure (confirmed root cause of the 2026-07-19 verify2
+# run's ~40 all-pending "failures" — see 99-EXECUTION-OAUTH-FINDING.md). Partial
+# results still flow into the pipeline below (per the Catastrophic crash
+# recovery doctrine: a partial run is intelligence, never discard it), but the
+# message must not read like a product/test failure for any of these three.
 if [[ ${CC_EXIT} -eq 2 ]]; then
   echo "[1/3] cc-test-runner stopped: KILL requested via journeyhawk-ctl.sh (run-transient state cleaned)"
 elif [[ ${CC_EXIT} -eq 3 ]]; then
   echo "[1/3] cc-test-runner stopped: PAUSE requested via journeyhawk-ctl.sh — resume with a normal re-invocation (--skip-passed relies on recorded verdicts)"
+elif [[ ${CC_EXIT} -eq 4 ]]; then
+  _QUOTA_MARKER="${RESULTS_DIR}/quota_exhausted.json"
+  _RESETS_AT_ISO=$("${PYTHON}" -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get('resetsAtIso') or 'unknown')" "${_QUOTA_MARKER}" 2>/dev/null || echo "unknown")
+  echo "[1/3] cc-test-runner stopped: Claude Code usage quota exhausted (resets ${_RESETS_AT_ISO}) — remaining journeys were NOT run and do not represent product/test failures. Re-run after the quota window resets."
 elif [[ ${CC_EXIT} -ne 0 ]]; then
   echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
 fi
