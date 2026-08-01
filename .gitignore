@@ -211,3 +211,6 @@ storage-state-*.json
 portal-journeys/results/
 portal-journeys/results-*/
 portal-journeys/retest-results/
+
+# Claude Code runtime state (worktrees, session env) - never commit
+.claude/
