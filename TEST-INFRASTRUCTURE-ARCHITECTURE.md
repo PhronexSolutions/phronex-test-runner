@@ -348,19 +348,64 @@ Steps requiring sensory input queued (not skipped). Budget-capped at 90s operato
 
 ## 9. Deployment Topology
 
+> **Corrected 2026-08-04.** The previous version of this section stated *"All QA
+> infra runs on DevServer only. EC2 hosts product code. QA never writes to product
+> DBs."* The final claim was **false**, and the machine reference was stale. Both
+> are fixed below. Treat this section as describing the running system; if it ever
+> disagrees with the box again, the box is right.
+
 ```
-DevServer (192.168.1.250)                     EC2 (43.204.79.39)
-┌─────────────────────────────────┐          ┌──────────────────────────┐
-│ phronex_qa DB (PostgreSQL)      │          │ Portal (3002)            │
-│ phronex-test-runner/            │  ───▶    │ JP (8001), CC (8000)     │
-│   run-journeyhawk.sh           │ browser  │ Auth (8002)              │
-│   cli/cc-test-runner            │  tests   │ Praxis (8003)            │
-│ phronex-common/.venv/           │          └──────────────────────────┘
-│   testing/ (89 modules)         │
-└─────────────────────────────────┘
+phronex-main (Tailscale 100.82.16.7)              EC2 (43.204.79.39)
+┌────────────────────────────────────────┐       ┌──────────────────────────┐
+│ QA CONTROL PLANE                       │       │ PRODUCTION ONLY          │
+│   phronex_qa DB (results store)        │       │   Portal (3002)          │
+│   phronex-test-runner/                 │       │   JP (8001), CC (8000)   │
+│     run-journeyhawk.sh                 │  ✗    │   Auth (8002)            │
+│     cli/cc-test-runner                 │ BLOCKED│  Praxis (8003)          │
+│                                        │       └──────────────────────────┘
+│ TEST TIER (targets — added 2026-08-04) │
+│   phronex-auth-test        :18010      │◀── journeys run against THESE
+│   contentcompanion-test    :18011      │
+│   (jobportal / praxis / portal: TODO)  │
+│   Mailpit mail sink   :1025 / UI :8025 │
+│                                        │
+│ PRODUCTION (same box)                  │
+│   command-centre           :8004       │
+└────────────────────────────────────────┘
 ```
 
-All QA infra runs on DevServer only. EC2 hosts product code. QA never writes to product DBs.
+**Isolation is enforced in two independent layers:**
+
+1. `phronex_common.testing.isolation.assert_not_production(url)` — called FIRST in
+   every adapter (cc, jp, praxis, portal, website, comc) and ~20 sites besides.
+   Raises `ValueError` on any host in `PRODUCTION_DENYLIST`.
+2. `PHRONEX_QA_ALLOWED_HOSTS` in `.qa.env` — the escape hatch that lets a host
+   appear in *both* the denylist and the allowlist. **This must stay empty.**
+
+**How production got written to (2026-03 → 2026-08-04):** layer 1 was never
+broken. Layer 2 was set to all five production hosts, which silently neutralised
+layer 1 everywhere. A single persistent config line defeated a control called in
+twenty places. Measured damage: 430 `e2e-test-instance` users plus a
+`qa-destructive` instance in production `contentcompanion`; 5 of 7 instances and
+9 of 32 accounts in production `phronex_auth`.
+
+**Rule:** never set `PHRONEX_QA_ALLOWED_HOSTS` persistently. If a read-only
+production smoke suite is genuinely needed, export it for that ONE run, scoped to
+the single host required:
+
+```bash
+PHRONEX_QA_ALLOWED_HOSTS=cc.phronex.com ./run-journeyhawk.sh cc <read-only-spec>
+```
+
+Payment, email and OAuth flows do **not** justify production access — use
+Razorpay test-mode keys, the local Mailpit sink, and a test OAuth client against a
+local instance instead.
+
+**Each test instance is:** its own pinned clone, its own venv (Python 3.13.2,
+matching production), its own database reached through its own least-privilege
+Postgres role (ComC CONCERNS #6 — `REVOKE CONNECT … FROM PUBLIC`), SMTP pointed at
+the local sink, Razorpay/OAuth unset, bound to 127.0.0.1. Provisioned by
+`phronex-common/scripts/provision-test-instance.py`.
 
 ---
 
