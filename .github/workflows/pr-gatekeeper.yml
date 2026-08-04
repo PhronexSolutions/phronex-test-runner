@@ -1,0 +1,50 @@
+name: PR Gatekeeper
+
+# Event-driven review, so a PR is looked at within ~seconds rather than waiting
+# up to 10 minutes for the polling timer.
+#
+# WHY A WORKFLOW RATHER THAN A WEBHOOK
+#   A `pull_request` webhook would have to reach something that can run
+#   `claude -p` for a couple of minutes. ComC is a FastAPI service; a request
+#   handler cannot sensibly do that, so it would need a queue and a worker.
+#   This runs on the self-hosted phronex-main runner, which is the box where the
+#   claude CLI, the skill and the Max OAuth credentials already are. No new
+#   moving parts.
+#
+# THE TIMER STILL EXISTS, DEMOTED TO A BACKSTOP
+#   GitHub Actions can be skipped, queued behind other jobs, or fail to start if
+#   the runner is offline -- phronex-main was unreachable for a stretch on
+#   2026-08-04. The 10-minute poller catches anything this misses, and its
+#   SHA-keyed state means a PR reviewed here is not reviewed twice.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# One review per PR at a time. A rapid push sequence should re-review the final
+# state, not queue three reviews of intermediate commits.
+concurrency:
+  group: pr-gatekeeper-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Chief-architect review
+    if: github.event.pull_request.draft == false
+    runs-on: [self-hosted, phronex-main]
+    # Advisory mode: this must never block a merge. It records a verdict and
+    # notifies on escalation; the decision stays with Vivek until the shadow run
+    # shows the gates are calibrated.
+    continue-on-error: true
+    timeout-minutes: 20
+    steps:
+      - name: Review this PR
+        env:
+          REPO: ${{ github.event.repository.name }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          # Runs from /opt, not from a checkout: the scripts must not depend on
+          # which branch any working tree happens to be on.
+          /home/phronex/code/phronex-common/.venv/bin/python \
+            /opt/phronex-pr-gatekeeper/pr_gatekeeper_poll.py \
+            --repo "$REPO" --only-pr "$PR"
