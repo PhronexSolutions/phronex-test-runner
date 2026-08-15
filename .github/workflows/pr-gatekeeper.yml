@@ -32,6 +32,23 @@ jobs:
     name: Chief-architect review
     if: github.event.pull_request.draft == false
     runs-on: [self-hosted, phronex-main]
+    # Serialize across ALL PRs, not just within one.
+    #
+    # The workflow-level group above is keyed on the PR number, so two DIFFERENT
+    # PRs still run at the same time — and pr_gatekeeper_poll.py takes a single
+    # host-wide lock. The loser retries for 90s, gives up, and exits 2, which
+    # renders as a red "Chief-architect review" indistinguishable from a content
+    # rejection. That happened five times on 2026-08-11 alone, and each one cost
+    # a full review cycle plus the human time to work out it was not a verdict.
+    #
+    # cancel-in-progress is deliberately false here: a queued PR must wait its
+    # turn, not be discarded. The workflow-level group keeps its
+    # cancel-in-progress: true, so a rapid push sequence on ONE PR still reviews
+    # only the final state. Both levels are needed — GitHub applies them
+    # independently, and neither alone gives both properties.
+    concurrency:
+      group: pr-gatekeeper-poller-lock
+      cancel-in-progress: false
     # Advisory mode: this must never block a merge. It records a verdict and
     # notifies on escalation; the decision stays with Vivek until the shadow run
     # shows the gates are calibrated.
