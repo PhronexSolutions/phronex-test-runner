@@ -214,3 +214,6 @@ portal-journeys/retest-results/
 
 # Claude Code runtime state (worktrees, session env) - never commit
 .claude/
+
+# Claude worktree isolation (claude-worktree-guard.sh) — gitignored, never source
+.claude/worktrees/
