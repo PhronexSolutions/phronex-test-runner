@@ -46,5 +46,5 @@ jobs:
           # Runs from /opt, not from a checkout: the scripts must not depend on
           # which branch any working tree happens to be on.
           /home/phronex/code/phronex-common/.venv/bin/python \
-            /opt/phronex-pr-gatekeeper/pr_gatekeeper_poll.py \
+            /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
             --repo "$REPO" --only-pr "$PR"
