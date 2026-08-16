@@ -31,7 +31,19 @@ jobs:
   review:
     name: Chief-architect review
     if: github.event.pull_request.draft == false
-    runs-on: [self-hosted, phronex-main]
+    # `phronex-main-host` is the BARE-METAL runner. Under the server-migration
+    # split-label model, every repo's CI moves into an unprivileged LXD container
+    # that keeps the plain `phronex-main` label, and the surviving host runner is
+    # relabelled `phronex-main-host` to serve exactly the jobs that cannot be
+    # containerised. This one cannot: it needs the host `claude` CLI and its Max
+    # OAuth credentials, plus /opt/phronex-common/scripts — none of which are, or
+    # should be, reachable from inside a container running untrusted PR code.
+    #
+    # This also FIXES a silent breakage: this job previously selected
+    # `phronex-main`, a label this repo's only runner has never carried (it was
+    # registered with the retired `devserver` label), so every run since the
+    # workflow was added has sat permanently `queued` rather than failing.
+    runs-on: [self-hosted, phronex-main-host]
     # Serialize across ALL PRs, not just within one.
     #
     # The workflow-level group above is keyed on the PR number, so two DIFFERENT
