@@ -1,4 +1,5 @@
 name: PR Gatekeeper
+# 01-09 re-verification: confirms this self-hosted job runs correctly after phronex was removed from the docker group (no-op, comment-only).
 
 # Event-driven review, so a PR is looked at within ~seconds rather than waiting
 # up to 10 minutes for the polling timer.
