@@ -9,7 +9,8 @@
 #     - praxis            → /opt/praxis/.env
 #
 #   phronex-main services (this machine):
-#     - command-centre    → /opt/command-centre/.env
+#     - command-centre    → /opt/command-centre/.env INSIDE the svc-command-centre LXD container
+#                           (the retired host command-centre.service is never touched)
 #
 # Designed to run as a cron job every 20 minutes so services never go dark
 # when prepaid API credits are exhausted. Claude Code auto-refreshes its own
@@ -199,36 +200,46 @@ fi
 
 # ── Step 5: Deploy to phronex-main command-centre ────────────────────────────
 echo ""
-echo "[5/5] phronex-main command-centre target..."
-if [ -f "$COMC_ENV" ]; then
-  # Idempotency: skip backup+restart if the token already matches (unless --force)
-  CURRENT_COMC_KEY=$(grep '^ANTHROPIC_API_KEY=' "$COMC_ENV" 2>/dev/null | cut -d= -f2- || echo "")
-  COMC_NEW_HASH=$(printf '%s' "$ACCESS_TOKEN" | sha256sum | cut -d' ' -f1)
-  COMC_CUR_HASH=$(printf '%s' "$CURRENT_COMC_KEY" | sha256sum | cut -d' ' -f1)
-  if [ "$COMC_NEW_HASH" = "$COMC_CUR_HASH" ] && [ "$FORCE" != "--force" ]; then
-    echo "   Token unchanged - skipping ComC restart."
-  else
-  cp "$COMC_ENV" "${COMC_ENV}.bak-$(date +%Y%m%d_%H%M%S)"
-  ls -t "${COMC_ENV}.bak-"* 2>/dev/null | tail -n +4 | xargs -r python3 -c "import sys,os; [os.unlink(p) for p in sys.argv[1:]]" 2>/dev/null || true
+echo "[5/5] svc-command-centre LXD container target..."
+# The ComC service no longer runs on this host — it lives in the svc-command-centre
+# LXD container, which owns port 8004 via an LXD proxy device. Every operation below
+# therefore runs INSIDE the container. Bare `lxc` fails on snap-confined LXD, so the
+# outer invocations are sudo-prefixed; inside the container `lxc exec` is already root,
+# so no inner command carries sudo.
+if sudo lxc exec svc-command-centre -- test -f "$COMC_ENV"; then
+  # The token is passed as an env var on the exec invocation — never interpolated into
+  # the heredoc body. The delimiter is QUOTED, so every $ below is container-side.
+  sudo lxc exec svc-command-centre -- env TOKEN="$ACCESS_TOKEN" FORCE_FLAG="$FORCE" COMC_ENV="$COMC_ENV" bash -s <<'CONTAINER_SCRIPT'
+    set -e
+    # Idempotency: skip backup+restart if the token already matches (unless --force)
+    CURRENT_COMC_KEY=$(grep '^ANTHROPIC_API_KEY=' "$COMC_ENV" 2>/dev/null | cut -d= -f2- || echo "")
+    COMC_NEW_HASH=$(printf '%s' "$TOKEN" | sha256sum | cut -d' ' -f1)
+    COMC_CUR_HASH=$(printf '%s' "$CURRENT_COMC_KEY" | sha256sum | cut -d' ' -f1)
+    if [ "$COMC_NEW_HASH" = "$COMC_CUR_HASH" ] && [ "$FORCE_FLAG" != "--force" ]; then
+      echo "   Token unchanged - skipping ComC restart."
+    else
+    cp "$COMC_ENV" "${COMC_ENV}.bak-$(date +%Y%m%d_%H%M%S)"
+    ls -t "${COMC_ENV}.bak-"* 2>/dev/null | tail -n +4 | xargs -r python3 -c "import sys,os; [os.unlink(p) for p in sys.argv[1:]]" 2>/dev/null || true
 
-  if grep -q '^ANTHROPIC_API_KEY=' "$COMC_ENV"; then
-    sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${ACCESS_TOKEN}|" "$COMC_ENV"
-  else
-    echo "ANTHROPIC_API_KEY=${ACCESS_TOKEN}" >> "$COMC_ENV"
-  fi
+    if grep -q '^ANTHROPIC_API_KEY=' "$COMC_ENV"; then
+      sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${TOKEN}|" "$COMC_ENV"
+    else
+      echo "ANTHROPIC_API_KEY=${TOKEN}" >> "$COMC_ENV"
+    fi
 
-  if sudo systemctl reload command-centre 2>/dev/null; then
-    echo "   ComC service reloaded."
-  else
-    sudo systemctl restart command-centre 2>/dev/null || true
-    echo "   ComC service restarted."
-  fi
-  sleep 3
-  COMC_STATUS=$(sudo systemctl is-active command-centre 2>/dev/null || echo "unknown")
-  echo "   ✅ phronex-main command-centre updated. Status: $COMC_STATUS"
-  fi
+    if systemctl reload command-centre 2>/dev/null; then
+      echo "   ComC service reloaded."
+    else
+      systemctl restart command-centre 2>/dev/null || true
+      echo "   ComC service restarted."
+    fi
+    sleep 3
+    COMC_STATUS=$(systemctl is-active command-centre 2>/dev/null || echo "unknown")
+    echo "   ✅ phronex-main command-centre updated. Status: $COMC_STATUS"
+    fi
+CONTAINER_SCRIPT
 else
-  echo "   ⚠️  $COMC_ENV not found — ComC not installed on this machine, skipping."
+  echo "   ⚠️  $COMC_ENV not found inside the svc-command-centre container — skipping."
 fi
 
 # ── Summary ────────────────────────────────────────────────────────────────
