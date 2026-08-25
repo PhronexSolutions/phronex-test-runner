@@ -721,7 +721,7 @@ Each phase has DoD on top of U1–U8. These are the *contract* — the phase has
 5. ✅ **Acceptance demo**: deliberately add a USER-SPEC section with no journey — auditor flags it within one cycle
 
 #### P11 — UXObserver + qa_ux_signals (Week 8)
-1. ✅ Per-step observation hooks in cc-test-runner emit FRICTION / ONBOARDING_GAP / PERF / MISSING_FEATURE signals
+1. ✅ Per-step observation hooks in phronex-test-runner emit FRICTION / ONBOARDING_GAP / PERF / MISSING_FEATURE signals
 2. ✅ Per-run cap of 20 NEW signals (R13); excess deduped via fuzzy match → increments `occurrence_count`
 3. ✅ Signals reference `QUALITY-STANDARDS.html` thresholds in `threshold_source` field
 4. ✅ Monthly review query exists: `SELECT * FROM qa_ux_signals WHERE last_seen_at > NOW() - INTERVAL '30 days' ORDER BY occurrence_count DESC, confidence DESC LIMIT 20`

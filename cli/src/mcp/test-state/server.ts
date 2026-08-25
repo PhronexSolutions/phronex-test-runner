@@ -208,7 +208,7 @@ class MCPStateServer {
             this.server.on('error', (err: NodeJS.ErrnoException) => {
                 if (err.code === 'EADDRINUSE') {
                     reject(new Error(
-                        `Port ${this.port} already in use — another cc-test-runner may be running. `
+                        `Port ${this.port} already in use — another phronex-test-runner may be running. `
                         + `Use --statePort to specify a different port.`
                     ));
                 } else {

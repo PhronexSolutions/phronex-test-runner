@@ -22,8 +22,8 @@
 ./run-journeyhawk.sh jp jp-journeys/jp-deep.json
 
 # Smoke run — main account auth only:
-./cli/cc-test-runner -t jp-journeys/jp-deep.json -o results-smoke-jp --runJourney jp-trunk-main
+./cli/phronex-test-runner -t jp-journeys/jp-deep.json -o results-smoke-jp --runJourney jp-trunk-main
 
 # Single journey with ancestor chain:
-./cli/cc-test-runner -t jp-journeys/jp-deep.json -o results-isolated-jp --runJourney jp-verify-job-apply
+./cli/phronex-test-runner -t jp-journeys/jp-deep.json -o results-isolated-jp --runJourney jp-verify-job-apply
 ```

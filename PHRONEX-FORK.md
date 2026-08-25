@@ -29,8 +29,8 @@ machine-readable consumers (CI, JourneyHawk skill).
 
 ## How JourneyHawk Uses This Repo
 
-- **Build:** `cd cli && ./init.dev.sh && bun run build` — produces `./dist/cc-test-runner`.
-- **Invoke:** `./dist/cc-test-runner -t {spec.json} -o results/`.
+- **Build:** `cd cli && ./init.dev.sh && bun run build` — produces `./dist/phronex-test-runner`.
+- **Invoke:** `./dist/phronex-test-runner -t {spec.json} -o results/`.
 - **Auth:** subscription mode (verified in Plan 67-04 of v16.0 milestone).
 - **Caller:** `~/.claude/skills/Phronex_Internal_QA_JourneyHawk/SKILL.md` is the
   only consumer. JourneyHawk wraps invocation with isolation guards

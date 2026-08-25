@@ -41,8 +41,14 @@ RUN bun run build
 FROM base AS prod
 
 # Copy dist
-COPY --from=build /app/cli/dist/cc-test-runner /app/cc-test-runner
+COPY --from=build /app/cli/dist/phronex-test-runner /app/phronex-test-runner
 WORKDIR /app
+
+# Compatibility symlink: the repo (and its GHCR image) were renamed from
+# cc-test-runner to phronex-test-runner, but this image is public and an
+# unknown set of external consumers may still invoke /app/cc-test-runner
+# directly. Keep the old path working via symlink until it's safe to drop.
+RUN ln -s /app/phronex-test-runner /app/cc-test-runner
 
 # Start built CLI
 ENTRYPOINT ["/bin/bash"]

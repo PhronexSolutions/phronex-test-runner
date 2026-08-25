@@ -23,7 +23,7 @@ set -euo pipefail
 ACTION="${1:-}"
 
 if [[ "$ACTION" == "list" ]]; then
-  # Each running cc-test-runner process carries its own --controlId on the
+  # Each running phronex-test-runner process carries its own --controlId on the
   # command line — scrape it directly rather than guessing from result dirs.
   FOUND=$(ps -eo pid,args | grep -- '--controlId' | grep -v grep || true)
   if [[ -z "$FOUND" ]]; then

@@ -145,7 +145,7 @@ need `Authorization: Bearer <token>` instead. If `phronex_common.llm`'s
 client always sends whatever's in `ANTHROPIC_API_KEY` via `x-api-key`
 (standard `anthropic` Python SDK default), an OAuth token in that slot will
 always be rejected — this may explain why the whole generation step
-appears to have never worked with OAuth. `cc-test-runner` (the Claude Code
+appears to have never worked with OAuth. `phronex-test-runner` (the Claude Code
 subprocess wrapper) can consume this correctly because Claude Code's own
 SDK understands OAuth tokens; a raw `phronex_common.llm` → `anthropic`
 SDK call likely doesn't.

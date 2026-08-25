@@ -4,8 +4,8 @@
 
 ### Phase 80 — Foundation
 - `StrategistMode` enum (DISABLED/READ_ONLY/ACTIVE) — single env var gates all strategist behaviour
-- `FixtureGuard` — pre-filters journey specs before cc-test-runner ever sees them
-- `RunArbiter` — wraps cc-test-runner, monitors output, aborts on 3 consecutive fails / runtime cap / network fail rate
+- `FixtureGuard` — pre-filters journey specs before phronex-test-runner ever sees them
+- `RunArbiter` — wraps phronex-test-runner, monitors output, aborts on 3 consecutive fails / runtime cap / network fail rate
 - `AbortReason` enum + `abort_reason.json` written on abort — downstream pipeline reads it
 
 ### Phase 81 — Intelligence
@@ -28,11 +28,11 @@
 
 **1. fixture_guard caught the jp-d-series string ID bug at the spec level, not mid-run**
 
-Without fixture_guard: the runner would have crashed mid-test with a ValueError after spending ~2 min initialising Chrome. With fixture_guard: the bug was caught at the Python pre-filter step (< 1 sec) before cc-test-runner was even spawned. The fix was applied to the guard itself, not to the runner binary.
+Without fixture_guard: the runner would have crashed mid-test with a ValueError after spending ~2 min initialising Chrome. With fixture_guard: the bug was caught at the Python pre-filter step (< 1 sec) before phronex-test-runner was even spawned. The fix was applied to the guard itself, not to the runner binary.
 
 **2. RunArbiter did NOT falsely abort the run**
 
-This is a negative result that matters. The arbiter correctly parsed cc-test-runner's non-CTRF output format and returned None from `_parse_ctrf_event` on every line — meaning consecutive_fails stayed 0 throughout. A naive "count lines with failed" parser would have aborted after journey 3 (all reporting `succeeded:false` in the shell log). The arbiter's CTRF-only parsing was the right design call.
+This is a negative result that matters. The arbiter correctly parsed phronex-test-runner's non-CTRF output format and returned None from `_parse_ctrf_event` on every line — meaning consecutive_fails stayed 0 throughout. A naive "count lines with failed" parser would have aborted after journey 3 (all reporting `succeeded:false` in the shell log). The arbiter's CTRF-only parsing was the right design call.
 
 **3. StrategistMode=DISABLED was the correct diagnostic tool**
 
@@ -49,7 +49,7 @@ The intelligence pipeline executed after the run: `qa_runs`, `qa_known_defects`,
 | Gap | Root Cause | Impact |
 |-----|-----------|--------|
 | CTRF shows 12/12 "failed" | MCP state server HTTP transport deserialises `this.testState` into a new object per request, breaking step mutation references | All step-level results untrustworthy |
-| Session bleed in debug log | cc-test-runner's sequential Claude subprocesses share one HTTP MCP server; `setTestState()` for journey N+1 races with journey N's final `get_test_plan` call | Claude reports on the wrong journey |
+| Session bleed in debug log | phronex-test-runner's sequential Claude subprocesses share one HTTP MCP server; `setTestState()` for journey N+1 races with journey N's final `get_test_plan` call | Claude reports on the wrong journey |
 | `qa-jp-pro` rate limited | 12 runs × `qa-jp-pro` login attempts across the session = account-level counter exhausted | 1 entire journey class (pro-tier tests) produced 0 signal |
 | DocChain stage gate `--stage pre_run` unrecognised | `stage_gate.py` argparser doesn't accept `--stage` flag | Gate advisory-only, never blocking |
 | ValidationAuditor always returns NO_ORACLE | `docs_dir` not forwarded from runner to `verify_journey()` | Phase 82 validation signal is dead |
@@ -59,7 +59,7 @@ The intelligence pipeline executed after the run: `qa_runs`, `qa_known_defects`,
 ## Strategic Architecture Impact: What Changed in Practice
 
 ### The "STRATEGIST_MODE=DISABLED" diagnostic capability
-Before v18.0: diagnosing a runner crash required reading bun logs, checking if Chrome started, guessing. After v18.0: one env var removes all strategist layers and proves whether the underlying cc-test-runner binary works. This alone saved ~45 minutes of debugging in this session.
+Before v18.0: diagnosing a runner crash required reading bun logs, checking if Chrome started, guessing. After v18.0: one env var removes all strategist layers and proves whether the underlying phronex-test-runner binary works. This alone saved ~45 minutes of debugging in this session.
 
 ### The fixture_guard schema
 Before: journey specs were opaque JSON files. Any malformed spec crashed mid-run with an uncatchable subprocess exit. After: all specs pass through a typed Python validator with structured error output. The string-vs-integer ID bug discovered today would have been a 10-minute Chrome-process-watching session without it.

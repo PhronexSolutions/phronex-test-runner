@@ -416,7 +416,7 @@ explicitly set `signal=null` (bypass COALESCE with a CASE expression). No migrat
 
 **What happened:** All `jp-verify-*` journeys (depth-2, depend on `jp-branch-*`) failed with "Cannot access page - redirected to login page" in JP Run 6. The `jp-branch-*` journeys (depth-1, depend on `jp-trunk-main`) passed fine.
 
-**Root cause:** cc-test-runner automatically inherits session context for depth-1 children of `jp-trunk-main` (which has `stateOutputPath`). But `jp-branch-*` journeys don't save their own `stateOutputPath`, so depth-2 children (`jp-verify-*`) start fresh with no session. When they navigate to a protected page without loading session state, they get redirected to login — and then hit rate limiting.
+**Root cause:** phronex-test-runner automatically inherits session context for depth-1 children of `jp-trunk-main` (which has `stateOutputPath`). But `jp-branch-*` journeys don't save their own `stateOutputPath`, so depth-2 children (`jp-verify-*`) start fresh with no session. When they navigate to a protected page without loading session state, they get redirected to login — and then hit rate limiting.
 
 **Fix:** Added explicit session loading step 1 to all 9 `jp-verify-*` journeys, instructing them to load `jp-trunk-main-state.json` before navigating. Committed `9f0ac5e`.
 

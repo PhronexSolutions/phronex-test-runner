@@ -14,7 +14,7 @@ CURRENT FLOW (broken):
       ↓
   Depth scorer warns "1 SMOKE, 2 SURFACE" → but runs them anyway
       ↓
-  cc-test-runner executes exactly those 10
+  phronex-test-runner executes exactly those 10
       ↓
   Intelligence pipeline processes results (post-run only)
 
@@ -31,7 +31,7 @@ DESIRED FLOW (after fix):
       ↓
   Depth enforcement: reject SMOKE, deepen SURFACE → minimum DEEP
       ↓
-  cc-test-runner executes full merged suite
+  phronex-test-runner executes full merged suite
       ↓
   Intelligence pipeline processes results
 ```

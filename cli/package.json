@@ -14,7 +14,7 @@
   },
   "private": true,
   "scripts": {
-    "build": "bun build --compile ./src/index.ts --outfile ./dist/cc-test-runner --target bun",
+    "build": "bun build --compile ./src/index.ts --outfile ./dist/phronex-test-runner --target bun",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix"
   },

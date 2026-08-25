@@ -2,7 +2,7 @@
 
 > **Last updated:** 2026-05-04
 > **Status:** Living document reflecting implemented code (not a spec — see `STRATEGIST-ARCHITECTURE.md` for the original design spec).
-> **Scope:** Complete architecture of QA/testing infrastructure: `phronex-common/src/phronex_common/testing/` (89 Python files, 19,862 LOC) and `phronex-test-runner/` (shell orchestrator + cc-test-runner).
+> **Scope:** Complete architecture of QA/testing infrastructure: `phronex-common/src/phronex_common/testing/` (89 Python files, 19,862 LOC) and `phronex-test-runner/` (shell orchestrator + phronex-test-runner).
 > **Milestones implemented:** v17.0 (QA Foundation), v18.0 (Test Strategist Layer), v19.0 (PQIP), v20.0 (PQIP Gap Closure)
 
 ---
@@ -10,7 +10,7 @@
 ## 1. System Overview
 
 The Phronex QA system is a **learning-loop test infrastructure** that:
-- Runs customer-journey browser tests via Claude Code agents (cc-test-runner + Playwright MCP)
+- Runs customer-journey browser tests via Claude Code agents (phronex-test-runner + Playwright MCP)
 - Classifies failures using deterministic heuristics (100% heuristic in production, zero LLM cost)
 - Feeds findings back into the development engine (wiki articles, prevention rules, coding patterns)
 - Measures product readiness across 10 weighted dimensions (SHIP/DEMO/DEVELOP/HOLD)
@@ -31,7 +31,7 @@ The Phronex QA system is a **learning-loop test infrastructure** that:
          │                        │                         │
          ▼                        ▼                         ▼
 ┌─────────────────┐   ┌───────────────────┐   ┌────────────────────────────┐
-│ Stage gate      │   │ cc-test-runner    │   │ runner.py (1,456 LOC)      │
+│ Stage gate      │   │ phronex-test-runner    │   │ runner.py (1,456 LOC)      │
 │ Resource verify │   │ (Claude agent +   │   │ ├── Evidence collector     │
 │ Fixture guard   │   │  Playwright MCP)  │   │ ├── Gap detector           │
 │ Depth scorer    │   │                   │   │ ├── RCA Engine (heuristic) │
@@ -73,7 +73,7 @@ The Phronex QA system is a **learning-loop test infrastructure** that:
 | `recommender.py` | Journey priority scoring (4-signal weighted + human_required penalty) | qa_confidence_scores | — |
 | `fixture_guard.py` | Pre-filters journeys with missing fixtures | qa_test_resources | fixture-decisions.json |
 | `mutations.py` | Applies wiki test_mutation directives (ADD_STEP/SKIP_JOURNEY/etc) | qa_wiki_articles | mutated spec |
-| `run_arbiter.py` | Wraps cc-test-runner, SIGTERMs on cascading failures | — | abort_reason.json |
+| `run_arbiter.py` | Wraps phronex-test-runner, SIGTERMs on cascading failures | — | abort_reason.json |
 | `rca/engine.py` | Root cause classification (heuristic-first, LLM fallback) | qa_known_defects | qa_defect_rca |
 | `validation_auditor.py` | TEST-ORACLES.html → PASS/FAIL/NO_ORACLE verdicts | .docs/TEST-ORACLES.html | qa_journey_verdicts |
 | `ux_observer.py` (515 LOC) | 6 UX fatigue metrics per run | qa_ux_signals | qa_ux_signals |
@@ -215,7 +215,7 @@ The Phronex QA system is a **learning-loop test infrastructure** that:
 ### 4.2 Block B — Execution (Step 1)
 
 ```
-1.  RunArbiter spawns cc-test-runner --maxTurns 50
+1.  RunArbiter spawns phronex-test-runner --maxTurns 50
     └── Abort conditions: 3-consecutive-fail / 30min / 5min-per-journey / 50%-net-fail
     └── On abort: writes abort_reason.json
 1b. Handoff queue poll (check qa_handoff_queue, wait max 600s for human steps)
@@ -299,7 +299,7 @@ Statistically rigorous reliability scoring that accounts for sample size. Key th
 JP defect → wiki article with `test_mutation` JSONB → next CC run reads mutation → adds/skips steps. Cross-product intelligence compounds across runs.
 
 ### Human-in-the-Loop (PQIP §12)
-Steps requiring sensory input queued (not skipped). Budget-capped at 90s operator time. Pipeline polls after cc-test-runner. Expired handoffs = failures in Wilson.
+Steps requiring sensory input queued (not skipped). Budget-capped at 90s operator time. Pipeline polls after phronex-test-runner. Expired handoffs = failures in Wilson.
 
 ---
 
@@ -361,7 +361,7 @@ phronex-main (Tailscale 100.82.16.7)              EC2 (43.204.79.39)
 │   phronex_qa DB (results store)        │       │   Portal (3002)          │
 │   phronex-test-runner/                 │       │   JP (8001), CC (8000)   │
 │     run-journeyhawk.sh                 │  ✗    │   Auth (8002)            │
-│     cli/cc-test-runner                 │ BLOCKED│  Praxis (8003)          │
+│     cli/phronex-test-runner                 │ BLOCKED│  Praxis (8003)          │
 │                                        │       └──────────────────────────┘
 │ TEST TIER (targets — added 2026-08-04) │
 │   phronex-auth-test        :18010      │◀── journeys run against THESE

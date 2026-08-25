@@ -54,7 +54,7 @@ Each phase below has:
 | **Effort** | 8h expected (low: 6h, high: 12h) |
 | **Confidence** | HIGH — well-scoped, no new dependencies |
 | **Depends on** | Nothing (can start immediately) |
-| **Risk factors** | RunArbiter behaviour at the edge of cc-test-runner's existing turn-budget logic — requires careful integration testing |
+| **Risk factors** | RunArbiter behaviour at the edge of phronex-test-runner's existing turn-budget logic — requires careful integration testing |
 | **GSD mapping** | Single phase: `phronex-common Phase X — Strategist P1 RunArbiter` |
 
 **Tasks:**
@@ -304,15 +304,15 @@ For each of `docchain-test-oracles`, `docchain-integration-map`, `docchain-quali
 | Field | Value |
 |---|---|
 | **Effort** | 12h expected (low: 8h, high: 18h) |
-| **Confidence** | MEDIUM — needs integration with cc-test-runner step hooks |
+| **Confidence** | MEDIUM — needs integration with phronex-test-runner step hooks |
 | **Depends on** | P9 (QUALITY-STANDARDS.html provides thresholds) |
-| **Risk factors** | cc-test-runner step instrumentation — does the existing API expose enough to extract step_count, load_time_ms, empty_state_shown? May need cc-test-runner changes. |
+| **Risk factors** | phronex-test-runner step instrumentation — does the existing API expose enough to extract step_count, load_time_ms, empty_state_shown? May need phronex-test-runner changes. |
 | **GSD mapping** | Single phase: `phronex-common Phase X+11 — Strategist P11 UXObserver` |
 
 **Tasks:**
 1. Alembic revision: `qa_ux_signals` table
 2. Build `phronex_common/testing/strategist/ux_observer.py`
-3. Define observation hooks in cc-test-runner (or via post-run log parsing if hooks unavailable)
+3. Define observation hooks in phronex-test-runner (or via post-run log parsing if hooks unavailable)
 4. Implement per-run signal cap (R13) with fuzzy dedup → `occurrence_count` increment
 5. Wire QUALITY-STANDARDS.html threshold lookups into `threshold_source` field
 6. Build monthly review query → wire into portal panel (precursor for P13)
@@ -500,7 +500,7 @@ P5.5 is content authoring (5 hand-written HTML files), not code. Three reasons t
 The Block A spike (P1 + P2 as `/gsd:quick`) is offered as **optional** because it's a hedge, not a dependency. Phase 1 can technically start without it. But:
 - If you've never confirmed that abort gates actually fire correctly, you're committing 230h based on architectural belief.
 - 18h to validate the assumption before the big commit is cheap insurance.
-- If Block A reveals issues (e.g. cc-test-runner can't be aborted cleanly), the architecture needs revision before Phase 1, not after.
+- If Block A reveals issues (e.g. phronex-test-runner can't be aborted cleanly), the architecture needs revision before Phase 1, not after.
 
 ### Recommended kickoff sequence
 
@@ -557,7 +557,7 @@ This 4-week scope ships a **read-only Strategist** that surfaces decisions but d
 | Cycle-close gate (R1) reveals more edge cases | LOW | +6h | Comprehensive test cases authored in P3. Add cases as discovered without rebuilding. |
 | `qa_wiki_articles` schema migration corrupts data | LOW | High | Backfill defaults conservative; alembic test on staging first; full DB backup before P7 migration |
 | FeedbackConsolidator writes wrong data to CODING-PATTERNS.md | MEDIUM | High | Reversible writes (P12 task 4); write-rate guards (P12 task 3); first 4 weeks of P12 are READ_ONLY mode |
-| cc-test-runner doesn't expose UX hooks needed for P11 | MEDIUM | +8h | Fall back to log parsing; defer richer UX signals to v19.1 |
+| phronex-test-runner doesn't expose UX hooks needed for P11 | MEDIUM | +8h | Fall back to log parsing; defer richer UX signals to v19.1 |
 | Vivek's calendar means real elapsed time > estimated | HIGH | +50% calendar | Acknowledged: half-pace (17 weeks instead of 9) is the realistic plan |
 
 ---

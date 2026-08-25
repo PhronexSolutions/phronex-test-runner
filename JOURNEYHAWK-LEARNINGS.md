@@ -12,10 +12,10 @@
 | Layer | Where it runs | Notes |
 |-------|--------------|-------|
 | `phronex_qa` PostgreSQL | DevServer (`192.168.1.250`) | Never on EC2. All QA writes go here. |
-| `cc-test-runner` binary | DevServer `~/code/phronex-test-runner/cli/dist/` | Compiled bun binary. Never install on EC2. |
+| `phronex-test-runner` binary | DevServer `~/code/phronex-test-runner/cli/dist/` | Compiled bun binary. Never install on EC2. |
 | `phronex_common.testing.runner` | DevServer `~/code/phronex-common/.venv` | Intelligence pipeline. DevServer-only. |
 | Portal under test | **`https://app.phronex.com` (EC2 production)** | `PORTAL_URL` env var in `.qa.env` defaults to production. Browser tests hit EC2 directly — no DevServer portal required. Change to `http://localhost:3002` only when testing an unreleased branch. |
-| `run-journeyhawk.sh` | DevServer `~/code/phronex-test-runner/` | Atomic wrapper — never call cc-test-runner alone. Does sed substitution of `localhost:3002` → `$PORTAL_URL` before passing spec to cc-test-runner. |
+| `run-journeyhawk.sh` | DevServer `~/code/phronex-test-runner/` | Atomic wrapper — never call phronex-test-runner alone. Does sed substitution of `localhost:3002` → `$PORTAL_URL` before passing spec to phronex-test-runner. |
 | `phronex-common` (QA checkout) | DevServer `~/code/phronex-common/` | Separate from EC2's `/opt/phronex-common`. |
 
 **Product backends (jobportal, CC, auth, praxis)** → EC2 only. API calls use domain names (`jobc.phronex.com`, `cc.phronex.com`) — not raw EC2 IP from journey specs.
@@ -44,9 +44,9 @@ JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL j
 
 ### Runner Turn-Limit
 
-**Root cause:** cc-test-runner spawns a Claude Code subprocess per journey with a finite turn budget. Complex journeys (7+ steps) exhaust the budget before completing. Remaining steps stay `pending` in memory but are **never flushed to `ctrf-report.json`**.
+**Root cause:** phronex-test-runner spawns a Claude Code subprocess per journey with a finite turn budget. Complex journeys (7+ steps) exhaust the budget before completing. Remaining steps stay `pending` in memory but are **never flushed to `ctrf-report.json`**.
 
-**CTRF format bug (discovered run 4, 2026-04-29):** cc-test-runner writes every step as `[Status: pending]` into the CTRF file when the journey starts and **never updates** that file with actual step outcomes. Step outcomes are only visible in cc-test-runner's stdout. As a result, the CTRF `message` field for EVERY failed journey (turn-limit FP, portal-down, real product defect) looks identical — all steps pending, no `[Error:]`. Any signature-based FP detection on the CTRF message will fire for all failures, not just turn-limit ones.
+**CTRF format bug (discovered run 4, 2026-04-29):** phronex-test-runner writes every step as `[Status: pending]` into the CTRF file when the journey starts and **never updates** that file with actual step outcomes. Step outcomes are only visible in phronex-test-runner's stdout. As a result, the CTRF `message` field for EVERY failed journey (turn-limit FP, portal-down, real product defect) looks identical — all steps pending, no `[Error:]`. Any signature-based FP detection on the CTRF message will fire for all failures, not just turn-limit ones.
 
 **Previous fix (8edbfec1) was incorrect:** The `[Status: pending]` heuristic in `runner.py` was reverted in `d57fd15a` because it silently swallowed all real defects. Run 4 result: 12 journeys SKIPPED, 0 defects logged.
 
@@ -60,7 +60,7 @@ JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL j
 
 **Signature:** Journey `succeeded: false` with exactly one step in `status: pending` and all other steps `status: passed`. The pending step description starts with "If X exists: ..." or "If X is visible: ...".
 
-**Root cause:** Spec steps written as "If A: do X. If B: do Y." force Claude to pick a branch. If the branch condition is false (e.g. "If applications exist" but there are none), Claude correctly handles the other path but leaves the conditional step as `pending` because it was never applicable. cc-test-runner marks the journey `succeeded: false` when any step is non-passing.
+**Root cause:** Spec steps written as "If A: do X. If B: do Y." force Claude to pick a branch. If the branch condition is false (e.g. "If applications exist" but there are none), Claude correctly handles the other path but leaves the conditional step as `pending` because it was never applicable. phronex-test-runner marks the journey `succeeded: false` when any step is non-passing.
 
 **Fix:** Rewrite conditional steps to be unconditionally verifiable. Instead of two "If A / If B" steps, write a single step that covers both outcomes: "Verify the applications page. If empty: check for meaningful empty state with CTA. If populated: verify each row shows required fields and clicking opens a detail view."
 
@@ -96,7 +96,7 @@ JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL j
 
 **Signature:** All steps in a journey show `pending` and step-outcomes.json is missing. The debug log shows the runner navigated to a DIFFERENT product's URL (e.g. `/jp/dashboard`) despite the spec being for CC. The runner's first assistant message says something like "The browser appears to be blank. Let me navigate to the JobPortal jobs page..."
 
-**Root cause:** cc-test-runner reuses the same Chrome profile (`~/.cache/ms-playwright/mcp-chrome-c2cdb14`) across all journeys and across runs. When a previous run leaves open tabs (e.g. `/cc/subscription`, `/jp/dashboard`), the next journey inherits them. The runner reads the current tab's URL as context and misidentifies the product it's supposed to test — causing it to navigate to JP and burn all turns before the spec steps run.
+**Root cause:** phronex-test-runner reuses the same Chrome profile (`~/.cache/ms-playwright/mcp-chrome-c2cdb14`) across all journeys and across runs. When a previous run leaves open tabs (e.g. `/cc/subscription`, `/jp/dashboard`), the next journey inherits them. The runner reads the current tab's URL as context and misidentifies the product it's supposed to test — causing it to navigate to JP and burn all turns before the spec steps run.
 
 **Fix applied:** Every browser-based CC journey now begins with: "BROWSER RESET FIRST: Use browser_tabs to list all open tabs. Close every tab except the current one using browser_close on each extra tab. Then navigate the current tab to https://app.phronex.com." This forces the runner to clear stale tabs before any test action.
 
@@ -110,7 +110,7 @@ JP_PUBLIC_URL=http://localhost:8001         # only relevant if running a LOCAL j
 
 **Signature:** Journey fails because a dismissable UI element (banner, tooltip, onboarding card) is not visible. The element is correctly hidden by a `localStorage` key set during a previous test run.
 
-**Root cause:** cc-test-runner reuses the same Chrome browser profile across all journeys and across runs. User-dismissable components that write to `localStorage` (e.g. `jpOnboardingBannerDismissed`) stay dismissed in subsequent runs. The product code is correct — the banner correctly stays hidden once dismissed — but the test sees stale state from a previous session.
+**Root cause:** phronex-test-runner reuses the same Chrome browser profile across all journeys and across runs. User-dismissable components that write to `localStorage` (e.g. `jpOnboardingBannerDismissed`) stay dismissed in subsequent runs. The product code is correct — the banner correctly stays hidden once dismissed — but the test sees stale state from a previous session.
 
 **Fix:** Add a localStorage cleanup step at the start of any journey that tests a dismissable element. Example step: "Before navigating, execute in the browser console: `localStorage.removeItem('jpOnboardingBannerDismissed');` Then navigate to the page."
 
@@ -159,9 +159,9 @@ A QA account that holds grants for multiple products will trigger suppression lo
 
 **Signature:** Multiple journeys in the same run fail with "Browser is already in use for /home/ouroborous/.cache/ms-playwright/mcp-chrome-28ad6cc, use --isolated to run multiple instances of the same browser". First journey in the run may also fail mid-test (between steps) with the same error even after SingletonLock files are cleared.
 
-**Root cause:** `@playwright/mcp` locks the Chrome data directory with a `SingletonLock` file when Chrome opens. The `cctr-playwright` MCP server (launched internally by cc-test-runner per test case) holds the Chrome profile lock for the duration of the browser session. When the NEXT test case's Claude subprocess tries to connect to the same MCP server, Chrome's data directory is still locked by the previous session — even though the previous test case "completed."
+**Root cause:** `@playwright/mcp` locks the Chrome data directory with a `SingletonLock` file when Chrome opens. The `cctr-playwright` MCP server (launched internally by phronex-test-runner per test case) holds the Chrome profile lock for the duration of the browser session. When the NEXT test case's Claude subprocess tries to connect to the same MCP server, Chrome's data directory is still locked by the previous session — even though the previous test case "completed."
 
-**The critical detail:** The `SingletonLock` file is only one symptom. Clearing it between **runs** (e.g. `rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock`) prevents cross-run FPs, but does NOT prevent cross-test-case FPs **within** a single run. The MCP server starts Chrome and keeps it open across all test cases in one cc-test-runner invocation.
+**The critical detail:** The `SingletonLock` file is only one symptom. Clearing it between **runs** (e.g. `rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock`) prevents cross-run FPs, but does NOT prevent cross-test-case FPs **within** a single run. The MCP server starts Chrome and keeps it open across all test cases in one phronex-test-runner invocation.
 
 **Root fix (2026-04-30):** Added `--isolated` flag to the `cctr-playwright` MCP args in `cli/src/prompts/start-test.ts`. `--isolated` creates an in-memory browser profile per MCP connection — no lock file on disk, no cross-session contamination.
 
@@ -175,7 +175,7 @@ args: [
 ],
 ```
 
-Rebuild after any edit to `cli/src/`: `cd ~/code/phronex-test-runner/cli && bun build --compile ./src/index.ts --outfile ./dist/cc-test-runner --target bun`
+Rebuild after any edit to `cli/src/`: `cd ~/code/phronex-test-runner/cli && bun build --compile ./src/index.ts --outfile ./dist/phronex-test-runner --target bun`
 
 **Pre-flight (in addition to the `--isolated` fix, belt-and-suspenders):**
 ```bash
@@ -239,7 +239,7 @@ rm -f ~/.cache/ms-playwright/mcp-chrome-*/SingletonLock 2>/dev/null; true
 | Run 5 result | 7/10 PASS, 1 real defect (jobs detail view — fixed in portal), 2 spec/infra FPs (conditional step + localStorage — see correction in run 6) |
 | Run 6 result | 9/10 PASS, 0 real defects, 1 spec FP (jp-d08 — QA account has CC grant so banner correctly absent; spec rewritten) |
 | Run 7 result | 9/12 PASS, 1 real defect (jp-d05 scan history API contract drift — fixed e927e2f), 2 Chrome MCP FPs (jp-d08, jp-d09). jp-d07a/b/c all PASS — billing tier fix validated. |
-| Run 8 result | 0/3 PASS (retry of jp-d05/d08/d09). All 3 Chrome MCP FPs — --isolated flag added to cctr-playwright MCP, cc-test-runner rebuilt. |
+| Run 8 result | 0/3 PASS (retry of jp-d05/d08/d09). All 3 Chrome MCP FPs — --isolated flag added to cctr-playwright MCP, phronex-test-runner rebuilt. |
 | Run 9 result | 10/12 PASS, 0 real product defects, 2 FPs (jp-d01 rate-limit + jp-d08 spec-execution). jp-d07a/b/c PASS — tier labels validated across all 3 tiers. jp-d05 scan history fix e927e2f confirmed. --isolated Chrome fix holding (zero profile conflicts across 12 sequential tests). Minor UX gap: bare `/cc` 404s → fixed with page.tsx redirect (portal commit). |
 
 **⚠️ JP cleanup 403 — production host guard (discovered 2026-04-30):** JP cleanup returns HTTP 403 "Endpoint disabled on production host (jobc.phronex.com)". The cleanup route checks `PHRONEX_QA_ALLOWED_HOSTS` and blocks on the production domain. The SDK key is correct. Cleanup is non-fatal — runs continue — but test data accumulates. Fix: set `PHRONEX_QA_ALLOWED_HOSTS=jobc.phronex.com` in `/opt/jobportal/.env` on EC2 and restart the service, OR accept accumulation (journeys verify counts before mutating, so stale data doesn't break assertions).
@@ -324,15 +324,15 @@ curl -sf https://auth.phronex.com/health  # must return {"status":"healthy"}
 ```
 **Why this is safe:** phronex-auth is stateless (JWTs are not invalidated by restart). The restart takes ~3 seconds. Rate limit backend is `InMemoryBackend` (default) — confirmed by absence of `RATE_LIMITER_BACKEND` in EC2's `/opt/phronex-auth/.env`.
 
-**Prevention:** Add a per-run cool-down or reduce journeys-per-run. Future improvement: cc-test-runner should reuse an authenticated session token across journeys rather than re-logging in for each one.
+**Prevention:** Add a per-run cool-down or reduce journeys-per-run. Future improvement: phronex-test-runner should reuse an authenticated session token across journeys rather than re-logging in for each one.
 
 ---
 
 ### ANTHROPIC_API_KEY Priority Bug — Use OAuth Instead (discovered CC run 4, fixed 2026-04-30)
 
-**Signature:** cc-test-runner crashes with "Claude Code process exited with code 1" immediately at startup. `"Credit balance is too low"` in the result.
+**Signature:** phronex-test-runner crashes with "Claude Code process exited with code 1" immediately at startup. `"Credit balance is too low"` in the result.
 
-**Root cause:** cc-test-runner inherits `ANTHROPIC_API_KEY` from the shell. When set, it takes precedence over `~/.claude/.credentials.json` (OAuth / Claude Max) even when the key's prepaid credits are exhausted. The correct auth for DevServer runs is OAuth (`subscriptionType: max`), not the prepaid API key.
+**Root cause:** phronex-test-runner inherits `ANTHROPIC_API_KEY` from the shell. When set, it takes precedence over `~/.claude/.credentials.json` (OAuth / Claude Max) even when the key's prepaid credits are exhausted. The correct auth for DevServer runs is OAuth (`subscriptionType: max`), not the prepaid API key.
 
 **Fix (permanent — now in run-journeyhawk.sh):** `unset ANTHROPIC_API_KEY` is added at the top of `run-journeyhawk.sh`. The runner now always falls back to OAuth. No billing top-up needed.
 
@@ -713,7 +713,7 @@ document.querySelector('input[type="date"]').dispatchEvent(new Event('change', {
 **Root cause (3-layer chain):**
 1. `spec_curator` (or manual RETIRE operation) set `_retired_at` on `comc-trunk-superadmin` in `comc-deep.json`.
 2. `run-journeyhawk.sh` pre-filter strips all `_retired_at` journeys from `_SPEC_ACTIVE` **before** credential substitution. Trunk gone from that point forward.
-3. Without the trunk in the spec, `cc-test-runner`'s `capturedStates` map is never populated for `comc-trunk-superadmin`. Leaf journeys receive `parentStatePath=null`, start in fresh unauthenticated browser contexts, and fall back to hardcoded wrong credentials.
+3. Without the trunk in the spec, `phronex-test-runner`'s `capturedStates` map is never populated for `comc-trunk-superadmin`. Leaf journeys receive `parentStatePath=null`, start in fresh unauthenticated browser contexts, and fall back to hardcoded wrong credentials.
 
 **Why intermittent (not 100%):** Some leaf journeys succeeded because their step 1 text said "load session file OR log in" and the LLM tester successfully loaded the pre-existing `.tmp/comc-trunk-superadmin-state.json` via direct Playwright `storageState()` call from the step description. Others failed because the LLM tester chose the login-fallback path.
 

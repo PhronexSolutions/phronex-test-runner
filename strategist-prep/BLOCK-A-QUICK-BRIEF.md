@@ -22,7 +22,7 @@
 
 ### What it does
 
-Streams cc-test-runner stdout in real-time. When configured abort conditions are met, **stops the run cleanly** rather than letting it continue burning OAuth time and producing low-signal results.
+Streams phronex-test-runner stdout in real-time. When configured abort conditions are met, **stops the run cleanly** rather than letting it continue burning OAuth time and producing low-signal results.
 
 ### Abort conditions (configurable via env, defaults below)
 
@@ -51,11 +51,11 @@ phronex_common/testing/
 
 ### How it integrates with run-journeyhawk.sh
 
-Today the shell script invokes `cc-test-runner` directly (line ~120 of `run-journeyhawk.sh`). After P1, the invocation is wrapped:
+Today the shell script invokes `phronex-test-runner` directly (line ~120 of `run-journeyhawk.sh`). After P1, the invocation is wrapped:
 
 ```bash
 # BEFORE (current):
-cc-test-runner run --spec "${TEMP_SPEC}" --output "${RESULTS_DIR}"
+phronex-test-runner run --spec "${TEMP_SPEC}" --output "${RESULTS_DIR}"
 
 # AFTER (P1):
 ${PYTHON} -m phronex_common.testing.strategist.run_arbiter \
@@ -63,10 +63,10 @@ ${PYTHON} -m phronex_common.testing.strategist.run_arbiter \
   --results-dir "${RESULTS_DIR}" \
   --spec "${TEMP_SPEC}" \
   -- \
-  cc-test-runner run --spec "${TEMP_SPEC}" --output "${RESULTS_DIR}"
+  phronex-test-runner run --spec "${TEMP_SPEC}" --output "${RESULTS_DIR}"
 ```
 
-The arbiter spawns the cc-test-runner subprocess, pipes its stdout, parses CTRF events (existing `runner.py:load_ctrf` shape), tracks state, and on abort signal sends `SIGTERM` to the child process, then writes a partial CTRF + `abort_reason.json` to `RESULTS_DIR` so the existing post-run pipeline (`phronex_common.testing.runner.run_pipeline`) handles the partial results gracefully.
+The arbiter spawns the phronex-test-runner subprocess, pipes its stdout, parses CTRF events (existing `runner.py:load_ctrf` shape), tracks state, and on abort signal sends `SIGTERM` to the child process, then writes a partial CTRF + `abort_reason.json` to `RESULTS_DIR` so the existing post-run pipeline (`phronex_common.testing.runner.run_pipeline`) handles the partial results gracefully.
 
 ### Tasks
 
@@ -78,7 +78,7 @@ The arbiter spawns the cc-test-runner subprocess, pipes its stdout, parses CTRF 
 | 4 | Implement subprocess spawn + stdout streaming with abort signalling | 3h | Integration test: spawn `sleep 60` subprocess, signal abort, verify SIGTERM delivered ≤2s |
 | 5 | Wire `--` separator → command pass-through | 0.5h | `python -m … -- echo hello` works |
 | 6 | Add `abort_reason.json` write on abort + partial CTRF preservation | 1h | Integration test: abort midway, assert `abort_reason.json` exists with shape `{reason, triggered_at, journeys_completed}` |
-| 7 | Modify `run-journeyhawk.sh` to wrap cc-test-runner with arbiter | 0.5h | Run against `portal-settings-verify.json`, verify normal completion still works |
+| 7 | Modify `run-journeyhawk.sh` to wrap phronex-test-runner with arbiter | 0.5h | Run against `portal-settings-verify.json`, verify normal completion still works |
 | 8 | Modify `phronex_common.testing.runner.run_pipeline` to detect + log `abort_reason.json` | 1h | Run with simulated abort, verify pipeline writes `aborted=True` to `qa_journeys` row |
 | **P1 total** | | **~10h** | |
 
@@ -98,7 +98,7 @@ The arbiter spawns the cc-test-runner subprocess, pipes its stdout, parses CTRF 
 
 ### What it does
 
-Before cc-test-runner ever sees the spec, parses each journey for **fixture requirements** (login state, test accounts, seed data, browser state) and drops journeys whose fixtures aren't satisfied — with a logged reason — instead of letting them run and inevitably FP.
+Before phronex-test-runner ever sees the spec, parses each journey for **fixture requirements** (login state, test accounts, seed data, browser state) and drops journeys whose fixtures aren't satisfied — with a logged reason — instead of letting them run and inevitably FP.
 
 ### Where today's fixture text lives
 
@@ -121,7 +121,7 @@ Plus credentials injected at runtime by `run-journeyhawk.sh` sed substitution (`
 | `owner_login` | Step text contains `QA_OWNER_EMAIL` | `QA_OWNER_PASSWORD` env is set AND non-empty |
 | `user_login` | Step text contains `QA_USER_EMAIL` | `QA_USER_PASSWORD` env is set AND non-empty |
 | `seed_test_account` | Step text contains `e2e-test-` prefix | DB query confirms ≥1 row exists in `accounts` matching prefix |
-| `browser_clean_state` | Step text contains `BROWSER RESET FIRST` | Always satisfied (cc-test-runner handles) |
+| `browser_clean_state` | Step text contains `BROWSER RESET FIRST` | Always satisfied (phronex-test-runner handles) |
 | `backend_reachable` | Step text contains a URL like `https://app.phronex.com` | TCP connect to host:443 succeeds within 5s |
 
 Detection is **regex over step text** initially (deterministic). Future versions can add explicit `fixtures: [...]` block in spec JSON; not required for P2.
@@ -139,7 +139,7 @@ phronex_common/testing/strategist/
 
 ### How it integrates with run-journeyhawk.sh
 
-Runs **before** the cc-test-runner invocation, takes the spec, returns a filtered spec:
+Runs **before** the phronex-test-runner invocation, takes the spec, returns a filtered spec:
 
 ```bash
 # AFTER P1+P2 (full Block A):
@@ -152,7 +152,7 @@ ${PYTHON} -m phronex_common.testing.strategist.run_arbiter \
   --results-dir "${RESULTS_DIR}" \
   --spec "${FILTERED_SPEC}" \
   -- \
-  cc-test-runner run --spec "${FILTERED_SPEC}" --output "${RESULTS_DIR}"
+  phronex-test-runner run --spec "${FILTERED_SPEC}" --output "${RESULTS_DIR}"
 ```
 
 `fixture-decisions.json` written to results dir documents what was kept, what was dropped, and why — consumed later by the post-run pipeline + the future Strategist UI panel (P13).
@@ -214,7 +214,7 @@ If any pass criterion fails: **DO NOT** proceed to Phase 80. Surface the failure
 | `tests/testing/strategist/test_run_arbiter.py` | CREATE | phronex-common |
 | `tests/testing/strategist/test_fixture_guard.py` | CREATE | phronex-common |
 | `src/phronex_common/testing/runner.py` | MODIFY (small — detect abort_reason.json, log to qa_journeys) | phronex-common |
-| `run-journeyhawk.sh` | MODIFY (wrap cc-test-runner with strategist chain) | phronex-test-runner |
+| `run-journeyhawk.sh` | MODIFY (wrap phronex-test-runner with strategist chain) | phronex-test-runner |
 | `strategist-prep/BLOCK-A-RESULTS.md` | CREATE | phronex-test-runner |
 
 **No DB migrations.** Block A uses existing `qa_journeys` table; if a new column for `aborted` is preferred over `:aborted` suffix, that's a Phase 80 migration (defer).
