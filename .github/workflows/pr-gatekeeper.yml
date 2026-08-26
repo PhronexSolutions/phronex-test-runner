@@ -66,7 +66,7 @@ jobs:
     # notifies on escalation; the decision stays with Vivek until the shadow run
     # shows the gates are calibrated.
     continue-on-error: true
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Review this PR
         env:
