@@ -1,6 +1,6 @@
 # Journey Spec JSON Format — Canonical Reference
 
-> **Purpose:** This is the authoritative schema for journey spec `.json` files consumed by cc-test-runner.
+> **Purpose:** This is the authoritative schema for journey spec `.json` files consumed by phronex-test-runner.
 > **Source of truth:** `cli/src/types/test-case.ts` (Zod schema). This document mirrors it for agents that generate specs.
 > **CRITICAL:** Any agent generating journey specs MUST use `dependsOn`, NEVER `parentId`. The runner ignores `parentId` — journeys using it become orphans (no inherited auth state).
 
@@ -58,7 +58,7 @@
 
 ## Tree Linking — The `dependsOn` Field
 
-The cc-test-runner resolves journey execution order as a DAG using `dependsOn`:
+The phronex-test-runner resolves journey execution order as a DAG using `dependsOn`:
 
 ```
 Trunk (depth 0, isSharedRoot: true)
@@ -102,7 +102,7 @@ Journeys with `executor` field (not in the Zod schema but used by `run-journeyha
 |---------------|--------|-------------|
 | `http` | `dispatch_non_browser_journeys` | Direct HTTP API calls via httpx |
 | `db` | `dispatch_non_browser_journeys` | Direct database queries via psycopg2 |
-| `playwright` (default) | cc-test-runner CLI | Browser-based Playwright journeys |
+| `playwright` (default) | phronex-test-runner CLI | Browser-based Playwright journeys |
 
 ---
 

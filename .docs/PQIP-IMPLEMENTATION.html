@@ -119,7 +119,7 @@ Step 0b   DocChain stage gate (stage_gate.py — 6 gates)
 Step 1a   FixtureGuard pre-filter → fixture-decisions.json
 Step 1a2  Pre-run strategist signals (Q1-Q4) + JourneyRecommender.rank()
 Step 1b   WikiMutations (ADD_STEP/ADD_JOURNEY/SKIP_JOURNEY/DEEPEN)
-Step 1    cc-test-runner via RunArbiter wrapper
+Step 1    phronex-test-runner via RunArbiter wrapper
 Step 2    Intelligence pipeline (runner.py) → evidence → gaps → defects → RCA → verdicts → UX → consolidation
 Step 3    CycleCloseGate
           (post-pipeline: DocChain snapshot, strategy state update)</code></pre>
@@ -533,7 +533,7 @@ CREATE TABLE qa_feature_coverage (
         <tr><td>DEEP</td><td>Has mutation + persistence assertion OR integration probe OR data invariant check</td><td>ACCEPTED — minimum standard</td></tr>
         <tr><td>BEHAVIORAL</td><td>Has narrative flow across 5+ steps with data dependencies between steps</td><td>IDEAL — prioritised in recommender</td></tr>
       </table>
-      <p><strong>Integration:</strong> Called by <code>run-journeyhawk.sh</code> after fixture guard, before cc-test-runner. SMOKE journeys are dropped (logged to fixture-decisions.json as <code>depth_rejected</code>). SURFACE journeys emit a warning but still run.</p>
+      <p><strong>Integration:</strong> Called by <code>run-journeyhawk.sh</code> after fixture guard, before phronex-test-runner. SMOKE journeys are dropped (logged to fixture-decisions.json as <code>depth_rejected</code>). SURFACE journeys emit a warning but still run.</p>
 
       <div class="dod-box">
         <h4>DoD &mdash; 85.2</h4>
@@ -541,7 +541,7 @@ CREATE TABLE qa_feature_coverage (
           <li><code>from phronex_common.testing.depth_scorer import score_journey; score_journey(journey_dict)</code> returns one of SMOKE/SURFACE/DEEP/BEHAVIORAL.</li>
           <li>A journey with only "navigate to /dashboard" and "verify sidebar exists" scores SMOKE.</li>
           <li>jp-verify-profile-update (has fill + save + persistence) scores DEEP or BEHAVIORAL.</li>
-          <li>Smoke journeys are filtered out before reaching cc-test-runner.</li>
+          <li>Smoke journeys are filtered out before reaching phronex-test-runner.</li>
         </ul>
       </div>
 
@@ -699,7 +699,7 @@ CREATE TABLE qa_readiness_reports (
         <ul>
           <li>zod parse of a spec with <code>persistence</code> field succeeds.</li>
           <li><code>bun check</code> passes (TypeScript).</li>
-          <li>cc-test-runner binary rebuilt and functional.</li>
+          <li>phronex-test-runner binary rebuilt and functional.</li>
           <li>jp-verify-profile-update spec updated with persistence block; run succeeds.</li>
         </ul>
       </div>
@@ -816,7 +816,7 @@ invariants:
         <h4>Definition of Done &mdash; Phase 86 (combined)</h4>
         <ul>
           <li>Migrations 0018 + 0020 applied.</li>
-          <li>zod parse of a spec with <code>persistence</code> field succeeds. <code>bun check</code> passes. cc-test-runner binary rebuilt.</li>
+          <li>zod parse of a spec with <code>persistence</code> field succeeds. <code>bun check</code> passes. phronex-test-runner binary rebuilt.</li>
           <li>After 3 JP runs: <code>SELECT journey_id, classification FROM qa_confidence_scores WHERE product_slug='jp' LIMIT 5;</code> returns rows with STABLE/FLAKY/BROKEN.</li>
           <li>Visual baselines stored: <code>SELECT count(*) FROM qa_evidence WHERE evidence_type='visual_baseline';</code> &ge;1.</li>
           <li><code>python -m phronex_common.testing.invariant_runner --product jp</code> exits 0.</li>
@@ -1243,7 +1243,7 @@ Step 0b   DocChain stage gate (existing)
 Step 1a   FixtureGuard pre-filter (existing — MODIFIED to read qa_test_resources)
 Step 1a2  Pre-run strategist signals (existing)
 Step 1b   WikiMutations (existing)
-Step 1    cc-test-runner via RunArbiter (existing)
+Step 1    phronex-test-runner via RunArbiter (existing)
 Step 2    Intelligence pipeline (existing — MODIFIED, see below)
 Step 3    CycleCloseGate (existing)
 <strong>Step 3b   Data invariant check (NEW &mdash; Phase 86)</strong></code></pre>
@@ -1379,7 +1379,7 @@ Key dependencies:
       <h3>12.1 Architecture Overview</h3>
       <pre>
 ┌────────────────────────────────────────────────────────────┐
-│  cc-test-runner (automated)                                 │
+│  phronex-test-runner (automated)                                 │
 │                                                             │
 │  Steps 1-5 ──→ HUMAN_REQUIRED step ──→ CHECKPOINT + PAUSE  │
 │                        │                                    │
@@ -1474,11 +1474,11 @@ CREATE INDEX idx_handoff_queue_run ON qa_handoff_queue (run_id);
       </pre>
 
       <h3>12.5 Pipeline Integration (run-journeyhawk.sh)</h3>
-      <p>The handoff queue integrates between Step 1 (cc-test-runner) and Step 2 (intelligence pipeline):</p>
+      <p>The handoff queue integrates between Step 1 (phronex-test-runner) and Step 2 (intelligence pipeline):</p>
       <pre>
-# Step 1: cc-test-runner runs all journeys
+# Step 1: phronex-test-runner runs all journeys
 #   - Automated journeys: execute fully
-#   - Human-required steps: cc-test-runner SKIPS the step,
+#   - Human-required steps: phronex-test-runner SKIPS the step,
 #     marks it "pending_human" in step-outcomes.json,
 #     saves browser state, inserts into qa_handoff_queue
 
@@ -1526,8 +1526,8 @@ Total ETA: ~30 seconds
 Reply "serve" to open CLI, or complete in browser and reply "done"
       </pre>
 
-      <h3>12.7 cc-test-runner Integration (TypeScript)</h3>
-      <p>New behaviour in cc-test-runner when a step has <code>human_required</code>:</p>
+      <h3>12.7 phronex-test-runner Integration (TypeScript)</h3>
+      <p>New behaviour in phronex-test-runner when a step has <code>human_required</code>:</p>
       <ul>
         <li>Before the step: execute any <code>pre_actions</code> (automated setup)</li>
         <li>Save browser storage state to <code>.tmp/{journey_id}-handoff-state.json</code></li>
@@ -1569,7 +1569,7 @@ Reply "serve" to open CLI, or complete in browser and reply "done"
           <li><code>python -m phronex_common.testing.handoff complete --handoff-id N</code> marks completed</li>
           <li>JourneyRecommender applies <code>human_cost_penalty = 0.15</code> to journeys with human_required steps</li>
           <li>Depth scorer classifies human_required journeys as DEEP+ minimum</li>
-          <li>cc-test-runner zod schema accepts <code>human_required</code> field; <code>bun check</code> passes</li>
+          <li>phronex-test-runner zod schema accepts <code>human_required</code> field; <code>bun check</code> passes</li>
           <li>Confidence scorer excludes <code>pending_human</code> skipped outcomes from Wilson interval</li>
           <li>run-journeyhawk.sh Step 1b polls qa_handoff_queue and resumes after completion</li>
           <li>Telegram notification fires when handoffs are pending (via phronex_common.communications)</li>

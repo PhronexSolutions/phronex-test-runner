@@ -41,7 +41,7 @@ BASE SPEC (cc-deep.json)          ← authored canonical, NEVER modified by cura
        │
        ▼
 ENRICHED SPEC (cc-deep.enriched.json)   ← ephemeral, git-ignored, rebuilt each run
-       │ cc-test-runner uses this
+       │ phronex-test-runner uses this
        ▼
 [Block B - Run]
 [Block C - Post-run]

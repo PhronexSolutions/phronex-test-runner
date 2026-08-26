@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Run Claude Code Tests
-      run: /app/cc-test-runner --testsPath=$GITHUB_WORKSPACE/samples/thisinto-e2e-tests.json --resultsPath=/test/results/
+      run: /app/phronex-test-runner --testsPath=$GITHUB_WORKSPACE/samples/thisinto-e2e-tests.json --resultsPath=/test/results/
 
     - name: Publish Test Report
       uses: ctrf-io/github-test-reporter@v1

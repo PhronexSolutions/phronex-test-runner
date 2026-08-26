@@ -50,7 +50,7 @@ See [samples/thisinto-e2e-tests.json](samples/thisinto-e2e-tests.json) for a con
 
 ### CLI
 
-This project includes a CLI tool, `cc-test-runner`.
+This project includes a CLI tool, `phronex-test-runner`.
 
 #### Building the CLI Tool
 
@@ -61,7 +61,7 @@ Build the CLI: `bun run build`
 #### Running the CLI Tool
 
 ```bash
-./dist/cc-test-runner [options]
+./dist/phronex-test-runner [options]
 ```
 
 | Argument | Alias | Type | Required | Default | Description |
@@ -77,13 +77,13 @@ Build the CLI: `bun run build`
 
 ```bash
 # Basic usage with test file
-./dist/cc-test-runner --testsPath=./tests.json
+./dist/phronex-test-runner --testsPath=./tests.json
 
 # With custom results directory and verbose output
-./dist/cc-test-runner -t ./e2e-tests.json -o ./test-output -v
+./dist/phronex-test-runner -t ./e2e-tests.json -o ./test-output -v
 
 # Limit Claude Code interactions
-./dist/cc-test-runner --testsPath=./tests.json --maxTurns=20
+./dist/phronex-test-runner --testsPath=./tests.json --maxTurns=20
 ```
 
 ### Docker Image + GitHub Actions

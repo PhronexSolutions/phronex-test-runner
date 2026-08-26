@@ -1,7 +1,7 @@
 # Tree-Based Journey Architecture — Quick Brief
 
 ## What this is
-Redesign cc-test-runner's journey execution model from "fully isolated vertical slices" to a **dependency tree** where shared ancestor journeys run once and their browser state (cookies + localStorage) is captured and injected into child journeys. This eliminates redundant login/navigation overhead and enables severity inference from tree depth.
+Redesign phronex-test-runner's journey execution model from "fully isolated vertical slices" to a **dependency tree** where shared ancestor journeys run once and their browser state (cookies + localStorage) is captured and injected into child journeys. This eliminates redundant login/navigation overhead and enables severity inference from tree depth.
 
 ## Problem solved
 - Current: 12 journeys × full login+nav = ~25 min, 12 auth requests, 12 Chrome instances
@@ -117,10 +117,10 @@ For root journeys with `stateOutputPath`, add `--save-session` to MCP args so th
 Root journeys don't do any product-specific verification — they ONLY establish authenticated state and verify the dashboard loads. Child journeys own their own cleanup. This is expressed in the spec itself (root steps never include delete/cleanup operations).
 
 ### 5. Isolation mode: per-journey override
-Add `--run-journey <id>` CLI flag to cc-test-runner. When set:
+Add `--run-journey <id>` CLI flag to phronex-test-runner. When set:
 - If the named journey has a `dependsOn`, run the parent root first (silently), capture state, then run the target journey
 - If the journey is a root, run it directly
-- Enables: `cc-test-runner -t spec.json -o results --run-journey jp-d09-jobs-list-detail`
+- Enables: `phronex-test-runner -t spec.json -o results --run-journey jp-d09-jobs-list-detail`
 
 ### 6. Cleanup tree (shared cleanup for shared ancestor)
 Add `cleanupSteps` array to `TestCase` (optional). Root journeys can declare shared cleanup (logout, delete session). Runner executes cleanup ONCE after all children complete, not after each child.

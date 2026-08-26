@@ -24,10 +24,10 @@ The following files are **smoke-only** (page loads, no state mutations) and cann
 ./run-journeyhawk.sh portal portal-journeys/portal-tree.json
 
 # Smoke run — superadmin auth check only (no intelligence pipeline):
-./cli/cc-test-runner -t portal-journeys/portal-tree.json -o results-smoke-portal --runJourney portal-trunk-superadmin
+./cli/phronex-test-runner -t portal-journeys/portal-tree.json -o results-smoke-portal --runJourney portal-trunk-superadmin
 
 # Owner RBAC smoke:
-./cli/cc-test-runner -t portal-journeys/portal-tree.json -o results-smoke-owner --runJourney portal-trunk-owner
+./cli/phronex-test-runner -t portal-journeys/portal-tree.json -o results-smoke-owner --runJourney portal-trunk-owner
 ```
 
 ## Regenerate portal-admin-deep.json after adminTabs.ts changes

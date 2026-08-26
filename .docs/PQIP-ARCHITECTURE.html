@@ -290,7 +290,7 @@ Layer 1: Resilience &amp; Security
       <p><strong>Question answered:</strong> "Does the feature work correctly from the user's perspective — not just render, but actually deliver the intended outcome?"</p>
 
       <h4>2.1 Current Architecture (Implemented)</h4>
-      <p>The tree executor (<code>cc-test-runner</code>) runs 26-node dependency trees via Claude Code subprocesses with Playwright MCP. Trunks log in, branches navigate, leaves verify features. Browser state is injected via <code>--storage-state</code> and <code>--save-session</code> flags.</p>
+      <p>The tree executor (<code>phronex-test-runner</code>) runs 26-node dependency trees via Claude Code subprocesses with Playwright MCP. Trunks log in, branches navigate, leaves verify features. Browser state is injected via <code>--storage-state</code> and <code>--save-session</code> flags.</p>
 
       <h4>2.2 Data Persistence Verification (Enhancement)</h4>
       <p>After every mutation step (form submit, file upload, config change), the runner:</p>
@@ -1083,7 +1083,7 @@ Pattern: "Session state diverges from DB" — 8 defects across 3 products
       <table>
         <tr><th>Term</th><th>Definition</th></tr>
         <tr><td>PQIP</td><td>Product Quality Intelligence Platform — the combined system described in this document</td></tr>
-        <tr><td>JourneyHawk</td><td>The existing E2E browser test harness (cc-test-runner + intelligence pipeline). Becomes Layer 2 of PQIP.</td></tr>
+        <tr><td>JourneyHawk</td><td>The existing E2E browser test harness (phronex-test-runner + intelligence pipeline). Becomes Layer 2 of PQIP.</td></tr>
         <tr><td>DocChain</td><td>The documentation lifecycle system that generates/reconciles .docs/ artefacts. Feeds Layer 4.</td></tr>
         <tr><td>WikiStore</td><td>Cross-product knowledge base in qa_wiki_articles. Central to the closed-loop feedback system.</td></tr>
         <tr><td>RCA Engine</td><td>Root Cause Analysis engine — deterministic heuristics + LLM fallback for defect classification.</td></tr>

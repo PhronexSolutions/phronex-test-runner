@@ -52,7 +52,7 @@ All modules live in `phronex_common.testing.*` (package path: `$PHRONEX_CODE_ROO
 | `mutations.py` | Reads `test_mutation` JSONB from qa_wiki_articles, applies ADD_STEP/ADD_JOURNEY/SKIP_JOURNEY/REQUIRE_FIXTURE/ABORT_ON/DEEPEN | Block A |
 | `fixture_guard.py` | Pre-filters journeys whose fixtures are missing/expired before execution | Block A |
 | `fixture_detectors.py` | Detector registry: authentication, file upload, payment, SSO fixture validators | Block A |
-| `run_arbiter.py` | Wraps cc-test-runner process. Aborts on: 3 consecutive fails / >30 min / >50% network failures | Block B |
+| `run_arbiter.py` | Wraps phronex-test-runner process. Aborts on: 3 consecutive fails / >30 min / >50% network failures | Block B |
 | `abort_reasons.py` | Structured abort reason dataclasses for RunArbiter abort events | Block B |
 | `rca/engine.py` | Deterministic heuristics-first RCA classification. LLM fallback | Block C |
 | `validation_auditor.py` | Reads TEST-ORACLES.html, emits PASS_ORACLE/FAIL_ORACLE/NO_ORACLE per journey | Block C |

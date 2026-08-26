@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # run-journeyhawk.sh — Single-entry JourneyHawk runner.
-# Chains cc-test-runner + phronex_common.testing.runner atomically.
+# Chains phronex-test-runner + phronex_common.testing.runner atomically.
 # Claude (as JourneyHawk skill) calls THIS script — never the two steps separately.
 #
 # The intelligence pipeline lives in phronex_common.testing.runner (version-controlled,
@@ -27,16 +27,16 @@
 #   ./run-journeyhawk.sh portal portal-journeys/portal-tree.json
 #   ./run-journeyhawk.sh --skip-passed comc comc-journeys/comc-deep.json
 #
-# Smoke run (single trunk, bypassing intelligence pipeline — direct cc-test-runner):
-#   ./cli/cc-test-runner -t jp-journeys/jp-deep.json -o results-smoke-jp --runJourney jp-trunk-main
-#   ./cli/cc-test-runner -t portal-journeys/portal-tree.json -o results-smoke-portal --runJourney portal-trunk-superadmin
+# Smoke run (single trunk, bypassing intelligence pipeline — direct phronex-test-runner):
+#   ./cli/phronex-test-runner -t jp-journeys/jp-deep.json -o results-smoke-jp --runJourney jp-trunk-main
+#   ./cli/phronex-test-runner -t portal-journeys/portal-tree.json -o results-smoke-portal --runJourney portal-trunk-superadmin
 #
 # NOTE: Standalone smoke spec files (jp-smoke.json, portal-smoke.json) are DEPRECATED.
 #       Use --runJourney <trunk-id> against the tree spec instead — a trunk run IS the smoke test.
 
 set -euo pipefail
 
-# cc-test-runner spawns `claude` subprocesses. If ANTHROPIC_API_KEY is set in the
+# phronex-test-runner spawns `claude` subprocesses. If ANTHROPIC_API_KEY is set in the
 # shell, it takes precedence over OAuth credentials even when the key is exhausted.
 # Unset it here so the runner always falls back to ~/.claude/.credentials.json (OAuth /
 # Claude Max subscription) which is the correct auth path for DevServer runs.
@@ -813,7 +813,7 @@ if [[ "${_DOCCHAIN_CHANGED}" -eq 1 ]] && [[ "${STRATEGY_MODE}" == "MAINTAIN" ]];
 fi
 
 # Restore OAuth token for Python LLM calls in journey generation (Step 0b-gen).
-# ANTHROPIC_API_KEY was unset above to prevent cc-test-runner from using it.
+# ANTHROPIC_API_KEY was unset above to prevent phronex-test-runner from using it.
 # The Python intelligence pipeline (journey_generator, business_journey_generator)
 # uses phronex_common.llm which needs ANTHROPIC_API_KEY = OAuth access token.
 if [[ -z "${ANTHROPIC_API_KEY:-}" ]] && [[ -f "$HOME/.claude/.credentials.json" ]]; then
@@ -1159,7 +1159,7 @@ for j in specs:
     if depth == DepthLevel.SMOKE:
         if jid in static_ids:
             # Static-spec journey: always run even if SMOKE (D-10)
-            # Strip 'depth' — internal classification field, not in cc-test-runner Zod schema
+            # Strip 'depth' — internal classification field, not in phronex-test-runner Zod schema
             j.pop('depth', None)
             kept.append(j)
         else:
@@ -1205,7 +1205,7 @@ deep_plus = total_kept - len(surface)
 print(f'  Depth gate: {total_original} in → {total_kept} kept ({deep_plus} DEEP+, {len(surface)} SURFACE, {dropped} dropped/deepened)')
 
 # Sanitize before writing: strip non-schema fields (pillar, persistence,
-# _depth_warning, etc.) that break cc-test-runner's strict zod schema.
+# _depth_warning, etc.) that break phronex-test-runner's strict zod schema.
 from phronex_common.testing.journey_generator import sanitize_journey_spec
 kept = sanitize_journey_spec(kept)
 
@@ -1491,7 +1491,7 @@ printf "  %-22s %-8s %-8s %s\n" "0e      (run filter)"    "${_STAGE_AFTER_DEPTH}
 printf "  %-22s %-8s %-8s %s\n" "1a      (fixture guard)" "${_STAGE_AFTER_RUNFILTER}" "${_STAGE_AFTER_FIXTURE}"  "${_STAGE_FIXTURE_STATUS}"
 printf "  %-22s %-8s %-8s %s\n" "1b      (wiki mutations)" "${_STAGE_AFTER_FIXTURE}"  "${_STAGE_AFTER_MUTATIONS}" "${_STAGE_MUTATIONS_STATUS}"
 echo "  ─────────────────────────────────────────────────────────"
-printf "  %-22s          %-8s %s\n" "FINAL for cc-test-runner" "${_STAGE_AFTER_MUTATIONS}" "journeys queued"
+printf "  %-22s          %-8s %s\n" "FINAL for phronex-test-runner" "${_STAGE_AFTER_MUTATIONS}" "journeys queued"
 echo "============================================================"
 echo ""
 
@@ -1687,7 +1687,7 @@ NON_BROWSER_EOF
 
 # Step 0.96: Per-journey dynamic maxTurns injection.
 # Computes a turn budget per journey based on step count × depth multiplier and
-# writes it back into MUTATED_SPEC as a "maxTurns" field.  The cc-test-runner
+# writes it back into MUTATED_SPEC as a "maxTurns" field.  The phronex-test-runner
 # Zod schema accepts this field and passes it to claude --max-turns, overriding
 # the CLI-level --maxTurns 150 ceiling for journeys that need more or less budget.
 #
@@ -1789,13 +1789,13 @@ for line in budget_log:
     print(line, file=sys.stderr)
 TURN_BUDGET_EOF
 
-# Step 1: cc-test-runner (wrapped by run_arbiter)
-# run_arbiter spawns cc-test-runner as a child, streams its stdout, and
+# Step 1: phronex-test-runner (wrapped by run_arbiter)
+# run_arbiter spawns phronex-test-runner as a child, streams its stdout, and
 # SIGTERMs the child on abort triggers (3 consecutive fails / >30 min runtime
 # / per-journey 5 min hang / >50% network failure rate). On abort it writes
 # ${RESULTS_DIR}/abort_reason.json which the pipeline (Step 2) reads to
 # suffix qa_journeys.suite_scope with ':aborted'.
-# Re-unset ANTHROPIC_API_KEY before cc-test-runner — it uses Claude OAuth, not API key.
+# Re-unset ANTHROPIC_API_KEY before phronex-test-runner — it uses Claude OAuth, not API key.
 unset ANTHROPIC_API_KEY
 
 # Start background state-alias watcher: polls for trunk state files and creates aliases.
@@ -1813,7 +1813,7 @@ if [[ -f "${JH_STATE_ALIAS_SCRIPT}" ]]; then
 fi
 
 echo ""
-echo "[1/3] Spawning cc-test-runner (wrapped by run_arbiter, max_runtime=${STRATEGIST_ABORT_MAX_RUNTIME_SEC}s)..."
+echo "[1/3] Spawning phronex-test-runner (wrapped by run_arbiter, max_runtime=${STRATEGIST_ABORT_MAX_RUNTIME_SEC}s)..."
 CC_EXIT=0
 _RUNNER_START_SEC=${SECONDS}
 "${PYTHON}" -m phronex_common.testing.strategist.run_arbiter \
@@ -1821,7 +1821,7 @@ _RUNNER_START_SEC=${SECONDS}
   --results-dir "${RESULTS_DIR}" \
   --spec "${MUTATED_SPEC}" \
   -- \
-  "${SCRIPT_DIR}/cli/cc-test-runner" \
+  "${SCRIPT_DIR}/cli/phronex-test-runner" \
     -t "${MUTATED_SPEC}" \
     -o "${RESULTS_DIR}" \
     --maxTurns 150 \
@@ -1840,20 +1840,20 @@ export JH_RUNNER_DURATION_SEC=$(( SECONDS - _RUNNER_START_SEC ))
 # recovery doctrine: a partial run is intelligence, never discard it), but the
 # message must not read like a product/test failure for any of these three.
 if [[ ${CC_EXIT} -eq 2 ]]; then
-  echo "[1/3] cc-test-runner stopped: KILL requested via journeyhawk-ctl.sh (run-transient state cleaned)"
+  echo "[1/3] phronex-test-runner stopped: KILL requested via journeyhawk-ctl.sh (run-transient state cleaned)"
 elif [[ ${CC_EXIT} -eq 3 ]]; then
-  echo "[1/3] cc-test-runner stopped: PAUSE requested via journeyhawk-ctl.sh — resume with a normal re-invocation (--skip-passed relies on recorded verdicts)"
+  echo "[1/3] phronex-test-runner stopped: PAUSE requested via journeyhawk-ctl.sh — resume with a normal re-invocation (--skip-passed relies on recorded verdicts)"
 elif [[ ${CC_EXIT} -eq 4 ]]; then
   _QUOTA_MARKER="${RESULTS_DIR}/quota_exhausted.json"
   _RESETS_AT_ISO=$("${PYTHON}" -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get('resetsAtIso') or 'unknown')" "${_QUOTA_MARKER}" 2>/dev/null || echo "unknown")
-  echo "[1/3] cc-test-runner stopped: Claude Code usage quota exhausted (resets ${_RESETS_AT_ISO}) — remaining journeys were NOT run and do not represent product/test failures. Re-run after the quota window resets."
+  echo "[1/3] phronex-test-runner stopped: Claude Code usage quota exhausted (resets ${_RESETS_AT_ISO}) — remaining journeys were NOT run and do not represent product/test failures. Re-run after the quota window resets."
 elif [[ ${CC_EXIT} -ne 0 ]]; then
-  echo "[1/3] cc-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
+  echo "[1/3] phronex-test-runner exit=${CC_EXIT} (test failures expected — continuing to pipeline)"
 fi
-echo "[1/3] cc-test-runner wall-clock: ${JH_RUNNER_DURATION_SEC}s"
+echo "[1/3] phronex-test-runner wall-clock: ${JH_RUNNER_DURATION_SEC}s"
 
 # Step 1b (PQIP §12): Handoff Queue — poll for human-in-the-loop steps.
-# If any journey steps were queued for operator action during cc-test-runner,
+# If any journey steps were queued for operator action during phronex-test-runner,
 # poll until resolved or timeout (600s). Fail-open: if no handoffs or DB unavailable, skip.
 echo ""
 echo "[1b/3] Checking handoff queue (human-in-the-loop steps)..."
@@ -1964,7 +1964,7 @@ CTRF_MERGE_EOF
 # === End Phase 95 Gap-B CTRF merge ===
 
 # Re-export OAuth token for intelligence pipeline LLM calls.
-# cc-test-runner is done — safe to restore ANTHROPIC_API_KEY from Claude credentials.
+# phronex-test-runner is done — safe to restore ANTHROPIC_API_KEY from Claude credentials.
 if [[ -f "$HOME/.claude/.credentials.json" ]]; then
   _OAUTH_TOKEN=$(python3 -c "
 import json, sys
@@ -2120,7 +2120,7 @@ _HTML_OUT=$("${PYTHON}" -m phronex_common.testing.strategist.report_html \
 echo ""
 echo "========================================"
 echo "  JourneyHawk COMPLETE"
-echo "  cc-test-runner exit : ${CC_EXIT}"
+echo "  phronex-test-runner exit : ${CC_EXIT}"
 echo "  pipeline exit       : ${PIPE_EXIT}"
 echo "  Results dir         : ${RESULTS_DIR}"
 echo "  Finished: $(date -Iseconds)"
