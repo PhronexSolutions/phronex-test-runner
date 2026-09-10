@@ -45,6 +45,19 @@ jobs:
     # registered with the retired `devserver` label), so every run since the
     # workflow was added has sat permanently `queued` rather than failing.
     runs-on: [self-hosted, phronex-main-host]
+    # checks: write is for the new "Post Gatekeeper verdict check run" step
+    # below (github.rest.checks.create), added alongside "Compute Gatekeeper
+    # verdict" in the same fix. contents: read is the explicit match for the
+    # implicit GITHUB_TOKEN default this job relied on before any
+    # permissions: block existed -- this repo's org/repo default workflow
+    # permission is "read" only (confirmed via
+    # `gh api repos/.../actions/permissions/workflow`), so without this block
+    # the check-run call would 403. Same pattern phronex-common's own
+    # pr-gatekeeper.yml uses (PR #421), and jobportal/praxis/
+    # phronex-command-centre's copies.
+    permissions:
+      contents: read
+      checks: write
     # Serialize across ALL PRs, not just within one.
     #
     # The workflow-level group above is keyed on the PR number, so two DIFFERENT
@@ -78,3 +91,92 @@ jobs:
           /home/phronex/code/phronex-common/.venv/bin/python \
             /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
             --repo "$REPO" --only-pr "$PR"
+
+      # Ports phronex-common's own pr-gatekeeper.yml fix (PR #421, 4 review
+      # rounds) to this repo -- the check-run conclusion used to be set purely
+      # by whether this job's one step exited 0, which is true whether the
+      # posted verdict was APPROVE or REQUEST_CHANGES, and also true/false in
+      # ways unrelated to PR content (exit 2 = lock contention, not a
+      # rejection; exit 1 = claude CLI missing). verdict_for_exit_code() is
+      # the single source of truth for the mapping, covered by
+      # tests/scripts/test_pr_gatekeeper_poll.py in phronex-common -- this
+      # step only calls it, no decision logic duplicated here.
+      # --repo/--only-pr/--head-sha (added here to close a propagation gap
+      # from phronex-common PR #563, and to add the "Compute Gatekeeper
+      # verdict" step itself, which this repo's copy never had): without
+      # them, --verdict-json cannot read back the verdict a review actually
+      # recorded and can only map by exit code -- which is exactly the bug
+      # #563 fixed. #563 fixed the mapping function itself
+      # (verdict_for_exit_code) fleet-wide the moment /opt/phronex-common's
+      # checkout updated, but this repo's own workflow never called
+      # --verdict-json at all, so no "Gatekeeper verdict" check run was ever
+      # posted here. --head-sha matters specifically: seen.json is keyed per
+      # PR, not per commit, so omitting it would let an earlier commit's
+      # verdict be reported as the current one's. Mirrors phronex-auth PR
+      # #73's identical fix.
+      #
+      # NOTE: this repo's own "Review this PR" step above has no `id: review`
+      # and does not capture its exit code to $GITHUB_OUTPUT (unlike the
+      # canonical/jobportal/phronex-command-centre/praxis versions), so
+      # `${{ steps.review.outputs.exit_code }}` below resolves to empty. That
+      # is a pre-existing, separate gap in the "Review this PR" step which
+      # the drift detector does not check and is out of scope for this fix --
+      # it degrades gracefully (pr_gatekeeper_poll.py treats an unparseable
+      # exit code as unknown) rather than breaking, and --repo/--only-pr/
+      # --head-sha alone are sufficient for the primary fix here: reading
+      # back the ACTUAL recorded verdict rather than only mapping by exit
+      # code.
+      - name: Compute Gatekeeper verdict
+        id: verdict
+        if: always()
+        env:
+          REPO: ${{ github.event.repository.name }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set +e
+          json=$(/home/phronex/code/phronex-common/.venv/bin/python \
+            /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
+            --verdict-json "${{ steps.review.outputs.exit_code }}" \
+            --repo "$REPO" --only-pr "$PR" --head-sha "$HEAD_SHA")
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ] || [ -z "$json" ]; then
+            json='{"conclusion": "failure", "summary": "The verdict-computation step itself failed (non-zero exit or empty output from pr_gatekeeper_poll.py --verdict-json) -- treat as a failed review, not as unverified-but-fine."}'
+          fi
+          echo "json=$json" >> "$GITHUB_OUTPUT"
+
+      # Separate, distinctly-named, non-required check run reflecting the
+      # REAL verdict -- not "did the job step fail" (continue-on-error hides
+      # that by design). Never added to branch protection's required-checks:
+      # it is a visibility aid, not a merge gate.
+      - name: Post Gatekeeper verdict check run
+        if: always()
+        uses: actions/github-script@v9
+        env:
+          VERDICT_JSON: ${{ steps.verdict.outputs.json }}
+          EXIT_CODE: ${{ steps.review.outputs.exit_code }}
+        with:
+          script: |
+            let verdict;
+            try {
+              verdict = JSON.parse(process.env.VERDICT_JSON);
+            } catch (err) {
+              verdict = {
+                conclusion: 'failure',
+                summary: `Could not parse the verdict JSON from the previous step (${err.message}). Raw value: ${process.env.VERDICT_JSON}`,
+              };
+            }
+            const exitCodeLabel = process.env.EXIT_CODE || 'unavailable';
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Gatekeeper verdict',
+              head_sha: context.payload.pull_request.head.sha,
+              status: 'completed',
+              conclusion: verdict.conclusion,
+              output: {
+                title: `Gatekeeper verdict: ${verdict.conclusion} (exit ${exitCodeLabel})`,
+                summary: verdict.summary,
+              },
+            });
