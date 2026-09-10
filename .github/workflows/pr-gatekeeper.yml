@@ -45,6 +45,19 @@ jobs:
     # registered with the retired `devserver` label), so every run since the
     # workflow was added has sat permanently `queued` rather than failing.
     runs-on: [self-hosted, phronex-main-host]
+    # checks: write is for the new "Post Gatekeeper verdict check run" step
+    # below (github.rest.checks.create), added alongside "Compute Gatekeeper
+    # verdict" in the same fix. contents: read is the explicit match for the
+    # implicit GITHUB_TOKEN default this job relied on before any
+    # permissions: block existed -- this repo's org/repo default workflow
+    # permission is "read" only (confirmed via
+    # `gh api repos/.../actions/permissions/workflow`), so without this block
+    # the check-run call would 403. Same pattern phronex-common's own
+    # pr-gatekeeper.yml uses (PR #421), and jobportal/praxis/
+    # phronex-command-centre's copies.
+    permissions:
+      contents: read
+      checks: write
     # Serialize across ALL PRs, not just within one.
     #
     # The workflow-level group above is keyed on the PR number, so two DIFFERENT
@@ -69,12 +82,125 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Review this PR
+        id: review
         env:
           REPO: ${{ github.event.repository.name }}
           PR: ${{ github.event.pull_request.number }}
         run: |
           # Runs from /opt, not from a checkout: the scripts must not depend on
           # which branch any working tree happens to be on.
+          #
+          # `set +e` (not just the job-level continue-on-error) is what lets
+          # the NEXT step read the real exit code: GitHub Actions runs `run:`
+          # blocks under `bash -e` by default, so without this the script's
+          # own non-zero exit would abort this step's shell before `code=$?`
+          # ever executes, and $GITHUB_OUTPUT would never get written.
+          #
+          # `id: review` + this exit-code capture were added in the SAME
+          # change as the "Compute Gatekeeper verdict" step below, not
+          # left for later -- a Chief-architect review of an earlier version
+          # of this fix (PR #30 round 1) caught that omitting this makes
+          # `steps.review.outputs.exit_code` permanently empty, which makes
+          # `verdict_for_exit_code(None, recorded)` return a hardcoded
+          # {"conclusion": "failure"} WITHOUT ever consulting the actually
+          # recorded verdict (see that function's `code is None` branch in
+          # phronex-common/scripts/pr_gatekeeper_poll.py) -- i.e. every
+          # future PR here would report a false "Gatekeeper verdict: failure"
+          # regardless of the real review outcome. That is a worse failure
+          # mode than the one this fix exists to close.
+          set +e
           /home/phronex/code/phronex-common/.venv/bin/python \
             /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
             --repo "$REPO" --only-pr "$PR"
+          code=$?
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+
+      # Ports phronex-common's own pr-gatekeeper.yml fix (PR #421, 4 review
+      # rounds) to this repo -- the check-run conclusion used to be set purely
+      # by whether this job's one step exited 0, which is true whether the
+      # posted verdict was APPROVE or REQUEST_CHANGES, and also true/false in
+      # ways unrelated to PR content (exit 2 = lock contention, not a
+      # rejection; exit 1 = claude CLI missing). verdict_for_exit_code() is
+      # the single source of truth for the mapping, covered by
+      # tests/scripts/test_pr_gatekeeper_poll.py in phronex-common -- this
+      # step only calls it, no decision logic duplicated here.
+      # --repo/--only-pr/--head-sha (added here to close a propagation gap
+      # from phronex-common PR #563, and to add the "Compute Gatekeeper
+      # verdict" step itself, which this repo's copy never had): without
+      # them, --verdict-json cannot read back the verdict a review actually
+      # recorded and can only map by exit code -- which is exactly the bug
+      # #563 fixed. #563 fixed the mapping function itself
+      # (verdict_for_exit_code) fleet-wide the moment /opt/phronex-common's
+      # checkout updated, but this repo's own workflow never called
+      # --verdict-json at all, so no "Gatekeeper verdict" check run was ever
+      # posted here. --head-sha matters specifically: seen.json is keyed per
+      # PR, not per commit, so omitting it would let an earlier commit's
+      # verdict be reported as the current one's. Mirrors phronex-auth PR
+      # #73's identical fix.
+      - name: Compute Gatekeeper verdict
+        id: verdict
+        if: always()
+        env:
+          REPO: ${{ github.event.repository.name }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set +e
+          json=$(/home/phronex/code/phronex-common/.venv/bin/python \
+            /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
+            --verdict-json "${{ steps.review.outputs.exit_code }}" \
+            --repo "$REPO" --only-pr "$PR" --head-sha "$HEAD_SHA")
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ] || [ -z "$json" ]; then
+            json='{"conclusion": "failure", "summary": "The verdict-computation step itself failed (non-zero exit or empty output from pr_gatekeeper_poll.py --verdict-json) -- treat as a failed review, not as unverified-but-fine."}'
+          fi
+          # Heredoc delimiter form (GitHub's documented way to write a value
+          # that MIGHT span multiple lines to $GITHUB_OUTPUT), not the plain
+          # `key=value` form every sibling repo's identical step still uses.
+          # `json` is expected to stay compact single-line output from
+          # `json.dumps()` in practice, but nothing enforces that upstream,
+          # and a plain `key=value` write silently corrupts on an embedded
+          # newline instead of failing loudly -- flagged by this PR's own
+          # Chief-architect review (round 2) as free, zero-downside hardening.
+          {
+            echo "json<<GATEKEEPER_VERDICT_JSON_EOF"
+            echo "$json"
+            echo "GATEKEEPER_VERDICT_JSON_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # Separate, distinctly-named, non-required check run reflecting the
+      # REAL verdict -- not "did the job step fail" (continue-on-error hides
+      # that by design). Never added to branch protection's required-checks:
+      # it is a visibility aid, not a merge gate.
+      - name: Post Gatekeeper verdict check run
+        if: always()
+        uses: actions/github-script@v9
+        env:
+          VERDICT_JSON: ${{ steps.verdict.outputs.json }}
+          EXIT_CODE: ${{ steps.review.outputs.exit_code }}
+        with:
+          script: |
+            let verdict;
+            try {
+              verdict = JSON.parse(process.env.VERDICT_JSON);
+            } catch (err) {
+              verdict = {
+                conclusion: 'failure',
+                summary: `Could not parse the verdict JSON from the previous step (${err.message}). Raw value: ${process.env.VERDICT_JSON}`,
+              };
+            }
+            const exitCodeLabel = process.env.EXIT_CODE || 'unavailable';
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Gatekeeper verdict',
+              head_sha: context.payload.pull_request.head.sha,
+              status: 'completed',
+              conclusion: verdict.conclusion,
+              output: {
+                title: `Gatekeeper verdict: ${verdict.conclusion} (exit ${exitCodeLabel})`,
+                summary: verdict.summary,
+              },
+            });
