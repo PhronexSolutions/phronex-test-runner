@@ -156,7 +156,19 @@ jobs:
           if [ "$code" -ne 0 ] || [ -z "$json" ]; then
             json='{"conclusion": "failure", "summary": "The verdict-computation step itself failed (non-zero exit or empty output from pr_gatekeeper_poll.py --verdict-json) -- treat as a failed review, not as unverified-but-fine."}'
           fi
-          echo "json=$json" >> "$GITHUB_OUTPUT"
+          # Heredoc delimiter form (GitHub's documented way to write a value
+          # that MIGHT span multiple lines to $GITHUB_OUTPUT), not the plain
+          # `key=value` form every sibling repo's identical step still uses.
+          # `json` is expected to stay compact single-line output from
+          # `json.dumps()` in practice, but nothing enforces that upstream,
+          # and a plain `key=value` write silently corrupts on an embedded
+          # newline instead of failing loudly -- flagged by this PR's own
+          # Chief-architect review (round 2) as free, zero-downside hardening.
+          {
+            echo "json<<GATEKEEPER_VERDICT_JSON_EOF"
+            echo "$json"
+            echo "GATEKEEPER_VERDICT_JSON_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       # Separate, distinctly-named, non-required check run reflecting the
       # REAL verdict -- not "did the job step fail" (continue-on-error hides
