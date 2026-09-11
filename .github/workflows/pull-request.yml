@@ -7,9 +7,18 @@ on:
       - main
 
 jobs:
+  # All three jobs below target the repo's only registered self-hosted runner
+  # (`phronex-main-phronex-test-runner`, labels: self-hosted/devserver/phronex-main-host).
+  # Unlike the rest of the fleet, phronex-test-runner has no `runner-phronex-test-runner`
+  # LXD container provisioned (confirmed via `lxc list` and phronex-common's
+  # CLAUDE.md self-hosted rollout table, which documents this repo as "routing-only,
+  # no container provisioned") — so `phronex-main-host` (the same label pr-gatekeeper.yml
+  # already uses) is the only self-hosted target that exists here, not the
+  # `vars.PHRONEX_CI_RUNNER` org-variable pattern from phronex-common (no repo/org
+  # variable of that name is set on this repo).
   lint-and-check:
-    runs-on: ubuntu-latest
-    
+    runs-on: [self-hosted, phronex-main-host]
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -36,7 +45,7 @@ jobs:
       working-directory: ./cli
 
   bash-tests:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, phronex-main-host]
 
     steps:
     - name: Checkout repository
@@ -46,11 +55,28 @@ jobs:
       run: bash tests/test_path_resolution.sh
 
   docker-build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, phronex-main-host]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    # The `phronex` runner user was deliberately removed from the host `docker`
+    # group on 2026-08-21 once LXD (not Docker) became the CI isolation
+    # mechanism (see phronex-common CLAUDE.md "Self-Hosted CI Runner Rollout").
+    # No repo currently runs a Docker build on self-hosted, and the LXD
+    # containers other repos build in have no docker binary at all. This job
+    # (and build-and-push in build-and-publish.yml) is the first that
+    # genuinely needs the daemon, so grant this one user an ACL on the socket
+    # via the pre-existing NOPASSWD-ALL sudo the runner user already has
+    # (unrelated grant, already true fleet-wide) rather than restoring
+    # persistent `docker` group membership. This is scoped to one socket file,
+    # runtime-only (cleared on the next `dockerd` restart), and strictly
+    # narrower than the blanket group membership that was intentionally
+    # revoked — flagged here for reviewer visibility since it touches a
+    # daemon shared by every repo's CI on this host.
+    - name: Grant this runner user access to the Docker socket
+      run: sudo setfacl -m user:$(whoami):rw /var/run/docker.sock
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3

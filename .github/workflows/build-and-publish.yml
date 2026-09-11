@@ -13,7 +13,11 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    # Same self-hosted target as pull-request.yml's docker-build job — see
+    # that file's comment for why `phronex-main-host` (not `phronex-main` /
+    # `vars.PHRONEX_CI_RUNNER`) is the correct label for this repo, which has
+    # no LXD container runner provisioned.
+    runs-on: [self-hosted, phronex-main-host]
     permissions:
       contents: read
       packages: write
@@ -21,6 +25,12 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    # See pull-request.yml's docker-build job for the full rationale on this
+    # ACL grant (socket-scoped, runtime-only, narrower than the persistent
+    # `docker` group membership removed 2026-08-21).
+    - name: Grant this runner user access to the Docker socket
+      run: sudo setfacl -m user:$(whoami):rw /var/run/docker.sock
 
     - name: Log in to Container Registry
       uses: docker/login-action@v3
