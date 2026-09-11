@@ -2,8 +2,9 @@
 # Template: copy to product repo .github/workflows/ and configure.
 #
 # Prerequisites:
-#   1. DevServer self-hosted runner registered as GitHub Actions runner
-#      (label: self-hosted, devserver)
+#   1. phronex-main self-hosted runner registered as GitHub Actions runner
+#      (label: self-hosted, phronex-main-host — see pr-gatekeeper.yml in this repo
+#      for the same convention)
 #   2. PHRONEX_QA_DATABASE_URL_SYNC set in runner environment
 #   3. COMC_ADMIN_SECRET set in runner environment
 #
@@ -24,7 +25,7 @@ jobs:
     # phronex-test-runner is the QA tooling itself, not a product with journeys —
     # skip rather than fail when it accidentally runs here.
     if: github.event.repository.name != 'phronex-test-runner'
-    runs-on: [self-hosted, devserver]
+    runs-on: [self-hosted, phronex-main-host]
     steps:
       - uses: actions/checkout@v4
       - name: Determine product slug
