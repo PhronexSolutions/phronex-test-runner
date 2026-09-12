@@ -81,14 +81,86 @@ jobs:
     continue-on-error: true
     timeout-minutes: 30
     steps:
+      # 2026-09-12: this is NOT for pr_gatekeeper_poll.py itself (that still
+      # runs from /opt/phronex-common, unchanged -- "the scripts must not
+      # depend on which branch any working tree happens to be on" below still
+      # holds for the poller script). This checkout exists because review()'s
+      # actual claude -p review subprocess sets its OWN cwd to
+      # PHRONEX_CODE_ROOT/repo (falling back to Path.home()/"code" =
+      # ~/code/phronex-test-runner when unset), and that subprocess's
+      # Read/Glob/Grep/git-log/git-show tool calls execute FROM that cwd --
+      # so without a fresh, dedicated checkout here, every review's
+      # local-file checks read whatever branch/commit
+      # ~/code/phronex-test-runner happens to be on: a shared, interactive
+      # dev checkout other sessions branch-switch and leave unpushed WIP on.
+      # Same root cause as phronex-common's own pr-gatekeeper.yml (PR #662)
+      # and 6 sibling repos' own equivalent fixes -- ported here rather than
+      # pointing PHRONEX_CODE_ROOT at /opt (only /opt/phronex-common exists
+      # host-side) or resetting the shared ~/code/phronex-test-runner
+      # checkout itself (would risk destroying another live session's
+      # uncommitted work on every PR push).
+      - name: Checkout stable main (not this PR's ref)
+        id: checkout
+        uses: actions/checkout@v5
+        # continue-on-error (round-2 finding, contentcompanion#75): the
+        # job-level continue-on-error above only affects the job's overall
+        # conclusion, not step execution -- GitHub Actions' default
+        # `if: success()` per step means a transient checkout failure (a
+        # GitHub API blip during this step's own fetch-depth: 0 full-history
+        # fetch, or a stale/locked .git left behind by a previous job on this
+        # persistent, reused self-hosted workspace) would otherwise silently
+        # SKIP "Review this PR" entirely -- no review, no comment, no signal.
+        # Before this rollout the review step was unconditional and always
+        # ran; this makes the new prerequisite fail open instead of fail
+        # silent, matching that original guarantee.
+        #
+        # v2 (phronex-common#666's v2 commit, prompted by the sibling
+        # phronex-auth#81 round-1 Gatekeeper review): continue-on-error alone
+        # is only half the story -- it stops a checkout failure from
+        # SKIPPING "Review this PR", but says nothing about whether that
+        # step should actually proceed on a NON-transient failure, e.g. a
+        # stale/locked .git left by a crashed previous job on this
+        # persistent, reused self-hosted workspace. Proceeding on that would
+        # leave a coherent but STALE prior checkout sitting in the
+        # workspace, and "Review this PR" would run against it and post a
+        # normal-looking comment indistinguishable from a real current
+        # review -- trading a loud failure for a quiet one. `id: checkout`
+        # here lets "Review this PR" (below) gate on
+        # `steps.checkout.outcome`, so it now SKIPS on any checkout failure
+        # -- the original, pre-rollout guarantee that this step never runs
+        # against a workspace it cannot vouch for. continue-on-error: true
+        # stays as-is: the JOB's own conclusion must still reflect "advisory,
+        # never blocks a merge" even when this prerequisite fails.
+        continue-on-error: true
+        with:
+          ref: main
+          # fetch-depth: 0 (round-1 review finding, jobportal#61): the
+          # actions/checkout@v5 default (fetch-depth: 1) gives this fresh
+          # checkout only the single latest commit -- breaking this fleet's
+          # own mandatory `git log --oneline -10` bootstrap step and any
+          # `git show <older-sha>` the reviewer needs, exactly the kind of
+          # local-file-check degradation this PR exists to fix in the first
+          # place. Full history costs little for a review-only checkout.
+          fetch-depth: 0
+
       - name: Review this PR
         id: review
+        # Skip entirely when checkout genuinely failed (v2, phronex-common#666
+        # / phronex-auth#81 round-1) -- see the "Checkout stable main" step's
+        # own comment above for the full "why". This step must never run
+        # against a workspace whose freshness it cannot vouch for.
+        if: steps.checkout.outcome == 'success'
         env:
           REPO: ${{ github.event.repository.name }}
           PR: ${{ github.event.pull_request.number }}
         run: |
           # Runs from /opt, not from a checkout: the scripts must not depend on
           # which branch any working tree happens to be on.
+          #
+          # PHRONEX_CODE_ROOT: see the "Checkout stable main" step's own
+          # comment immediately above for the full "why". github.workspace is
+          # always "<CODE_ROOT>/<repo>" by GitHub's own convention, so its
+          # parent is the correct CODE_ROOT for this job's own fresh checkout.
           #
           # `set +e` (not just the job-level continue-on-error) is what lets
           # the NEXT step read the real exit code: GitHub Actions runs `run:`
@@ -108,6 +180,7 @@ jobs:
           # future PR here would report a false "Gatekeeper verdict: failure"
           # regardless of the real review outcome. That is a worse failure
           # mode than the one this fix exists to close.
+          export PHRONEX_CODE_ROOT="$(dirname "$GITHUB_WORKSPACE")"
           set +e
           /home/phronex/code/phronex-common/.venv/bin/python \
             /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
@@ -146,15 +219,31 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          set +e
-          json=$(/home/phronex/code/phronex-common/.venv/bin/python \
-            /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
-            --verdict-json "${{ steps.review.outputs.exit_code }}" \
-            --repo "$REPO" --only-pr "$PR" --head-sha "$HEAD_SHA")
-          code=$?
-          set -e
-          if [ "$code" -ne 0 ] || [ -z "$json" ]; then
-            json='{"conclusion": "failure", "summary": "The verdict-computation step itself failed (non-zero exit or empty output from pr_gatekeeper_poll.py --verdict-json) -- treat as a failed review, not as unverified-but-fine."}'
+          # v2 (phronex-common#666's v2 commit, sibling phronex-auth#81
+          # round-1 Gatekeeper review): a checkout failure now short-circuits
+          # HERE, distinctly, rather than falling through to the generic
+          # "did not report an exit code" fallback below. "Review this PR"
+          # was skipped by design in this case (see its own `if:` above) so
+          # it never runs against a possibly-stale workspace left by a
+          # non-transient checkout failure -- this message says exactly
+          # that, rather than reading like an unexplained crash. Set `json`
+          # and fall through to the same heredoc write used by every other
+          # path below, rather than writing $GITHUB_OUTPUT and exiting here
+          # directly -- keeps this one case from bypassing the
+          # multi-line-safe write form the rest of this step relies on.
+          if [ "${{ steps.checkout.outcome }}" = "failure" ]; then
+            json='{"conclusion": "failure", "summary": "Checkout of stable main failed this run (a transient GitHub API blip during the full-history fetch, or a stale/locked .git left by a previous job on this persistent, reused self-hosted workspace). Review was deliberately skipped rather than risk running it against a possibly-stale checkout. Re-push or manually re-run this workflow."}'
+          else
+            set +e
+            json=$(/home/phronex/code/phronex-common/.venv/bin/python \
+              /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
+              --verdict-json "${{ steps.review.outputs.exit_code }}" \
+              --repo "$REPO" --only-pr "$PR" --head-sha "$HEAD_SHA")
+            code=$?
+            set -e
+            if [ "$code" -ne 0 ] || [ -z "$json" ]; then
+              json='{"conclusion": "failure", "summary": "The verdict-computation step itself failed (non-zero exit or empty output from pr_gatekeeper_poll.py --verdict-json) -- treat as a failed review, not as unverified-but-fine."}'
+            fi
           fi
           # Heredoc delimiter form (GitHub's documented way to write a value
           # that MIGHT span multiple lines to $GITHUB_OUTPUT), not the plain
