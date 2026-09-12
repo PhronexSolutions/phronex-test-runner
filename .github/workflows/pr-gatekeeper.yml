@@ -81,6 +81,37 @@ jobs:
     continue-on-error: true
     timeout-minutes: 30
     steps:
+      # 2026-09-12: this is NOT for pr_gatekeeper_poll.py itself (that still
+      # runs from /opt/phronex-common, unchanged -- "the scripts must not
+      # depend on which branch any working tree happens to be on" below still
+      # holds for the poller script). This checkout exists because review()'s
+      # actual claude -p review subprocess sets its OWN cwd to
+      # PHRONEX_CODE_ROOT/repo (falling back to Path.home()/"code" =
+      # ~/code/phronex-test-runner when unset), and that subprocess's
+      # Read/Glob/Grep/git-log/git-show tool calls execute FROM that cwd --
+      # so without a fresh, dedicated checkout here, every review's
+      # local-file checks read whatever branch/commit
+      # ~/code/phronex-test-runner happens to be on: a shared, interactive
+      # dev checkout other sessions branch-switch and leave unpushed WIP on.
+      # Same root cause as phronex-common's own pr-gatekeeper.yml (PR #662)
+      # and 6 sibling repos' own equivalent fixes -- ported here rather than
+      # pointing PHRONEX_CODE_ROOT at /opt (only /opt/phronex-common exists
+      # host-side) or resetting the shared ~/code/phronex-test-runner
+      # checkout itself (would risk destroying another live session's
+      # uncommitted work on every PR push).
+      - name: Checkout stable main (not this PR's ref)
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          # fetch-depth: 0 (round-1 review finding, jobportal#61): the
+          # actions/checkout@v5 default (fetch-depth: 1) gives this fresh
+          # checkout only the single latest commit -- breaking this fleet's
+          # own mandatory `git log --oneline -10` bootstrap step and any
+          # `git show <older-sha>` the reviewer needs, exactly the kind of
+          # local-file-check degradation this PR exists to fix in the first
+          # place. Full history costs little for a review-only checkout.
+          fetch-depth: 0
+
       - name: Review this PR
         id: review
         env:
@@ -89,6 +120,11 @@ jobs:
         run: |
           # Runs from /opt, not from a checkout: the scripts must not depend on
           # which branch any working tree happens to be on.
+          #
+          # PHRONEX_CODE_ROOT: see the "Checkout stable main" step's own
+          # comment immediately above for the full "why". github.workspace is
+          # always "<CODE_ROOT>/<repo>" by GitHub's own convention, so its
+          # parent is the correct CODE_ROOT for this job's own fresh checkout.
           #
           # `set +e` (not just the job-level continue-on-error) is what lets
           # the NEXT step read the real exit code: GitHub Actions runs `run:`
@@ -108,6 +144,7 @@ jobs:
           # future PR here would report a false "Gatekeeper verdict: failure"
           # regardless of the real review outcome. That is a worse failure
           # mode than the one this fix exists to close.
+          export PHRONEX_CODE_ROOT="$(dirname "$GITHUB_WORKSPACE")"
           set +e
           /home/phronex/code/phronex-common/.venv/bin/python \
             /opt/phronex-common/scripts/pr_gatekeeper_poll.py \
