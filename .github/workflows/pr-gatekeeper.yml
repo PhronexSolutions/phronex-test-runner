@@ -101,6 +101,18 @@ jobs:
       # uncommitted work on every PR push).
       - name: Checkout stable main (not this PR's ref)
         uses: actions/checkout@v5
+        # continue-on-error (round-2 finding, contentcompanion#75): the
+        # job-level continue-on-error above only affects the job's overall
+        # conclusion, not step execution -- GitHub Actions' default
+        # `if: success()` per step means a transient checkout failure (a
+        # GitHub API blip during this step's own fetch-depth: 0 full-history
+        # fetch, or a stale/locked .git left behind by a previous job on this
+        # persistent, reused self-hosted workspace) would otherwise silently
+        # SKIP "Review this PR" entirely -- no review, no comment, no signal.
+        # Before this rollout the review step was unconditional and always
+        # ran; this makes the new prerequisite fail open instead of fail
+        # silent, matching that original guarantee.
+        continue-on-error: true
         with:
           ref: main
           # fetch-depth: 0 (round-1 review finding, jobportal#61): the
